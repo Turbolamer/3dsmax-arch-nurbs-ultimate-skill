@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "spec": "freeform-soffit",
+  "project": "gallery-soffit-03",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "specs/recipes/freeform-soffit.json -- a template. Interpolating freeform plaster soffit over a 720 x 400 gallery ceiling, 3 rows x 5 columns of control points between 273 and 331. The lattice IS the design intent, which is why the kind is point_grid and not cv_grid. Every number is illustrative; instantiate against a locked massing.json before building",
+    "recorded_at": "2026-10-04T16:10:00Z"
+  },
+  "status": "draft",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [],
+  "origins": {
+    "sections[0].points_cm": { "origin": "derived", "derives_from": ["surfaces[0].section_ids", "surfaces[0].kind"] },
+    "sections[1].points_cm": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "sections[2].points_cm": { "origin": "derived", "derives_from": ["sections[1]"] },
+    "surfaces[0].kind": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "surfaces[0].layer": { "origin": "derived", "derives_from": ["surfaces[0].kind"] },
+    "surfaces[0].section_ids": { "origin": "derived", "derives_from": ["sections[0]", "sections[1]", "sections[2]"] },
+    "derivatives": { "origin": "derived", "derives_from": ["surfaces[0].kind"] }
+  },
+  "sections": [
+    {
+      "id": "SEC-001",
+      "name": "Soffit_Row_01_Front",
+      "points_cm": [[0.0, 0.0, 296.0], [180.0, 0.0, 282.0], [360.0, 0.0, 274.0], [540.0, 0.0, 281.0], [720.0, 0.0, 298.0]]
+    },
+    {
+      "id": "SEC-002",
+      "name": "Soffit_Row_02_Mid",
+      "points_cm": [[0.0, 200.0, 302.0], [180.0, 200.0, 315.0], [360.0, 200.0, 331.0], [540.0, 200.0, 322.0], [720.0, 200.0, 306.0]]
+    },
+    {
+      "id": "SEC-003",
+      "name": "Soffit_Row_03_Back",
+      "points_cm": [[0.0, 400.0, 290.0], [180.0, 400.0, 279.0], [360.0, 400.0, 273.0], [540.0, 400.0, 280.0], [720.0, 400.0, 296.0]]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "SUR-001",
+      "name": "SUR_001_FreeformSoffit",
+      "kind": "point_grid",
+      "layer": "04_ROOF",
+      "section_ids": ["SEC-001", "SEC-002", "SEC-003"]
+    }
+  ],
+  "derivatives": []
+}

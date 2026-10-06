@@ -1,0 +1,581 @@
+# P5 contract — `facade_grids.json`, `components_registry.json`, `facade_tables.py`
+
+**This file is the authority for stage P5.** It exists because three files must not drift:
+`references/07-spec-grammar.md` (§8.3, §8.4, §9.8), `scripts/validate_specs.py` (`G-57`…`G-70`),
+`scripts/facade_tables.py`. Where an implementation wants a different key name, a different id
+pattern or a different formula, **this file wins** — the same contract the orchestrator wrote for
+P4b ("P4b schema extension — authoritative design" in `CHECKPOINT.md`).
+
+Decided by the orchestrator, 2026-10-05. Inputs read from `examples/dimensions.json` and
+`examples/massing.json` of project `pavilion-01`.
+
+> **Revision 2, 2026-10-05 — after the first generated grid was generated and read.**
+> Three corrections, all forced by measurement rather than by preference:
+>
+> 1. **The vertical division is per bay, not per facade.** Revision 1 made it the union of every
+>    opening's sill and head across the whole facade at that level. That produced `PNL-024`, a
+>    `punched_window` of **180 × 10 cm** sitting 10 cm below a window head, because an entrance in a
+>    *different* bay had `head_cm = 260` and put a horizontal division through a window running
+>    `90 → 270`. See §3.3 for the full note. Consequence: `axes[]` gains a required `bay_index`,
+>    `facades[].levels[].v_axis_ids` is ordered by `(bay_index, offset)`, the tiling unit is
+>    `(facade, level, bay)`, and **`G-62` is strictly "exactly one panel"** rather than "tiles".
+> 2. **Revision 1's rule 8.3 contradicted itself** — it required a cell to be simultaneously *outside*
+>    every opening's u-range and *inside* a `curtain_wall` opening's u-range. §3.5 and the worked
+>    expectation both meant the **flanking** reading, which is what the first build actually
+>    produced (4 mullions, the two 15 cm piers per level). §4 step 8.3 now says "adjacent to".
+> 3. **Revision 1's §4.1 arithmetic was wrong twice**: it multiplied axis *counts* (13 × 5) instead
+>    of cell counts, and it did not account for the mullion merge. §4.1 is now worked by hand.
+>
+> Revision 2 also adds: the `G-70` census predicate is defined **once**, in `validate_specs.py`, and
+> imported by the builder — revision 1 left two independent implementations.
+
+---
+
+## 0. Standing rules that constrain this stage
+
+| Rule | Consequence for P5 |
+|---|---|
+| `07` §11 + §12: **no spec file may name a MAXScript class, modifier, plugin or MCP tool** | `facade_grids.json` and `components_registry.json` carry geometric names only. `material_role` is a *role* (`glazing`/`opaque`/`frame`), not a Corona class. A component's `kind` is `glazed_panel`, not `CoronaGlass`. |
+| `07` §2: **centimetres, degrees**; `07` §9 / G-8: every length key ends `_cm` | `u_min_cm`, `v_max_cm`, `panel_thickness_cm`, `rot_z_deg` (angle). Keys copied verbatim from `dimensions.json` keep their existing spelling — `start_corner_cm`, `bay_width_cm`, `width_cm`, `height_cm`, `position_cm` — so no exception to G-8 is needed. |
+| `G-32`: a `derived` value must recompute from its documented formula | Every generated panel, axis and component is `derived` with a `derives_from` that names a real path. The **only** assumed values in P5 are `defaults.panel_thickness_cm` and `defaults.joint_width_cm` (§7). |
+| Layer is **data** (`07` §8.1.3 — unassignable from MAXScript) | Every panel carries `layer: "05_FACADE"`. P6 applies it through `3dsmax-mcp_manage_layers`. No builder emits layer code. |
+| Node names: no `-` (`11-layer-standard.md` N1) | `PNL-001` → node `PNL_001`. Every `name` in either file is hyphen-free. |
+| Determinism (`07` S-5, `build_nurbs.py`) | Same input ⇒ byte-identical output. All numbers through `q()` (6 dp, `-0.0` → `0.0`), integers plain, `origin_inputs` sorted, no clock, no randomness. |
+| Lock gate (`G-4`) | `facade_tables.py` reads `dimensions.json` and `massing.json`; both must be `locked` unless `--allow-draft`. |
+| **An emitted artefact is not done until it has been fed through its consumer and measured** (P3/P4/P4b guard) | P5's gate is **not** "the CSVs exist". It is: *place instances in live Max from `world_table.csv`, count them, measure a sample against the CSV, delete everything.* This is the table-shaped equivalent of `fileIn` + `node.min/max`. |
+
+---
+
+## 1. Ownership for this stage
+
+| File | Owner | State |
+|---|---|---|
+| `references/07-spec-grammar.md` | agent **A** | §4 rows flipped to `defined`, §8.3 + §8.4 rewritten, new §9.8 |
+| `scripts/validate_specs.py` | agent **B** | `SPEC_INVENTORY` flip, `G-57`…`G-70`, `RANGE_RULES` additions |
+| `scripts/facade_tables.py` (new) + `scripts/init_project.py` | agent **C** | builder + scaffold stubs |
+| `agents/max-facade.md` + `agents/max-components.md` (new) | agent **D** | S4a / S4b contracts |
+| `examples/facade_grids.json`, `examples/components_registry.json`, `examples/facade_table.csv`, `examples/world_table.csv` | **orchestrator** | generated by C's builder, then committed |
+| `examples/assumptions.json` | **orchestrator** | adds `A-023`, `A-024` (§7) |
+
+Nobody modifies anything else. In particular **no** agent edits `CHECKPOINT.md`, `PLAN.md`, `SKILL.md`,
+`AGENTS.md`, `references/07`'s §1–§2/§5–§7/§9.1–§9.7/§10–§12 text beyond the sections named above, or
+the existing `examples/*.json` other than `init_project.py`'s stub behaviour.
+
+---
+
+## 2. Facts the inputs actually contain (executed read of the example, 2026-10-05)
+
+Use these; do not re-derive and do not assume anything else.
+
+`dimensions.json`:
+
+```
+facades[]  4 entries. Keys: id, name, direction_deg, start_corner_cm, end_corner_cm,
+           length_cm, bay_count, bay_width_cm
+  F-S south 180.0  [0,0]     ->[1800,0]   1800  4 bays  [450,450,450,450]
+  F-N north   0.0  [0,900]   ->[1800,900] 1800  4 bays  [450,450,450,450]
+  F-E east   90.0  [1800,0]  ->[1800,900]  900  2 bays  [450,450]
+  F-W west  270.0  [0,0]     ->[0,900]     900  2 bays  [450,450]
+
+levels[]   2 entries. Keys: index, id, use, elevation_cm, height_cm
+  0  LVL-00  office_open_plan          0.0  420.0
+  1  LVL-01  meeting_and_office       420.0  400.0
+
+openings[] 16 entries. Keys: id, facade, level_index, bay_index, type,
+           position_cm, width_cm, sill_cm, head_cm
+  types in use: window (11), entrance (1), curtain_wall (2), door (1)
+  position_cm is the opening CENTRE along the run from start_corner_cm.
+  sill_cm / head_cm are heights ABOVE the level's elevation_cm.
+  distribution: F-S 8, F-N 4, F-E 2, F-W 2
+  representative rows:
+    OP-G-01 F-S L0 bay0 window       pos 225.0  w 180.0  sill 90.0  head 270.0
+    OP-G-04 F-S L0 bay3 curtain_wall pos 1575.0 w 420.0  sill  0.0  head 400.0
+    OP-G-06 F-N L0 bay1 door         pos 675.0  w 110.0  sill  0.0  head 220.0
+
+tolerances: linear_cm 0.5, area_m2 0.05, angle_deg 0.01
+roof: deck_level_cm 820.0, parapet_height_cm 90.0   (→ model top 910.0)
+site: footprint 1800 × 900, footprint_ccw true, ground_level_cm 0.0
+```
+
+`massing.json`:
+
+```
+elements[] 13. kinds in use: slab, column, core_wall, roof_deck, parapet.
+            THERE IS NO EXTERIOR ENVELOPE ELEMENT. The only perimeter geometry is the four
+            parapet strips EL-010..EL-013 at z 820…910.
+storeys[] 2. keys: index, level_ref, elevation_cm, height_cm, z_range_cm, slab_ref,
+            column_refs, core_refs
+core_wall EL-007/EL-008 occupy x 1375…1775, y 25…425.
+```
+
+### 2.1 The `direction_deg` trap — the single most important input fact
+
+`F-S` runs `[0,0] → [1800,0]`, i.e. along **+X**, and carries `direction_deg = 180.0`.
+`F-N` runs `[0,900] → [1800,900]`, also **+X**, and carries `direction_deg = 0.0`.
+
+**`direction_deg` is a compass-facing label, not a rotation.** Two facades with the same run direction
+carry different values, so any rotation derived from it is wrong for at least one of them. The
+rotation of a panel is `run_angle_deg = atan2(end.y - start.y, end.x - start.x)`, in `(-180, 180]`.
+This is stated as its own invariant (`G-57`) because it is exactly the kind of field a future stage
+will reach for.
+
+---
+
+## 3. `facade_grids.json` — the schema
+
+### 3.1 Top level
+
+Envelope first, in G-1 order: `schema_version` `spec` `project` `units` `source` `status`, then
+`tolerances` (copied verbatim from `dimensions.json` — a builder may not widen them),
+`origin_inputs`, `origins`, `facades`, `axes`, `panels`, `panel_types`.
+
+`spec` is `"facade_grids"`. `source.kind` is `"derived"`; `source.reference` names
+`dimensions.json` and `massing.json` and this builder, in the style of `massing.json`'s.
+
+### 3.2 `facades[]`
+
+| Key | Type | Req | Units | Constraint | Meaning | Default |
+|---|---|---|---|---|---|---|
+| `id` | string | yes | — | in `dimensions.facades[].id`; unique; ascending in `dimensions` order | facade identity | — |
+| `name` | string | yes | — | `== dimensions.facades[].name`; no `-` | label | — |
+| `direction_deg` | float | yes | deg | `== dimensions` exactly | **facing label — never a rotation** (§2.1) | — |
+| `start_corner_cm` | array | yes | cm | `== dimensions`, 2 finite numbers | run start, world XY | — |
+| `end_corner_cm` | array | yes | cm | `== dimensions`, 2 finite numbers | run end, world XY | — |
+| `length_cm` | float | yes | cm | `== dimensions`, tol `linear_cm`; `> 0` | run length | — |
+| `bay_count` | int | yes | — | `== dimensions`; `== len(bay_width_cm)` | bays on this run | — |
+| `bay_width_cm` | array | yes | cm | `== dimensions`; each `300 … 1200`; every bay `> 0` | bay widths | — |
+| `bay_offsets_cm` | array | yes | cm | length `bay_count + 1`; **derived** cumulative sum; `[0] == 0`; `[-1] == length_cm` tol | bay boundaries | — |
+| `bay_centre_cm` | array | yes | cm | length `bay_count`; **derived** `bay_offsets_cm[i] + bay_width_cm[i] / 2` | bay midpoints | — |
+| `run_angle_deg` | float | yes | deg | **derived** `atan2(end.y - start.y, end.x - start.x)` in `(-180, 180]`, tol `angle_deg` | the rotation every panel on this facade uses | — |
+| `levels[]` | array | yes | — | one entry per gridded level, ascending `level_index` | per-level grid | — |
+
+`facades[].levels[]`:
+
+| Key | Type | Req | Units | Constraint | Meaning | Default |
+|---|---|---|---|---|---|---|
+| `level_index` | int | yes | — | in `dimensions.levels[].index` | storey | — |
+| `elevation_cm` | float | yes | cm | `== dimensions.levels[i].elevation_cm` tol | storey floor | — |
+| `height_cm` | float | yes | cm | `== dimensions.levels[i].height_cm` tol | storey height | — |
+| `u_axis_ids` | array | yes | — | all `u` axes of this facade at this level, ascending by offset; first offset `0`, last `length_cm` | the shared horizontal division | — |
+| `v_axis_ids` | array | yes | — | **every** `v` axis at this facade and level, ordered by `(bay_index, offset)`; each bay's own slice ascends from `0` to `height_cm` | the per-bay vertical divisions | — |
+
+### 3.3 `axes[]`
+
+Offsets live **only** here. Nothing above duplicates them — a duplicated number is a second thing to
+drift, and `G-32` recomputes every derived value anyway.
+
+| Key | Type | Req | Units | Constraint | Meaning | Default |
+|---|---|---|---|---|---|---|
+| `id` | string | yes | — | `^AX-\d{3}$`, unique, ascending | axis identity | — |
+| `facade` | string | yes | — | an id in `facades[]` | owning facade | — |
+| `level_index` | int | yes | — | a `levels[].level_index` of that facade | owning storey | — |
+| `bay_index` | int or `null` | yes | — | **`null` for `family == "u"`**, a real bay index for `family == "v"` | a horizontal line runs the whole facade; a spandrel line belongs to one bay's elevation |
+| `family` | string | yes | — | `u` \| `v` | along the run, or up the storey | — |
+| `kind` | string | yes | — | `bay` \| `opening_edge` \| `level_base` \| `level_top` | what created it | — |
+| `offset_cm` | float | yes | cm | `u`: `0 … length_cm` of its facade. `v`: `0 … height_cm` of its level | position | — |
+
+> **`full_height` is derived from the extent, never chosen.** Revision 2 first wrote it as "`true`
+> only for a merged mullion", which contradicts the per-bay rule twice over: a bay with **no** opening
+> is one whole-height `blank` panel and also spans the storey, and any assertion in the other
+> direction ("a panel that is not `full_height` does not span the storey") would then fail on it.
+> The flag is therefore a *report* of `v_min_cm == 0 ∧ v_max_cm == height_cm`, both builders and the
+> linter deriving it the same way, and `G-60` asserts the flag against the extent rather than the
+> extent against a kind.
+
+**Why `v` axes are per bay and `u` axes are not** — the correction that arrived after the first
+generated grid was read. An earlier revision made the vertical division the **union of every
+opening's sill and head across the whole facade at that level**, on the reasoning that a curtain
+wall's transom lines run continuously. It does — but the consequence nobody measured is that the
+union also imposes every bay's head line on **every other bay**. `OP-G-02`, an entrance with
+`head_cm = 260`, therefore put a horizontal division at 260 across a facade whose windows run
+`sill 90 → head 270`, and produced `PNL-024`: a `punched_window` of `180 × 10 cm` — a 10 cm ribbon
+of glass 10 cm below a window head, because a different bay's door ended there.
+
+Per-bay v axes fix it at the root: **an opening's own sill and head are its only vertical
+divisions, so every opening is realised by exactly one panel**, and the partition stays exact
+because each bay tiles its own rectangle. The cost is that transom lines are continuous *within* a
+bay rather than across the run; that is the correct trade, and it is recorded here because the
+superseded rule looked defensible and produced glass slivers.
+
+### 3.4 `panels[]`
+
+| Key | Type | Req | Units | Constraint | Meaning | Default |
+|---|---|---|---|---|---|---|
+| `id` | string | yes | — | `^PNL-\d{3}$`, unique, ascending | panel identity | — |
+| `facade` | string | yes | — | an id in `facades[]` | owning facade | — |
+| `level_index` | int | yes | — | a `levels[].level_index` of that facade | owning storey | — |
+| `kind` | string | yes | — | in `panel_types[].kind` | what it is | — |
+| `u_min_cm` / `u_max_cm` | float | yes | cm | `u_min < u_max`; both within `0 … length_cm` | run extent | — |
+| `v_min_cm` / `v_max_cm` | float | yes | cm | `v_min < v_max`; both within `0 … height_cm` | storey extent, from the level floor | — |
+| `width_cm` | float | yes | cm | **derived** `u_max - u_min` tol; `> 0` | panel width | — |
+| `height_cm` | float | yes | cm | **derived** `v_max - v_min` tol; `> 0` | panel height | — |
+| `u_axis_min` / `u_axis_max` | string | yes | — | two `axes[]` ids, `family == "u"`, same facade and level, `offset_min ≤ offset_max` | bracketing horizontal axes | — |
+| `v_axis_min` / `v_axis_max` | string | yes | — | two `axes[]` ids, `family == "v"`, same facade and level | bracketing vertical axes | — |
+| `bay_index` | int | yes | — | the bay whose range contains the `u` midpoint | which structural bay it sits in | — |
+| `full_height` | bool | yes | — | **derived**: `true` iff `v_min_cm == 0` and `v_max_cm == height_cm` of its level | this panel spans its bay's whole storey height, so the v grid does not cut it | — |
+| `opening_ref` | string or `null` | yes | — | `null`, or a `dimensions.openings[].id` with the same `facade`, `level_index`, `bay_index` | the opening this panel realises | — |
+| `host_ref` | string or `null` | yes | — | `null`, or an `massing.elements[].id` | host solid to cut an opening into | — |
+| `centre_cm` | array | yes | cm | 3 numbers; **derived** (§4 step 12) | world XYZ of the panel centre on the facade plane | — |
+| `layer` | string | yes | — | always `05_FACADE` | target layer | — |
+
+`host_ref` is `null` for **every** panel in the worked example: `massing.json` has no envelope
+element, so there is nothing to cut. This is a known limitation, recorded in `CHECKPOINT.md`, not a
+defect — a project that needs a punched opening in an opaque wall gets a `facade_wall` kind added to
+`massing.json` through `07` §12 step 1, which is P3's table to change.
+
+### 3.5 `panel_types[]`
+
+The vocabulary this file's panels may use. It is **data**, not a fixed enum, so a project declares
+only the kinds it uses — but §8.3 records the ceiling of **six** reserved names, and `G-63` holds
+every declared kind inside it.
+
+| Key | Type | Req | Meaning |
+|---|---|---|---|
+| `kind` | string | yes | one of `vision`, `spandrel`, `mullion`, `transom`, `punched_window`, `blank` |
+| `glazed` | bool | yes | the panel is a light-transmitting opening |
+| `frame_member` | bool | yes | the panel is a structural frame element of the curtain wall |
+| `material_role` | string | yes | `glazing` \| `opaque` \| `frame` — **a role for P7, never a material class** |
+| `opening_types` | array | yes | the `dimensions.json` §5.11 `openings[].type` values this kind may host; `[]` when none |
+
+`glazed`, `frame_member` and `material_role` are mutually constrained and `G-63` enforces it:
+`glazed` ⇒ `material_role == "glazing"`; `frame_member` ⇒ `"frame"`; neither ⇒ `"opaque"`;
+`opening_types` non-empty **iff** `glazed`.
+
+The six kinds, and the meaning each carries:
+
+| `kind` | `glazed` | `frame_member` | `material_role` | what it is |
+|---|---|---|---|---|
+| `vision` | yes | no | `glazing` | a bay glazed floor-to-near-head; hosts a `curtain_wall` opening |
+| `punched_window` | yes | no | `glazing` | a discrete opening inside a bay, narrower than the bay; hosts `window`, `door`, `entrance` |
+| `spandrel` | no | no | `opaque` | the opaque band **at floor level** (`09` `D-WA-07` calls it a *zone*, not a strip) |
+| `transom` | no | yes | `frame` | the thin horizontal frame member **above** a `curtain_wall` opening |
+| `mullion` | no | yes | `frame` | the vertical frame member flanking a `curtain_wall` opening |
+| `blank` | no | no | `opaque` | opaque infill: a wall return beside a punched opening, a head band above a window, or a bay with no opening at all |
+
+**Why rule 8.5's width test is `== the opening width`, and why it is not a bug.** A `spandrel` fires
+for any cell whose `v_max_cm` equals an opening's sill **and whose width equals that opening's
+width**. When the bay's side cells happen to be exactly as wide as the opening — `F-E` bay 1 is
+`150 + 150 + 150` for a 150 cm window — all three cells of the floor-level row qualify, so the
+spandrel comes out as a **continuous band across the whole bay in three pieces**. When they are not
+— `F-S` bay 0 is `135 + 180 + 135` — only the middle cell qualifies, and the 135 cm sides stay
+`blank` for the full storey height, i.e. full-height piers with a spandrel under the window. Both
+are correct elevations and both follow from the single rule; `09` `D-WA-07` is the authority for the
+band, and the measured widths in the worked example are `150 cm` × 21 and `180 cm` × 5.
+
+---
+
+## 4. The derivation — exact procedure
+
+Computed per `(facade, level, bay)` — with the single exception of the `u` axes, which belong to the
+whole run. All comparisons that merge or test use `tolerances.linear_cm` (0.5). Every step is a
+formula, so `G-32` can recompute the file.
+
+1. **Copy** the facade's identity and run geometry from `dimensions.facades[]`. Compute
+   `bay_offsets_cm` = `[0]` then the running sum of `bay_width_cm`; `bay_centre_cm[i]` =
+   `bay_offsets_cm[i] + bay_width_cm[i] / 2`; `run_angle_deg` = `atan2(dy, dx)` normalised to
+   `(-180, 180]` (`180.0` stays `180.0`, not `-180.0`).
+2. **Per level**, collect `O` = every opening with this `facade` and `level_index`, grouped by
+   `bay_index`, each group sorted by `id`. G-28 forbids two openings sharing
+   `(facade, level_index, bay_index)`, so a group holds at most one opening — the builder must still
+   handle a group of more than one by admitting every member's sill and head as axes.
+3. **u axes — one set per facade at that level.** Start from `bay_offsets_cm`, each with
+   `kind: "bay"` and `bay_index: null`. For every opening in `O`, add
+   `o_u0 = position_cm - width_cm / 2` and `o_u1 = position_cm + width_cm / 2`, each
+   `kind: "opening_edge"` and `bay_index: null`. Sort ascending and **merge any two within
+   `linear_cm`**, keeping the smaller and dropping the other. G-27 already guarantees both land
+   inside the bay.
+4. **v axes — one set per `(bay, level)`.** For each bay `b` in `0 … bay_count - 1`, ascending:
+   start from `0` (`kind: "level_base"`) and the level's `height_cm` (`kind: "level_top"`), both with
+   `bay_index: b`; then add the `sill_cm` and `head_cm` of every opening in that bay's group
+   (`kind: "opening_edge"`). Sort ascending and merge within `linear_cm`, then **assert** `[0] == 0`
+   and `[-1] == height_cm` within tolerance.
+   **A bay with no opening gets exactly two v axes, `0` and `height_cm`, and is therefore one whole
+   `blank` panel.** That is the correct reading of "no opening declared here" — not an elevation
+   divided by lines that belong to other bays.
+5. **u cells** = consecutive pairs of u axes. **v cells** = consecutive pairs of the bay's own v
+   axes. The tiling unit is `(facade, level, bay)`.
+6. For each `(u_cell, v_cell)` of that bay, set `u_mid` / `v_mid` to the cell midpoints.
+7. Find the opening `o` in that bay's group whose u-range **contains** `u_mid`. At most one can —
+   G-27 forbids overlap. Call it a *hit* when it exists and `v_mid` lies within
+   `[o.sill_cm, o.head_cm]` within tolerance. Because the bay's own sill and head are its v axes,
+   a hit cell is **always** the opening's whole rectangle: there is no second cell inside the
+   opening and no cell straddling its edge.
+8. **Kind**, in this order — first match wins:
+   1. hit, and `o.type == "curtain_wall"` → **`vision`**
+   2. hit, any other `o.type` → **`punched_window`**
+   3. the cell's u-range is **adjacent to** a `curtain_wall` opening's u-range on the same bay —
+      that is, one of its two u boundaries equals the opening's corresponding boundary within
+      `linear_cm` — and the cell's width is `≤ 2 × D-OP-12` (`30 cm`) → **`mullion`**, and this cell
+      is **not** cut by the v grid: it is emitted once per `(facade, level, bay)` spanning
+      `0 … height_cm`, `full_height: true`
+   4. the cell's `v_min_cm` equals some `curtain_wall` opening's `head_cm` within tolerance and the
+      cell's width equals that opening's width within tolerance → **`transom`**
+   5. the cell's `v_max_cm` equals some opening's `sill_cm` within tolerance and the cell's width
+      equals that opening's width within tolerance → **`spandrel`**
+   6. otherwise → **`blank`**
+9. **The 30 cm in rule 8.3 is the one threshold in P5 and it is `derived`, not chosen**: it is
+   `09-defaults.md` `D-OP-12`'s curtain-wall pier width (`15 cm`, range `10 … 25`) **doubled**,
+   i.e. `D-OP-12` × 2. Record `derives_from` accordingly. If a project's pier exceeds it, the pier
+   becomes `blank` — a wall return, which is the correct reading of a wide pier, and no default is
+   violated.
+10. **`opening_ref`** is the hit opening's id for a hit cell, else `null`. A `mullion` and a
+    `transom` carry `null`: they are frame members *of* an opening, not the opening. **Exactly one
+    panel carries any given opening's id** — rule 7 guarantees it, and `G-62` asserts it.
+11. **Axes bracketing**: `u_axis_min`/`u_axis_max` are the axis ids whose offsets equal the cell's
+    `u_min_cm`/`u_max_cm`. For a merged `mullion`, `v_axis_min`/`v_axis_max` are the bay's
+    `level_base` and `level_top` axis ids, and `v_min_cm`/`v_max_cm` are `0` / `height_cm`.
+12. **`centre_cm`** = `start_corner_cm + run_unit * u_mid` in XY, where
+    `run_unit = ((end.x - start.x), (end.y - start.y)) / length_cm`; Z = `elevation_cm + v_mid`.
+13. **`host_ref`** is `null` unless a `massing.json` element of kind `plinth` or `parapet` has a
+    `profile_cm` lying on this facade line — the only two kinds whose outline can legitimately lie on
+    a facade line without being the wall behind it. No element in the example qualifies, so
+    `host_ref` is `null` throughout; see §3.4.
+14. **Ids**: `AX-nnn` ascending over `(facade order, level_index, family with `u` before `v`, bay —
+    `null` first, offset)`; `PNL-nnn` ascending over
+    `(facade order, level_index, bay_index, v_min_cm, u_min_cm)`.
+
+**Why the whole partition is exact.** Per `(facade, level, bay)` the u cells tile the bay's width and
+the bay's own v cells tile the storey height, and the bays tile the run — so Σ panel areas per
+`(facade, level, bay)` equals `bay_width_cm × height_cm`, and per `(facade, level)` equals
+`length_cm × height_cm`. A merged `mullion` replaces a stack of cells with one panel of the same
+total area. `G-61` asserts both area sums, that no two panels overlap in their interiors, and that
+every panel is inside its bay's rectangle.
+
+### 4.1 What the worked example yields (build-time expectation, not a gate)
+
+Cells are `(axes − 1) × (axes − 1)` per family, and the v family is now **per bay**. Worked by hand
+for `F-S` at `LVL-00`, whose four openings are `OP-G-01` window `180 @ 225, sill 90 head 270`,
+`OP-G-02` entrance `200 @ 675, sill 0 head 260`, `OP-G-03` window `180 @ 1125, sill 90 head 270`
+and `OP-G-04` curtain_wall `420 @ 1575, sill 0 head 400`:
+
+```
+u axes  13 -> 12 u cells, shared by all four bays:
+   0 135 315 450 | 575 775 900 | 1035 1215 1350 | 1365 1785 1800
+
+bay 0  v axes 0 90 270 420  (4 -> 3 cells)  -> 3 x 3 =  9 panels
+bay 1  v axes 0 260 420     (3 -> 2 cells)  -> 3 x 2 =  6 panels
+bay 2  v axes 0 90 270 420  (4 -> 3 cells)  -> 3 x 3 =  9 panels
+bay 3  v axes 0 400 420     (3 -> 2 cells); the two 15 cm curtain-wall piers merge into
+                                                   full-height mullions -> vision + transom
+                                                   + 2 mullions =              4 panels
+                                                              F-S / LVL-00 total  28 panels
+
+All 8 (facade, level) groups together ≈ 110 … 130 panels.  The exact count is whatever the
+builder prints; no gate assumes it.
+```
+
+`bay 1` is the case that proves the per-bay rule: `OP-G-02`'s head at `260` divides **only bay 1**,
+so the 180 × 180 window in `bay 0` stays one panel instead of becoming a 180 × 170 panel plus a
+180 × 10 sliver.
+
+---
+
+## 5. `components_registry.json` — the schema
+
+### 5.1 Top level
+
+Envelope in G-1 order, then `tolerances` (copied from `dimensions.json`), `origin_inputs`, `origins`,
+`defaults`, `component_types`, `components`, `families`. `spec` is `"components_registry"`,
+`source.kind` `"derived"`.
+
+**Direction of dependency is one-way**: `components_registry.json` reads `facade_grids.json` and
+`dimensions.json`. A panel never names a component — the join runs registry → grid, so there is no
+cycle and `G-31` stays a single pass.
+
+### 5.2 `defaults`
+
+| Key | Type | Req | Units | Range | **Value** | Provenance |
+|---|---|---|---|---|---|---|
+| `panel_thickness_cm` | float | yes | cm | `2 … 8` (`09` `D-CL-05`) | **`3.0`** | **assumed**, `A-023` |
+| `joint_width_cm` | float | yes | cm | `1 … 4` (`09` `D-FM-10`) | **`2.0`** | **assumed**, `A-024` |
+
+**Both values are `09`'s own declared defaults, not a mid-range pick.** The first build of this
+builder chose `panel_thickness_cm = 4.0`, which is inside `D-CL-05`'s range and would have been
+defensible — and which is exactly the failure mode this repo has been bitten by twice: a number in a
+generated file that nobody watched Max interpret and nobody traced to a declared default. A
+convention's *default* is the value to use; a value merely inside its *range* is an invention.
+
+**These two numbers are the only invented values in P5.** Both already exist in `09-defaults.md` as
+reference-only conventions with declared ranges, so they are `assumed` with a ledger entry, never
+`derived`. Every other value in both files recomputes from `dimensions.json`.
+
+### 5.3 `component_types[]`
+
+| Key | Type | Req | Meaning |
+|---|---|---|---|
+| `kind` | string | yes | one of `glazed_panel`, `opaque_panel`, `frame_member`, `entrance_door` |
+| `glazed` | bool | yes | carries a light-transmitting infill |
+| `frame_member` | bool | yes | is a structural frame element |
+
+### 5.4 `components[]`
+
+One entry per **distinct `(kind, width, height)` class** of panel — not one per panel. This is the
+whole point: 230 panels resolve to a few dozen blocks.
+
+| Key | Type | Req | Units | Constraint | Meaning | Default |
+|---|---|---|---|---|---|---|
+| `id` | string | yes | — | `^CMP-\d{3}$`, unique, ascending | component identity | — |
+| `name` | string | yes | — | unique in file; no `-` | node name in the scene | — |
+| `kind` | string | yes | — | in `component_types[].kind` | what it is | — |
+| `size_cm` | array | yes | cm | 3 numbers `> 0`; `[0]==width_cm`, `[1]==height_cm` of the panels it serves, `[2]==defaults.panel_thickness_cm` | block size | — |
+| `parameters` | array | yes | — | the ordered list of **exactly** `width_cm`, `height_cm`, `thickness_cm`, `joint_width_cm`, in that order, each `{name, source, value, units}` | stable parameter order for a builder | — |
+| `serves_panel_kinds` | array | yes | — | ≥ 1 entries, each a `panel_types[].kind` of `facade_grids.json`, flags compatible with `kind` (`G-67`) | which panels it fits | — |
+| `variants` | array | yes | — | `^VAR-\d{3}$`, unique within the component; `overrides` non-empty with keys from the four parameter names | construction options | — |
+| `layer` | string | yes | — | always `05_FACADE` | target layer | — |
+
+`parameters[].source` ∈ `size_cm` (`width_cm`, `height_cm`) \| `defaults` (`thickness_cm`,
+`joint_width_cm`).
+
+### 5.5 `families[]`
+
+A family is **the resolution index P6 needs**: every component serving one panel kind, so P6 picks the
+member whose `size_cm` matches the slot.
+
+| Key | Type | Req | Meaning |
+|---|---|---|---|
+| `id` | string | yes | `^FAM-\d{3}$`, unique, ascending |
+| `name` | string | yes | hyphen-free |
+| `panel_kinds` | array | yes | ≥ 1 `panel_types[].kind`; every declared kind belongs to exactly one family |
+| `component_ids` | array | yes | ≥ 1; **every component appears in exactly one family** |
+| `substitution` | string | yes | `size_matched` — the member whose `size_cm` matches within `linear_cm` is used |
+
+### 5.6 Component `kind` — derived from the panel, never chosen
+
+| panel `kind` | panel hosts a `door`/`entrance` opening | component `kind` |
+|---|---|---|
+| `vision`, `punched_window` | no | `glazed_panel` |
+| `vision`, `punched_window` | yes | `entrance_door` |
+| `spandrel`, `blank` | — | `opaque_panel` |
+| `mullion`, `transom` | — | `frame_member` |
+
+---
+
+## 6. The CSVs
+
+`facade_tables.py` writes two CSVs beside the JSONs. Header row, then one row per panel, sorted by
+`panel_id`. LF endings, no quoting, no value contains a comma. Floats through the same `q()` as
+`build_nurbs.py` (6 dp, `-0.0` → `0.0`); counts and indices as plain integers.
+
+`facade_table.csv` — the geometry, one row per panel:
+
+```
+panel_id,facade,level_index,bay_index,kind,component_kind,opening_ref,host_ref,full_height,
+u_min_cm,u_max_cm,v_min_cm,v_max_cm,width_cm,height_cm,centre_x_cm,centre_y_cm,centre_z_cm,
+u_axis_min,u_axis_max,v_axis_min,v_axis_max,run_angle_deg
+```
+
+`world_table.csv` — the placeable instance, one row per panel:
+
+```
+instance_id,component_ref,family_ref,panel_ref,facade,level_index,panel_kind,component_kind,
+x_cm,y_cm,z_cm,rot_z_deg,width_cm,height_cm,thickness_cm,joint_cm,layer
+```
+
+- `instance_id` = the panel id (`PNL-001`) — one instance per panel, so the count is checkable against
+  `len(panels)` with no join.
+- `rot_z_deg` = the facade's `run_angle_deg`, **never** `direction_deg`.
+- `x/y/z` = `centre_cm`.
+- `joint_cm` = `defaults.joint_width_cm`, so P6 can inset without re-reading the registry.
+
+---
+
+## 7. New invariants — `G-57` … `G-70`
+
+New §9.8 in `07`, in this order. `07` §9.6's discipline applies verbatim: **a check that cannot be
+evaluated reports SKIP with its reason, never a silent PASS**, and a `draft` file reports one SKIP per
+rule naming §9.8.
+
+| Id | Title | Check | Severity note |
+|---|---|---|---|
+| **G-57** | Facade agreement and run angle | Every `facades[].id` exists in `dimensions.facades[]`, in the same order, and `name` / `direction_deg` / `length_cm` / `bay_count` / `bay_width_cm` equal theirs within tolerance (`bay_count` exactly). `bay_offsets_cm` is the cumulative sum with `[-1] == length_cm`; `bay_centre_cm[i] == bay_offsets_cm[i] + bay_width_cm[i]/2`. **`run_angle_deg == atan2(end.y - start.y, end.x - start.x)` in `(-180, 180]` within `angle_deg`, and no value in the file may be derived from `direction_deg`** — F-S and F-N both run along +X and carry `180` and `0`, so `direction_deg` is a facing label. FAIL | lint |
+| **G-58** | Axis integrity | `axes[].id` `^AX-\d{3}$`, unique, ascending. `family` ∈ {`u`,`v`}, `kind` ∈ {`bay`,`opening_edge`,`level_base`,`level_top`}, `offset_cm` within its bound, and **`bay_index` is `null` for every `u` axis and a real bay index for every `v` axis**. Within one `(facade, level_index, family, bay_index)` offsets are strictly ascending and separated by more than `linear_cm`. Every `facades[].levels[].u_axis_ids` / `v_axis_ids` entry exists with the matching facade, level and family, `u_axis_ids` ascends by offset with first offset `0` and last `length_cm`, and `v_axis_ids` is ordered by `(bay_index, offset)` with **each bay's slice** running `0 → height_cm` and a bay that has no opening contributing exactly its `level_base` and `level_top`. Every `bay_offsets_cm[i]` and every `level_base` / `level_top` has a matching axis | lint |
+| **G-59** | Panel rectangle integrity | `id` `^PNL-\d{3}$`, unique, ascending. `u_min_cm < u_max_cm`, `v_min_cm < v_max_cm` (strict), `width_cm` / `height_cm` equal the differences within `linear_cm`. Bounds inside `[0, length_cm]` × `[0, height_cm]`. `bay_index` is the bay containing the `u` midpoint. `layer == "05_FACADE"`. `opening_ref` is `null` or an opening with the same `facade`, `level_index`, `bay_index`. `centre_cm` equals `start_corner_cm + run_unit * u_mid` and `elevation_cm + v_mid` within `linear_cm`. `host_ref` is `null` or a `massing.elements[].id` | lint |
+| **G-60** | Panel edges lie on axes | The four axis ids exist, carry the panel's facade, level and family, and their offsets equal `u_min_cm`/`u_max_cm`/`v_min_cm`/`v_max_cm` within `linear_cm`. A `full_height` panel has `v_min_cm == 0` and `v_max_cm == height_cm`. A non-`full_height` panel does not span the full storey height | lint |
+| **G-61** | Complete partition | Per `(facade, level_index, bay_index)`: Σ panel areas `== bay_width_cm[b] × height_cm` within `area_m2`; and per `(facade, level_index)` the same sum `== length_cm × height_cm` within `area_m2`; **no two panels on the same facade and level overlap in their interiors**; every panel lies inside its bay's rectangle; every panel's `u` range lies inside its bay's `[bay_offsets_cm[b], bay_offsets_cm[b+1]]`. Every `(facade, levels[].level_index)` has ≥ 1 panel. **FAIL** — this is what makes the grid a *partition* rather than a pile of rectangles, and it is the check that would catch a duplicated or a dropped panel | lint |
+| **G-62** | One opening, one panel | Every `dimensions.openings[]` entry is referenced by **exactly one** panel, and that panel has the same `facade`, `level_index`, `bay_index`, a u-range equal to `[position_cm − width_cm/2, position_cm + width_cm/2]` within `linear_cm` and a v-range equal to `[sill_cm, head_cm]` within `linear_cm`, and a `kind` that lists the opening's `type` in its `panel_types[].opening_types`. **FAIL** — strictly one, never "one or more": a vertical division is per bay, so an opening's own sill and head are its only divisions and nothing can split it. The earlier "tiles" wording was written to accommodate a shared facade-wide v grid, and that grid produced a 180 × 10 cm glass sliver 10 cm below a window head because a different bay's entrance head crossed it (§3.3). Two panels for one opening is not a partition nicety, it is a ribbon of glass | lint |
+| **G-63** | Panel-kind vocabulary and layer | `panel_types[].kind` unique and inside the §8.3 ceiling of six. Every `panels[].kind` is declared. `material_role` is consistent with `glazed` / `frame_member`, and `opening_types` is non-empty iff `glazed`. Every declared kind is used by ≥ 1 panel and served by ≥ 1 `components_registry.json` component (cross-file; SKIP with a reason when the registry is absent) | lint |
+| **G-64** | Grid provenance | `origins` covers this file's value tree exactly once using §5.2's exclusions (G-9 machinery, array-element collapse allowed). **Every `origin` is `derived` with a non-empty `derives_from` whose paths resolve in `dimensions.json`, `massing.json` or this file** — P5 invents nothing, so an `assumed` or `given` value here is a defect. `origin_inputs` paths all resolve in `dimensions.json` or `massing.json` | lint |
+| **G-65** | Component identity | `components[].id` `^CMP-\d{3}$`, unique, ascending; `name` unique in the file and hyphen-free; `kind` ∈ `component_types[].kind`; `families[].id` `^FAM-\d{3}$`, unique, ascending; `layer == "05_FACADE"`; **every component appears in exactly one `families[].component_ids` and every listed id exists** | lint |
+| **G-66** | Component parameters recompute | `defaults` carries exactly `panel_thickness_cm` and `joint_width_cm`, each inside its declared range. `components[].parameters` is the ordered list of exactly `width_cm`, `height_cm`, `thickness_cm`, `joint_width_cm` in that order; each `source` is `size_cm` or `defaults` as §5.4 states; each `value` equals the corresponding number within `linear_cm`. `size_cm == [width_cm, height_cm, panel_thickness_cm]` within `linear_cm`. This is `G-32` applied to the registry's own arithmetic | lint |
+| **G-67** | Component fits the panel kinds it serves | `serves_panel_kinds` non-empty, every entry a declared `panel_types[].kind`, and flags compatible with `kind`: a `glazed_panel` serves only `glazed` kinds; an `opaque_panel` only kinds that are neither glazed nor frame; a `frame_member` only `frame_member` kinds; an `entrance_door` only glazed kinds that host a `door` or `entrance` opening. `size_cm[0..1]` equals some panel's `width_cm`/`height_cm` within `linear_cm` — a component that matches no panel exists for no reason | lint, cross-file |
+| **G-68** | Every panel is placeable | **Every** panel in `facade_grids.json` has ≥ 1 component whose `size_cm[0..1]` matches within `linear_cm` and whose `serves_panel_kinds` contains the panel's `kind`, and all matching components belong to **one** family. **FAIL** names the first ten offending panel ids and the count. **This is the total-join invariant** — the reason the registry exists, and the one that fails loudly the day a panel size has no block. SKIP with a reason when the registry is absent | lint, cross-file |
+| **G-69** | Variant discipline | `variants[]` entries match `^VAR-\d{3}$`, unique within their component, `overrides` is a non-empty object and every key is one of the four parameter names. **A registry whose `variants` arrays are all empty reports SKIP with that reason** — the rule is then unexercised, and saying so is better than a vacuous PASS | lint |
+| **G-70** | Emitted-table census | `facade_table.csv` and `world_table.csv` each carry **exactly** `len(panels)` data rows; every `panel_ref`, `component_ref` and `family_ref` resolves; every `rot_z_deg` equals its facade's `run_angle_deg` within `angle_deg`; `instance_id` equals `panel_ref` on every row. **FAIL at build time; honest SKIP with its reason at lint time** — a static file cannot observe an emitted CSV. The builder asserts all of it after writing and refuses on a mismatch | build |
+
+`G-70` is the P5 analogue of `G-54`: it converts a silent miscount into a failed build. The live gate
+below is the next step up from it.
+
+### 7.1 Ranges to register for `G-16`
+
+`bay_width_cm` `300 … 1200` · `length_cm` `> 0` · `bay_offsets_cm` / axis `offset_cm` `≥ 0` ·
+panel `width_cm`, `height_cm`, `size_cm[]` `> 0` · `run_angle_deg` `-180 < x ≤ 180` ·
+`panel_thickness_cm` `2 … 8`, **value `3.0`** · `joint_width_cm` `1 … 4`, **value `2.0`**.
+Everything else is unbounded.
+
+---
+
+## 8. `facade_tables.py` — CLI and obligations
+
+Model it on `scripts/build_nurbs.py` exactly: same docstring shape, same `Refusal` exception, same
+exit codes `0 / 1 / 2`, same `q()` / `inum()` determinism helpers, same `--json` summary shape, same
+`self_check` with a `missing_rules` guard (every `G-` id it claims to check must produce a row —
+silence is not a result).
+
+```
+python scripts/facade_tables.py --in examples --out examples
+        [--stage grids|components|tables|all]   # default all
+        [--json] [--build] [--allow-draft]
+```
+
+- `--stage grids` computes and writes `facade_grids.json` only.
+- `--stage components` reads the **existing** `facade_grids.json` from `--in` and writes
+  `components_registry.json` only.
+- `--stage tables` reads both existing JSONs and writes the two CSVs only.
+- `--stage all` (default) computes grids in memory, derives the registry from it, then the tables,
+  and writes all four.
+
+Obligations:
+
+1. Refuse a non-`locked` `dimensions.json` / `massing.json` unless `--allow-draft`; refuse a schema
+   major mismatch; refuse `facade_grids.json` present in `--in` whose bytes differ from what
+   `--stage all` computes, **naming the first differing key path** — a hand edit that a rebuild would
+   silently destroy is the failure mode `--from examples` exists to prevent.
+2. Self-check `G-57`…`G-70` on the **emitted** documents before writing, and refuse on any FAIL.
+3. After writing the CSVs, assert `G-70` by reading them back — row counts, ref resolution, rotation.
+4. Determinism: same input ⇒ byte-identical output. No clock, no dict-order dependence, no randomness.
+5. Never emit layer code. Never name a MAXScript class, modifier or MCP tool in the output or in the
+   `source.reference` prose. Every claim in a docstring cites `CHECKPOINT.md` or a `G-` id.
+6. `init_project.py` gains a **real stub** for both files (not the reserved skeleton — the massing
+   stub pattern: a `draft` placeholder), seeded by `--from examples`.
+
+## 9. The live gate (orchestrator performs it — agents must not touch the bridge)
+
+The P3/P4/P4b guard, table-shaped. **An emitted CSV is not done until it has been placed in Max and
+counted.**
+
+1. Row count `N` = data rows of `world_table.csv`, from Python.
+2. In live Max, build one `Box` prototype per **distinct `component_ref`**, sized from
+   `width_cm × height_cm × thickness_cm`, at a scratch position.
+3. **`setCopyMode #instance`**, then place instances: for each of the first `M = min(N, 120)` rows,
+   `copy` the prototype and set the copy's transform to `(x_cm, y_cm, z_cm)` with
+   `rotationZ rot_z_deg`.
+4. Assert `objects.count == prototypes + M`.
+5. **Verify the instances are real reference instances**, not copies: a copy has a different
+   `baseObject` from its prototype, an instance shares it. Control: one deliberate `#copy` in the
+   same call must report `false`.
+6. **Measure a deterministic sample** of 5 placed nodes: `node.min` / `node.max` compared against the
+   facade-local rectangle transformed to world, computed independently in Python from the CSV.
+7. Delete everything; assert `objects.count == 0`.
+8. Record every measured number in `CHECKPOINT.md`. If any of it cannot be executed, say so — an
+   unmeasured table is an unverified table.
+
+## 10. Definitions of done for P5
+
+- [ ] `07` §8.3, §8.4, §9.8 written and §4 flipped to `defined`.
+- [ ] `validate_specs.py --dir examples` → `FAIL 0`, also clean under `--warnings-as-errors`.
+- [ ] Each of `G-57`…`G-70` proved to **fire** by fault injection on a temp copy.
+- [ ] `facade_tables.py` deterministic: two temp dirs byte-identical and equal to the committed files.
+- [ ] `G-70` fires on an injected row-count mismatch and on an injected wrong `rot_z_deg`.
+- [ ] Live gate §9 executed, every number recorded, scene left empty.
+- [ ] `assumptions.json` carries `A-023` / `A-024` with `recheck_stage: "P6"`.
+- [ ] `CHECKPOINT.md` §P5 written, `PLAN.md` P5 row updated, `SKILL.md` routed, `.skill` rebuilt.

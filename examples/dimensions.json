@@ -1,0 +1,269 @@
+{
+  "schema_version": "1.0",
+  "spec": "dimensions",
+  "project": "pavilion-01",
+  "units": { "length": "cm", "angle": "deg" },
+  "source": {
+    "kind": "user_brief",
+    "reference": "user conversation 2026-10-04, brief 'pavilion-01 small office pavilion'",
+    "recorded_at": "2026-10-04T11:40:00Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origins": {
+    "building.name": { "origin": "given" },
+    "building.typology": { "origin": "given" },
+    "building.total_height_cm": {
+      "origin": "derived",
+      "derives_from": ["levels[0].height_cm", "levels[1].height_cm"],
+      "conflict_ref": "C-001"
+    },
+    "building.overall_height_cm": {
+      "origin": "derived",
+      "derives_from": ["building.total_height_cm", "roof.parapet_height_cm"]
+    },
+    "building.gross_floor_area_m2": {
+      "origin": "derived",
+      "derives_from": ["site.footprint_area_m2", "floor_plates"]
+    },
+    "building.net_floor_area_m2": {
+      "origin": "derived",
+      "derives_from": ["building.gross_floor_area_m2", "core.footprint_area_m2", "core.spans_level_indices"]
+    },
+
+    "site.footprint_kind": { "origin": "given" },
+    "site.footprint_cm": { "origin": "given" },
+    "site.footprint_ccw": { "origin": "given" },
+    "site.footprint_area_m2": { "origin": "derived", "derives_from": ["site.footprint_cm"] },
+    "site.footprint_width_cm": { "origin": "derived", "derives_from": ["site.footprint_cm"] },
+    "site.footprint_depth_cm": { "origin": "derived", "derives_from": ["site.footprint_cm"] },
+    "site.ground_level_cm": { "origin": "given" },
+    "site.plot_rotation_deg": { "origin": "assumed", "origin_ref": "A-001" },
+    "site.plot_rotation_ref_axis": { "origin": "given" },
+    "site.setback_cm": { "origin": "assumed", "origin_ref": "A-002" },
+
+    "structure.system": { "origin": "given" },
+    "structure.grid_kind": { "origin": "given" },
+    "structure.x_bay_cm": { "origin": "conflict", "origin_ref": "C-003" },
+    "structure.y_bay_cm": { "origin": "assumed", "origin_ref": "A-003" },
+    "structure.column_x_cm": { "origin": "derived", "derives_from": ["structure.x_bay_cm"] },
+    "structure.column_y_cm": { "origin": "derived", "derives_from": ["structure.y_bay_cm"] },
+    "structure.column_section_cm": { "origin": "assumed", "origin_ref": "A-004" },
+    "structure.interior_column_count": {
+      "origin": "derived",
+      "derives_from": ["structure.column_x_cm", "structure.column_y_cm"]
+    },
+
+    "levels[0].use": { "origin": "assumed", "origin_ref": "A-008" },
+    "levels[0].elevation_cm": { "origin": "given" },
+    "levels[0].height_cm": { "origin": "conflict", "origin_ref": "C-001" },
+    "levels[1].use": { "origin": "assumed", "origin_ref": "A-009" },
+    "levels[1].elevation_cm": {
+      "origin": "derived",
+      "derives_from": ["levels[0].elevation_cm", "levels[0].height_cm"]
+    },
+    "levels[1].height_cm": { "origin": "conflict", "origin_ref": "C-001" },
+
+    "core.type": { "origin": "assumed", "origin_ref": "A-005" },
+    "core.footprint_kind": { "origin": "given" },
+    "core.footprint_cm": { "origin": "assumed", "origin_ref": "A-006" },
+    "core.footprint_area_m2": { "origin": "derived", "derives_from": ["core.footprint_cm"] },
+    "core.spans_level_indices": { "origin": "given" },
+    "core.wall_thickness_cm": { "origin": "assumed", "origin_ref": "A-007" },
+
+    "floor_plates[0].thickness_cm": { "origin": "conflict", "origin_ref": "C-005" },
+    "floor_plates[0].gross_area_m2": { "origin": "derived", "derives_from": ["site.footprint_area_m2"] },
+    "floor_plates[0].net_usable_area_m2": { "origin": "assumed", "origin_ref": "A-010" },
+    "floor_plates[1].thickness_cm": { "origin": "conflict", "origin_ref": "C-005" },
+    "floor_plates[1].gross_area_m2": { "origin": "derived", "derives_from": ["site.footprint_area_m2"] },
+    "floor_plates[1].net_usable_area_m2": { "origin": "assumed", "origin_ref": "A-011" },
+
+    "roof.type": { "origin": "given" },
+    "roof.deck_level_cm": { "origin": "derived", "derives_from": ["building.total_height_cm"] },
+    "roof.deck_thickness_cm": { "origin": "given" },
+    "roof.slope_deg": { "origin": "assumed", "origin_ref": "A-012" },
+    "roof.parapet_height_cm": { "origin": "conflict", "origin_ref": "C-004" },
+    "roof.parapet_thickness_cm": { "origin": "assumed", "origin_ref": "A-013" },
+    "roof.coping_overhang_cm": { "origin": "assumed", "origin_ref": "A-014" },
+    "roof.drainage": { "origin": "assumed", "origin_ref": "A-015" },
+
+    "facades[0]": { "origin": "derived", "derives_from": ["site.footprint_cm", "site.plot_rotation_deg", "structure.x_bay_cm"] },
+    "facades[1]": { "origin": "derived", "derives_from": ["site.footprint_cm", "site.plot_rotation_deg", "structure.x_bay_cm"] },
+    "facades[2]": { "origin": "derived", "derives_from": ["site.footprint_cm", "site.plot_rotation_deg", "structure.y_bay_cm"] },
+    "facades[3]": { "origin": "derived", "derives_from": ["site.footprint_cm", "site.plot_rotation_deg", "structure.y_bay_cm"] },
+
+    "openings[0]": { "origin": "given" },
+    "openings[1]": { "origin": "given" },
+    "openings[2]": { "origin": "given" },
+    "openings[3]": { "origin": "given" },
+    "openings[4]": { "origin": "assumed", "origin_ref": "A-016" },
+    "openings[5]": { "origin": "given" },
+    "openings[6]": { "origin": "assumed", "origin_ref": "A-017" },
+    "openings[7]": { "origin": "assumed", "origin_ref": "A-018" },
+    "openings[8]": { "origin": "given" },
+    "openings[9]": { "origin": "given" },
+    "openings[10]": { "origin": "given" },
+    "openings[11]": { "origin": "conflict", "origin_ref": "C-002" },
+    "openings[12]": { "origin": "assumed", "origin_ref": "A-019" },
+    "openings[13]": { "origin": "assumed", "origin_ref": "A-020" },
+    "openings[14]": { "origin": "assumed", "origin_ref": "A-021" },
+    "openings[15]": { "origin": "assumed", "origin_ref": "A-022" }
+  },
+
+  "building": {
+    "id": "BLD-01",
+    "name": "Pavilion 01",
+    "typology": "small_office_pavilion",
+    "total_height_cm": 820.0,
+    "overall_height_cm": 910.0,
+    "gross_floor_area_m2": 324.0,
+    "net_floor_area_m2": 283.5
+  },
+
+  "site": {
+    "id": "SITE-01",
+    "footprint_kind": "polygon",
+    "footprint_cm": [[0.0, 0.0], [1800.0, 0.0], [1800.0, 900.0], [0.0, 900.0]],
+    "footprint_ccw": true,
+    "footprint_area_m2": 162.0,
+    "footprint_width_cm": 1800.0,
+    "footprint_depth_cm": 900.0,
+    "ground_level_cm": 0.0,
+    "plot_rotation_deg": 0.0,
+    "plot_rotation_ref_axis": "north",
+    "setback_cm": 300.0
+  },
+
+  "structure": {
+    "id": "STR-01",
+    "system": "steel_frame_with_rc_core",
+    "grid_kind": "bay_spacing",
+    "x_bay_cm": [450.0, 450.0, 450.0, 450.0],
+    "y_bay_cm": [450.0, 450.0],
+    "column_x_cm": [450.0, 900.0, 1350.0],
+    "column_y_cm": [450.0],
+    "column_section_cm": [40.0, 40.0],
+    "interior_column_count": 3
+  },
+
+  "levels": [
+    {
+      "index": 0,
+      "id": "LVL-00",
+      "use": "office_open_plan",
+      "elevation_cm": 0.0,
+      "height_cm": 420.0
+    },
+    {
+      "index": 1,
+      "id": "LVL-01",
+      "use": "meeting_and_office",
+      "elevation_cm": 420.0,
+      "height_cm": 400.0
+    }
+  ],
+
+  "core": {
+    "id": "CORE-01",
+    "type": "lift_stair_wc",
+    "footprint_kind": "polygon",
+    "footprint_cm": [[1350.0, 0.0], [1800.0, 0.0], [1800.0, 450.0], [1350.0, 450.0]],
+    "footprint_area_m2": 20.25,
+    "spans_level_indices": [0, 1],
+    "wall_thickness_cm": 25.0
+  },
+
+  "floor_plates": [
+    {
+      "level_index": 0,
+      "id": "FP-00",
+      "thickness_cm": 30.0,
+      "gross_area_m2": 162.0,
+      "net_usable_area_m2": 138.0
+    },
+    {
+      "level_index": 1,
+      "id": "FP-01",
+      "thickness_cm": 25.0,
+      "gross_area_m2": 162.0,
+      "net_usable_area_m2": 138.0
+    }
+  ],
+
+  "roof": {
+    "type": "flat_parapet",
+    "deck_level_cm": 820.0,
+    "deck_thickness_cm": 30.0,
+    "slope_deg": 2.0,
+    "parapet_height_cm": 90.0,
+    "parapet_thickness_cm": 30.0,
+    "coping_overhang_cm": 3.0,
+    "drainage": "internal_downpipe"
+  },
+
+  "facades": [
+    {
+      "id": "F-S",
+      "name": "south",
+      "direction_deg": 180.0,
+      "start_corner_cm": [0.0, 0.0],
+      "end_corner_cm": [1800.0, 0.0],
+      "length_cm": 1800.0,
+      "bay_count": 4,
+      "bay_width_cm": [450.0, 450.0, 450.0, 450.0]
+    },
+    {
+      "id": "F-N",
+      "name": "north",
+      "direction_deg": 0.0,
+      "start_corner_cm": [0.0, 900.0],
+      "end_corner_cm": [1800.0, 900.0],
+      "length_cm": 1800.0,
+      "bay_count": 4,
+      "bay_width_cm": [450.0, 450.0, 450.0, 450.0]
+    },
+    {
+      "id": "F-E",
+      "name": "east",
+      "direction_deg": 90.0,
+      "start_corner_cm": [1800.0, 0.0],
+      "end_corner_cm": [1800.0, 900.0],
+      "length_cm": 900.0,
+      "bay_count": 2,
+      "bay_width_cm": [450.0, 450.0]
+    },
+    {
+      "id": "F-W",
+      "name": "west",
+      "direction_deg": 270.0,
+      "start_corner_cm": [0.0, 0.0],
+      "end_corner_cm": [0.0, 900.0],
+      "length_cm": 900.0,
+      "bay_count": 2,
+      "bay_width_cm": [450.0, 450.0]
+    }
+  ],
+
+  "openings": [
+    { "id": "OP-G-01", "facade": "F-S", "level_index": 0, "bay_index": 0, "type": "window", "position_cm": 225.0, "width_cm": 180.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-G-02", "facade": "F-S", "level_index": 0, "bay_index": 1, "type": "entrance", "position_cm": 675.0, "width_cm": 200.0, "sill_cm": 0.0, "head_cm": 260.0 },
+    { "id": "OP-G-03", "facade": "F-S", "level_index": 0, "bay_index": 2, "type": "window", "position_cm": 1125.0, "width_cm": 180.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-G-04", "facade": "F-S", "level_index": 0, "bay_index": 3, "type": "curtain_wall", "position_cm": 1575.0, "width_cm": 420.0, "sill_cm": 0.0, "head_cm": 400.0 },
+    { "id": "OP-G-05", "facade": "F-E", "level_index": 0, "bay_index": 1, "type": "window", "position_cm": 675.0, "width_cm": 150.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-G-06", "facade": "F-N", "level_index": 0, "bay_index": 1, "type": "door", "position_cm": 675.0, "width_cm": 110.0, "sill_cm": 0.0, "head_cm": 220.0 },
+    { "id": "OP-G-07", "facade": "F-N", "level_index": 0, "bay_index": 3, "type": "window", "position_cm": 1575.0, "width_cm": 150.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-G-08", "facade": "F-W", "level_index": 0, "bay_index": 1, "type": "window", "position_cm": 675.0, "width_cm": 150.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-1-01", "facade": "F-S", "level_index": 1, "bay_index": 0, "type": "window", "position_cm": 225.0, "width_cm": 180.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-1-02", "facade": "F-S", "level_index": 1, "bay_index": 1, "type": "window", "position_cm": 675.0, "width_cm": 180.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-1-03", "facade": "F-S", "level_index": 1, "bay_index": 2, "type": "window", "position_cm": 1125.0, "width_cm": 180.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-1-04", "facade": "F-S", "level_index": 1, "bay_index": 3, "type": "curtain_wall", "position_cm": 1575.0, "width_cm": 420.0, "sill_cm": 0.0, "head_cm": 340.0 },
+    { "id": "OP-1-05", "facade": "F-N", "level_index": 1, "bay_index": 1, "type": "window", "position_cm": 675.0, "width_cm": 150.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-1-06", "facade": "F-N", "level_index": 1, "bay_index": 3, "type": "window", "position_cm": 1575.0, "width_cm": 150.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-1-07", "facade": "F-E", "level_index": 1, "bay_index": 1, "type": "window", "position_cm": 675.0, "width_cm": 150.0, "sill_cm": 90.0, "head_cm": 270.0 },
+    { "id": "OP-1-08", "facade": "F-W", "level_index": 1, "bay_index": 1, "type": "window", "position_cm": 675.0, "width_cm": 150.0, "sill_cm": 90.0, "head_cm": 270.0 }
+  ]
+}

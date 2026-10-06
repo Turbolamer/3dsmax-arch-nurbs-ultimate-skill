@@ -1,0 +1,1856 @@
+{
+  "schema_version": "1.0",
+  "spec": "nurbs",
+  "project": "pavilion-01",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "massing.json -- the locked massing for pavilion-01, plus dimensions.json; every value in this file is computed from them against references/07-spec-grammar.md section 8.2",
+    "recorded_at": "2026-10-04T14:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [
+    "elements[8].z_range_cm",
+    "facades[0].bay_width_cm",
+    "floor_plates[0].thickness_cm",
+    "floor_plates[1].thickness_cm",
+    "levels[1].elevation_cm",
+    "openings[1].head_cm",
+    "roof.deck_level_cm",
+    "site.footprint_cm",
+    "site.footprint_depth_cm",
+    "site.footprint_width_cm",
+    "site.ground_level_cm",
+    "site.setback_cm",
+    "storeys[1].z_range_cm",
+    "structure.column_section_cm",
+    "structure.y_bay_cm"
+  ],
+  "origins": {
+    "derivatives[0].divisions_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "site.footprint_width_cm"
+      ]
+    },
+    "derivatives[0].divisions_v": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.y_bay_cm",
+        "site.footprint_depth_cm"
+      ]
+    },
+    "derivatives[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "derivatives[0].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "derivatives[0].surface_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "derivatives[1].divisions_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[6]"
+      ]
+    },
+    "derivatives[1].divisions_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]"
+      ]
+    },
+    "derivatives[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "derivatives[1].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "derivatives[1].sub_steps": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_section_cm",
+        "sections[6]"
+      ]
+    },
+    "derivatives[1].surface_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "derivatives[1].thickness_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_section_cm"
+      ]
+    },
+    "derivatives[2].divisions_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[9]"
+      ]
+    },
+    "derivatives[2].divisions_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]"
+      ]
+    },
+    "derivatives[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[2]"
+      ]
+    },
+    "derivatives[2].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[2]"
+      ]
+    },
+    "derivatives[2].surface_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[2]"
+      ]
+    },
+    "sections[0].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "storeys[1].z_range_cm"
+      ]
+    },
+    "sections[10].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[11].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "structure.column_section_cm",
+        "sections[12]"
+      ]
+    },
+    "sections[12].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm",
+        "sections[11]"
+      ]
+    },
+    "sections[13].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm",
+        "sections[11]"
+      ]
+    },
+    "sections[14].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm",
+        "sections[11]"
+      ]
+    },
+    "sections[15].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "site.setback_cm",
+        "sections[17]"
+      ]
+    },
+    "sections[16].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "site.setback_cm",
+        "sections[15]"
+      ]
+    },
+    "sections[17].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[18].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[19].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[1].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "storeys[1].z_range_cm"
+      ]
+    },
+    "sections[20].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[21].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[22].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm",
+        "surfaces[0]"
+      ]
+    },
+    "sections[2].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "storeys[1].z_range_cm"
+      ]
+    },
+    "sections[3].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "storeys[1].z_range_cm"
+      ]
+    },
+    "sections[4].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "storeys[1].z_range_cm"
+      ]
+    },
+    "sections[5].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[6].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[7].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[8].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[9].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].closed_sections": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].hide_curves": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]"
+      ]
+    },
+    "surfaces[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "elements[8].z_range_cm"
+      ]
+    },
+    "surfaces[0].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0].thickness_cm",
+        "sections[0]"
+      ]
+    },
+    "surfaces[0].merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[1]",
+        "sections[2]",
+        "sections[3]",
+        "sections[4]"
+      ]
+    },
+    "surfaces[0].thickness_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "floor_plates[1].thickness_cm"
+      ]
+    },
+    "surfaces[1].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "surfaces[0].mat_id"
+      ]
+    },
+    "surfaces[1].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[6]",
+        "sections[7]"
+      ]
+    },
+    "surfaces[2].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "surfaces[1].mat_id"
+      ]
+    },
+    "surfaces[2].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[9]",
+        "sections[10]"
+      ]
+    },
+    "surfaces[2].u_order": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]"
+      ]
+    },
+    "surfaces[2].v_order": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]"
+      ]
+    },
+    "surfaces[3].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm"
+      ]
+    },
+    "surfaces[3].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm"
+      ]
+    },
+    "surfaces[3].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[11]",
+        "sections[12]"
+      ]
+    },
+    "surfaces[3].parallel": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[11]",
+        "sections[12]",
+        "sections[13]",
+        "sections[14]"
+      ]
+    },
+    "surfaces[3].rail_section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[11]"
+      ]
+    },
+    "surfaces[3].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[13]",
+        "sections[14]"
+      ]
+    },
+    "surfaces[4].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "site.setback_cm"
+      ]
+    },
+    "surfaces[4].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "site.setback_cm"
+      ]
+    },
+    "surfaces[4].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "surfaces[4].parallel": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "surfaces[4].rail_section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "surfaces[4].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[18]",
+        "sections[19]",
+        "sections[20]",
+        "sections[21]"
+      ]
+    },
+    "surfaces[5].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].edge1": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[5].edge2": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "surfaces[5].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]"
+      ]
+    },
+    "surfaces[5].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]"
+      ]
+    },
+    "surfaces[5].parent1_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[5].parent2_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "surfaces[6].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].flip_trim": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]"
+      ]
+    },
+    "surfaces[6].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "levels[1].elevation_cm"
+      ]
+    },
+    "surfaces[6].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[6].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]"
+      ]
+    },
+    "surfaces[6].p_vec": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].seed": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].surface_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].trim_section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]"
+      ]
+    }
+  },
+  "sections": [
+    {
+      "id": "SEC-001",
+      "points_cm": [
+        [
+          0.0,
+          0.0,
+          420.0
+        ],
+        [
+          225.0,
+          0.0,
+          539.059
+        ],
+        [
+          450.0,
+          0.0,
+          575.885
+        ],
+        [
+          675.0,
+          0.0,
+          594.284
+        ],
+        [
+          900.0,
+          0.0,
+          600.0
+        ],
+        [
+          1125.0,
+          0.0,
+          594.284
+        ],
+        [
+          1350.0,
+          0.0,
+          575.885
+        ],
+        [
+          1575.0,
+          0.0,
+          539.059
+        ],
+        [
+          1800.0,
+          0.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-002",
+      "points_cm": [
+        [
+          0.0,
+          225.0,
+          420.0
+        ],
+        [
+          225.0,
+          225.0,
+          539.059
+        ],
+        [
+          450.0,
+          225.0,
+          575.885
+        ],
+        [
+          675.0,
+          225.0,
+          594.284
+        ],
+        [
+          900.0,
+          225.0,
+          600.0
+        ],
+        [
+          1125.0,
+          225.0,
+          594.284
+        ],
+        [
+          1350.0,
+          225.0,
+          575.885
+        ],
+        [
+          1575.0,
+          225.0,
+          539.059
+        ],
+        [
+          1800.0,
+          225.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-003",
+      "points_cm": [
+        [
+          0.0,
+          450.0,
+          420.0
+        ],
+        [
+          225.0,
+          450.0,
+          539.059
+        ],
+        [
+          450.0,
+          450.0,
+          575.885
+        ],
+        [
+          675.0,
+          450.0,
+          594.284
+        ],
+        [
+          900.0,
+          450.0,
+          600.0
+        ],
+        [
+          1125.0,
+          450.0,
+          594.284
+        ],
+        [
+          1350.0,
+          450.0,
+          575.885
+        ],
+        [
+          1575.0,
+          450.0,
+          539.059
+        ],
+        [
+          1800.0,
+          450.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-004",
+      "points_cm": [
+        [
+          0.0,
+          675.0,
+          420.0
+        ],
+        [
+          225.0,
+          675.0,
+          539.059
+        ],
+        [
+          450.0,
+          675.0,
+          575.885
+        ],
+        [
+          675.0,
+          675.0,
+          594.284
+        ],
+        [
+          900.0,
+          675.0,
+          600.0
+        ],
+        [
+          1125.0,
+          675.0,
+          594.284
+        ],
+        [
+          1350.0,
+          675.0,
+          575.885
+        ],
+        [
+          1575.0,
+          675.0,
+          539.059
+        ],
+        [
+          1800.0,
+          675.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-005",
+      "points_cm": [
+        [
+          0.0,
+          900.0,
+          420.0
+        ],
+        [
+          225.0,
+          900.0,
+          539.059
+        ],
+        [
+          450.0,
+          900.0,
+          575.885
+        ],
+        [
+          675.0,
+          900.0,
+          594.284
+        ],
+        [
+          900.0,
+          900.0,
+          600.0
+        ],
+        [
+          1125.0,
+          900.0,
+          594.284
+        ],
+        [
+          1350.0,
+          900.0,
+          575.885
+        ],
+        [
+          1575.0,
+          900.0,
+          539.059
+        ],
+        [
+          1800.0,
+          900.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-006",
+      "points_cm": [
+        [
+          0.0,
+          0.0,
+          420.0
+        ],
+        [
+          150.0,
+          0.0,
+          420.0
+        ],
+        [
+          300.0,
+          0.0,
+          420.0
+        ],
+        [
+          450.0,
+          0.0,
+          420.0
+        ],
+        [
+          600.0,
+          0.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-007",
+      "points_cm": [
+        [
+          0.0,
+          225.0,
+          420.0
+        ],
+        [
+          150.0,
+          225.0,
+          487.5
+        ],
+        [
+          300.0,
+          225.0,
+          510.0
+        ],
+        [
+          450.0,
+          225.0,
+          487.5
+        ],
+        [
+          600.0,
+          225.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-008",
+      "points_cm": [
+        [
+          0.0,
+          450.0,
+          420.0
+        ],
+        [
+          150.0,
+          450.0,
+          420.0
+        ],
+        [
+          300.0,
+          450.0,
+          420.0
+        ],
+        [
+          450.0,
+          450.0,
+          420.0
+        ],
+        [
+          600.0,
+          450.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-009",
+      "points_cm": [
+        [
+          0.0,
+          0.0,
+          420.0
+        ],
+        [
+          150.0,
+          0.0,
+          420.0
+        ],
+        [
+          300.0,
+          0.0,
+          420.0
+        ],
+        [
+          450.0,
+          0.0,
+          420.0
+        ],
+        [
+          600.0,
+          0.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-010",
+      "points_cm": [
+        [
+          0.0,
+          225.0,
+          420.0
+        ],
+        [
+          150.0,
+          225.0,
+          465.0
+        ],
+        [
+          300.0,
+          225.0,
+          480.0
+        ],
+        [
+          450.0,
+          225.0,
+          465.0
+        ],
+        [
+          600.0,
+          225.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-011",
+      "points_cm": [
+        [
+          0.0,
+          450.0,
+          420.0
+        ],
+        [
+          150.0,
+          450.0,
+          420.0
+        ],
+        [
+          300.0,
+          450.0,
+          420.0
+        ],
+        [
+          450.0,
+          450.0,
+          420.0
+        ],
+        [
+          600.0,
+          450.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-012",
+      "points_cm": [
+        [
+          675.0,
+          0.0,
+          300.0
+        ],
+        [
+          675.0,
+          225.0,
+          300.0
+        ],
+        [
+          675.0,
+          450.0,
+          300.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-013",
+      "points_cm": [
+        [
+          450.0,
+          0.0,
+          260.0
+        ],
+        [
+          562.5,
+          0.0,
+          290.0
+        ],
+        [
+          675.0,
+          0.0,
+          300.0
+        ],
+        [
+          787.5,
+          0.0,
+          290.0
+        ],
+        [
+          900.0,
+          0.0,
+          260.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-014",
+      "points_cm": [
+        [
+          450.0,
+          225.0,
+          260.0
+        ],
+        [
+          562.5,
+          225.0,
+          290.0
+        ],
+        [
+          675.0,
+          225.0,
+          300.0
+        ],
+        [
+          787.5,
+          225.0,
+          290.0
+        ],
+        [
+          900.0,
+          225.0,
+          260.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-015",
+      "points_cm": [
+        [
+          450.0,
+          450.0,
+          260.0
+        ],
+        [
+          562.5,
+          450.0,
+          290.0
+        ],
+        [
+          675.0,
+          450.0,
+          300.0
+        ],
+        [
+          787.5,
+          450.0,
+          290.0
+        ],
+        [
+          900.0,
+          450.0,
+          260.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-016",
+      "points_cm": [
+        [
+          0.0,
+          525.0,
+          30.0
+        ],
+        [
+          450.0,
+          581.25,
+          30.0
+        ],
+        [
+          900.0,
+          600.0,
+          30.0
+        ],
+        [
+          1350.0,
+          581.25,
+          30.0
+        ],
+        [
+          1800.0,
+          525.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-017",
+      "points_cm": [
+        [
+          0.0,
+          600.0,
+          30.0
+        ],
+        [
+          450.0,
+          768.75,
+          30.0
+        ],
+        [
+          900.0,
+          825.0,
+          30.0
+        ],
+        [
+          1350.0,
+          768.75,
+          30.0
+        ],
+        [
+          1800.0,
+          600.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-018",
+      "points_cm": [
+        [
+          0.0,
+          525.0,
+          30.0
+        ],
+        [
+          0.0,
+          562.5,
+          30.0
+        ],
+        [
+          0.0,
+          600.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-019",
+      "points_cm": [
+        [
+          450.0,
+          581.25,
+          30.0
+        ],
+        [
+          450.0,
+          675.0,
+          30.0
+        ],
+        [
+          450.0,
+          768.75,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-020",
+      "points_cm": [
+        [
+          900.0,
+          600.0,
+          30.0
+        ],
+        [
+          900.0,
+          712.5,
+          30.0
+        ],
+        [
+          900.0,
+          825.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-021",
+      "points_cm": [
+        [
+          1350.0,
+          581.25,
+          30.0
+        ],
+        [
+          1350.0,
+          675.0,
+          30.0
+        ],
+        [
+          1350.0,
+          768.75,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-022",
+      "points_cm": [
+        [
+          1800.0,
+          525.0,
+          30.0
+        ],
+        [
+          1800.0,
+          562.5,
+          30.0
+        ],
+        [
+          1800.0,
+          600.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-023",
+      "points_cm": [
+        [
+          750.0,
+          375.0,
+          700.0
+        ],
+        [
+          1050.0,
+          375.0,
+          700.0
+        ],
+        [
+          1050.0,
+          525.0,
+          700.0
+        ],
+        [
+          750.0,
+          525.0,
+          700.0
+        ]
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "SUR-001",
+      "name": "SUR_001_Vault",
+      "kind": "u_loft",
+      "layer": "04_ROOF",
+      "section_ids": [
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004",
+        "SEC-005"
+      ],
+      "closed_sections": false,
+      "thickness_cm": 25.0,
+      "mat_id": 1,
+      "hide_curves": true,
+      "merge_tol_cm": 0.15,
+      "approximation": {
+        "view_steps_u": 12,
+        "view_steps_v": 8,
+        "render_edge_pct": 3.0,
+        "render_angle_deg": 4.0,
+        "merge_tol_cm": 0.15
+      }
+    },
+    {
+      "id": "SUR-002",
+      "name": "SUR_002_Canopy",
+      "kind": "point_grid",
+      "layer": "05_FACADE",
+      "section_ids": [
+        "SEC-006",
+        "SEC-007",
+        "SEC-008"
+      ],
+      "mat_id": 2,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 5.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.2
+      }
+    },
+    {
+      "id": "SUR-003",
+      "name": "SUR_003_CanopyCage",
+      "kind": "cv_grid",
+      "layer": "05_FACADE",
+      "section_ids": [
+        "SEC-009",
+        "SEC-010",
+        "SEC-011"
+      ],
+      "u_order": 3,
+      "v_order": 3,
+      "mat_id": 3,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 5.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.15
+      }
+    },
+    {
+      "id": "SUR-004",
+      "name": "SUR_004_EntranceCanopy",
+      "kind": "rail_sweep",
+      "layer": "05_FACADE",
+      "section_ids": [
+        "SEC-013",
+        "SEC-014",
+        "SEC-015"
+      ],
+      "rail_section_ids": [
+        "SEC-012"
+      ],
+      "parallel": true,
+      "mat_id": 4,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 5.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.2
+      }
+    },
+    {
+      "id": "SUR-005",
+      "name": "SUR_005_NorthWalkway",
+      "kind": "two_rail_sweep",
+      "layer": "04_ROOF",
+      "section_ids": [
+        "SEC-018",
+        "SEC-019",
+        "SEC-020",
+        "SEC-021",
+        "SEC-022"
+      ],
+      "rail_section_ids": [
+        "SEC-016",
+        "SEC-017"
+      ],
+      "parallel": true,
+      "mat_id": 5,
+      "approximation": {
+        "view_steps_u": 10,
+        "view_steps_v": 8,
+        "render_edge_pct": 4.0,
+        "render_angle_deg": 5.0,
+        "merge_tol_cm": 0.15
+      }
+    },
+    {
+      "id": "SUR-006",
+      "name": "SUR_006_CanopySoffit",
+      "kind": "blend",
+      "layer": "05_FACADE",
+      "parent1_ref": "SUR-001",
+      "parent2_ref": "SUR-002",
+      "edge1": 4,
+      "edge2": 4,
+      "mat_id": 6,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 5.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.15
+      }
+    },
+    {
+      "id": "SUR-007",
+      "name": "SUR_007_VaultApertureGuide",
+      "kind": "trim",
+      "layer": "04_ROOF",
+      "trim_section_ids": [
+        "SEC-023"
+      ],
+      "surface_ref": "SUR-001",
+      "p_vec": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "seed": [
+        0.5,
+        0.5
+      ],
+      "flip_trim": false,
+      "mat_id": 7,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 4.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.15
+      }
+    }
+  ],
+  "derivatives": [
+    {
+      "id": "DRV-001",
+      "kind": "quad_panels",
+      "surface_ref": "SUR-001",
+      "name": "DRV_001_VaultPanels",
+      "layer": "99_DEBUG",
+      "divisions_u": 8,
+      "divisions_v": 2
+    },
+    {
+      "id": "DRV-002",
+      "kind": "space_frame",
+      "surface_ref": "SUR-002",
+      "name": "DRV_002_CanopyFrame",
+      "layer": "04_ROOF",
+      "divisions_u": 4,
+      "divisions_v": 2,
+      "thickness_cm": 12.0,
+      "sub_steps": 6
+    },
+    {
+      "id": "DRV-003",
+      "kind": "quad_panels",
+      "surface_ref": "SUR-003",
+      "name": "DRV_003_CagePanels",
+      "layer": "99_DEBUG",
+      "divisions_u": 4,
+      "divisions_v": 2
+    }
+  ]
+}

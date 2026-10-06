@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "spec": "gordon-canopy",
+  "project": "atrium-canopy-02",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "specs/recipes/gordon-canopy.json -- a template. Doubly-curved funnel canopy over a 900 x 900 court: three U curves at y 0/450/900 and three V curves at x 0/450/900, corners 600, edge midpoints 450, centre 400. Every number is illustrative; instantiate against a locked massing.json before building",
+    "recorded_at": "2026-10-04T16:05:00Z"
+  },
+  "status": "draft",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [],
+  "origins": {
+    "sections[0].points_cm": { "origin": "derived", "derives_from": ["surfaces[0].u_section_ids", "surfaces[0].kind"] },
+    "sections[1].points_cm": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "sections[2].points_cm": { "origin": "derived", "derives_from": ["sections[1]"] },
+    "sections[3].points_cm": { "origin": "derived", "derives_from": ["surfaces[0].v_section_ids", "sections[0]"] },
+    "sections[4].points_cm": { "origin": "derived", "derives_from": ["sections[3]"] },
+    "sections[5].points_cm": { "origin": "derived", "derives_from": ["sections[4]"] },
+    "surfaces[0].kind": { "origin": "derived", "derives_from": ["sections[0]", "sections[3]"] },
+    "surfaces[0].layer": { "origin": "derived", "derives_from": ["surfaces[0].kind"] },
+    "surfaces[0].u_section_ids": { "origin": "derived", "derives_from": ["sections[0]", "sections[1]", "sections[2]"] },
+    "surfaces[0].v_section_ids": { "origin": "derived", "derives_from": ["sections[3]", "sections[4]", "sections[5]"] },
+    "derivatives": { "origin": "derived", "derives_from": ["surfaces[0].kind"] }
+  },
+  "sections": [
+    {
+      "id": "SEC-001",
+      "name": "UCrv_01_Front",
+      "points_cm": [[0.0, 0.0, 600.0], [225.0, 0.0, 500.0], [450.0, 0.0, 450.0], [675.0, 0.0, 500.0], [900.0, 0.0, 600.0]]
+    },
+    {
+      "id": "SEC-002",
+      "name": "UCrv_02_Mid",
+      "points_cm": [[0.0, 450.0, 600.0], [225.0, 450.0, 500.0], [450.0, 450.0, 400.0], [675.0, 450.0, 500.0], [900.0, 450.0, 600.0]]
+    },
+    {
+      "id": "SEC-003",
+      "name": "UCrv_03_Back",
+      "points_cm": [[0.0, 900.0, 600.0], [225.0, 900.0, 500.0], [450.0, 900.0, 450.0], [675.0, 900.0, 500.0], [900.0, 900.0, 600.0]]
+    },
+    {
+      "id": "SEC-004",
+      "name": "VCrv_01_Left",
+      "points_cm": [[0.0, 0.0, 600.0], [0.0, 225.0, 500.0], [0.0, 450.0, 450.0], [0.0, 675.0, 500.0], [0.0, 900.0, 600.0]]
+    },
+    {
+      "id": "SEC-005",
+      "name": "VCrv_02_Mid",
+      "points_cm": [[450.0, 0.0, 600.0], [450.0, 225.0, 500.0], [450.0, 450.0, 400.0], [450.0, 675.0, 500.0], [450.0, 900.0, 600.0]]
+    },
+    {
+      "id": "SEC-006",
+      "name": "VCrv_03_Right",
+      "points_cm": [[900.0, 0.0, 600.0], [900.0, 225.0, 500.0], [900.0, 450.0, 450.0], [900.0, 675.0, 500.0], [900.0, 900.0, 600.0]]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "SUR-001",
+      "name": "SUR_001_FunnelCanopy",
+      "kind": "uv_loft",
+      "layer": "04_ROOF",
+      "u_section_ids": ["SEC-001", "SEC-002", "SEC-003"],
+      "v_section_ids": ["SEC-004", "SEC-005", "SEC-006"]
+    }
+  ],
+  "derivatives": []
+}

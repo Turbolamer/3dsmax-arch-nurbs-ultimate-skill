@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "spec": "diagrid-frame",
+  "project": "diagrid-hall-04",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "specs/recipes/diagrid-frame.json -- a template. Hyperbolic-paraboloid entrance canopy over a 960 x 600 plaza, saddle from 360 to 480 (z = 420 + 60 * sx * sy), with a 140 mm diagrid space frame over it. Every number is illustrative; instantiate against a locked massing.json before building",
+    "recorded_at": "2026-10-04T16:15:00Z"
+  },
+  "status": "draft",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [],
+  "origins": {
+    "sections[0].points_cm": { "origin": "derived", "derives_from": ["surfaces[0].section_ids", "surfaces[0].kind"] },
+    "sections[1].points_cm": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "sections[2].points_cm": { "origin": "derived", "derives_from": ["sections[1]"] },
+    "surfaces[0].kind": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "surfaces[0].layer": { "origin": "derived", "derives_from": ["surfaces[0].kind", "derivatives[0].kind"] },
+    "surfaces[0].section_ids": { "origin": "derived", "derives_from": ["sections[0]", "sections[1]", "sections[2]"] },
+    "derivatives[0].kind": { "origin": "derived", "derives_from": ["surfaces[0].kind"] },
+    "derivatives[0].layer": { "origin": "derived", "derives_from": ["surfaces[0].layer"] },
+    "derivatives[0].surface_ref": { "origin": "derived", "derives_from": ["surfaces[0]"] },
+    "derivatives[0].divisions_u": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "derivatives[0].divisions_v": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "derivatives[0].thickness_cm": { "origin": "derived", "derives_from": ["derivatives[0].kind"] },
+    "derivatives[0].sub_steps": { "origin": "derived", "derives_from": ["derivatives[0].divisions_u"] }
+  },
+  "sections": [
+    {
+      "id": "SEC-001",
+      "name": "Hypar_Row_01_Front",
+      "points_cm": [[0.0, 0.0, 480.0], [240.0, 0.0, 450.0], [480.0, 0.0, 420.0], [720.0, 0.0, 390.0], [960.0, 0.0, 360.0]]
+    },
+    {
+      "id": "SEC-002",
+      "name": "Hypar_Row_02_Mid",
+      "points_cm": [[0.0, 300.0, 420.0], [240.0, 300.0, 420.0], [480.0, 300.0, 420.0], [720.0, 300.0, 420.0], [960.0, 300.0, 420.0]]
+    },
+    {
+      "id": "SEC-003",
+      "name": "Hypar_Row_03_Back",
+      "points_cm": [[0.0, 600.0, 360.0], [240.0, 600.0, 390.0], [480.0, 600.0, 420.0], [720.0, 600.0, 450.0], [960.0, 600.0, 480.0]]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "SUR-001",
+      "name": "SUR_001_HyparCanopy",
+      "kind": "point_grid",
+      "layer": "04_ROOF",
+      "section_ids": ["SEC-001", "SEC-002", "SEC-003"]
+    }
+  ],
+  "derivatives": [
+    {
+      "id": "DRV-001",
+      "kind": "space_frame",
+      "surface_ref": "SUR-001",
+      "name": "DRV_001_Diagrid",
+      "layer": "04_ROOF",
+      "divisions_u": 6,
+      "divisions_v": 4,
+      "thickness_cm": 14.0,
+      "sub_steps": 6
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "spec": "barrel-vault",
+  "project": "market-hall-01",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "specs/recipes/barrel-vault.json -- a template. Semi-elliptical barrel vault over a 1200 x 600 rectangular plan: springing 400, rise 180, crown 580, 200 mm shell. Every number is illustrative and no project input was read; instantiate against a locked massing.json before building",
+    "recorded_at": "2026-10-04T16:00:00Z"
+  },
+  "status": "draft",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [],
+  "origins": {
+    "sections[0].points_cm": { "origin": "derived", "derives_from": ["surfaces[0].section_ids", "surfaces[0].kind"] },
+    "sections[1].points_cm": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "sections[2].points_cm": { "origin": "derived", "derives_from": ["sections[1]"] },
+    "sections[3].points_cm": { "origin": "derived", "derives_from": ["sections[2]"] },
+    "surfaces[0].kind": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "surfaces[0].layer": { "origin": "derived", "derives_from": ["surfaces[0].kind"] },
+    "surfaces[0].section_ids": { "origin": "derived", "derives_from": ["sections[0]", "sections[1]", "sections[2]", "sections[3]"] },
+    "surfaces[0].closed_sections": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "surfaces[0].thickness_cm": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "derivatives[0].kind": { "origin": "derived", "derives_from": ["surfaces[0].kind"] },
+    "derivatives[0].layer": { "origin": "derived", "derives_from": ["surfaces[0].layer"] },
+    "derivatives[0].surface_ref": { "origin": "derived", "derives_from": ["surfaces[0]"] },
+    "derivatives[0].divisions_u": { "origin": "derived", "derives_from": ["sections[0]"] },
+    "derivatives[0].divisions_v": { "origin": "derived", "derives_from": ["sections[0]"] }
+  },
+  "sections": [
+    {
+      "id": "SEC-001",
+      "name": "Rib_01_Front",
+      "points_cm": [[0.0, 0.0, 400.0], [200.0, 0.0, 534.164], [400.0, 0.0, 569.706], [600.0, 0.0, 580.0], [800.0, 0.0, 569.706], [1000.0, 0.0, 534.164], [1200.0, 0.0, 400.0]]
+    },
+    {
+      "id": "SEC-002",
+      "name": "Rib_02_Quarter",
+      "points_cm": [[0.0, 200.0, 400.0], [200.0, 200.0, 534.164], [400.0, 200.0, 569.706], [600.0, 200.0, 580.0], [800.0, 200.0, 569.706], [1000.0, 200.0, 534.164], [1200.0, 200.0, 400.0]]
+    },
+    {
+      "id": "SEC-003",
+      "name": "Rib_03_ThreeQuarter",
+      "points_cm": [[0.0, 400.0, 400.0], [200.0, 400.0, 534.164], [400.0, 400.0, 569.706], [600.0, 400.0, 580.0], [800.0, 400.0, 569.706], [1000.0, 400.0, 534.164], [1200.0, 400.0, 400.0]]
+    },
+    {
+      "id": "SEC-004",
+      "name": "Rib_04_Back",
+      "points_cm": [[0.0, 600.0, 400.0], [200.0, 600.0, 534.164], [400.0, 600.0, 569.706], [600.0, 600.0, 580.0], [800.0, 600.0, 569.706], [1000.0, 600.0, 534.164], [1200.0, 600.0, 400.0]]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "SUR-001",
+      "name": "SUR_001_Vault",
+      "kind": "u_loft",
+      "layer": "04_ROOF",
+      "section_ids": ["SEC-001", "SEC-002", "SEC-003", "SEC-004"],
+      "closed_sections": false,
+      "thickness_cm": 20.0
+    }
+  ],
+  "derivatives": [
+    {
+      "id": "DRV-001",
+      "kind": "quad_panels",
+      "surface_ref": "SUR-001",
+      "name": "DRV_001_VaultPanels",
+      "layer": "99_DEBUG",
+      "divisions_u": 8,
+      "divisions_v": 3
+    }
+  ]
+}
