@@ -152,12 +152,14 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 from pathlib import Path
 from typing import Any, Sequence
 
 SUPPORTED_SCHEMA_MAJOR = 1
+SUPPORTED_SCHEMA_MINORS: tuple[int, ...] = (0, 1)
 SCHEMA_VERSION = "1.0"
 
 STAGES: tuple[str, ...] = ("grids", "components", "tables", "all")
@@ -619,8 +621,28 @@ def write_bytes(path: Path, text: str) -> None:
         raise Refusal(f"refusing to write {path}: the payload contains CR (07 G-7).")
     if not data.endswith(b"\n") or data.endswith(b"\n\n"):
         raise Refusal(f"refusing to write {path}: it must end with exactly one LF (07 G-7).")
+    if path.is_file():
+        existing_bytes = path.read_bytes()
+        if existing_bytes != data:
+            raise Refusal(
+                f"refusing to overwrite {path}: differing existing content on disk (08.4 / A-WRITE / M34). "
+                "Resolve difference or remove file before rebuilding."
+            )
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
+    tmp_p = path.parent / f"{path.name}.tmp.{os.getpid()}"
+    try:
+        with open(tmp_p, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_p, path)
+    finally:
+        if tmp_p.exists():
+            try:
+                tmp_p.unlink()
+            except OSError:
+                pass
 
 
 def first_difference(left: Any, right: Any, path: str = "") -> str | None:
@@ -665,7 +687,11 @@ def first_difference(left: Any, right: Any, path: str = "") -> str | None:
 
 
 def read_spec(
-    specs_dir: Path, name: str, allow_draft: bool, required_keys: Sequence[str] = ()
+    specs_dir: Path,
+    name: str,
+    allow_draft: bool,
+    required_keys: Sequence[str] = (),
+    expected_project: str | None = None,
 ) -> dict[str, Any]:
     """Never build from anything that is not ``locked`` (07 section 3.1)."""
     path = specs_dir / name
@@ -704,11 +730,16 @@ def read_spec(
         )
 
     version = document.get("schema_version")
-    match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?$", str(version))
-    if match is None or int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR:
+    match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?$", str(version)) if isinstance(version, str) else None
+    if (
+        match is None
+        or int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR
+        or int(match.group(2)) not in SUPPORTED_SCHEMA_MINORS
+    ):
         raise Refusal(
             f"refusing to build: {path} declares schema_version {version!r}; this builder "
-            f"implements major {SUPPORTED_SCHEMA_MAJOR} and must stop rather than guess (07 G-3)."
+            f"implements major {SUPPORTED_SCHEMA_MAJOR} and supports versions 1.0 and 1.1 "
+            "and must stop rather than guess (07 G-3)."
         )
 
     project = document.get("project")
@@ -717,11 +748,22 @@ def read_spec(
             f"refusing to build: {path} project {project!r} does not match 07 section 3.1 "
             "^[a-z0-9][a-z0-9._-]*$."
         )
+    if expected_project is not None and project != expected_project:
+        raise Refusal(
+            f"refusing to build: {path} project {project!r} does not match "
+            f"expected project {expected_project!r} (cross-file consistency, 07 section 3.1)."
+        )
 
     if document.get("spec") != path.stem:
         raise Refusal(
             f"refusing to build: {path} declares spec {document.get('spec')!r}, not "
             f"{path.stem!r} (07 G-2)."
+        )
+
+    units = document.get("units")
+    if not isinstance(units, dict) or units.get("length") != "cm" or units.get("angle") != "deg":
+        raise Refusal(
+            f"refusing to build: {path} units {units!r} are not cm/deg (07 section 2, G-5)."
         )
 
     for key in required_keys:
@@ -733,7 +775,9 @@ def read_spec(
     return document
 
 
-def read_downstream(specs_dir: Path, name: str) -> dict[str, Any]:
+def read_downstream(
+    specs_dir: Path, name: str, expected_project: str | None = None
+) -> dict[str, Any]:
     """Read a P5 file this stage consumes as an input rather than recomputing.
 
     ``--stage components`` reads ``facade_grids.json`` and ``--stage tables`` reads
@@ -763,12 +807,36 @@ def read_downstream(specs_dir: Path, name: str) -> dict[str, Any]:
             f"{path.stem!r} (07 G-2)."
         )
     version = document.get("schema_version")
-    match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?$", str(version))
-    if match is None or int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR:
+    match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?$", str(version)) if isinstance(version, str) else None
+    if (
+        match is None
+        or int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR
+        or int(match.group(2)) not in SUPPORTED_SCHEMA_MINORS
+    ):
         raise Refusal(
             f"refusing to build: {path} declares schema_version {version!r}; this builder "
-            f"implements major {SUPPORTED_SCHEMA_MAJOR} (07 G-3)."
+            f"implements major {SUPPORTED_SCHEMA_MAJOR} and supports versions 1.0 and 1.1 "
+            "(07 G-3)."
         )
+
+    project = document.get("project")
+    if not isinstance(project, str) or not PROJECT_ID_RE.match(project):
+        raise Refusal(
+            f"refusing to build: {path} project {project!r} does not match 07 section 3.1 "
+            "^[a-z0-9][a-z0-9._-]*$."
+        )
+    if expected_project is not None and project != expected_project:
+        raise Refusal(
+            f"refusing to build: {path} project {project!r} does not match "
+            f"expected project {expected_project!r} (cross-file consistency, 07 section 3.1)."
+        )
+
+    units = document.get("units")
+    if not isinstance(units, dict) or units.get("length") != "cm" or units.get("angle") != "deg":
+        raise Refusal(
+            f"refusing to build: {path} units {units!r} are not cm/deg (07 section 2, G-5)."
+        )
+
     return document
 
 
@@ -3744,7 +3812,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.allow_draft,
             ("tolerances", "facades", "levels", "openings", "site", "source"),
         )
-        massing = read_spec(specs_dir, MASSING_NAME, args.allow_draft, ("elements",))
+        massing = read_spec(
+            specs_dir,
+            MASSING_NAME,
+            args.allow_draft,
+            ("elements",),
+            expected_project=dimensions.get("project"),
+        )
 
         grids: dict[str, Any] | None = None
         registry: dict[str, Any] | None = None
@@ -3759,7 +3833,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         check_grids = grids
         if wants_registry:
             if check_grids is None:
-                check_grids = read_downstream(specs_dir, GRIDS_NAME)
+                check_grids = read_downstream(
+                    specs_dir, GRIDS_NAME, expected_project=dimensions.get("project")
+                )
             registry, panel_family, panel_component_kind, assignment = build_registry(
                 check_grids, dimensions if dimensions is not None else {}
             )
@@ -3770,8 +3846,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             assignment = {}
 
         if wants_tables:
-            table_grids = check_grids if check_grids is not None else read_downstream(specs_dir, GRIDS_NAME)
-            table_registry = registry if registry is not None else read_downstream(specs_dir, REGISTRY_NAME)
+            table_grids = (
+                check_grids
+                if check_grids is not None
+                else read_downstream(
+                    specs_dir, GRIDS_NAME, expected_project=dimensions.get("project")
+                )
+            )
+            table_registry = (
+                registry
+                if registry is not None
+                else read_downstream(
+                    specs_dir, REGISTRY_NAME, expected_project=dimensions.get("project")
+                )
+            )
             if panel_component_kind:
                 table_kind = panel_component_kind
                 table_family = panel_family
@@ -3803,6 +3891,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             facade_path = out_dir / FACADE_CSV_NAME
             world_path = out_dir / WORLD_CSV_NAME
+            to_write: list[tuple[Path, str]] = [(facade_path, facade_csv), (world_path, world_csv)]
+            if wants_grids:
+                assert grids is not None
+                to_write.append((out_dir / GRIDS_NAME, serialize(grids, GRIDS_NAME)))
+            if wants_registry:
+                assert registry is not None
+                to_write.append((out_dir / REGISTRY_NAME, serialize(registry, REGISTRY_NAME)))
+            for target_path, payload in to_write:
+                target_bytes = payload.encode("utf-8")
+                if target_path.is_file() and target_path.read_bytes() != target_bytes:
+                    raise Refusal(
+                        f"refusing to overwrite {target_path}: differing existing content on disk (08.4 / A-WRITE / M34). "
+                        "Resolve difference or remove file before rebuilding."
+                    )
             write_bytes(facade_path, facade_csv)
             write_bytes(world_path, world_csv)
             written.extend([facade_path, world_path])
@@ -3837,6 +3939,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "refusing to write: the self-check failed "
                     f"{len(failures)} invariant(s).\n  - " + "\n  - ".join(failures[:20])
                 )
+            to_write_non_tables: list[tuple[Path, str]] = []
+            if wants_grids:
+                assert grids is not None
+                to_write_non_tables.append((out_dir / GRIDS_NAME, serialize(grids, GRIDS_NAME)))
+            if wants_registry:
+                assert registry is not None
+                to_write_non_tables.append((out_dir / REGISTRY_NAME, serialize(registry, REGISTRY_NAME)))
+            for target_path, payload in to_write_non_tables:
+                target_bytes = payload.encode("utf-8")
+                if target_path.is_file() and target_path.read_bytes() != target_bytes:
+                    raise Refusal(
+                        f"refusing to overwrite {target_path}: differing existing content on disk (08.4 / A-WRITE / M34). "
+                        "Resolve difference or remove file before rebuilding."
+                    )
 
         if wants_grids:
             assert grids is not None

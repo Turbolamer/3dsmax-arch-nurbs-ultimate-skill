@@ -1,0 +1,180 @@
+{
+  "certificate_version": "form_precision_calibration_v1",
+  "id": "CERT_FORM_PRECISION_001",
+  "state": "CALIBRATED",
+  "owner_gate": "PHASE03-GATE-RECORD",
+  "runtime_version": "3ds Max 2026.3.2",
+  "library_revision": "1.1",
+  "library_sha256": "d32657d9db958ca69a44c8afaaa8a6e220a54b118a913b156c7dfdf7a2474add",
+  "collector_revision_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "methods": {
+    "arithmetic_proof_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "arc_solver": "interval_lipschitz_arc_v1",
+    "landmark_solver": "interval_committed_surface_v1",
+    "serializer": "invariant_decimal_wire_v1",
+    "factor": "certified_native_factor_v1",
+    "volume": "box_endpoint_propagation_v1",
+    "scalar_route": "format_decimal_exact",
+    "factor_route": "units_read_system_scale",
+    "frame_route": "currentTime_ticks",
+    "surface_route": "evalPos_committed_domain",
+    "landmark_route": "interval_committed_surface_v1",
+    "library_guard_route": "nurbs_arch_library_sha256",
+    "raw_capture_route": "execute_maxscript_stdout",
+    "volume_route": "box_endpoint_propagation_v1"
+  },
+  "domains": {
+    "unit_types": [
+      {
+        "runtime_enum": "Centimeters",
+        "cm_per_base": 1.0
+      },
+      {
+        "runtime_enum": "Meters",
+        "cm_per_base": 100.0
+      },
+      {
+        "runtime_enum": "Millimeters",
+        "cm_per_base": 0.1
+      },
+      {
+        "runtime_enum": "Inches",
+        "cm_per_base": 2.54
+      }
+    ],
+    "system_scale_range": [
+      1.0,
+      1.0
+    ],
+    "max_abs_world_scene": 100000.0,
+    "max_abs_local_scene": 100000.0,
+    "max_object_basis_norm": 100.0,
+    "max_object_translation_scene": 100000.0,
+    "max_abs_parameter": 10000.0,
+    "max_abs_world_cm": 100000.0,
+    "max_abs_angle_deg": 360.0,
+    "max_abs_volume_cm3": 1000000000000.0,
+    "max_aggregate_terms": 1000,
+    "surface_kinds": [
+      "semi_elliptical_barrel",
+      "cv_grid",
+      "point_grid",
+      "ruled",
+      "revolve",
+      "sweep_1rail",
+      "sweep_2rail",
+      "blend"
+    ],
+    "ticks_per_frame": 160
+  },
+  "descriptors": [
+    {
+      "id": "QA-V1-COVERAGE",
+      "family": "QA-V1-COVERAGE",
+      "method_id": "runtime_fingerprints_v1",
+      "route": "query_coverage_nodes"
+    },
+    {
+      "id": "QA-V1-CENSUS",
+      "family": "QA-V1-CENSUS",
+      "method_id": "runtime_fingerprints_v1",
+      "route": "census_massing_elements"
+    },
+    {
+      "id": "QA-V1-NURBS-CENSUS",
+      "family": "QA-V1-NURBS-CENSUS",
+      "method_id": "runtime_fingerprints_v1",
+      "route": "census_nurbs_surfaces"
+    },
+    {
+      "id": "QA-V1-PLACEMENT",
+      "family": "QA-V1-PLACEMENT",
+      "method_id": "runtime_fingerprints_v1",
+      "route": "query_placements_instances"
+    },
+    {
+      "id": "QA-V1-WALLS",
+      "family": "QA-V1-WALLS",
+      "method_id": "runtime_fingerprints_v1",
+      "route": "query_wall_openings"
+    },
+    {
+      "id": "QA-V1-FORM",
+      "family": "QA-V1-FORM",
+      "method_id": "interval_committed_surface_v1",
+      "route": "evalPos_point_grid"
+    },
+    {
+      "id": "QA-V1-STACK",
+      "family": "QA-V1-STACK",
+      "method_id": "runtime_fingerprints_v1",
+      "route": "query_modifier_stack"
+    },
+    {
+      "id": "QA-V1-REPLAY",
+      "family": "QA-V1-REPLAY",
+      "method_id": "runtime_fingerprints_v1",
+      "route": "replay_verification"
+    }
+  ],
+  "bounds": {
+    "solver_distance_cm": 0.001,
+    "wire_length_cm": 0.0001,
+    "wire_angle_deg": 0.001,
+    "unit_factor_relative": 1e-06,
+    "volume_roundoff_cm3": 0.01,
+    "solver_arithmetic_cm": 0.0001,
+    "landmark_arithmetic_cm": 0.0001,
+    "max_rows_per_batch": 25,
+    "max_batch_seconds": 2.0,
+    "max_response_bytes": 1048576,
+    "row_cost_seconds": [
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05
+    ],
+    "row_size_bytes": [
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256
+    ]
+  },
+  "surface_maps": [
+    {
+      "source_kind": "semi_elliptical_barrel",
+      "class_label": "NURBSPointSurface",
+      "superclass_label": "GeometryClass",
+      "role": "design_surface",
+      "relation_slots": []
+    }
+  ],
+  "controls": [
+    {
+      "id": "CTRL_UNITS",
+      "gate_id": "C03-UNITS",
+      "descriptor_ids": [
+        "QA-V1-COVERAGE",
+        "QA-V1-CENSUS",
+        "QA-V1-NURBS-CENSUS",
+        "QA-V1-PLACEMENT",
+        "QA-V1-WALLS",
+        "QA-V1-FORM",
+        "QA-V1-STACK",
+        "QA-V1-REPLAY"
+      ],
+      "evidence_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "result": "HIT",
+      "interpretation": "Scale cm native unit factor verified"
+    }
+  ]
+}

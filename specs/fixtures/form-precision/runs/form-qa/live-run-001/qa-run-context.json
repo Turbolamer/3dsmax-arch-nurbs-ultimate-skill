@@ -1,0 +1,17 @@
+{
+  "context_version": "form_qa_context_v1",
+  "project": "form-precision",
+  "run_id": "live-run-001",
+  "request_hash": "4317445f8b1276a7cf71ec0ddc75977dc1d1ebfeda7bd96591cb970f4a9e023e",
+  "session_binding": "local_only_v1",
+  "local_session_id": "live-run-001",
+  "session_limitation": "No server attestation; restart/reconnect invalidates local binding",
+  "selected_frame": 0,
+  "library_revision": "2026.3-precision",
+  "library_sha256": "d32657d9db958ca69a44c8afaaa8a6e220a54b118a913b156c7dfdf7a2474add",
+  "required_replay_passes": [
+    1,
+    2,
+    3
+  ]
+}

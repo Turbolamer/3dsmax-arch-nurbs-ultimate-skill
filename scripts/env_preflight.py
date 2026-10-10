@@ -18,11 +18,13 @@ a live MCP session. It works in two modes:
 2. EVAL MODE (``--results FILE``): reads a JSON object mapping check name ->
    captured output, evaluates every check, and exits 0 only when nothing FAILs.
    Keys in the results file match the check names printed in emit mode.
+   When ``--require-complete`` is supplied, exits 1 if any check is SKIP or missing.
 
 MAXSCRIPT PROBES REQUIRED (run each via ``execute_maxscript``, paste the returned
 string back under the matching key):
 
     max_version          maxVersion()                       -> "major=2026 full=#(...)"
+    units                units.SystemType / SystemScale      -> "SystemType=centimeters SystemScale=1.0"
     nurbset_present      NURBSSet resolves AND constructs    -> "CREATED:NURBSSet"
     loft_not_creatable   Loft resolves but does NOT construct
                                                        -> "resolved=true THROWS created=false"
@@ -31,7 +33,7 @@ string back under the matching key):
     quadpatch_creatable  QuadPatch()                          -> "OK classOf=quadPatch ..."
     materials            OpenPBR / PhysicalMaterial / Standard -> "OpenPBR=ok Physical..."
 
-Five of the seven bodies below are transcribed verbatim from a live verification pass
+Five of the eight bodies below are transcribed verbatim from a live verification pass
 against the running 3ds Max 2026 bridge. ``loft_not_creatable`` and ``sweep_on_shape``
 were re-shaped afterwards so that the throw is reported as a flag and the value
 separately; their measured outcomes are unchanged. See
@@ -48,13 +50,15 @@ NON-MAXSCRIPT KEYS (from typed MCP tools, also accepted in the results file):
 
 EXIT CODES
 ----------
-    0   no FAIL rows
-    1   at least one FAIL row
+    0   no FAIL rows (and in --require-complete mode, no SKIP rows)
+    1   at least one FAIL row (or any SKIP row in --require-complete mode)
 
 Usage
 -----
     python scripts/env_preflight.py
+    python scripts/env_preflight.py --require-complete
     python scripts/env_preflight.py --results results.json --json
+    python scripts/env_preflight.py --results results.json --require-complete
     python scripts/env_preflight.py --transport namedpipe
 """
 
@@ -62,6 +66,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from dataclasses import dataclass
@@ -86,6 +91,23 @@ MATERIAL_CLASSES: tuple[str, ...] = (
     "PhysicalMaterial",
     "Standard",
 )
+
+try:
+    from scripts.scene_units import SYSTEM_TYPE_FACTORS
+except ImportError:
+    try:
+        from scene_units import SYSTEM_TYPE_FACTORS
+    except ImportError:
+        SYSTEM_TYPE_FACTORS = {
+            "centimeters": 1.0,
+            "millimeters": 0.1,
+            "meters": 100.0,
+            "kilometers": 100000.0,
+            "inches": 2.54,
+            "feet": 30.48,
+            "miles": 160934.4,
+            "yards": 91.44,
+        }
 
 # ``maxVersion()`` returns an array whose index 8 is the major version.
 _VERSION_MAJOR_RE = re.compile(r"major\s*=\s*(\d+)")
@@ -202,6 +224,16 @@ class ResultsRunner:
 SCRIPT_MAX_VERSION = """(
 local v = maxVersion()
 "major=" + ((v[8]) as string) + " full=" + (v as string)
+)"""
+
+SCRIPT_UNITS = """(
+local st = undefined
+local ss = undefined
+local out = ""
+try ( st = units.SystemType as string ) catch ( st = "THREW" )
+try ( ss = units.SystemScale as string ) catch ( ss = "THREW" )
+out += "SystemType=" + st + " SystemScale=" + ss
+out
 )"""
 
 SCRIPT_NURBSET_PRESENT = """(
@@ -385,6 +417,47 @@ def check_max_version(runner: ResultsRunner) -> CheckResult:
     return CheckResult(str(value), ok, note)
 
 
+def check_units(runner: ResultsRunner) -> CheckResult:
+    """SystemType must be certified and SystemScale must be a positive float."""
+    raw = runner.text("units").strip()
+    match_st = re.search(r"SystemType=\s*([^\s]+)", raw, re.IGNORECASE)
+    match_ss = re.search(r"SystemScale=\s*([^\s]+)", raw, re.IGNORECASE)
+    if match_st is None or match_ss is None:
+        return CheckResult(
+            raw or "(empty)",
+            False,
+            "failed to parse SystemType= and SystemScale= from units probe output",
+        )
+    st = match_st.group(1)
+    ss = match_ss.group(1)
+
+    norm_type = st.lstrip("#").lower()
+    if norm_type not in SYSTEM_TYPE_FACTORS:
+        return CheckResult(
+            f"SystemType={st} SystemScale={ss}",
+            False,
+            f"uncertified SystemType {st!r}; must be one of {sorted(SYSTEM_TYPE_FACTORS.keys())}",
+        )
+
+    try:
+        scale = float(ss)
+    except (ValueError, TypeError):
+        return CheckResult(
+            f"SystemType={st} SystemScale={ss}",
+            False,
+            f"unparseable SystemScale {ss!r}; must be positive finite float",
+        )
+
+    if not math.isfinite(scale) or scale <= 0.0:
+        return CheckResult(
+            f"SystemType={st} SystemScale={ss}",
+            False,
+            f"SystemScale must be positive finite float, got {scale}",
+        )
+
+    return CheckResult(f"SystemType={st} SystemScale={ss}", True, "")
+
+
 def check_nurbset_present(runner: ResultsRunner) -> CheckResult:
     """``NURBSSet`` must resolve AND construct; the relational NURBS API is real.
 
@@ -522,6 +595,13 @@ def check_plugins_absent(runner: ResultsRunner) -> CheckResult:
         payload = json.loads(payload)
     if not isinstance(payload, Mapping):
         return CheckResult(json.dumps(payload), False, "plugins_absent must be a JSON object")
+    missing = [k for k in ABSENT_PLUGINS if k not in payload]
+    if missing:
+        return CheckResult(
+            f"missing: {', '.join(missing)}",
+            False,
+            f"missing plugin keys in payload: {', '.join(missing)}; missing keys must not inherit false-as-absent",
+        )
     states = {k: _as_bool(payload.get(k)) for k in ABSENT_PLUGINS}
     absent = [k for k, v in states.items() if v is False]
     present = [k for k, v in states.items() if v is True]
@@ -563,6 +643,14 @@ def build_checks() -> tuple[CheckSpec, ...]:
             script=SCRIPT_MAX_VERSION,
             severity=SEVERITY_WARN,
             run=check_max_version,
+        ),
+        CheckSpec(
+            name="units",
+            expectation="certified SystemType, scale > 0",
+            source=SOURCE_MAXSCRIPT,
+            script=SCRIPT_UNITS,
+            severity=SEVERITY_FAIL,
+            run=check_units,
         ),
         CheckSpec(
             name="nurbset_present",
@@ -609,7 +697,7 @@ def build_checks() -> tuple[CheckSpec, ...]:
             expectation="forestPack/tyFlow/railClone/phoenixFD all False",
             source=SOURCE_MCP,
             script="",
-            severity=SEVERITY_WARN,
+            severity=SEVERITY_FAIL,
             run=check_plugins_absent,
         ),
         CheckSpec(
@@ -729,6 +817,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="JSON file of captured probe outputs (see module docstring).",
     )
     parser.add_argument(
+        "--require-complete",
+        action="store_true",
+        help="Strict gate mode: exit 1 on any check SKIP, missing captured result, or malformed output.",
+    )
+    parser.add_argument(
         "--transport",
         help="Bridge transport reported by the caller, e.g. namedpipe.",
     )
@@ -794,6 +887,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             print(
                 f"skip {skipped} - no captured results; rerun with --results to evaluate"
             )
+    if args.require_complete:
+        if failed > 0 or skipped > 0:
+            return 1
+        return 0
     return 1 if failed else 0
 
 

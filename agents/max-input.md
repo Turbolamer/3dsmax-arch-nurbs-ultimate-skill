@@ -19,7 +19,7 @@
 | Output | Three locked spec files plus the project manifest |
 | Geometry produced | **None.** No nodes, no meshes, no surfaces, no modifiers |
 | 3ds Max calls | **Zero.** See §1.1 |
-| Consumer | S2 (`agents/max-massing.md`), and through it S3…S8 |
+| Consumer | S2 (`agents/max-massing.md`), S3 (`agents/max-nurbs.md`), and through them S4…S8 |
 | Precondition | None. S1 is the first stage that runs; P0/P1 must be complete because their verified facts are cited, not re-derived |
 | Blocked by | Nothing about 3ds Max. `CHECKPOINT.md` §"Next actions" records P2 as deliberately Max-independent |
 | Findings | See `agents/max-orchestrator.md` §6.2. If this session produced a real finding — a value that disagrees with the brief, a dimension the brief needs that the grammar has no key for, or a value inside its range that is legal but wrong on site — record it in `<project>/IMPROVEMENTS.md`. **A session with no findings writes nothing and creates no file.** Format: `references/improvement-log.md` |
@@ -43,6 +43,22 @@ Consequences you must accept:
 The one Max-adjacent fact you may rely on is the one `07` §11 already records: the pipeline authors
 lengths in centimetres. Everything else about the environment is out of your scope.
 
+### 1.2 Analytical source authority (Schema 1.1 / D8=A)
+
+In Schema 1.1, S1 is the analytical source authority for curved and NURBS geometry:
+- **D8 = A contract:** `dimensions.json` owns the source parameters for all curved surfaces under
+  `form_references[]` (canonical axes, radii, ranges, plane), along with `precision_targets[]` defining
+  the QA verification scope and requirements profiles.
+- **Downstream derivation:** S3 (`agents/max-nurbs.md`) derives its section curve generators and discretised
+  points from `dimensions.json:form_references[]`. Downstream stages never author or override analytical
+  source parameters; they only derive representations.
+- **QA check plan integration:** `precision_targets[]` provides the verification targets for `qa.json`
+  under Schema 1.1 (`spec: "qa"`, profile `form_precision_v1`), linking S7/P8 automated QA check plans
+  to analytical geometry references (`dimensions.json:precision_targets`).
+- **Raw evidence intake:** `dimensions.json` may optionally contain `raw_source_values[]` to capture unrounded
+  input evidence (e.g. raw millimetre dimensions from drawings) with provenance tracking before normalisation
+  to canonical units.
+
 ---
 
 ## 2. Inputs and outputs
@@ -52,10 +68,11 @@ lengths in centimetres. Everything else about the environment is out of your sco
 | Source | What you take from it |
 |---|---|
 | The user's brief (conversation, attached file, or an image you were given) | The raw material. Normalised per `references/08-input-rules.md` |
-| `references/07-spec-grammar.md` | **The contract you write against.** Envelope, key paths, units, invariants `G-1`…`G-33` |
+| `references/07-spec-grammar.md` | **The contract you write against.** Envelope, key paths, units, invariants `G-1`…`G-33`, `G-86`, `G-87`…`G-90` |
 | `references/08-input-rules.md` | Intake contract, source trust hierarchy, extraction procedure, units normalisation, never-infer list, worked example, S1 completion checklist |
 | `references/09-defaults.md` | Default value tables and the **do-not-default list** |
 | `references/10-conflict-resolution.md` | Precedence ladder `R1`–`R6` and the non-conflict fallback `R7` |
+| `references/_form-units-qa-design.md` | Frozen design contract for Schema 1.1: D8=A analytical source authority, `form_references[]`, `precision_targets[]`, `raw_source_values[]`, units normalisation, and QA profile joins |
 | `examples/{dimensions,assumptions,conflicts_resolved}.json` | The canonical worked case `pavilion-01` — shape, id numbering, tone, level of detail |
 | `scripts/init_project.py`, `scripts/validate_specs.py` | The scaffold and the gate (§4) |
 | `AGENTS.md`, `CHECKPOINT.md` | Repo rules and the incident log you must not repeat |
@@ -64,9 +81,10 @@ lengths in centimetres. Everything else about the environment is out of your sco
 
 | Path | Action |
 |---|---|
-| `specs/pipeline/dimensions.json` | **Create / rewrite.** Schema: `07` §5 |
+| `specs/pipeline/dimensions.json` | **Create / rewrite.** Schema: `07` §5 and Schema 1.1 extensions (`form_references[]`, `precision_targets[]`, optional `raw_source_values[]` per `references/_form-units-qa-design.md` §11–§12). S1 is the analytical source authority; downstream stages derive their geometry from this file |
 | `specs/pipeline/assumptions.json` | **Create / rewrite.** Schema: `07` §6 |
 | `specs/pipeline/conflicts_resolved.json` | **Create / rewrite.** Schema: `07` §7 |
+| `specs/pipeline/qa.json` (Schema 1.1 optional) | **Create / configure.** Schema: `07` §8.7 (`spec: "qa"`, profile `form_precision_v1`) when automated QA check plan configuration is targeted |
 | `project.json` (path as emitted by `scripts/init_project.py`) | **Create / update.** The manifest; schema belongs to `init_project.py` |
 | `<workdir>/…` | Anything else `init_project.py` scaffolds for you — you own it only inside the project workdir you created, and you must not write outside it |
 
@@ -103,12 +121,12 @@ this is the sequence, not the content.
 |---|---|---|---|
 | 1 | **Scaffold or adopt** | If `specs/pipeline/dimensions.json` already exists, adopt the workdir and read the existing files first. Otherwise run `python scripts/init_project.py` — **run `python scripts/init_project.py --help` first and use only the flags it prints.** Do not guess a flag name. | A workdir exists with `specs/pipeline/` and a `project.json` manifest naming the project id |
 | 2 | **Read `08` before parsing** | Read `references/08-input-rules.md` end to end: source trust hierarchy, extraction procedure, units normalisation, never-infer list. | You can state which source class outranks which, and you have the never-infer list in front of you |
-| 3 | **Parse the brief into `07` key paths** | Walk the brief against the `07` §5.3–§5.11 key tables and write each extracted value to its dotted path. Normalise units with the table in `07` §2 applied through `08`'s procedure. Do not yet decide provenance. | Every value the brief states is at a `07` key path, in cm / deg / m², with no bare-length keys (G-8) |
+| 3 | **Parse the brief into `07` key paths & normalise raw units** | Walk the brief against the `07` §5.3–§5.11 and Schema 1.1 key tables and write each extracted value to its dotted path. Normalise units with `07` §2 and `_form-units-qa-design.md` §11.4:<br>• **Raw-mm intake:** length in mm converts to canonical cm via `/10` (e.g. 1800 mm → 180.0 cm, 6000 mm → 600.0 cm, 0.5 mm → 0.05 cm, 12000 mm → 1200.0 cm; span/2 = 600.0 cm semi-axis). Areas convert to m² (mm² `/1000000`, cm² `/10000`) or cm² (mm² `/100`), volumes to cm³ (mm³ `/1000`).<br>• **Provenance tracking:** raw values may be recorded in `raw_source_values[]` in Schema 1.1. Destination canonical fields carry `origin: "derived"` with `derives_from` naming the raw source records.<br>• **Explicit units:** units must be explicitly stated in the input (drawing title block, schedule label, or text); never guessed from display units or assumed silently. | Every value the brief states is at a `07`/Schema 1.1 key path, in cm / deg / m² / cm³, with explicit units and no bare-length keys (G-8) |
 | 4 | **Run the `R1`–`R6` ladder** | Identify every contradiction in the input — including one the brief makes with itself, and one the brief makes with the *schema's* ranges or arithmetic. Walk `references/10-conflict-resolution.md`'s ladder in order; the **first** rule that discriminates wins. Record each as a `C-nnn` with its `sources`, `rejected`, `resolution`, `downstream_stages`. | Every contradiction has a `C-nnn` whose `rules_invoked` is non-empty and contains at least one `R1`…`R6`. **`R7` never appears** (G-14) |
-| 5 | **Fill silence from `09` as `A-nnn`** | For each value the input was silent on: check the do-not-default list first. Anything on it is asked or escalated (§6) — never filled silently. Everything else takes a `09` default or a defensible convention, recorded as an `A-nnn` with `reason` naming the **silence**, a `confidence` about evidence, `invalidated_by`, and a `recheck_stage` in `P3`…`P9`. | Every non-`given`, non-`derived` value has an `A-nnn`; no do-not-default value was used silently |
-| 6 | **Mark provenance** | Fill `origins` in `dimensions.json` — a flat dotted-path map, an entry per leaf, no leaf covered twice, arrays treated as one leaf. `origin` is one of `given` / `assumed` / `conflict` / `derived`; `assumed` and `conflict` carry `origin_ref`, `derived` carries `derives_from`. | `origins` satisfies G-9, G-10 and G-32 |
-| 7 | **Compute the derived values, do not type them** | `building.total_height_cm`, `overall_height_cm`, `gross_floor_area_m2`, `net_floor_area_m2`, `site.footprint_area_m2` / `_width_cm` / `_depth_cm`, `column_x_cm` / `column_y_cm` / `interior_column_count`, `roof.deck_level_cm`, `facades[].length_cm` / `bay_count` / `bay_width_cm`, `floor_plates[].gross_area_m2`, `core.footprint_area_m2`. Formulas are in the `07` §5 rows marked **derived**. | Each equals its formula at the `tolerances` in §8 step 0 (G-32) |
-| 8 | **Emit the three files** | Write `dimensions.json`, `assumptions.json`, `conflicts_resolved.json`. Envelope first, in the six-key order of `07` §3.1, `tolerances` seventh in `dimensions.json`, `origins` before the value tree. UTF-8, no BOM, LF only, exactly one trailing newline, strict JSON. Copy `precedence_rules` from `references/10-conflict-resolution.md` verbatim and let its `note` name the owning file. | G-1, G-2, G-5, G-6, G-7 pass |
+| 5 | **Fill silence from `09` as `A-nnn`** | For each value the input was silent on: check the do-not-default list first. **No guessed defaults for analytical geometry:** radii, semi-axes, planes, and spans must never be silently defaulted (D8=A). Anything on the do-not-default list is asked or escalated (§6.2) — never filled silently. Everything else takes a `09` default or a defensible convention, recorded as an `A-nnn` with `reason` naming the **silence**, a `confidence` about evidence, `invalidated_by`, and a `recheck_stage` in `P3`…`P9`. | Every non-`given`, non-`derived` value has an `A-nnn`; no do-not-default or analytical form value was used silently |
+| 6 | **Mark provenance** | Fill `origins` in `dimensions.json` — a flat dotted-path map, an entry per leaf, no leaf covered twice, arrays treated as one leaf. `origin` is one of `given` / `assumed` / `conflict` / `derived`; `assumed` and `conflict` carry `origin_ref`, `derived` carries `derives_from`.<br>• **D8=A form references:** `dimensions.json` authors `form_references[]` (canonical axes, radii, ranges, plane). Downstream stages (S3 NURBS) derive generators and points from `dimensions.json:form_references[]`. Leaves in `form_references[]` carry S1 origins (`given`, `derived` from raw evidence, or `assumed` with explicit ledger).<br>• **Raw-evidence provenance:** destination canonical fields carry `origin: "derived"` with `derives_from` naming the raw records in `raw_source_values[]`. | `origins` satisfies G-9, G-10 and G-32; raw evidence and form references have valid provenance |
+| 7 | **Compute the derived values, do not type them** | `building.total_height_cm`, `overall_height_cm`, `gross_floor_area_m2`, `net_floor_area_m2`, `site.footprint_area_m2` / `_width_cm` / `_depth_cm`, `column_x_cm` / `column_y_cm` / `interior_column_count`, `roof.deck_level_cm`, `facades[].length_cm` / `bay_count` / `bay_width_cm`, `floor_plates[].gross_area_m2`, `core.footprint_area_m2`. For curved/NURBS geometry: derive semi-axes from span (e.g. `span / 2 = semi-axis a`, 12000 mm span → 1200 cm → `a = 600 cm`), elevation chains, areas, and volumes. Formulas are in `07` §5 rows marked **derived** and `_form-units-qa-design.md` §11–§12. | Each equals its formula at the `tolerances` in §8 step 0 (G-32) |
+| 8 | **Emit the spec files** | Write `dimensions.json` (incorporating `form_references[]` and `precision_targets[]` under Schema 1.1), `assumptions.json`, `conflicts_resolved.json`, and configure `qa.json` under Schema 1.1 (`spec: "qa"`, profile `form_precision_v1`) when automated QA verification is targeted. Envelope first, in the six-key order of `07` §3.1, `tolerances` seventh in `dimensions.json`, `origins` before the value tree. UTF-8, no BOM, LF only, exactly one trailing newline, strict JSON. Copy `precedence_rules` from `references/10-conflict-resolution.md` verbatim and let its `note` name the owning file. | G-1, G-2, G-5, G-6, G-7, G-86 pass |
 | 9 | **Run the validator** | `python scripts/validate_specs.py --dir specs/pipeline` (and `--file <path>` for one file, `--json` for machine-readable output). **Check the flags with `--help` first if the invocation errors** — do not invent a flag. | Exit code 0 |
 | 10 | **Fix every FAIL** | Fix **the spec**, at the layer that is wrong. Re-run until exit 0. A FAIL is never worked around by renaming a key, loosening a tolerance, dropping a leaf from `origins`, or deleting a ledger entry. | `validate_specs.py` exits 0 on a clean re-run |
 | 11 | **Lock, or mark draft** | If the user answered every escalated question, `status: "locked"` on all three files. If any escalation is unanswered, `status: "draft"` (§6.4). | Status matches the answer state |
@@ -153,6 +171,9 @@ Check every line. This list is the definition of done; the validator covers the 
 | 22 | `assumptions.json.cross_references.conflict_sourced_paths` lists **every** path whose origin is `conflict`, and carries **no** `A-` id | **G-13** by prefix |
 | 23 | No file you own names a 3ds Max class, tool, modifier or plugin name (`07` §12) | grep |
 | 24 | `status` is `locked` only if every escalated question was answered; otherwise every affected file is `draft` | §6.4 |
+| 25 | **G-86**: `form_references[]` and `precision_targets[]` (if Schema 1.1) are well-formed and resolve; cross-file reference joins between `dimensions.json:form_references` and downstream `nurbs.json` or `qa.json` resolve without orphan references or mismatched parameters | **G-86**, **G-31** |
+| 26 | **D8=A authority**: `dimensions.json` authors all analytical form parameters (`form_references[]`); curved geometry parameters are never derived from downstream sampled points or silently defaulted | you, and **G-86** |
+| 27 | **Raw-mm provenance**: any millimetre input is explicitly stated in source, converted `/10` to canonical cm (or `/1000` for mm³ to cm³), tracked via `raw_source_values[]` with `origin: "derived"` and resolving `derives_from`; units never guessed from display units | you, and **G-9** / **G-10** |
 
 ---
 
@@ -177,6 +198,7 @@ Any of these is escalated, always, even when a rule or a default seems to cover 
 | Topic | Why |
 |---|---|
 | **Structure** — grid, spans, slab thickness, column size, load paths, anything a structural engineer would own | Not yours and not `09`'s |
+| **Analytical geometry & NURBS form** — radii, semi-axes, planes, spans, springing | Radii, semi-axes, planes, and spans must never be silently defaulted (D8=A). If missing or ambiguous in the brief, escalate |
 | **Egress and life safety** — stair count, stair width, travel distance, exit count, refuge, lift provision, escape routes | Not yours, ever |
 | **Cost**, and **any area figure that will be quoted outside this session** — GFA, NFA, usable area, plot ratio | An assumption here becomes a number someone relies on |
 | **Code compliance** of any kind | See §7 — you may not cite a clause |

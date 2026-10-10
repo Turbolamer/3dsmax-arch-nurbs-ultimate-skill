@@ -17,27 +17,32 @@ python scripts/env_preflight.py --results r.json     # score captured results; e
 python scripts/env_preflight.py --json               # machine-readable report
 python scripts/install_skill.py                     # build .skill + install to ~/.claude, ~/.agents
 python scripts/init_project.py --project X --dir D  # scaffold: 11 spec files under D/X/specs/pipeline + project.json
-python scripts/validate_specs.py --dir examples     # lint every spec against G-1..G-83
+python scripts/validate_specs.py --dir examples     # lint every spec against G-1..G-90
 python scripts/build_spec.py --stage massing --in examples --out examples   # emits massing.json + massing.ms
 python scripts/build_nurbs.py --in examples --out examples                   # emits nurbs.ms
 python scripts/facade_tables.py --in examples --out examples                # emits both P5 JSONs + both CSVs
-python -m py_compile scripts/*.py                   # the only "test" that exists
-```
-
-`python scripts/place_components.py --in <p> --out <p>` # **S5, LAST builder** — placement + wall tiling + scatter declaration
+python scripts/place_components.py --in <p> --out <p>                       # S5, LAST geometry builder — placement + wall tiling + scatter declaration
+python scripts/curve_gen.py                         # analytical curve generator library (import-only module)
+python scripts/expand_curves.py --project-dir <p> --in <in.json> --out <out.json>  # expand draft curves, recompute, verify <= 0.001 cm
+python scripts/scene_units.py                       # scene units translation & scale factor utilities (import library)
+python scripts/qa_check.py --in <p> --emit <run_dir> --run-id <id>          # S7 QA gate: emit query batches + request context
+python scripts/qa_check.py --in <p> --request <req> --results <res> --out <run_dir> # S7 QA gate: assess captured results against tolerances
+python -m py_compile scripts/*.py                   # syntax compile check across all scripts
 ```
 
 `build_spec.py` accepts `--stage massing` only and exits non-zero for anything else.
 
-**`place_components.py` is the project's last builder**, not a planned one — `PLAN.md` §3's layout
-still listed it among unwritten files, and that was wrong. It reads **four** inputs and refuses with
-*"`dimensions.json` is missing … a builder never invents an input"* if given less: `assembly.json`,
-`components_registry.json`, `world_table.csv` and either `dimensions.json` or `massing.json`. It emits
-`assembly.json` + `assembly.ms` and is **zero-modifier** by design (`G-81`).
+**`place_components.py` is the project's last geometry builder (S5)**, not a planned one. It reads **four**
+inputs and refuses with *"`dimensions.json` is missing … a builder never invents an input"* if given less:
+`assembly.json`, `components_registry.json`, `world_table.csv` and either `dimensions.json` or `massing.json`.
+It emits `assembly.json` + `assembly.ms` and is **zero-modifier** by design (`G-81`), implementing Mechanism A
+host wall hiding (`host_node.isHidden = true`) so discrete cells provide geometry without active host collisions.
 
-**Not written and not planned — do not reference these as if they run:** `qa_check.py`,
-`capture_views.py`, `export_max.py`, `lint_script.py`, `check_skill_md.py`, `materials.json`, `qa.json`,
-`export.json`. P7/P8/P9 were **cancelled by the user on 2026-10-05**, not deferred.
+**Not written and not planned — do not reference these as if they run:** `capture_views.py`,
+`export_max.py`, `lint_script.py`, `check_skill_md.py`, `materials.json`, `export.json`. P7 (materials + UVs)
+and P9 (export) were **cancelled by the user on 2026-10-05**, not deferred. In contrast, `qa_check.py` and
+`qa.json` are now **implemented and active** as the S7 offline/live QA verification gate (coverage, census,
+form precision, walls, stack, replay, units guard).
 
 **An emitted `.ms` is not done until it has been `fileIn`-ed and measured.** `build_spec.py` self-checks
 `G-34`…`G-40` before writing, which proves the file is well-formed and proves nothing about whether
@@ -48,11 +53,14 @@ been placed in Max and counted** — 136 rows read from `examples/world_table.cs
 an independent prediction. See `CHECKPOINT.md` §"P5 — the live gate". The full S1→S5 chain was run
 the same way at P10-lite: **254 nodes**, idempotent over three calls, 0 modifiers, scene back to 0.
 
-**Scope, 2026-10-05 — the user cancelled P7 (materials + UVs), P8 (QA) and P9 (export).** The
-deliverable is the model plus a hand-off for materials made by hand. `materials.json` `qa.json` and
+**Scope, updated 2026-10-10 — P7 (Corona materials + UVs) and P9 (export) remain cancelled by user decision.**
+The deliverable is the verified model plus a hand-off for materials made by hand. `materials.json` and
 `export.json` are scaffolded as reserved stubs and **must not be treated as planned work**; there are
-no `qa_check.py` / `capture_views.py` / `export_max.py` / `lint_script.py` / `check_skill_md.py`
-anywhere. Read `agents/max-orchestrator.md` first — it is the driver for S1→S5 and owns the hand-off.
+no `capture_views.py` / `export_max.py` / `lint_script.py` / `check_skill_md.py` anywhere.
+In contrast, **`qa_check.py` and `qa.json` are active as the S7 QA verification gate** (`agents/max-qa.md`),
+verifying live models via query emission, MCP result collection, and offline assessment against tolerances.
+`place_components.py` remains the project's **last geometry builder** (S5).
+Read `agents/max-orchestrator.md` first — it is the driver for S1→S5, S7 QA, and owns the hand-off.
 
 ## Probe method that is now standard
 

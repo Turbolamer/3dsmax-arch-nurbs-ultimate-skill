@@ -1,0 +1,2302 @@
+{
+  "schema_version": "1.0",
+  "spec": "massing",
+  "project": "form-precision",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "dimensions.json -- the locked dimensional contract for form-precision; every value in this file is computed from it by scripts/build_spec.py --stage massing",
+    "recorded_at": "2026-10-09T23:35:40Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [
+    "core.footprint_cm",
+    "core.spans_level_indices",
+    "core.wall_thickness_cm",
+    "facades[0].end_corner_cm",
+    "facades[0].length_cm",
+    "facades[0].start_corner_cm",
+    "facades[1].end_corner_cm",
+    "facades[1].length_cm",
+    "facades[1].start_corner_cm",
+    "facades[2].end_corner_cm",
+    "facades[2].length_cm",
+    "facades[2].start_corner_cm",
+    "facades[3].end_corner_cm",
+    "facades[3].length_cm",
+    "facades[3].start_corner_cm",
+    "floor_plates[0].thickness_cm",
+    "floor_plates[1].thickness_cm",
+    "levels[0].elevation_cm",
+    "levels[0].height_cm",
+    "levels[0].id",
+    "levels[1].elevation_cm",
+    "levels[1].height_cm",
+    "levels[1].id",
+    "roof.deck_level_cm",
+    "roof.deck_thickness_cm",
+    "roof.parapet_height_cm",
+    "roof.parapet_thickness_cm",
+    "site",
+    "site.footprint_ccw",
+    "site.footprint_cm",
+    "site.ground_level_cm",
+    "site.setback_cm",
+    "structure.column_section_cm",
+    "structure.column_x_cm",
+    "structure.column_y_cm"
+  ],
+  "origins": {
+    "defaults.facade_wall_thickness_cm": {
+      "origin": "assumed",
+      "origin_ref": "A-025"
+    },
+    "storeys[0].level_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].id"
+      ]
+    },
+    "storeys[0].elevation_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm"
+      ]
+    },
+    "storeys[0].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "storeys[0].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm",
+        "levels[0].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "storeys[0].slab_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[0].id"
+      ]
+    },
+    "storeys[0].column_refs": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm"
+      ]
+    },
+    "storeys[0].core_refs": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.spans_level_indices"
+      ]
+    },
+    "storeys[1].level_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].id"
+      ]
+    },
+    "storeys[1].elevation_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm"
+      ]
+    },
+    "storeys[1].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "storeys[1].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "levels[1].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "storeys[1].slab_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[1].id"
+      ]
+    },
+    "storeys[1].column_refs": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm"
+      ]
+    },
+    "storeys[1].core_refs": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.spans_level_indices"
+      ]
+    },
+    "elements[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm",
+        "floor_plates[0].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[0].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm",
+        "floor_plates[0].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[0].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm",
+        "floor_plates[0].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[0].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm",
+        "floor_plates[0].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[0].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm",
+        "floor_plates[0].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "floor_plates[1].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[1].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "floor_plates[1].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[1].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "floor_plates[1].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[1].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "floor_plates[1].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[1].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "floor_plates[1].thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "elements[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[2].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[2].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[2].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[2].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[3].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[3].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[3].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[3].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[3].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[4].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[4].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[4].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[4].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[4].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[5].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[5].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[5].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[5].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[5].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_x_cm",
+        "structure.column_y_cm",
+        "structure.column_section_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "floor_plates[1].thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[6].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[6].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[6].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[6].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[6].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[7].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[7].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[7].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[7].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[7].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "core.footprint_cm",
+        "core.wall_thickness_cm",
+        "core.spans_level_indices",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[8].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.deck_thickness_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "elements[8].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.deck_thickness_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "elements[8].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.deck_thickness_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "elements[8].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.deck_thickness_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "elements[8].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.deck_thickness_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "elements[9].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[9].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[9].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[9].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[9].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[10].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[10].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[10].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[10].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[10].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[11].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[11].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[11].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[11].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[11].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[12].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[12].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[12].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[12].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[12].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "roof.parapet_height_cm",
+        "roof.parapet_thickness_cm",
+        "site.footprint_cm"
+      ],
+      "conflict_ref": "C-004"
+    },
+    "elements[13].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[13].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[13].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[13].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[13].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[14].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[14].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[14].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[14].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[14].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[15].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[15].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[15].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[15].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[15].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[16].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[16].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[16].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[16].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[16].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[17].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[17].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[17].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[17].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[17].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[18].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[18].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[18].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[18].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[18].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[19].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[19].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[19].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[19].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[19].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[0].elevation_cm",
+        "levels[0].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[20].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[20].profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[20].profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[20].z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "elements[20].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[1].elevation_cm",
+        "levels[1].height_cm",
+        "defaults.facade_wall_thickness_cm"
+      ],
+      "conflict_ref": "C-001"
+    },
+    "site_pad.ground_pad.profile_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.footprint_cm",
+        "site.setback_cm"
+      ]
+    },
+    "site_pad.ground_pad.profile_ccw": {
+      "origin": "derived",
+      "derives_from": [
+        "site.footprint_cm",
+        "site.footprint_ccw"
+      ]
+    },
+    "site_pad.ground_pad.z_range_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm"
+      ],
+      "conflict_ref": "C-005"
+    },
+    "site_pad.paving": {
+      "origin": "derived",
+      "derives_from": [
+        "site"
+      ]
+    },
+    "site_pad.kerb": {
+      "origin": "derived",
+      "derives_from": [
+        "site"
+      ]
+    },
+    "site_pad.layer": {
+      "origin": "derived",
+      "derives_from": [
+        "site"
+      ]
+    },
+    "grouping[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[0].element_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[0].id",
+        "elements[1].id"
+      ]
+    },
+    "grouping[0].parent_pivot_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[0].profile_cm",
+        "elements[0].z_range_cm",
+        "elements[1].profile_cm",
+        "elements[1].z_range_cm"
+      ]
+    },
+    "grouping[0].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[1].element_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[2].id",
+        "elements[3].id",
+        "elements[4].id",
+        "elements[5].id"
+      ]
+    },
+    "grouping[1].parent_pivot_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[2].profile_cm",
+        "elements[2].z_range_cm",
+        "elements[3].profile_cm",
+        "elements[3].z_range_cm",
+        "elements[4].profile_cm",
+        "elements[4].z_range_cm",
+        "elements[5].profile_cm",
+        "elements[5].z_range_cm"
+      ]
+    },
+    "grouping[1].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[2].element_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[6].id",
+        "elements[7].id"
+      ]
+    },
+    "grouping[2].parent_pivot_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[6].profile_cm",
+        "elements[6].z_range_cm",
+        "elements[7].profile_cm",
+        "elements[7].z_range_cm"
+      ]
+    },
+    "grouping[2].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[3].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[3].element_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[8].id",
+        "elements[9].id",
+        "elements[10].id",
+        "elements[11].id",
+        "elements[12].id"
+      ]
+    },
+    "grouping[3].parent_pivot_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[8].profile_cm",
+        "elements[8].z_range_cm",
+        "elements[9].profile_cm",
+        "elements[9].z_range_cm",
+        "elements[10].profile_cm",
+        "elements[10].z_range_cm",
+        "elements[11].profile_cm",
+        "elements[11].z_range_cm",
+        "elements[12].profile_cm",
+        "elements[12].z_range_cm"
+      ]
+    },
+    "grouping[3].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[4].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "grouping[4].element_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[13].id",
+        "elements[14].id",
+        "elements[15].id",
+        "elements[16].id",
+        "elements[17].id",
+        "elements[18].id",
+        "elements[19].id",
+        "elements[20].id"
+      ]
+    },
+    "grouping[4].parent_pivot_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "elements[13].profile_cm",
+        "elements[13].z_range_cm",
+        "elements[14].profile_cm",
+        "elements[14].z_range_cm",
+        "elements[15].profile_cm",
+        "elements[15].z_range_cm",
+        "elements[16].profile_cm",
+        "elements[16].z_range_cm",
+        "elements[17].profile_cm",
+        "elements[17].z_range_cm",
+        "elements[18].profile_cm",
+        "elements[18].z_range_cm",
+        "elements[19].profile_cm",
+        "elements[19].z_range_cm",
+        "elements[20].profile_cm",
+        "elements[20].z_range_cm"
+      ]
+    },
+    "grouping[4].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    }
+  },
+  "defaults": {
+    "facade_wall_thickness_cm": 20.0
+  },
+  "storeys": [
+    {
+      "index": 0,
+      "level_ref": "LVL-00",
+      "elevation_cm": 0.0,
+      "height_cm": 420.0,
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "slab_ref": "EL-001",
+      "column_refs": [
+        "EL-003",
+        "EL-004"
+      ],
+      "core_refs": [
+        "EL-007"
+      ]
+    },
+    {
+      "index": 1,
+      "level_ref": "LVL-01",
+      "elevation_cm": 420.0,
+      "height_cm": 400.0,
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "slab_ref": "EL-002",
+      "column_refs": [
+        "EL-005",
+        "EL-006"
+      ],
+      "core_refs": [
+        "EL-008"
+      ]
+    }
+  ],
+  "elements": [
+    {
+      "id": "EL-001",
+      "kind": "slab",
+      "storey_index": 0,
+      "profile_cm": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          900.0
+        ],
+        [
+          0.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        -30.0,
+        0.0
+      ],
+      "layer": "01_SLABS"
+    },
+    {
+      "id": "EL-002",
+      "kind": "slab",
+      "storey_index": 1,
+      "profile_cm": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          900.0
+        ],
+        [
+          0.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        395.0,
+        420.0
+      ],
+      "layer": "01_SLABS"
+    },
+    {
+      "id": "EL-003",
+      "kind": "column",
+      "storey_index": 0,
+      "profile_cm": [
+        [
+          430.0,
+          430.0
+        ],
+        [
+          470.0,
+          430.0
+        ],
+        [
+          470.0,
+          470.0
+        ],
+        [
+          430.0,
+          470.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        -30.0,
+        420.0
+      ],
+      "layer": "02_STRUCTURE"
+    },
+    {
+      "id": "EL-004",
+      "kind": "column",
+      "storey_index": 0,
+      "profile_cm": [
+        [
+          880.0,
+          430.0
+        ],
+        [
+          920.0,
+          430.0
+        ],
+        [
+          920.0,
+          470.0
+        ],
+        [
+          880.0,
+          470.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        -30.0,
+        420.0
+      ],
+      "layer": "02_STRUCTURE"
+    },
+    {
+      "id": "EL-005",
+      "kind": "column",
+      "storey_index": 1,
+      "profile_cm": [
+        [
+          430.0,
+          430.0
+        ],
+        [
+          470.0,
+          430.0
+        ],
+        [
+          470.0,
+          470.0
+        ],
+        [
+          430.0,
+          470.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        395.0,
+        820.0
+      ],
+      "layer": "02_STRUCTURE"
+    },
+    {
+      "id": "EL-006",
+      "kind": "column",
+      "storey_index": 1,
+      "profile_cm": [
+        [
+          880.0,
+          430.0
+        ],
+        [
+          920.0,
+          430.0
+        ],
+        [
+          920.0,
+          470.0
+        ],
+        [
+          880.0,
+          470.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        395.0,
+        820.0
+      ],
+      "layer": "02_STRUCTURE"
+    },
+    {
+      "id": "EL-007",
+      "kind": "core_wall",
+      "storey_index": 0,
+      "profile_cm": [
+        [
+          1375.0,
+          25.0
+        ],
+        [
+          1775.0,
+          25.0
+        ],
+        [
+          1775.0,
+          425.0
+        ],
+        [
+          1375.0,
+          425.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "layer": "03_CORE"
+    },
+    {
+      "id": "EL-008",
+      "kind": "core_wall",
+      "storey_index": 1,
+      "profile_cm": [
+        [
+          1375.0,
+          25.0
+        ],
+        [
+          1775.0,
+          25.0
+        ],
+        [
+          1775.0,
+          425.0
+        ],
+        [
+          1375.0,
+          425.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "layer": "03_CORE"
+    },
+    {
+      "id": "EL-009",
+      "kind": "roof_deck",
+      "storey_index": null,
+      "profile_cm": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          900.0
+        ],
+        [
+          0.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        790.0,
+        820.0
+      ],
+      "layer": "04_ROOF"
+    },
+    {
+      "id": "EL-010",
+      "kind": "parapet",
+      "storey_index": null,
+      "profile_cm": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          30.0
+        ],
+        [
+          0.0,
+          30.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        820.0,
+        910.0
+      ],
+      "layer": "04_ROOF"
+    },
+    {
+      "id": "EL-011",
+      "kind": "parapet",
+      "storey_index": null,
+      "profile_cm": [
+        [
+          1770.0,
+          30.0
+        ],
+        [
+          1800.0,
+          30.0
+        ],
+        [
+          1800.0,
+          870.0
+        ],
+        [
+          1770.0,
+          870.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        820.0,
+        910.0
+      ],
+      "layer": "04_ROOF"
+    },
+    {
+      "id": "EL-012",
+      "kind": "parapet",
+      "storey_index": null,
+      "profile_cm": [
+        [
+          0.0,
+          870.0
+        ],
+        [
+          1800.0,
+          870.0
+        ],
+        [
+          1800.0,
+          900.0
+        ],
+        [
+          0.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        820.0,
+        910.0
+      ],
+      "layer": "04_ROOF"
+    },
+    {
+      "id": "EL-013",
+      "kind": "parapet",
+      "storey_index": null,
+      "profile_cm": [
+        [
+          0.0,
+          30.0
+        ],
+        [
+          30.0,
+          30.0
+        ],
+        [
+          30.0,
+          870.0
+        ],
+        [
+          0.0,
+          870.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        820.0,
+        910.0
+      ],
+      "layer": "04_ROOF"
+    },
+    {
+      "id": "EL-014",
+      "kind": "facade_wall",
+      "storey_index": 0,
+      "profile_cm": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          20.0
+        ],
+        [
+          0.0,
+          20.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "EL-015",
+      "kind": "facade_wall",
+      "storey_index": 1,
+      "profile_cm": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          20.0
+        ],
+        [
+          0.0,
+          20.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "EL-016",
+      "kind": "facade_wall",
+      "storey_index": 0,
+      "profile_cm": [
+        [
+          0.0,
+          880.0
+        ],
+        [
+          1800.0,
+          880.0
+        ],
+        [
+          1800.0,
+          900.0
+        ],
+        [
+          0.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "EL-017",
+      "kind": "facade_wall",
+      "storey_index": 1,
+      "profile_cm": [
+        [
+          0.0,
+          880.0
+        ],
+        [
+          1800.0,
+          880.0
+        ],
+        [
+          1800.0,
+          900.0
+        ],
+        [
+          0.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "EL-018",
+      "kind": "facade_wall",
+      "storey_index": 0,
+      "profile_cm": [
+        [
+          1780.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          900.0
+        ],
+        [
+          1780.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "EL-019",
+      "kind": "facade_wall",
+      "storey_index": 1,
+      "profile_cm": [
+        [
+          1780.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          900.0
+        ],
+        [
+          1780.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "EL-020",
+      "kind": "facade_wall",
+      "storey_index": 0,
+      "profile_cm": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          20.0,
+          0.0
+        ],
+        [
+          20.0,
+          900.0
+        ],
+        [
+          0.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "EL-021",
+      "kind": "facade_wall",
+      "storey_index": 1,
+      "profile_cm": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          20.0,
+          0.0
+        ],
+        [
+          20.0,
+          900.0
+        ],
+        [
+          0.0,
+          900.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "layer": "05_FACADE"
+    }
+  ],
+  "site_pad": {
+    "ground_pad": {
+      "profile_cm": [
+        [
+          -300.0,
+          -300.0
+        ],
+        [
+          2100.0,
+          -300.0
+        ],
+        [
+          2100.0,
+          1200.0
+        ],
+        [
+          -300.0,
+          1200.0
+        ]
+      ],
+      "profile_ccw": true,
+      "z_range_cm": [
+        -30.0,
+        0.0
+      ]
+    },
+    "paving": null,
+    "kerb": null,
+    "layer": "00_SITE"
+  },
+  "grouping": [
+    {
+      "id": "GRP-001",
+      "name": "GRP_001",
+      "kind": "slabs",
+      "element_ids": [
+        "EL-001",
+        "EL-002"
+      ],
+      "parent_pivot_cm": [
+        900.0,
+        450.0,
+        -30.0
+      ],
+      "layer": "90_SCENE"
+    },
+    {
+      "id": "GRP-002",
+      "name": "GRP_002",
+      "kind": "columns",
+      "element_ids": [
+        "EL-003",
+        "EL-004",
+        "EL-005",
+        "EL-006"
+      ],
+      "parent_pivot_cm": [
+        675.0,
+        450.0,
+        -30.0
+      ],
+      "layer": "90_SCENE"
+    },
+    {
+      "id": "GRP-003",
+      "name": "GRP_003",
+      "kind": "core",
+      "element_ids": [
+        "EL-007",
+        "EL-008"
+      ],
+      "parent_pivot_cm": [
+        1575.0,
+        225.0,
+        0.0
+      ],
+      "layer": "90_SCENE"
+    },
+    {
+      "id": "GRP-004",
+      "name": "GRP_004",
+      "kind": "roof",
+      "element_ids": [
+        "EL-009",
+        "EL-010",
+        "EL-011",
+        "EL-012",
+        "EL-013"
+      ],
+      "parent_pivot_cm": [
+        900.0,
+        450.0,
+        790.0
+      ],
+      "layer": "90_SCENE"
+    },
+    {
+      "id": "GRP-005",
+      "name": "GRP_005",
+      "kind": "facade",
+      "element_ids": [
+        "EL-014",
+        "EL-015",
+        "EL-016",
+        "EL-017",
+        "EL-018",
+        "EL-019",
+        "EL-020",
+        "EL-021"
+      ],
+      "parent_pivot_cm": [
+        900.0,
+        450.0,
+        0.0
+      ],
+      "layer": "90_SCENE"
+    }
+  ]
+}

@@ -103,7 +103,7 @@ INVENTORY: tuple[tuple[str, str, str], ...] = (
     ("components_registry.json", "P5", "defined"),
     ("assembly.json", "P6", "defined"),
     ("materials.json", "P7", "reserved"),
-    ("qa.json", "P8", "reserved"),
+    ("qa.json", "P8", "defined"),
     ("export.json", "P9", "reserved"),
 )
 
@@ -168,14 +168,6 @@ RESERVED_KEYS: dict[str, tuple[tuple[str, str], ...]] = {
         ("renderer", "object"),
         ("materials", "array"),
         ("uv_rules", "object"),
-    ),
-    "qa.json": (
-        ("tolerances", "tolerances"),
-        ("origin_inputs", "array"),
-        ("checks", "array"),
-        ("determinism", "object"),
-        ("captures", "array"),
-        ("verdict", "object"),
     ),
     "export.json": (
         ("tolerances", "tolerances"),
@@ -888,6 +880,143 @@ def scaffold_assembly(project: str) -> dict[str, Any]:
     return doc
 
 
+def scaffold_qa(project: str) -> dict[str, Any]:
+    """The P8 QA plan. Structurally valid draft QA plan under schema 1.1 compliant with G-87..G-90."""
+    doc: dict[str, Any] = envelope(
+        "qa",
+        project,
+        "assumed",
+        f"draft QA plan scaffolded by {GENERATOR} for project {project!r}; author against "
+        f"references/07-spec-grammar.md section 8.7.",
+        "draft",
+    )
+    doc["schema_version"] = "1.1"
+    doc["tolerances"] = {
+        "linear_cm": 0.5,
+        "area_m2": 0.05,
+        "angle_deg": 0.01,
+        "form": {
+            "surface_deviation_cm": 0.5,
+            "longitudinal_extent_cm": 0.5,
+            "landmark_deviation_cm": 0.5,
+        },
+        "numerical": {
+            "policy": "separate_bounds_v1",
+            "solver_distance_cm": 0.001,
+            "wire_length_cm": 0.0001,
+            "wire_angle_deg": 0.001,
+            "unit_factor_relative": 1e-06,
+            "volume_roundoff_cm3": 0.01,
+        },
+        "volume": {
+            "policy": "box_endpoint_propagation_v1",
+            "endpoint_tolerance_ref": "tolerances.linear_cm",
+        },
+    }
+    doc["origin_inputs"] = []
+    doc["origins"] = {
+        "profile": "assumed",
+        "dependencies": "assumed",
+        "scope": "assumed",
+        "check_plan": "assumed",
+        "sampling": "assumed",
+        "limits": "assumed",
+        "capture_plan": "assumed",
+        "tolerances.form.surface_deviation_cm": "assumed",
+        "tolerances.form.longitudinal_extent_cm": "assumed",
+        "tolerances.form.landmark_deviation_cm": "assumed",
+        "tolerances.numerical.solver_distance_cm": "assumed",
+        "tolerances.numerical.wire_length_cm": "assumed",
+        "tolerances.numerical.wire_angle_deg": "assumed",
+        "tolerances.numerical.unit_factor_relative": "assumed",
+        "tolerances.numerical.volume_roundoff_cm3": "assumed",
+    }
+    doc["profile"] = "form_precision_v1"
+    doc["dependencies"] = [
+        {
+            "id": "DEP_DIMENSIONS",
+            "format": "json",
+            "file": "specs/pipeline/dimensions.json",
+            "spec": "dimensions",
+            "schema_version": "1.0",
+        },
+        {
+            "id": "DEP_MASSING",
+            "format": "json",
+            "file": "specs/pipeline/massing.json",
+            "spec": "massing",
+            "schema_version": "1.0",
+        },
+        {
+            "id": "DEP_NURBS",
+            "format": "json",
+            "file": "specs/pipeline/nurbs.json",
+            "spec": "nurbs",
+            "schema_version": "1.0",
+        },
+        {
+            "id": "DEP_FACADE_GRIDS",
+            "format": "json",
+            "file": "specs/pipeline/facade_grids.json",
+            "spec": "facade_grids",
+            "schema_version": "1.0",
+        },
+        {
+            "id": "DEP_COMPONENTS_REGISTRY",
+            "format": "json",
+            "file": "specs/pipeline/components_registry.json",
+            "spec": "components_registry",
+            "schema_version": "1.0",
+        },
+        {
+            "id": "DEP_ASSEMBLY",
+            "format": "json",
+            "file": "specs/pipeline/assembly.json",
+            "spec": "assembly",
+            "schema_version": "1.0",
+        },
+    ]
+    doc["scope"] = {
+        "registry_ref": "dimensions.json:precision_targets",
+        "targets": [
+            {
+                "id": "TGT_PROJECT",
+                "kind": "project",
+                "role": "project",
+                "node_names": [],
+            }
+        ],
+    }
+    doc["check_plan"] = [
+        {
+            "id": "CHK_COVERAGE",
+            "kind": "QA-V1-COVERAGE",
+            "target_ref": "TGT_PROJECT",
+            "tolerance_ref": "exact",
+        }
+    ]
+    doc["sampling"] = {
+        "policy": "domain_grid_v1",
+        "version": "1",
+        "grid_u": 5,
+        "grid_v": 5,
+        "landmarks_policy": "barrel_landmarks_v1",
+        "selected_frame": 0,
+    }
+    doc["limits"] = {
+        "max_rows_per_batch": 25,
+        "max_targets": 50,
+        "max_samples": 200,
+        "max_calls": 50,
+        "max_batch_seconds": 2.0,
+        "max_total_seconds": 60.0,
+        "max_solver_iterations": 100,
+        "max_response_bytes": 1048576,
+    }
+    doc["capture_plan"] = []
+    return doc
+
+
 def scaffold_reserved(filename: str, project: str, owner: str) -> dict[str, Any]:
     spec = filename[: -len(".json")]
     doc: dict[str, Any] = envelope(
@@ -952,6 +1081,12 @@ def build_plan(project: str, root: Path, examples: Optional[Path]) -> Plan:
                 source = examples / filename
                 document = rewrite_from_example(source.read_text(encoding="utf-8"), project)
                 plan.add_file(pipeline / filename, "seeded from examples", render_json(document))
+            elif filename == "qa.json":
+                plan.add_file(
+                    pipeline / filename,
+                    "scaffold (draft QA plan)",
+                    render_json(scaffold_qa(project)),
+                )
     else:
         plan.add_file(
             pipeline / "dimensions.json",
@@ -993,8 +1128,13 @@ render_json(scaffold_conflicts(project)),
             "stub (generated at build time by place_components.py)",
             render_json(scaffold_assembly(project)),
         )
+        plan.add_file(
+            pipeline / "qa.json",
+            "scaffold (draft QA plan)",
+            render_json(scaffold_qa(project)),
+        )
         for filename, owner, state in INVENTORY:
-            if filename == "assembly.json" or state != "reserved":
+            if filename in ("assembly.json", "qa.json") or state != "reserved":
                 continue
             plan.add_file(
                 pipeline / filename,

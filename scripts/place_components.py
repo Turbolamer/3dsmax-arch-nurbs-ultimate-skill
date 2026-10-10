@@ -123,16 +123,23 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 from pathlib import Path
 from typing import Any, Sequence
+
+try:
+    from scripts.scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
+except ImportError:
+    from scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
 
 # --------------------------------------------------------------------------- #
 # Constants declared by references/07-spec-grammar.md and the P6 contract
 # --------------------------------------------------------------------------- #
 
 SUPPORTED_SCHEMA_MAJOR = 1
+SUPPORTED_SCHEMA_MINORS: tuple[int, ...] = (0, 1)
 SCHEMA_VERSION = "1.0"
 
 STAGES: tuple[str, ...] = ("assembly",)
@@ -434,6 +441,26 @@ def read_spec(specs_dir: Path, name: str) -> dict[str, Any]:
         raise Refusal(f"refusing to build: {path} is not strict JSON -- {exc} (07 G-7).") from exc
     if not isinstance(document, dict):
         raise Refusal(f"refusing to build: {path} top level is not an object (07 G-1).")
+
+    version = document.get("schema_version")
+    match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?$", str(version)) if isinstance(version, str) else None
+    if (
+        match is None
+        or int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR
+        or int(match.group(2)) not in SUPPORTED_SCHEMA_MINORS
+    ):
+        raise Refusal(
+            f"refusing to build: {path} declares schema_version {version!r}; this builder "
+            f"implements major {SUPPORTED_SCHEMA_MAJOR} and supports versions 1.0 and 1.1 "
+            "and must stop rather than guess (07 G-3)."
+        )
+
+    units = document.get("units")
+    if not isinstance(units, dict) or units.get("length") != "cm" or units.get("angle") != "deg":
+        raise Refusal(
+            f"refusing to build: {path} units {units!r} are not cm/deg (07 section 2, G-5)."
+        )
+
     return document
 
 
@@ -1396,6 +1423,9 @@ def render_ms(
     )
 
     body: list[str] = []
+    preamble = emit_unit_preamble(stage="assembly", factor_var="__f_unit")
+    for line in preamble.splitlines():
+        body.append(line[4:] if line.startswith("    ") else line)
     body.append(
         f"-- {OUT_JSON_NAME}: placements={len(placements)} cuts={len(cuts)} cells={len(cells)}"
     )
@@ -1412,8 +1442,8 @@ def render_ms(
     for ident, width, height, thickness in prototypes:
         variable = prototype_name(ident)
         body.append(
-            f"local {variable} = Box width:{num(width)} length:{num(thickness)} "
-            f"height:{num(height)} pos:[0.0,0.0,0.0]"
+            f"local {variable} = Box width:{scene_length_expr(width)} length:{scene_length_expr(thickness)} "
+            f"height:{scene_length_expr(height)} pos:[0.0,0.0,0.0]"
         )
         body.append(f'{variable}.name = "{variable}"')
         body.append("proto_count = proto_count + 1")
@@ -1435,7 +1465,7 @@ def render_ms(
         body.append(f"local {variable} = copy {proto}")
         body.append(f"{variable}.baseObject = {proto}.baseObject")
         body.append(f'{variable}.name = "{variable}"')
-        body.append(f"{variable}.pos = [" + ",".join(num(value) for value in pos) + "]")
+        body.append(f"{variable}.pos = {scene_point_expr(pos)}")
         body.append(f"{variable}.rotation = quat {num(placement['rot_z_deg'])} [0,0,1]")
         body.append("placed_count = placed_count + 1")
 
@@ -1460,10 +1490,9 @@ def render_ms(
         # node.pos on a Box puts the BASE at pos.z (verified P3), so centre the cell in Z.
         cx = as_float(plan[0]) + width / 2.0
         cy = as_float(plan[1]) + length / 2.0
-        pos = "[" + ",".join(num(value) for value in (cx, cy, z0)) + "]"
         body.append(
-            f"local {variable} = Box width:{num(width)} length:{num(length)} "
-            f"height:{num(height)} pos:{pos}"
+            f"local {variable} = Box width:{scene_length_expr(width)} length:{scene_length_expr(length)} "
+            f"height:{scene_length_expr(height)} pos:{scene_point_expr((cx, cy, z0))}"
         )
         body.append(f'{variable}.name = "{variable}"')
         body.append("cell_count = cell_count + 1")
@@ -1480,6 +1509,9 @@ def render_ms(
         body.append(
             "local host_nodes = #(" + ", ".join(host_variable(item) for item in hosts) + ")"
         )
+        body.append("-- Mechanism A (A-CORRECT): deactivate / hide host wall nodes so discrete cells")
+        body.append("-- tile the facade and openings remain clear of solid host geometry.")
+        body.append("for host_node in host_nodes do host_node.isHidden = true")
 
     body.append(
         "-- G-80: the emitted census. It counts nodes FOUND IN THE SCENE, not iterations of"
@@ -2061,6 +2093,23 @@ def _check_stack_bounds(script: str, cuts: Sequence[dict[str, Any]], failures: l
         )
 
 
+def box_endpoint_budget_cm3(w: float, h: float, t: float, linear_cm: float) -> float:
+    """Conservative per-solid physical volume uncertainty budget B cm³ (07 §13.1, §21.4).
+
+    For extents w, h, t > 0 and linear tolerance e = linear_cm >= 0,
+    extent uncertainty d = 2 * e.
+    B = max((w+d)(h+d)(t+d) - wht, wht - max(w-d,0)max(h-d,0)max(t-d,0)).
+    If e <= 0, B = 0.0.
+    """
+    if linear_cm <= 0.0:
+        return 0.0
+    d = 2.0 * linear_cm
+    upper_diff = (w + d) * (h + d) * (t + d) - (w * h * t)
+    lower_prod = max(w - d, 0.0) * max(h - d, 0.0) * max(t - d, 0.0)
+    lower_diff = (w * h * t) - lower_prod
+    return max(upper_diff, lower_diff)
+
+
 def _check_wall_tiling(
     document: dict[str, Any], massing: dict[str, Any], failures: list[str]
 ) -> None:
@@ -2110,8 +2159,10 @@ def _check_wall_tiling(
         thin_is_y = (wy1 - wy0) <= (wx1 - wx0)
         thickness = (wy1 - wy0) if thin_is_y else (wx1 - wx0)
         wall_volume = (wx1 - wx0) * (wy1 - wy0) * (wz1 - wz0)
+        b_host = box_endpoint_budget_cm3(wx1 - wx0, wy1 - wy0, abs(wz1 - wz0), linear)
 
         cell_volume = 0.0
+        b_cells = 0.0
         for cell in host_cells:
             plan = cell.get("plan_rect_cm") or []
             z_range = cell.get("z_range_cm") or []
@@ -2134,6 +2185,7 @@ def _check_wall_tiling(
                 )
                 continue
             cell_volume += (x1 - x0) * (y1 - y0) * (z1 - z0)
+            b_cells += box_endpoint_budget_cm3(x1 - x0, y1 - y0, z1 - z0, linear)
             if z0 < wz0 - linear or z1 > wz1 + linear:
                 _fail(
                     failures,
@@ -2155,6 +2207,7 @@ def _check_wall_tiling(
                 )
 
         opening_volume = 0.0
+        b_cuts = 0.0
         for cut in cuts:
             if str(cut.get("host_ref")) != host_id:
                 continue
@@ -2170,15 +2223,18 @@ def _check_wall_tiling(
             # thickness x v length. `u` is facade-local and this host's long axis is the
             # run axis, which G-76 already established for this host.
             opening_volume += abs(u1 - u0) * thickness * abs(v1 - v0)
+            b_cuts += box_endpoint_budget_cm3(abs(u1 - u0), thickness, abs(v1 - v0), linear)
 
         expected = wall_volume - opening_volume
-        if abs(cell_volume - expected) > linear * linear:
+        vol_budget = b_host + b_cells + b_cuts
+        if abs(cell_volume - expected) > vol_budget:
             _fail(
                 failures,
                 "G-82",
                 f"host {host_id}: cells total {cell_volume} cm3 but wall {wall_volume} minus "
                 f"openings {opening_volume} is {expected} cm3. A difference of "
-                f"{cell_volume - expected} cm3 means the cells do not tile the wall -- either a "
+                f"{cell_volume - expected} cm3 exceeds the volume budget of {vol_budget} cm3 "
+                "and means the cells do not tile the wall -- either a "
                 "gap (unbuilt material) or an overlap (double-counted material)",
             )
 
@@ -2211,6 +2267,8 @@ def _check_script_shape(document: dict[str, Any], script: str, failures: list[st
         )
     if lines[-1] != f"{function}()":
         bad("G-80", f"it ends with {lines[-1]!r}, expected the single call '{function}()'")
+    if "units.SystemScale" not in script or "__f_unit" not in script:
+        bad("G-80", "missing unit verification preamble or __f_unit factor")
     for line in lines:
         stripped = line.strip()
         if stripped.startswith("local ") and not line.startswith("    "):
@@ -2289,8 +2347,28 @@ def write_bytes(path: Path, text: str) -> None:
         raise Refusal(f"refusing to write {path}: the payload contains CR (07 G-7).")
     if not data.endswith(b"\n") or data.endswith(b"\n\n"):
         raise Refusal(f"refusing to write {path}: it must end with exactly one LF (07 G-7).")
+    if path.is_file():
+        existing_bytes = path.read_bytes()
+        if existing_bytes != data:
+            raise Refusal(
+                f"refusing to overwrite {path}: differing existing content on disk (08.4 / A-WRITE / M34). "
+                "Resolve difference or remove file before rebuilding."
+            )
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
+    tmp_p = path.parent / f"{path.name}.tmp.{os.getpid()}"
+    try:
+        with open(tmp_p, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_p, path)
+    finally:
+        if tmp_p.exists():
+            try:
+                tmp_p.unlink()
+            except OSError:
+                pass
 
 
 # --------------------------------------------------------------------------- #
@@ -2426,6 +2504,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         json_path = out_dir / OUT_JSON_NAME
         ms_path = out_dir / OUT_MS_NAME
+        for target_path, payload in ((json_path, text), (ms_path, script)):
+            target_bytes = payload.encode("utf-8")
+            if target_path.is_file() and target_path.read_bytes() != target_bytes:
+                raise Refusal(
+                    f"refusing to overwrite {target_path}: differing existing content on disk (08.4 / A-WRITE / M34). "
+                    "Resolve difference or remove file before rebuilding."
+                )
         write_bytes(json_path, text)
         write_bytes(ms_path, script)
     except Refusal as exc:

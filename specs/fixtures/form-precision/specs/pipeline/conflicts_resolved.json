@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "spec": "conflicts_resolved",
+  "project": "form-precision",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "user_brief",
+    "reference": "seeded from examples/ by scripts/init_project.py for project 'form-precision'; the worked example pavilion-01 brief re-stamped onto this project id. Ledger ids (A-nnn / C-nnn) and every origin_ref are preserved verbatim; the audit trail now records this project.",
+    "recorded_at": "2026-10-09T23:35:40Z"
+  },
+  "status": "locked",
+  "precedence_rules": {
+    "note": "ADOPTED in references/10-conflict-resolution.md (P2b). Rule ids R1..R6 form a precedence ladder applied in ascending order, first match wins; R7 DEFAULT-FILL is not a conflict rule and is forbidden in rules_invoked by G-14. rules_invoked is listed in ascending ladder order and mirrors rule_names_as_proposed positionally.",
+    "evaluation_order": "strict ladder, lowest id first; the first rule that discriminates between the competing sources wins",
+    "rules": [
+      {
+        "id": "R1",
+        "name": "CODE-SUPREMACY",
+        "statement": "A statutory, regulatory or code requirement outranks every user statement, including an explicit one."
+      },
+      {
+        "id": "R2",
+        "name": "SPECIFICITY",
+        "statement": "Among competing user statements of the same class, the one that is more specific wins: a value tied to a named level, element or condition beats a bare global value."
+      },
+      {
+        "id": "R3",
+        "name": "QUANTITY-OVER-SUMMARY",
+        "statement": "A stated total loses to the stated parts that produce it. Parts are measurements; totals are usually summaries."
+      },
+      {
+        "id": "R4",
+        "name": "BUILDABILITY",
+        "statement": "A value that cannot be built - negative dimension, head above floor-to-floor, negative clearance, element outside its host - loses to any value that can be built."
+      },
+      {
+        "id": "R5",
+        "name": "MODULE-ALIGNMENT",
+        "statement": "A value that preserves the stated dimensional module or grid outranks one that breaks it."
+      },
+      {
+        "id": "R6",
+        "name": "LATER-STATEMENT",
+        "statement": "Same class, same specificity, and no rule above discriminates: the statement appearing later in the source wins."
+      }
+    ],
+    "non_conflict_fallback": {
+      "id": "R7",
+      "name": "DEFAULT-FILL",
+      "statement": "A documented default from references/09-defaults.md may fill a silence but may never decide a conflict. A default that appears in a conflicts entry is a bug."
+    }
+  },
+  "conflicts": [
+    {
+      "id": "C-001",
+      "title": "Stated overall building height disagrees with the sum of the two stated storey heights",
+      "detected_in": "brief, paragraph 2 ('roughly 8 m overall') read against paragraph 3 (per-storey heights)",
+      "invariant_violated_if_unresolved": "G-19",
+      "sources": [
+        {
+          "ref": "brief:para2",
+          "statement": "overall building height about 8 m",
+          "value": 800.0,
+          "unit": "cm"
+        },
+        {
+          "ref": "brief:para3",
+          "statement": "ground storey floor-to-floor 420",
+          "value": 420.0,
+          "unit": "cm"
+        },
+        {
+          "ref": "brief:para3",
+          "statement": "first floor floor-to-floor 400",
+          "value": 400.0,
+          "unit": "cm"
+        }
+      ],
+      "rules_invoked": [
+        "R2",
+        "R3"
+      ],
+      "rule_names_as_proposed": [
+        "SPECIFICITY",
+        "QUANTITY-OVER-SUMMARY"
+      ],
+      "resolution": {
+        "chosen_sources": [
+          "brief:para3"
+        ],
+        "chosen_value": 820.0,
+        "statement": "The two per-storey heights are kept exactly as stated. The locked total height is 820 cm, recomputed from them. The brief's 800 cm is treated as a rounded summary, not as a design value.",
+        "resolved_paths": [
+          "levels[0].height_cm",
+          "levels[1].height_cm",
+          "building.total_height_cm"
+        ],
+        "resulting_value_of": "building.total_height_cm",
+        "downstream_effect": "building.total_height_cm becomes origin=derived (G-32) rather than a locked input, so it can never be hand-edited out of step with the storey heights."
+      },
+      "rejected": [
+        {
+          "ref": "brief:para2",
+          "value": 800.0,
+          "why_lost": "A summary that cannot be satisfied without altering a directly stated dimension. Honoring it would require compressing one storey to 380 cm, which is below the 400 cm the brief itself states for that storey and below the office range carried in 09-defaults.md."
+        }
+      ],
+      "downstream_stages": [
+        "P3",
+        "P4",
+        "P5",
+        "P8"
+      ]
+    },
+    {
+      "id": "C-002",
+      "title": "Curtain-wall head height stated above the upper floor-to-floor height",
+      "detected_in": "brief, paragraph 4 (glazed bay: head 380, spandrel 60) read against paragraph 3 (level 1 floor-to-floor 400, locked by C-001)",
+      "invariant_violated_if_unresolved": "G-26",
+      "sources": [
+        {
+          "ref": "brief:para4",
+          "statement": "the glazed bay runs to a head at 380",
+          "value": 380.0,
+          "unit": "cm"
+        },
+        {
+          "ref": "brief:para4",
+          "statement": "the glazed bay keeps a 60 spandrel band",
+          "value": 60.0,
+          "unit": "cm"
+        },
+        {
+          "ref": "brief:para3",
+          "statement": "level 1 floor-to-floor, locked at 400 by C-001",
+          "value": 400.0,
+          "unit": "cm"
+        }
+      ],
+      "rules_invoked": [
+        "R2",
+        "R4"
+      ],
+      "rule_names_as_proposed": [
+        "SPECIFICITY",
+        "BUILDABILITY"
+      ],
+      "resolution": {
+        "chosen_sources": [
+          "brief:para4",
+          "brief:para3"
+        ],
+        "chosen_value": 340.0,
+        "statement": "The upper curtain-wall bay head is set to 340 cm above the level 1 finished floor: 400 cm floor-to-floor less the 60 cm spandrel the brief states for that bay. Width is unchanged at 420 cm.",
+        "resolved_paths": [
+          "openings[11].head_cm"
+        ],
+        "resulting_value_of": "openings[11].head_cm",
+        "downstream_effect": "The facade grid for the upper glazed bay is 340 cm tall, not 380. Panel counts on that bay change accordingly. Note the residual asymmetry: the ground-floor glazed bay keeps the brief's own head of 400 against a 420 floor-to-floor, i.e. a 20 cm spandrel. That is buildable and was not in conflict, so it is carried forward as found rather than silently normalised to 60. If the 60 spandrel is meant to apply to both storeys, open this entry again rather than editing dimensions.json - the head is conflict-sourced and G-9 will block a hand edit."
+      },
+      "rejected": [
+        {
+          "ref": "brief:para4",
+          "value": 380.0,
+          "why_lost": "Contradicts the same paragraph's 60 cm spandrel: 380 + 60 = 440 against a locked 400 floor-to-floor, so the head would run 40 cm past the roof deck. BUILDABILITY rejects it outright, and the element-specific spandrel figure outranks the head figure under SPECIFICITY. The 380 is most likely a transcription of the ground-floor head of 400."
+        }
+      ],
+      "downstream_stages": [
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ]
+    },
+    {
+      "id": "C-003",
+      "title": "Stated south-elevation bay count does not divide the facade length and breaks the stated structural module",
+      "detected_in": "brief, paragraph 5 ('seven bays across the front') read against paragraph 3 (450 cm structural grid)",
+      "invariant_violated_if_unresolved": "G-25",
+      "sources": [
+        {
+          "ref": "brief:para5",
+          "statement": "seven equal bays across the south elevation",
+          "value": 7,
+          "unit": "count"
+        },
+        {
+          "ref": "brief:para3",
+          "statement": "structural grid at 450 cm",
+          "value": 450.0,
+          "unit": "cm"
+        },
+        {
+          "ref": "derived",
+          "statement": "south facade length from the footprint",
+          "value": 1800.0,
+          "unit": "cm"
+        }
+      ],
+      "rules_invoked": [
+        "R3",
+        "R5"
+      ],
+      "rule_names_as_proposed": [
+        "QUANTITY-OVER-SUMMARY",
+        "MODULE-ALIGNMENT"
+      ],
+      "resolution": {
+        "chosen_sources": [
+          "brief:para3"
+        ],
+        "chosen_value": 4,
+        "statement": "The south elevation carries 4 bays of 450 cm. The stated 450 cm grid module is affirmed over the stated bay count; 1800 divides by 4 exactly, and every bay centre lands on a column line.",
+        "resolved_paths": [
+          "structure.x_bay_cm",
+          "facades[0].bay_count",
+          "facades[0].bay_width_cm"
+        ],
+        "resulting_value_of": "facades[0].bay_count",
+        "downstream_effect": "facades[0].bay_count and bay_width_cm become derived from structure.x_bay_cm (G-32), so the count cannot drift from the grid again."
+      },
+      "rejected": [
+        {
+          "ref": "brief:para5",
+          "value": 7,
+          "why_lost": "1800 / 7 = 257.142857 cm, a non-integer module, and it is not the stated 450 cm grid. Seven bays would put mullions off every column line and force either a 257.14 cm structural module or a facade with no intermediate columns."
+        }
+      ],
+      "downstream_stages": [
+        "P3",
+        "P5",
+        "P6",
+        "P8"
+      ]
+    },
+    {
+      "id": "C-004",
+      "title": "Two different parapet heights stated in the same brief",
+      "detected_in": "brief, room schedule ('1200 parapet') read against brief, aesthetic notes ('keep the parapet low, about 900')",
+      "invariant_violated_if_unresolved": "G-16",
+      "sources": [
+        {
+          "ref": "brief:room_schedule",
+          "statement": "parapet 1200",
+          "value": 120.0,
+          "unit": "cm"
+        },
+        {
+          "ref": "brief:aesthetic_notes",
+          "statement": "keep the parapet low, about 900",
+          "value": 90.0,
+          "unit": "cm"
+        }
+      ],
+      "rules_invoked": [
+        "R6"
+      ],
+      "rule_names_as_proposed": [
+        "LATER-STATEMENT"
+      ],
+      "resolution": {
+        "chosen_sources": [
+          "brief:aesthetic_notes"
+        ],
+        "chosen_value": 90.0,
+        "statement": "Parapet height is 90 cm above the roof deck. R1 to R5 do not discriminate here: both are bare single values of the same class, both are buildable, and neither invokes the grid module. The tie is broken by position in the brief.",
+        "resolved_paths": [
+          "roof.parapet_height_cm"
+        ],
+        "resulting_value_of": "roof.parapet_height_cm",
+        "downstream_effect": "building.overall_height_cm becomes 910 cm rather than 940, and the parapet node in the assembly layer inherits the lower value."
+      },
+      "rejected": [
+        {
+          "ref": "brief:room_schedule",
+          "value": 120.0,
+          "why_lost": "Same class and same specificity as the competing value, and nothing above R6 applies. It appears earlier in the brief. It is not rejected as wrong, only as outranked; if the room schedule is confirmed as authoritative the value reverts with no other change needed."
+        }
+      ],
+      "downstream_stages": [
+        "P3",
+        "P6",
+        "P7",
+        "P8"
+      ]
+    },
+    {
+      "id": "C-005",
+      "title": "Two different slab thicknesses stated; one generic, one element-specific",
+      "detected_in": "brief, room schedule ('250 slabs throughout') read against brief, structural note ('300 ground slab, 250 suspended')",
+      "invariant_violated_if_unresolved": "G-16",
+      "sources": [
+        {
+          "ref": "brief:room_schedule",
+          "statement": "250 slabs throughout",
+          "value": 25.0,
+          "unit": "cm"
+        },
+        {
+          "ref": "brief:structural_note",
+          "statement": "300 ground slab, 250 suspended",
+          "value": 30.0,
+          "unit": "cm",
+          "applies_to": "floor_plates[0] only"
+        }
+      ],
+      "rules_invoked": [
+        "R2"
+      ],
+      "rule_names_as_proposed": [
+        "SPECIFICITY"
+      ],
+      "resolution": {
+        "chosen_sources": [
+          "brief:structural_note"
+        ],
+        "chosen_value": 30.0,
+        "statement": "Ground plate 30 cm, suspended plate 25 cm. The structural note is element-specific - it names the ground slab and the suspended slab separately - so it outranks the generic room schedule. The two are not actually in conflict once read this way; the room schedule simply never contemplated a thicker ground slab.",
+        "resolved_paths": [
+          "floor_plates[0].thickness_cm",
+          "floor_plates[1].thickness_cm"
+        ],
+        "resulting_value_of": "floor_plates[0].thickness_cm",
+        "downstream_effect": "Clear height under the ground slab is 390 cm and under the suspended slab 375 cm; both are checked by QA rather than assumed."
+      },
+      "rejected": [
+        {
+          "ref": "brief:room_schedule",
+          "value": 25.0,
+          "why_lost": "Less specific. Applying 25 cm to the ground plate would contradict an explicitly element-specific statement in the same brief."
+        }
+      ],
+      "downstream_stages": [
+        "P3",
+        "P6",
+        "P8"
+      ]
+    }
+  ]
+}

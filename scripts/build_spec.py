@@ -113,10 +113,16 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 from pathlib import Path
 from typing import Any, Sequence
+
+try:
+    from scripts.scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
+except ImportError:
+    from scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
 
 # --------------------------------------------------------------------------- #
 # Constants declared by references/07-spec-grammar.md
@@ -1153,12 +1159,12 @@ def prism_box(profile: Any, z_range: Sequence[float]) -> tuple[str, str, str, st
     y0 = min(q(p[1]) for p in points)
     y1 = max(q(p[1]) for p in points)
     z0, z1 = q(z_range[0]), q(z_range[1])
-    pos = [(x0 + x1) / 2.0, (y0 + y1) / 2.0, z0]
+    pos = [q((x0 + x1) / 2.0), q((y0 + y1) / 2.0), z0]
     return (
-        num(q(x1 - x0)),
-        num(q(y1 - y0)),
-        num(q(z1 - z0)),
-        "[" + ",".join(num(v) for v in pos) + "]",
+        scene_length_expr(q(x1 - x0)),
+        scene_length_expr(q(y1 - y0)),
+        scene_length_expr(q(z1 - z0)),
+        scene_point_expr(pos),
     )
 
 
@@ -1211,6 +1217,10 @@ def render_ms(document: dict[str, Any], layers: Sequence[str]) -> str:
     dummies = [node_name(g["id"]) for g in document["grouping"]]
 
     body: list[str] = []
+    preamble = emit_unit_preamble(stage="massing", factor_var="__f_unit")
+    for line in preamble.splitlines():
+        body.append(line[4:] if line.startswith("    ") else line)
+
     for name in layers:
         # newLayerFromName throws when the layer exists; the guard is the catch,
         # because a second LayerManager route would be the layer code 07 8.1.3
@@ -1246,9 +1256,9 @@ def render_ms(document: dict[str, Any], layers: Sequence[str]) -> str:
         body.append(f'{variable}.name = "{variable}"')
     for group in document["grouping"]:
         variable = node_name(group["id"])
-        pivot = ",".join(num(v) for v in group["parent_pivot_cm"])
+        pivot = scene_point_expr(group["parent_pivot_cm"])
         body.append(f'local {variable} = Dummy name:"{variable}"')
-        body.append(f"{variable}.pos = [{pivot}]")
+        body.append(f"{variable}.pos = {pivot}")
         for element_id in group["element_ids"]:
             body.append(f"{node_name(element_id)}.parent = {variable}")
     body.append("true")
@@ -1760,8 +1770,28 @@ def write_bytes(path: Path, text: str) -> None:
         raise Refusal(f"refusing to write {path}: the payload contains CR (07 G-7).")
     if not data.endswith(b"\n") or data.endswith(b"\n\n"):
         raise Refusal(f"refusing to write {path}: it must end with exactly one LF (07 G-7).")
+    if path.is_file():
+        existing_bytes = path.read_bytes()
+        if existing_bytes != data:
+            raise Refusal(
+                f"refusing to overwrite {path}: differing existing content on disk (08.4 / A-WRITE / M34). "
+                "Resolve difference or remove file before rebuilding."
+            )
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
+    tmp_p = path.parent / f"{path.name}.tmp.{os.getpid()}"
+    try:
+        with open(tmp_p, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_p, path)
+    finally:
+        if tmp_p.exists():
+            try:
+                tmp_p.unlink()
+            except OSError:
+                pass
 
 
 def verify_script(document: dict[str, Any], script: str) -> None:
@@ -1770,6 +1800,10 @@ def verify_script(document: dict[str, Any], script: str) -> None:
     A spec value with no node is a hole nobody would notice until the scene was
     read back, so the script is checked against the document rather than trusted.
     """
+    if "units.SystemScale" not in script or "__f_unit" not in script:
+        raise Refusal(
+            f"refusing to write {OUT_MS_NAME}: missing unit verification preamble or __f_unit factor."
+        )
     function = build_fn_name(document["project"])
     expected: list[str] = [name for name, _ in site_pad_nodes(document)]
     expected += [node_name(e["id"]) for e in document["elements"]]
@@ -1978,6 +2012,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         verify_script(checked, script)
         json_path = out_dir / OUT_JSON_NAME
         ms_path = out_dir / OUT_MS_NAME
+        for target_path, payload in ((json_path, text), (ms_path, script)):
+            target_bytes = payload.encode("utf-8")
+            if target_path.is_file() and target_path.read_bytes() != target_bytes:
+                raise Refusal(
+                    f"refusing to overwrite {target_path}: differing existing content on disk (08.4 / A-WRITE / M34). "
+                    "Resolve difference or remove file before rebuilding."
+                )
         write_bytes(json_path, text)
         write_bytes(ms_path, script)
     except Refusal as exc:

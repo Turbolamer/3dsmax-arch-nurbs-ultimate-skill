@@ -1,0 +1,489 @@
+{
+  "schema_version": "1.0",
+  "spec": "assumptions",
+  "project": "form-precision",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "seeded from examples/ by scripts/init_project.py for project 'form-precision'; the worked example pavilion-01 brief re-stamped onto this project id. Ledger ids (A-nnn / C-nnn) and every origin_ref are preserved verbatim; the audit trail now records this project.",
+    "recorded_at": "2026-10-09T23:35:40Z"
+  },
+  "status": "locked",
+  "assumptions": [
+    {
+      "id": "A-001",
+      "field_path": "site.plot_rotation_deg",
+      "value": 0.0,
+      "reason": "The brief gives no orientation. The building is modelled with its local X axis on world X and its local Y axis on world Y; 0 deg means the facade grid is axis-aligned and the south facade faces -Y.",
+      "confidence": "medium",
+      "invalidated_by": "Any statement of a true-north bearing, a site plan with a north arrow, or a requirement that the entrance face a street at an angle.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P4",
+        "P5"
+      ],
+      "alternatives_considered": [
+        {
+          "value": 15.0,
+          "why_not": "No source. A non-zero default would put every facade angle, opening position and NURBS section on a rotated frame for no stated reason."
+        }
+      ]
+    },
+    {
+      "id": "A-002",
+      "field_path": "site.setback_cm",
+      "value": 300.0,
+      "reason": "No plot boundary was supplied. A 3 m perimeter setback is assumed so that a site pad, paving and planting have somewhere to live; the footprint itself is unaffected.",
+      "confidence": "low",
+      "invalidated_by": "A plot boundary, a boundary wall, or a planning constraint giving a different minimum distance.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-003",
+      "field_path": "structure.y_bay_cm",
+      "value": [
+        450.0,
+        450.0
+      ],
+      "reason": "The brief states a 450 cm grid on the long elevation only. The short direction is taken to use the same 450 cm module, which keeps the grid square and makes the 900 cm depth divide exactly.",
+      "confidence": "medium",
+      "invalidated_by": "A stated short-elevation bay count or module, or a structural requirement for a longer clear span in Y.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P5"
+      ],
+      "alternatives_considered": [
+        {
+          "value": [
+            300.0,
+            300.0,
+            300.0
+          ],
+          "why_not": "Keeps a 300 cm module but breaks the square grid and gives three east/west bays, which the brief never mentions."
+        }
+      ]
+    },
+    {
+      "id": "A-004",
+      "field_path": "structure.column_section_cm",
+      "value": [
+        40.0,
+        40.0
+      ],
+      "reason": "No column size is given. A 400 x 400 mm steel column is assumed; it reads correctly against a 450 cm bay and leaves clear circulation on both sides.",
+      "confidence": "low",
+      "invalidated_by": "A structural design, a load case, or a material change from steel to reinforced concrete.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-005",
+      "field_path": "core.type",
+      "value": "lift_stair_wc",
+      "reason": "The brief says 'a service core' without enumerating it. A lift shaft plus a dog-leg stair plus a WC is the minimum that makes a two-storey office with a glazed stair entrance buildable.",
+      "confidence": "medium",
+      "invalidated_by": "A stated core content, an accessibility strategy that rules out a lift, or a storey count below three.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-006",
+      "field_path": "core.footprint_cm",
+      "value": [
+        [
+          1350.0,
+          0.0
+        ],
+        [
+          1800.0,
+          0.0
+        ],
+        [
+          1800.0,
+          450.0
+        ],
+        [
+          1350.0,
+          450.0
+        ]
+      ],
+      "reason": "The brief places a core but gives no position. The core is snapped to the single south-east structural bay so that it occupies whole bays, sits against two external walls, and releases the remaining floor plate as one open room.",
+      "confidence": "medium",
+      "invalidated_by": "A plan showing the core elsewhere, a requirement that the core be internal, or a brief change that moves the entrance.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P4",
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-007",
+      "field_path": "core.wall_thickness_cm",
+      "value": 25.0,
+      "reason": "No core wall thickness is given. 250 mm is assumed for a reinforced-concrete shear/stair core.",
+      "confidence": "low",
+      "invalidated_by": "A lift-shaft supplier's minimum, or a switch to a lightweight core.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-008",
+      "field_path": "levels[0].use",
+      "value": "office_open_plan",
+      "reason": "The brief calls the project a small office but assigns no use per storey. The ground floor is assumed to be the open-plan working floor.",
+      "confidence": "medium",
+      "invalidated_by": "A brief that names a different ground-floor programme, or a lobby or retail requirement.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P5"
+      ]
+    },
+    {
+      "id": "A-009",
+      "field_path": "levels[1].use",
+      "value": "meeting_and_office",
+      "reason": "The brief gives no upper-floor programme. Meeting rooms plus offices is assumed, which is why the upper floor carries punched windows rather than a continuous curtain wall.",
+      "confidence": "low",
+      "invalidated_by": "A stated upper-floor programme, or a decision to extend the glazed bay to the upper floor as an office.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P5"
+      ]
+    },
+    {
+      "id": "A-010",
+      "field_path": "floor_plates[0].net_usable_area_m2",
+      "value": 138.0,
+      "reason": "Gross area is derivable (162 m2) and the core share is derivable (20.25 m2), but the brief states no room schedule. Usable area is assumed 3.75 m2 below gross-minus-core, i.e. a partition and riser allowance inside the open floor.",
+      "confidence": "low",
+      "invalidated_by": "A room schedule, a change in core position, or a client area target.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P8"
+      ]
+    },
+    {
+      "id": "A-011",
+      "field_path": "floor_plates[1].net_usable_area_m2",
+      "value": 138.0,
+      "reason": "Same reasoning as A-010, applied to the upper plate; both floors are assumed to have the same internal layout quality.",
+      "confidence": "low",
+      "invalidated_by": "A room schedule, a change in core position, or a client area target.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P8"
+      ]
+    },
+    {
+      "id": "A-012",
+      "field_path": "roof.slope_deg",
+      "value": 2.0,
+      "reason": "The brief says 'parapet roof' with no drainage strategy. A 2 deg fall is assumed to drain inboard to internal downpipes, consistent with A-015.",
+      "confidence": "medium",
+      "invalidated_by": "An external-gutter or flat-roof requirement, a local rainfall/roof-code rule, or a specified drainage layout.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P4",
+        "P7"
+      ]
+    },
+    {
+      "id": "A-013",
+      "field_path": "roof.parapet_thickness_cm",
+      "value": 30.0,
+      "reason": "No parapet thickness is given. 300 mm is assumed, matching the roof deck thickness.",
+      "confidence": "low",
+      "invalidated_by": "A specified coping detail or a change of roof build-up.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-014",
+      "field_path": "roof.coping_overhang_cm",
+      "value": 3.0,
+      "reason": "No coping detail is given. A 30 mm overhang each side is assumed so the parapet does not read as a flat-topped wall in render.",
+      "confidence": "low",
+      "invalidated_by": "A specified coping profile, or a metal-cap rather than masonry-capping decision.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-015",
+      "field_path": "roof.drainage",
+      "value": "internal_downpipe",
+      "reason": "The brief is silent. Internal downpipes are assumed, which is what makes the 2 deg fall in A-012 necessary and keeps the facade free of rainwater pipes.",
+      "confidence": "medium",
+      "invalidated_by": "A requirement for external downpipes, or a site drainage constraint that needs a visible outlet.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6",
+        "P7"
+      ]
+    },
+    {
+      "id": "A-016",
+      "field_path": "openings[4]",
+      "value": {
+        "id": "OP-G-05",
+        "facade": "F-E",
+        "level_index": 0,
+        "bay_index": 1,
+        "type": "window",
+        "position_cm": 675.0,
+        "width_cm": 150.0,
+        "sill_cm": 90.0,
+        "head_cm": 270.0
+      },
+      "reason": "The brief describes the south elevation only. One punched window is added to the second bay of the east elevation, sized from the south-elevation bay module. Bay 0 of the east elevation is deliberately left without an opening because it is the core wall.",
+      "confidence": "medium",
+      "invalidated_by": "A blank or fully-glazed east elevation, or a revised core position that frees or blocks that bay.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-017",
+      "field_path": "openings[6]",
+      "value": {
+        "id": "OP-G-07",
+        "facade": "F-N",
+        "level_index": 0,
+        "bay_index": 3,
+        "type": "window",
+        "position_cm": 1575.0,
+        "width_cm": 150.0,
+        "sill_cm": 90.0,
+        "head_cm": 270.0
+      },
+      "reason": "The brief describes the south elevation only. A punched window is added to the north-east bay, matching A-016.",
+      "confidence": "medium",
+      "invalidated_by": "A blank rear elevation, or a revised core position.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-018",
+      "field_path": "openings[7]",
+      "value": {
+        "id": "OP-G-08",
+        "facade": "F-W",
+        "level_index": 0,
+        "bay_index": 1,
+        "type": "window",
+        "position_cm": 675.0,
+        "width_cm": 150.0,
+        "sill_cm": 90.0,
+        "head_cm": 270.0
+      },
+      "reason": "The brief describes the south elevation only. One punched window is added to the west elevation so the building is not blank on two sides.",
+      "confidence": "medium",
+      "invalidated_by": "A blank west elevation or a requirement for a side entrance there instead.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-019",
+      "field_path": "openings[12]",
+      "value": {
+        "id": "OP-1-05",
+        "facade": "F-N",
+        "level_index": 1,
+        "bay_index": 1,
+        "type": "window",
+        "position_cm": 675.0,
+        "width_cm": 150.0,
+        "sill_cm": 90.0,
+        "head_cm": 270.0
+      },
+      "reason": "Upper-floor north elevation is undescribed. A punched window is added on the same vertical as the service door below.",
+      "confidence": "medium",
+      "invalidated_by": "A blank rear elevation, or a decision to run the stair glazing on the north side instead.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-020",
+      "field_path": "openings[13]",
+      "value": {
+        "id": "OP-1-06",
+        "facade": "F-N",
+        "level_index": 1,
+        "bay_index": 3,
+        "type": "window",
+        "position_cm": 1575.0,
+        "width_cm": 150.0,
+        "sill_cm": 90.0,
+        "head_cm": 270.0
+      },
+      "reason": "Upper-floor north elevation is undescribed. Added for the same reason as A-019.",
+      "confidence": "medium",
+      "invalidated_by": "A blank rear elevation, or a revised core position.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-021",
+      "field_path": "openings[14]",
+      "value": {
+        "id": "OP-1-07",
+        "facade": "F-E",
+        "level_index": 1,
+        "bay_index": 1,
+        "type": "window",
+        "position_cm": 675.0,
+        "width_cm": 150.0,
+        "sill_cm": 90.0,
+        "head_cm": 270.0
+      },
+      "reason": "Upper-floor east elevation is undescribed. Added for the same reason as A-016, stacked on the ground-floor window.",
+      "confidence": "medium",
+      "invalidated_by": "A blank east elevation, or a revised core position.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-022",
+      "field_path": "openings[15]",
+      "value": {
+        "id": "OP-1-08",
+        "facade": "F-W",
+        "level_index": 1,
+        "bay_index": 1,
+        "type": "window",
+        "position_cm": 675.0,
+        "width_cm": 150.0,
+        "sill_cm": 90.0,
+        "head_cm": 270.0
+      },
+      "reason": "Upper-floor west elevation is undescribed. Added for the same reason as A-018, stacked on the ground-floor window.",
+      "confidence": "medium",
+      "invalidated_by": "A blank west elevation.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-023",
+      "field_path": "components_registry.json:defaults.panel_thickness_cm",
+      "value": 3.0,
+      "reason": "The modelled depth of every facade panel block. 09-defaults.md D-CL-05 declares a minimum modelled thickness for a facade panel or reveal with default 3 cm and range 2-8; this project uses the declared default, not a value merely inside the range. Nothing in dimensions.json dimensions a panel, so the value cannot be derived.",
+      "confidence": "medium",
+      "invalidated_by": "A fabricator's panel build-up, a curtain-wall system schedule, or a render test showing a 3 cm block reads as a hole or a paper-thin reveal.",
+      "recheck_stage": "P6",
+      "downstream_stages": [
+        "P6",
+        "P7"
+      ]
+    },
+    {
+      "id": "A-024",
+      "field_path": "components_registry.json:defaults.joint_width_cm",
+      "value": 2.0,
+      "reason": "The visible gap between adjacent facade panels, carried in world_table.csv so P6 insets each panel by half a joint. 09-defaults.md D-FM-10 declares a facade panel joint width with default 2 cm and range 1-4; this project uses the declared default. Rendering-only: it changes no panel geometry, only the inset applied at placement.",
+      "confidence": "medium",
+      "invalidated_by": "A joint-width convention from the facade supplier, or a render test showing adjacent panels z-fighting at 2 cm.",
+      "recheck_stage": "P6",
+      "downstream_stages": [
+        "P6"
+      ]
+    },
+    {
+      "id": "A-025",
+      "field_path": "massing.json:defaults.facade_wall_thickness_cm",
+      "value": 20.0,
+      "reason": "The modelled thickness of the opaque facade wall band P6 cuts its openings in. 09-defaults.md D-FW-01 declares it with default 20 cm and range 10-40; this project uses the declared default, not a value merely inside the range. Nothing in dimensions.json dimensions a facade build-up, so the value cannot be derived -- which is why it sits in massing.json's defaults block as origin=assumed rather than being folded silently into the derived geometry.",
+      "confidence": "medium",
+      "invalidated_by": "A fabricator's wall build-up, a curtain-wall system schedule, or a render test showing a 20 cm band reading as a solid slab where a lighter spandrel or reveal is intended.",
+      "recheck_stage": "P6",
+      "downstream_stages": [
+        "P6",
+        "P7"
+      ]
+    }
+  ],
+  "cross_references": {
+    "note": "Values that were NOT invented are listed here for completeness so a reader of dimensions.json does not have to open conflicts_resolved.json to find out why a value looks chosen. Nothing in this block is an assumption and no id here matches an A- id. Conflict-sourced values are owned by conflicts_resolved.json; derived values are recomputed by the validator under G-32 and are owned by no ledger.",
+    "conflict_sourced_paths": [
+      {
+        "path": "levels[0].height_cm",
+        "conflict_ref": "C-001"
+      },
+      {
+        "path": "levels[1].height_cm",
+        "conflict_ref": "C-001"
+      },
+      {
+        "path": "openings[11]",
+        "conflict_ref": "C-002"
+      },
+      {
+        "path": "structure.x_bay_cm",
+        "conflict_ref": "C-003"
+      },
+      {
+        "path": "roof.parapet_height_cm",
+        "conflict_ref": "C-004"
+      },
+      {
+        "path": "floor_plates[0].thickness_cm",
+        "conflict_ref": "C-005"
+      },
+      {
+        "path": "floor_plates[1].thickness_cm",
+        "conflict_ref": "C-005"
+      }
+    ]
+  }
+}

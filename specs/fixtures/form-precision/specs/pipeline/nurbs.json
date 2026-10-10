@@ -1,0 +1,2931 @@
+{
+  "schema_version": "1.1",
+  "spec": "nurbs",
+  "project": "form-precision",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "massing.json -- the locked massing for pavilion-01, plus dimensions.json; every value in this file is computed from them against references/07-spec-grammar.md section 8.2. seeded from examples/ by scripts/init_project.py for project 'form-precision'; the worked example pavilion-01 brief re-stamped onto this project id. Ledger ids (A-nnn / C-nnn) and every origin_ref are preserved verbatim; the audit trail now records this project.",
+    "recorded_at": "2026-10-09T23:35:40Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [
+    "elements[8].z_range_cm",
+    "facades[0].bay_width_cm",
+    "floor_plates[0].thickness_cm",
+    "floor_plates[1].thickness_cm",
+    "levels[1].elevation_cm",
+    "openings[1].head_cm",
+    "roof.deck_level_cm",
+    "site.footprint_cm",
+    "site.footprint_depth_cm",
+    "site.footprint_width_cm",
+    "site.ground_level_cm",
+    "site.setback_cm",
+    "storeys[1].z_range_cm",
+    "structure.column_section_cm",
+    "structure.y_bay_cm"
+  ],
+  "origins": {
+    "derivatives[0].divisions_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "site.footprint_width_cm"
+      ]
+    },
+    "derivatives[0].divisions_v": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.y_bay_cm",
+        "site.footprint_depth_cm"
+      ]
+    },
+    "derivatives[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "derivatives[0].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "derivatives[0].surface_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "derivatives[1].divisions_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[6]"
+      ]
+    },
+    "derivatives[1].divisions_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]"
+      ]
+    },
+    "derivatives[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "derivatives[1].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "derivatives[1].sub_steps": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_section_cm",
+        "sections[6]"
+      ]
+    },
+    "derivatives[1].surface_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "derivatives[1].thickness_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "structure.column_section_cm"
+      ]
+    },
+    "derivatives[2].divisions_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[9]"
+      ]
+    },
+    "derivatives[2].divisions_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]"
+      ]
+    },
+    "derivatives[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[2]"
+      ]
+    },
+    "derivatives[2].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[2]"
+      ]
+    },
+    "derivatives[2].surface_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[2]"
+      ]
+    },
+    "sections[10].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[11].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "structure.column_section_cm",
+        "sections[12]"
+      ]
+    },
+    "sections[12].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm",
+        "sections[11]"
+      ]
+    },
+    "sections[13].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm",
+        "sections[11]"
+      ]
+    },
+    "sections[14].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm",
+        "sections[11]"
+      ]
+    },
+    "sections[15].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "site.setback_cm",
+        "sections[17]"
+      ]
+    },
+    "sections[16].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "site.setback_cm",
+        "sections[15]"
+      ]
+    },
+    "sections[17].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[18].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[19].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[20].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[21].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "floor_plates[0].thickness_cm",
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "sections[22].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm",
+        "surfaces[0]"
+      ]
+    },
+    "sections[5].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[6].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[7].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[8].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "sections[9].points_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_width_cm",
+        "site.footprint_depth_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].closed_sections": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].hide_curves": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[4]"
+      ]
+    },
+    "surfaces[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "roof.deck_level_cm",
+        "elements[8].z_range_cm"
+      ]
+    },
+    "surfaces[0].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0].thickness_cm",
+        "sections[0]"
+      ]
+    },
+    "surfaces[0].merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[0].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[0]",
+        "sections[1]",
+        "sections[2]",
+        "sections[3]",
+        "sections[4]"
+      ]
+    },
+    "surfaces[0].thickness_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "floor_plates[1].thickness_cm"
+      ]
+    },
+    "surfaces[1].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[7]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[1].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "surfaces[0].mat_id"
+      ]
+    },
+    "surfaces[1].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[5]",
+        "sections[6]",
+        "sections[7]"
+      ]
+    },
+    "surfaces[2].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[10]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[2].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "surfaces[1].mat_id"
+      ]
+    },
+    "surfaces[2].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]",
+        "sections[9]",
+        "sections[10]"
+      ]
+    },
+    "surfaces[2].u_order": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]"
+      ]
+    },
+    "surfaces[2].v_order": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[8]"
+      ]
+    },
+    "surfaces[3].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[14]",
+        "openings[1].head_cm"
+      ]
+    },
+    "surfaces[3].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm"
+      ]
+    },
+    "surfaces[3].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].head_cm",
+        "facades[0].bay_width_cm"
+      ]
+    },
+    "surfaces[3].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[11]",
+        "sections[12]"
+      ]
+    },
+    "surfaces[3].parallel": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[11]",
+        "sections[12]",
+        "sections[13]",
+        "sections[14]"
+      ]
+    },
+    "surfaces[3].rail_section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[11]"
+      ]
+    },
+    "surfaces[3].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[12]",
+        "sections[13]",
+        "sections[14]"
+      ]
+    },
+    "surfaces[4].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[21]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[4].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "site.setback_cm"
+      ]
+    },
+    "surfaces[4].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "site.ground_level_cm",
+        "site.setback_cm"
+      ]
+    },
+    "surfaces[4].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "surfaces[4].parallel": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "surfaces[4].rail_section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[15]",
+        "sections[16]"
+      ]
+    },
+    "surfaces[4].section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[17]",
+        "sections[18]",
+        "sections[19]",
+        "sections[20]",
+        "sections[21]"
+      ]
+    },
+    "surfaces[5].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].edge1": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[5].edge2": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "surfaces[5].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]"
+      ]
+    },
+    "surfaces[5].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[5].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "surfaces[1]"
+      ]
+    },
+    "surfaces[5].parent1_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[5].parent2_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[1]"
+      ]
+    },
+    "surfaces[6].approximation.merge_tol_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].approximation.render_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].approximation.render_edge_pct": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].approximation.view_steps_u": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].approximation.view_steps_v": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].flip_trim": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]"
+      ]
+    },
+    "surfaces[6].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]",
+        "levels[1].elevation_cm"
+      ]
+    },
+    "surfaces[6].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[1].elevation_cm",
+        "site.footprint_cm"
+      ]
+    },
+    "surfaces[6].mat_id": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]"
+      ]
+    },
+    "surfaces[6].p_vec": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]",
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].seed": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].surface_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "surfaces[0]"
+      ]
+    },
+    "surfaces[6].trim_section_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "sections[22]"
+      ]
+    },
+    "sections[0]": {
+      "origin": "derived",
+      "derives_from": [
+        "form_references[0]"
+      ]
+    },
+    "sections[1]": {
+      "origin": "derived",
+      "derives_from": [
+        "form_references[0]"
+      ]
+    },
+    "sections[2]": {
+      "origin": "derived",
+      "derives_from": [
+        "form_references[0]"
+      ]
+    },
+    "sections[3]": {
+      "origin": "derived",
+      "derives_from": [
+        "form_references[0]"
+      ]
+    },
+    "sections[4]": {
+      "origin": "derived",
+      "derives_from": [
+        "form_references[0]"
+      ]
+    }
+  },
+  "sections": [
+    {
+      "id": "SEC-001",
+      "points_cm": [
+        [
+          0.0,
+          0.0,
+          420.0
+        ],
+        [
+          1.926969,
+          0.0,
+          431.772563
+        ],
+        [
+          7.699625,
+          0.0,
+          443.494715
+        ],
+        [
+          17.293248,
+          0.0,
+          455.116258
+        ],
+        [
+          30.666756,
+          0.0,
+          466.587428
+        ],
+        [
+          47.762883,
+          0.0,
+          477.859104
+        ],
+        [
+          68.508421,
+          0.0,
+          488.883018
+        ],
+        [
+          92.814533,
+          0.0,
+          499.611964
+        ],
+        [
+          120.577137,
+          0.0,
+          510.0
+        ],
+        [
+          151.677349,
+          0.0,
+          520.002642
+        ],
+        [
+          185.981994,
+          0.0,
+          529.577057
+        ],
+        [
+          223.344173,
+          0.0,
+          538.682247
+        ],
+        [
+          263.603897,
+          0.0,
+          547.279221
+        ],
+        [
+          306.588766,
+          0.0,
+          555.331165
+        ],
+        [
+          352.114714,
+          0.0,
+          562.803601
+        ],
+        [
+          399.98679,
+          0.0,
+          569.66453
+        ],
+        [
+          450.0,
+          0.0,
+          575.884573
+        ],
+        [
+          501.940179,
+          0.0,
+          581.437093
+        ],
+        [
+          555.584911,
+          0.0,
+          586.298316
+        ],
+        [
+          610.704481,
+          0.0,
+          590.447423
+        ],
+        [
+          667.062859,
+          0.0,
+          593.866649
+        ],
+        [
+          724.41871,
+          0.0,
+          596.54135
+        ],
+        [
+          782.526427,
+          0.0,
+          598.460075
+        ],
+        [
+          841.137184,
+          0.0,
+          599.614606
+        ],
+        [
+          900.0,
+          0.0,
+          600.0
+        ],
+        [
+          958.862816,
+          0.0,
+          599.614606
+        ],
+        [
+          1017.473573,
+          0.0,
+          598.460075
+        ],
+        [
+          1075.58129,
+          0.0,
+          596.54135
+        ],
+        [
+          1132.937141,
+          0.0,
+          593.866649
+        ],
+        [
+          1189.295519,
+          0.0,
+          590.447423
+        ],
+        [
+          1244.415089,
+          0.0,
+          586.298316
+        ],
+        [
+          1298.059821,
+          0.0,
+          581.437093
+        ],
+        [
+          1350.0,
+          0.0,
+          575.884573
+        ],
+        [
+          1400.01321,
+          0.0,
+          569.66453
+        ],
+        [
+          1447.885286,
+          0.0,
+          562.803601
+        ],
+        [
+          1493.411234,
+          0.0,
+          555.331165
+        ],
+        [
+          1536.396103,
+          0.0,
+          547.279221
+        ],
+        [
+          1576.655827,
+          0.0,
+          538.682247
+        ],
+        [
+          1614.018006,
+          0.0,
+          529.577057
+        ],
+        [
+          1648.322651,
+          0.0,
+          520.002642
+        ],
+        [
+          1679.422863,
+          0.0,
+          510.0
+        ],
+        [
+          1707.185467,
+          0.0,
+          499.611964
+        ],
+        [
+          1731.491579,
+          0.0,
+          488.883018
+        ],
+        [
+          1752.237117,
+          0.0,
+          477.859104
+        ],
+        [
+          1769.333244,
+          0.0,
+          466.587428
+        ],
+        [
+          1782.706752,
+          0.0,
+          455.116258
+        ],
+        [
+          1792.300375,
+          0.0,
+          443.494715
+        ],
+        [
+          1798.073031,
+          0.0,
+          431.772563
+        ],
+        [
+          1800.0,
+          0.0,
+          420.0
+        ]
+      ],
+      "form_reference_ref": "REF-001",
+      "station_cm": 0.0,
+      "generator": {
+        "kind": "ellipse_arc",
+        "plane": "XZ",
+        "center_cm": [
+          900.0,
+          0.0,
+          420.0
+        ],
+        "semi_axes_cm": [
+          900.0,
+          180.0
+        ],
+        "from_deg": 180.0,
+        "to_deg": 0.0,
+        "count": 49
+      }
+    },
+    {
+      "id": "SEC-002",
+      "points_cm": [
+        [
+          0.0,
+          225.0,
+          420.0
+        ],
+        [
+          1.926969,
+          225.0,
+          431.772563
+        ],
+        [
+          7.699625,
+          225.0,
+          443.494715
+        ],
+        [
+          17.293248,
+          225.0,
+          455.116258
+        ],
+        [
+          30.666756,
+          225.0,
+          466.587428
+        ],
+        [
+          47.762883,
+          225.0,
+          477.859104
+        ],
+        [
+          68.508421,
+          225.0,
+          488.883018
+        ],
+        [
+          92.814533,
+          225.0,
+          499.611964
+        ],
+        [
+          120.577137,
+          225.0,
+          510.0
+        ],
+        [
+          151.677349,
+          225.0,
+          520.002642
+        ],
+        [
+          185.981994,
+          225.0,
+          529.577057
+        ],
+        [
+          223.344173,
+          225.0,
+          538.682247
+        ],
+        [
+          263.603897,
+          225.0,
+          547.279221
+        ],
+        [
+          306.588766,
+          225.0,
+          555.331165
+        ],
+        [
+          352.114714,
+          225.0,
+          562.803601
+        ],
+        [
+          399.98679,
+          225.0,
+          569.66453
+        ],
+        [
+          450.0,
+          225.0,
+          575.884573
+        ],
+        [
+          501.940179,
+          225.0,
+          581.437093
+        ],
+        [
+          555.584911,
+          225.0,
+          586.298316
+        ],
+        [
+          610.704481,
+          225.0,
+          590.447423
+        ],
+        [
+          667.062859,
+          225.0,
+          593.866649
+        ],
+        [
+          724.41871,
+          225.0,
+          596.54135
+        ],
+        [
+          782.526427,
+          225.0,
+          598.460075
+        ],
+        [
+          841.137184,
+          225.0,
+          599.614606
+        ],
+        [
+          900.0,
+          225.0,
+          600.0
+        ],
+        [
+          958.862816,
+          225.0,
+          599.614606
+        ],
+        [
+          1017.473573,
+          225.0,
+          598.460075
+        ],
+        [
+          1075.58129,
+          225.0,
+          596.54135
+        ],
+        [
+          1132.937141,
+          225.0,
+          593.866649
+        ],
+        [
+          1189.295519,
+          225.0,
+          590.447423
+        ],
+        [
+          1244.415089,
+          225.0,
+          586.298316
+        ],
+        [
+          1298.059821,
+          225.0,
+          581.437093
+        ],
+        [
+          1350.0,
+          225.0,
+          575.884573
+        ],
+        [
+          1400.01321,
+          225.0,
+          569.66453
+        ],
+        [
+          1447.885286,
+          225.0,
+          562.803601
+        ],
+        [
+          1493.411234,
+          225.0,
+          555.331165
+        ],
+        [
+          1536.396103,
+          225.0,
+          547.279221
+        ],
+        [
+          1576.655827,
+          225.0,
+          538.682247
+        ],
+        [
+          1614.018006,
+          225.0,
+          529.577057
+        ],
+        [
+          1648.322651,
+          225.0,
+          520.002642
+        ],
+        [
+          1679.422863,
+          225.0,
+          510.0
+        ],
+        [
+          1707.185467,
+          225.0,
+          499.611964
+        ],
+        [
+          1731.491579,
+          225.0,
+          488.883018
+        ],
+        [
+          1752.237117,
+          225.0,
+          477.859104
+        ],
+        [
+          1769.333244,
+          225.0,
+          466.587428
+        ],
+        [
+          1782.706752,
+          225.0,
+          455.116258
+        ],
+        [
+          1792.300375,
+          225.0,
+          443.494715
+        ],
+        [
+          1798.073031,
+          225.0,
+          431.772563
+        ],
+        [
+          1800.0,
+          225.0,
+          420.0
+        ]
+      ],
+      "form_reference_ref": "REF-001",
+      "station_cm": 225.0,
+      "generator": {
+        "kind": "ellipse_arc",
+        "plane": "XZ",
+        "center_cm": [
+          900.0,
+          225.0,
+          420.0
+        ],
+        "semi_axes_cm": [
+          900.0,
+          180.0
+        ],
+        "from_deg": 180.0,
+        "to_deg": 0.0,
+        "count": 49
+      }
+    },
+    {
+      "id": "SEC-003",
+      "points_cm": [
+        [
+          0.0,
+          450.0,
+          420.0
+        ],
+        [
+          1.926969,
+          450.0,
+          431.772563
+        ],
+        [
+          7.699625,
+          450.0,
+          443.494715
+        ],
+        [
+          17.293248,
+          450.0,
+          455.116258
+        ],
+        [
+          30.666756,
+          450.0,
+          466.587428
+        ],
+        [
+          47.762883,
+          450.0,
+          477.859104
+        ],
+        [
+          68.508421,
+          450.0,
+          488.883018
+        ],
+        [
+          92.814533,
+          450.0,
+          499.611964
+        ],
+        [
+          120.577137,
+          450.0,
+          510.0
+        ],
+        [
+          151.677349,
+          450.0,
+          520.002642
+        ],
+        [
+          185.981994,
+          450.0,
+          529.577057
+        ],
+        [
+          223.344173,
+          450.0,
+          538.682247
+        ],
+        [
+          263.603897,
+          450.0,
+          547.279221
+        ],
+        [
+          306.588766,
+          450.0,
+          555.331165
+        ],
+        [
+          352.114714,
+          450.0,
+          562.803601
+        ],
+        [
+          399.98679,
+          450.0,
+          569.66453
+        ],
+        [
+          450.0,
+          450.0,
+          575.884573
+        ],
+        [
+          501.940179,
+          450.0,
+          581.437093
+        ],
+        [
+          555.584911,
+          450.0,
+          586.298316
+        ],
+        [
+          610.704481,
+          450.0,
+          590.447423
+        ],
+        [
+          667.062859,
+          450.0,
+          593.866649
+        ],
+        [
+          724.41871,
+          450.0,
+          596.54135
+        ],
+        [
+          782.526427,
+          450.0,
+          598.460075
+        ],
+        [
+          841.137184,
+          450.0,
+          599.614606
+        ],
+        [
+          900.0,
+          450.0,
+          600.0
+        ],
+        [
+          958.862816,
+          450.0,
+          599.614606
+        ],
+        [
+          1017.473573,
+          450.0,
+          598.460075
+        ],
+        [
+          1075.58129,
+          450.0,
+          596.54135
+        ],
+        [
+          1132.937141,
+          450.0,
+          593.866649
+        ],
+        [
+          1189.295519,
+          450.0,
+          590.447423
+        ],
+        [
+          1244.415089,
+          450.0,
+          586.298316
+        ],
+        [
+          1298.059821,
+          450.0,
+          581.437093
+        ],
+        [
+          1350.0,
+          450.0,
+          575.884573
+        ],
+        [
+          1400.01321,
+          450.0,
+          569.66453
+        ],
+        [
+          1447.885286,
+          450.0,
+          562.803601
+        ],
+        [
+          1493.411234,
+          450.0,
+          555.331165
+        ],
+        [
+          1536.396103,
+          450.0,
+          547.279221
+        ],
+        [
+          1576.655827,
+          450.0,
+          538.682247
+        ],
+        [
+          1614.018006,
+          450.0,
+          529.577057
+        ],
+        [
+          1648.322651,
+          450.0,
+          520.002642
+        ],
+        [
+          1679.422863,
+          450.0,
+          510.0
+        ],
+        [
+          1707.185467,
+          450.0,
+          499.611964
+        ],
+        [
+          1731.491579,
+          450.0,
+          488.883018
+        ],
+        [
+          1752.237117,
+          450.0,
+          477.859104
+        ],
+        [
+          1769.333244,
+          450.0,
+          466.587428
+        ],
+        [
+          1782.706752,
+          450.0,
+          455.116258
+        ],
+        [
+          1792.300375,
+          450.0,
+          443.494715
+        ],
+        [
+          1798.073031,
+          450.0,
+          431.772563
+        ],
+        [
+          1800.0,
+          450.0,
+          420.0
+        ]
+      ],
+      "form_reference_ref": "REF-001",
+      "station_cm": 450.0,
+      "generator": {
+        "kind": "ellipse_arc",
+        "plane": "XZ",
+        "center_cm": [
+          900.0,
+          450.0,
+          420.0
+        ],
+        "semi_axes_cm": [
+          900.0,
+          180.0
+        ],
+        "from_deg": 180.0,
+        "to_deg": 0.0,
+        "count": 49
+      }
+    },
+    {
+      "id": "SEC-004",
+      "points_cm": [
+        [
+          0.0,
+          675.0,
+          420.0
+        ],
+        [
+          1.926969,
+          675.0,
+          431.772563
+        ],
+        [
+          7.699625,
+          675.0,
+          443.494715
+        ],
+        [
+          17.293248,
+          675.0,
+          455.116258
+        ],
+        [
+          30.666756,
+          675.0,
+          466.587428
+        ],
+        [
+          47.762883,
+          675.0,
+          477.859104
+        ],
+        [
+          68.508421,
+          675.0,
+          488.883018
+        ],
+        [
+          92.814533,
+          675.0,
+          499.611964
+        ],
+        [
+          120.577137,
+          675.0,
+          510.0
+        ],
+        [
+          151.677349,
+          675.0,
+          520.002642
+        ],
+        [
+          185.981994,
+          675.0,
+          529.577057
+        ],
+        [
+          223.344173,
+          675.0,
+          538.682247
+        ],
+        [
+          263.603897,
+          675.0,
+          547.279221
+        ],
+        [
+          306.588766,
+          675.0,
+          555.331165
+        ],
+        [
+          352.114714,
+          675.0,
+          562.803601
+        ],
+        [
+          399.98679,
+          675.0,
+          569.66453
+        ],
+        [
+          450.0,
+          675.0,
+          575.884573
+        ],
+        [
+          501.940179,
+          675.0,
+          581.437093
+        ],
+        [
+          555.584911,
+          675.0,
+          586.298316
+        ],
+        [
+          610.704481,
+          675.0,
+          590.447423
+        ],
+        [
+          667.062859,
+          675.0,
+          593.866649
+        ],
+        [
+          724.41871,
+          675.0,
+          596.54135
+        ],
+        [
+          782.526427,
+          675.0,
+          598.460075
+        ],
+        [
+          841.137184,
+          675.0,
+          599.614606
+        ],
+        [
+          900.0,
+          675.0,
+          600.0
+        ],
+        [
+          958.862816,
+          675.0,
+          599.614606
+        ],
+        [
+          1017.473573,
+          675.0,
+          598.460075
+        ],
+        [
+          1075.58129,
+          675.0,
+          596.54135
+        ],
+        [
+          1132.937141,
+          675.0,
+          593.866649
+        ],
+        [
+          1189.295519,
+          675.0,
+          590.447423
+        ],
+        [
+          1244.415089,
+          675.0,
+          586.298316
+        ],
+        [
+          1298.059821,
+          675.0,
+          581.437093
+        ],
+        [
+          1350.0,
+          675.0,
+          575.884573
+        ],
+        [
+          1400.01321,
+          675.0,
+          569.66453
+        ],
+        [
+          1447.885286,
+          675.0,
+          562.803601
+        ],
+        [
+          1493.411234,
+          675.0,
+          555.331165
+        ],
+        [
+          1536.396103,
+          675.0,
+          547.279221
+        ],
+        [
+          1576.655827,
+          675.0,
+          538.682247
+        ],
+        [
+          1614.018006,
+          675.0,
+          529.577057
+        ],
+        [
+          1648.322651,
+          675.0,
+          520.002642
+        ],
+        [
+          1679.422863,
+          675.0,
+          510.0
+        ],
+        [
+          1707.185467,
+          675.0,
+          499.611964
+        ],
+        [
+          1731.491579,
+          675.0,
+          488.883018
+        ],
+        [
+          1752.237117,
+          675.0,
+          477.859104
+        ],
+        [
+          1769.333244,
+          675.0,
+          466.587428
+        ],
+        [
+          1782.706752,
+          675.0,
+          455.116258
+        ],
+        [
+          1792.300375,
+          675.0,
+          443.494715
+        ],
+        [
+          1798.073031,
+          675.0,
+          431.772563
+        ],
+        [
+          1800.0,
+          675.0,
+          420.0
+        ]
+      ],
+      "form_reference_ref": "REF-001",
+      "station_cm": 675.0,
+      "generator": {
+        "kind": "ellipse_arc",
+        "plane": "XZ",
+        "center_cm": [
+          900.0,
+          675.0,
+          420.0
+        ],
+        "semi_axes_cm": [
+          900.0,
+          180.0
+        ],
+        "from_deg": 180.0,
+        "to_deg": 0.0,
+        "count": 49
+      }
+    },
+    {
+      "id": "SEC-005",
+      "points_cm": [
+        [
+          0.0,
+          900.0,
+          420.0
+        ],
+        [
+          1.926969,
+          900.0,
+          431.772563
+        ],
+        [
+          7.699625,
+          900.0,
+          443.494715
+        ],
+        [
+          17.293248,
+          900.0,
+          455.116258
+        ],
+        [
+          30.666756,
+          900.0,
+          466.587428
+        ],
+        [
+          47.762883,
+          900.0,
+          477.859104
+        ],
+        [
+          68.508421,
+          900.0,
+          488.883018
+        ],
+        [
+          92.814533,
+          900.0,
+          499.611964
+        ],
+        [
+          120.577137,
+          900.0,
+          510.0
+        ],
+        [
+          151.677349,
+          900.0,
+          520.002642
+        ],
+        [
+          185.981994,
+          900.0,
+          529.577057
+        ],
+        [
+          223.344173,
+          900.0,
+          538.682247
+        ],
+        [
+          263.603897,
+          900.0,
+          547.279221
+        ],
+        [
+          306.588766,
+          900.0,
+          555.331165
+        ],
+        [
+          352.114714,
+          900.0,
+          562.803601
+        ],
+        [
+          399.98679,
+          900.0,
+          569.66453
+        ],
+        [
+          450.0,
+          900.0,
+          575.884573
+        ],
+        [
+          501.940179,
+          900.0,
+          581.437093
+        ],
+        [
+          555.584911,
+          900.0,
+          586.298316
+        ],
+        [
+          610.704481,
+          900.0,
+          590.447423
+        ],
+        [
+          667.062859,
+          900.0,
+          593.866649
+        ],
+        [
+          724.41871,
+          900.0,
+          596.54135
+        ],
+        [
+          782.526427,
+          900.0,
+          598.460075
+        ],
+        [
+          841.137184,
+          900.0,
+          599.614606
+        ],
+        [
+          900.0,
+          900.0,
+          600.0
+        ],
+        [
+          958.862816,
+          900.0,
+          599.614606
+        ],
+        [
+          1017.473573,
+          900.0,
+          598.460075
+        ],
+        [
+          1075.58129,
+          900.0,
+          596.54135
+        ],
+        [
+          1132.937141,
+          900.0,
+          593.866649
+        ],
+        [
+          1189.295519,
+          900.0,
+          590.447423
+        ],
+        [
+          1244.415089,
+          900.0,
+          586.298316
+        ],
+        [
+          1298.059821,
+          900.0,
+          581.437093
+        ],
+        [
+          1350.0,
+          900.0,
+          575.884573
+        ],
+        [
+          1400.01321,
+          900.0,
+          569.66453
+        ],
+        [
+          1447.885286,
+          900.0,
+          562.803601
+        ],
+        [
+          1493.411234,
+          900.0,
+          555.331165
+        ],
+        [
+          1536.396103,
+          900.0,
+          547.279221
+        ],
+        [
+          1576.655827,
+          900.0,
+          538.682247
+        ],
+        [
+          1614.018006,
+          900.0,
+          529.577057
+        ],
+        [
+          1648.322651,
+          900.0,
+          520.002642
+        ],
+        [
+          1679.422863,
+          900.0,
+          510.0
+        ],
+        [
+          1707.185467,
+          900.0,
+          499.611964
+        ],
+        [
+          1731.491579,
+          900.0,
+          488.883018
+        ],
+        [
+          1752.237117,
+          900.0,
+          477.859104
+        ],
+        [
+          1769.333244,
+          900.0,
+          466.587428
+        ],
+        [
+          1782.706752,
+          900.0,
+          455.116258
+        ],
+        [
+          1792.300375,
+          900.0,
+          443.494715
+        ],
+        [
+          1798.073031,
+          900.0,
+          431.772563
+        ],
+        [
+          1800.0,
+          900.0,
+          420.0
+        ]
+      ],
+      "form_reference_ref": "REF-001",
+      "station_cm": 900.0,
+      "generator": {
+        "kind": "ellipse_arc",
+        "plane": "XZ",
+        "center_cm": [
+          900.0,
+          900.0,
+          420.0
+        ],
+        "semi_axes_cm": [
+          900.0,
+          180.0
+        ],
+        "from_deg": 180.0,
+        "to_deg": 0.0,
+        "count": 49
+      }
+    },
+    {
+      "id": "SEC-006",
+      "points_cm": [
+        [
+          0.0,
+          0.0,
+          420.0
+        ],
+        [
+          150.0,
+          0.0,
+          420.0
+        ],
+        [
+          300.0,
+          0.0,
+          420.0
+        ],
+        [
+          450.0,
+          0.0,
+          420.0
+        ],
+        [
+          600.0,
+          0.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-007",
+      "points_cm": [
+        [
+          0.0,
+          225.0,
+          420.0
+        ],
+        [
+          150.0,
+          225.0,
+          487.5
+        ],
+        [
+          300.0,
+          225.0,
+          510.0
+        ],
+        [
+          450.0,
+          225.0,
+          487.5
+        ],
+        [
+          600.0,
+          225.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-008",
+      "points_cm": [
+        [
+          0.0,
+          450.0,
+          420.0
+        ],
+        [
+          150.0,
+          450.0,
+          420.0
+        ],
+        [
+          300.0,
+          450.0,
+          420.0
+        ],
+        [
+          450.0,
+          450.0,
+          420.0
+        ],
+        [
+          600.0,
+          450.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-009",
+      "points_cm": [
+        [
+          0.0,
+          0.0,
+          420.0
+        ],
+        [
+          150.0,
+          0.0,
+          420.0
+        ],
+        [
+          300.0,
+          0.0,
+          420.0
+        ],
+        [
+          450.0,
+          0.0,
+          420.0
+        ],
+        [
+          600.0,
+          0.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-010",
+      "points_cm": [
+        [
+          0.0,
+          225.0,
+          420.0
+        ],
+        [
+          150.0,
+          225.0,
+          465.0
+        ],
+        [
+          300.0,
+          225.0,
+          480.0
+        ],
+        [
+          450.0,
+          225.0,
+          465.0
+        ],
+        [
+          600.0,
+          225.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-011",
+      "points_cm": [
+        [
+          0.0,
+          450.0,
+          420.0
+        ],
+        [
+          150.0,
+          450.0,
+          420.0
+        ],
+        [
+          300.0,
+          450.0,
+          420.0
+        ],
+        [
+          450.0,
+          450.0,
+          420.0
+        ],
+        [
+          600.0,
+          450.0,
+          420.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-012",
+      "points_cm": [
+        [
+          675.0,
+          0.0,
+          300.0
+        ],
+        [
+          675.0,
+          225.0,
+          300.0
+        ],
+        [
+          675.0,
+          450.0,
+          300.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-013",
+      "points_cm": [
+        [
+          450.0,
+          0.0,
+          260.0
+        ],
+        [
+          562.5,
+          0.0,
+          290.0
+        ],
+        [
+          675.0,
+          0.0,
+          300.0
+        ],
+        [
+          787.5,
+          0.0,
+          290.0
+        ],
+        [
+          900.0,
+          0.0,
+          260.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-014",
+      "points_cm": [
+        [
+          450.0,
+          225.0,
+          260.0
+        ],
+        [
+          562.5,
+          225.0,
+          290.0
+        ],
+        [
+          675.0,
+          225.0,
+          300.0
+        ],
+        [
+          787.5,
+          225.0,
+          290.0
+        ],
+        [
+          900.0,
+          225.0,
+          260.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-015",
+      "points_cm": [
+        [
+          450.0,
+          450.0,
+          260.0
+        ],
+        [
+          562.5,
+          450.0,
+          290.0
+        ],
+        [
+          675.0,
+          450.0,
+          300.0
+        ],
+        [
+          787.5,
+          450.0,
+          290.0
+        ],
+        [
+          900.0,
+          450.0,
+          260.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-016",
+      "points_cm": [
+        [
+          0.0,
+          525.0,
+          30.0
+        ],
+        [
+          450.0,
+          581.25,
+          30.0
+        ],
+        [
+          900.0,
+          600.0,
+          30.0
+        ],
+        [
+          1350.0,
+          581.25,
+          30.0
+        ],
+        [
+          1800.0,
+          525.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-017",
+      "points_cm": [
+        [
+          0.0,
+          600.0,
+          30.0
+        ],
+        [
+          450.0,
+          768.75,
+          30.0
+        ],
+        [
+          900.0,
+          825.0,
+          30.0
+        ],
+        [
+          1350.0,
+          768.75,
+          30.0
+        ],
+        [
+          1800.0,
+          600.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-018",
+      "points_cm": [
+        [
+          0.0,
+          525.0,
+          30.0
+        ],
+        [
+          0.0,
+          562.5,
+          30.0
+        ],
+        [
+          0.0,
+          600.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-019",
+      "points_cm": [
+        [
+          450.0,
+          581.25,
+          30.0
+        ],
+        [
+          450.0,
+          675.0,
+          30.0
+        ],
+        [
+          450.0,
+          768.75,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-020",
+      "points_cm": [
+        [
+          900.0,
+          600.0,
+          30.0
+        ],
+        [
+          900.0,
+          712.5,
+          30.0
+        ],
+        [
+          900.0,
+          825.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-021",
+      "points_cm": [
+        [
+          1350.0,
+          581.25,
+          30.0
+        ],
+        [
+          1350.0,
+          675.0,
+          30.0
+        ],
+        [
+          1350.0,
+          768.75,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-022",
+      "points_cm": [
+        [
+          1800.0,
+          525.0,
+          30.0
+        ],
+        [
+          1800.0,
+          562.5,
+          30.0
+        ],
+        [
+          1800.0,
+          600.0,
+          30.0
+        ]
+      ]
+    },
+    {
+      "id": "SEC-023",
+      "points_cm": [
+        [
+          750.0,
+          375.0,
+          700.0
+        ],
+        [
+          1050.0,
+          375.0,
+          700.0
+        ],
+        [
+          1050.0,
+          525.0,
+          700.0
+        ],
+        [
+          750.0,
+          525.0,
+          700.0
+        ]
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "SUR-001",
+      "name": "SUR_001_Vault",
+      "kind": "u_loft",
+      "layer": "04_ROOF",
+      "section_ids": [
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004",
+        "SEC-005"
+      ],
+      "closed_sections": false,
+      "thickness_cm": 25.0,
+      "mat_id": 1,
+      "hide_curves": true,
+      "merge_tol_cm": 0.15,
+      "approximation": {
+        "view_steps_u": 12,
+        "view_steps_v": 8,
+        "render_edge_pct": 3.0,
+        "render_angle_deg": 4.0,
+        "merge_tol_cm": 0.15
+      }
+    },
+    {
+      "id": "SUR-002",
+      "name": "SUR_002_Canopy",
+      "kind": "point_grid",
+      "layer": "05_FACADE",
+      "section_ids": [
+        "SEC-006",
+        "SEC-007",
+        "SEC-008"
+      ],
+      "mat_id": 2,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 5.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.2
+      }
+    },
+    {
+      "id": "SUR-003",
+      "name": "SUR_003_CanopyCage",
+      "kind": "cv_grid",
+      "layer": "05_FACADE",
+      "section_ids": [
+        "SEC-009",
+        "SEC-010",
+        "SEC-011"
+      ],
+      "u_order": 3,
+      "v_order": 3,
+      "mat_id": 3,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 5.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.15
+      }
+    },
+    {
+      "id": "SUR-004",
+      "name": "SUR_004_EntranceCanopy",
+      "kind": "rail_sweep",
+      "layer": "05_FACADE",
+      "section_ids": [
+        "SEC-013",
+        "SEC-014",
+        "SEC-015"
+      ],
+      "rail_section_ids": [
+        "SEC-012"
+      ],
+      "parallel": true,
+      "mat_id": 4,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 5.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.2
+      }
+    },
+    {
+      "id": "SUR-005",
+      "name": "SUR_005_NorthWalkway",
+      "kind": "two_rail_sweep",
+      "layer": "04_ROOF",
+      "section_ids": [
+        "SEC-018",
+        "SEC-019",
+        "SEC-020",
+        "SEC-021",
+        "SEC-022"
+      ],
+      "rail_section_ids": [
+        "SEC-016",
+        "SEC-017"
+      ],
+      "parallel": true,
+      "mat_id": 5,
+      "approximation": {
+        "view_steps_u": 10,
+        "view_steps_v": 8,
+        "render_edge_pct": 4.0,
+        "render_angle_deg": 5.0,
+        "merge_tol_cm": 0.15
+      }
+    },
+    {
+      "id": "SUR-006",
+      "name": "SUR_006_CanopySoffit",
+      "kind": "blend",
+      "layer": "05_FACADE",
+      "parent1_ref": "SUR-001",
+      "parent2_ref": "SUR-002",
+      "edge1": 4,
+      "edge2": 4,
+      "mat_id": 6,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 5.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.15
+      }
+    },
+    {
+      "id": "SUR-007",
+      "name": "SUR_007_VaultApertureGuide",
+      "kind": "trim",
+      "layer": "04_ROOF",
+      "trim_section_ids": [
+        "SEC-023"
+      ],
+      "surface_ref": "SUR-001",
+      "p_vec": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "seed": [
+        0.5,
+        0.5
+      ],
+      "flip_trim": false,
+      "mat_id": 7,
+      "approximation": {
+        "view_steps_u": 8,
+        "view_steps_v": 6,
+        "render_edge_pct": 4.0,
+        "render_angle_deg": 6.0,
+        "merge_tol_cm": 0.15
+      }
+    }
+  ],
+  "derivatives": [
+    {
+      "id": "DRV-001",
+      "kind": "quad_panels",
+      "surface_ref": "SUR-001",
+      "name": "DRV_001_VaultPanels",
+      "layer": "99_DEBUG",
+      "divisions_u": 8,
+      "divisions_v": 2
+    },
+    {
+      "id": "DRV-002",
+      "kind": "space_frame",
+      "surface_ref": "SUR-002",
+      "name": "DRV_002_CanopyFrame",
+      "layer": "04_ROOF",
+      "divisions_u": 4,
+      "divisions_v": 2,
+      "thickness_cm": 12.0,
+      "sub_steps": 6
+    },
+    {
+      "id": "DRV-003",
+      "kind": "quad_panels",
+      "surface_ref": "SUR-003",
+      "name": "DRV_003_CagePanels",
+      "layer": "99_DEBUG",
+      "divisions_u": 4,
+      "divisions_v": 2
+    }
+  ]
+}

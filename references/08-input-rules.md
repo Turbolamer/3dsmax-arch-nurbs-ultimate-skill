@@ -135,30 +135,93 @@ is not at a declared key path.**
 
 #### 3.1 Units normalisation
 
-| As written | To cm | Worked |
-|---|---|---|
-| `450 mm` | × 0.1 | 45.0 |
-| `45 cm`, `45.` | × 1 | 45.0 |
-| `4.5 m`, `4,5 m` | × 100 | 450.0 |
-| `0.45 km` | × 100 000 | 45 000.0 |
-| `10 ft`, `10'` | × 30.48 | 304.8 |
-| `9 in`, `9"` | × 2.54 | 22.86 |
-| `9'-6"` compound | both parts, then add | 274.32 + 15.24 = **289.56** |
-| `9 1/2"` fractional | decimal first, then × 2.54 | 9.5 → **24.13** |
-| `4500` on a drawing whose title block says `mm` | read the title block first | 4500 mm → **450.0** |
-| `roughly 8 m`, `about 900`, `≈`, `say 300` | no arithmetic — mark as a **summary** | see `10` §3.3: hedged figures lose under `R3` |
-| a length in a picture | **do not convert** — estimate and record an assumption | `08` §1.1 |
-| 3ds Max scene numbers | see below | `09` §6 |
+All lengths in the pipeline are canonical centimetres (`_cm`), all areas are square metres (`_m2`), all angles are degrees (`_deg`). Raw inputs written in millimetres, metres, or imperial units must be converted during Step 2.
+
+##### Canonical conversions table
+
+The mathematical conversion table values below (e.g. km, ft, in, mm to cm) are offline mathematical definitions for normalising raw source inputs into spec canonical units. They are completely separate from the executed live unit certificate and preflight probe (`env_preflight.py`), which verify live 3ds Max scene system units.
+
+| Quantity | As written | Conversion rule | Worked canonical value |
+|---|---|---|---|
+| Length | `450 mm` | ÷ 10 (`/10`) | **45.0 cm** |
+| Length | `6000 mm` | ÷ 10 (`/10`) | **600.0 cm** |
+| Length | `0.5 mm` | ÷ 10 (`/10`) | **0.05 cm** *(never 0.5 cm)* |
+| Length | `12000 mm` | ÷ 10 (`/10`) | **1200.0 cm** |
+| Length | `45 cm`, `45.` | × 1 (identity) | **45.0 cm** |
+| Length | `4.5 m`, `4,5 m` | × 100 | **450.0 cm** |
+| Length | `0.45 km` | × 100 000 | **45 000.0 cm** |
+| Length | `10 ft`, `10'` | × 30.48 | **304.8 cm** |
+| Length | `9 in`, `9"` | × 2.54 | **22.86 cm** |
+| Length | `9'-6"` compound | convert parts, add | 274.32 + 15.24 = **289.56 cm** |
+| Length | `9 1/2"` fractional | decimal first, × 2.54 | 9.5 → **24.13 cm** |
+| Length | `4500` on drawing (title block `mm`) | read title block first | 4500 mm → **450.0 cm** |
+| Area | `10 000 mm²` | ÷ 100 (`/100`) | **100.0 cm²** (internal) |
+| Area | `1 000 000 mm²` | ÷ 1 000 000 (`/1,000,000`) | **1.0 m²** (`_m2`) |
+| Area | `50 000 cm²` | ÷ 10 000 (`/10,000`) | **5.0 m²** (`_m2`) |
+| Volume | `1 000 000 mm³` | ÷ 1 000 (`/1,000`) | **1000.0 cm³** (`_cm3`) |
+| Summary | `roughly 8 m`, `about 900`, `≈`, `say 300` | no arithmetic | mark as **summary** (see `10` §3.3) |
+| Image | a length in a picture | do not convert | estimate & record assumption (`08` §1.1) |
+| Scene | 3ds Max scene numbers | see boundary below | native units, convert at boundary |
 
 **Store to 0.1 cm.** A conversion like `4.5 m → 450.0` is exact; `18.0 m → 1800.0` is exact. Do not
 round to 3 decimal places and do not round away a real disagreement: if `4.5 m` and `4500 mm` differ,
 that is a `R2`/`R3` question, not a rounding question.
 
-> **3ds Max `systemUnit` / `UnitsSetup` is a display setting and does not change geometry** — but
-> ⚠️ **this is UNVERIFIED for this installation; no probe has been run** (`07` §11, `09` §6). The
-> operational rule does not depend on how the probe lands: **the spec states centimetres (G-5), and any
-> script that would write geometry in another unit converts at the script boundary.** Never edit the
-> spec to match a scene, and never silently change a user's `Units Setup`.
+⛔ **No mm disguised under `_cm`.** A raw millimetre number must never be entered directly into a key ending in `_cm` without the `/10` division. Storing `4500` into a `width_cm` key when the brief meant 4500 mm is a catastrophic 10× scale error and an immediate invariant violation.
+
+##### 3ds Max native units and the bridge boundary
+
+> **3ds Max scene units and SystemScale.** Phase 03 C03-UNITS verified that 3ds Max runs with native `units.SystemType` and `units.SystemScale`. The spec authors canonical cm (`G-5`); the 3ds Max bridge boundary converts canonical cm to native scene units via the scale factor:
+> 
+> $$c = k \cdot s \quad (\text{cm per scene unit}), \quad f = \frac{1}{c} \quad (\text{scene units per cm})$$
+> 
+> where $k$ is centimetres per base `SystemType` unit (e.g. 1.0 for centimetres, 0.1 for millimetres, 100.0 for metres, 2.54 for inches; certified in `scripts/scene_units.py:SYSTEM_TYPE_FACTORS`) and $s$ is `units.SystemScale`.
+> 
+> - Writing to scene: $L_{\text{scene}} = L_{\text{cm}} / c = L_{\text{cm}} \cdot f$
+> - Reading from scene: $L_{\text{cm}} = L_{\text{scene}} \cdot c$
+> 
+> The pipeline **never mutates the user's Units Setup**. Never edit the spec to match a scene, and never alter system scale in 3ds Max to match the spec. All translation happens strictly at the bridge boundary.
+
+**Offline mathematical definitions vs live unit certificate:** The conversion factors in the table above (e.g. km, ft, in, mm to cm) are offline mathematical definitions used during input normalisation into spec JSON. They are strictly separate from the executed live unit certificate and preflight probe (`env_preflight.py:check_units`), which inspect the live 3ds Max process before execution.
+
+**Display units metadata ONLY:** `units.DisplayType` and `units.MetricType` (as well as `units.USType`, `units.CustomName`, etc.) in 3ds Max are UI display units metadata **ONLY**. They govern only how numbers are formatted and presented in UI spinners, coordinate readouts, and dialog boxes; they have zero effect on internal scene coordinate values or geometry stored in the scene database. Emitters, builders, and QA tools **never** read or convert against display units. Boundary scaling is strictly and exclusively governed by `units.SystemType` and finite positive `units.SystemScale`.
+
+**Guarded scene mutation:** Scene mutation must always be guarded by verifying a certified `units.SystemType` and finite positive `units.SystemScale > 0` before any node, modifier, or sub-object is created or modified (e.g. via `scripts/scene_units.py:emit_unit_preamble()`). If `units.SystemScale` is non-positive or undefined, or if `units.SystemType` is uncertified, scripts must throw an error immediately and abort before mutating the scene.
+
+##### Raw-input evidence, analytical geometry leaves and Schema 1.1 contracts
+
+In Schema 1.1, the pipeline introduces analytical geometry definitions and automated QA configuration without altering historical Schema 1.0 files:
+
+###### 1. `dimensions.json` analytical leaves (`form_references[]` and `precision_targets[]`)
+- `dimensions.json:form_references[]` owns the authoritative analytical geometry parameters (D8 = A contract):
+  - Kinds: `arc`, `ellipse_arc`, `semi_elliptical_barrel`.
+  - Keys: `id` (e.g. `REF-barrel-01`), `kind`, `plane` (`XY`, `XZ`, `YZ`; `XZ` strictly for barrels), `center_cm` (barrel center_cm[1] must equal 0), `from_deg`, `to_deg` ((0,180)/(180,0) for barrels), `radius_cm` (>0 for arc), `semi_axes_cm` ([a, b] >0 for ellipse/barrel), `construction_count` (2..500 for arc/ellipse), `longitudinal_range_cm` ([s0, s1] with s1 > s0 for barrel).
+- `dimensions.json:precision_targets[]` defines the QA verification join targets:
+  - Keys: `id` (e.g. `TGT-barrel-01`), `role` (`"design_surface"`), `requirement_profile` (`"form_precision_v1"` or `"legacy_structure_v1"`), `reference_ref` (resolves to `form_references[].id`), `source_ref` (selector resolving to downstream geometry, e.g. `nurbs.surfaces[0].id`).
+- Optional `raw_source_values[]` evidence registry:
+  - Each entry records raw unrounded measurements: `id` (e.g. `RAW-rise`, `RAW-span`), `target_path`, `value`, `unit` (`mm`, `cm`, `deg`, etc.), `source_reference`.
+
+###### 2. `nurbs.json` generator leaves
+In `nurbs.json:sections[]`, Schema 1.1 allows drafting analytical curve generator definitions instead of raw hand-authored points:
+- `generator`: object with `kind` (`arc` or `ellipse_arc`), `plane`, `center_cm`, `from_deg`, `to_deg`, `semi_axes_cm` (or `radius_cm`), and `count`.
+- `form_reference_ref`: references the parent `dimensions.json:form_references[].id`.
+- `station_cm`: coordinate along the extrusion/sweep axis (e.g. Y in an XZ barrel vault).
+- **Co-presence rule:** If any of `generator`, `form_reference_ref`, or `station_cm` is present, all three must appear together (G-84).
+- **Discretization:** Before locking, the generator is discretized into `points_cm` via `scripts/expand_curves.py` (which uses pure Python `scripts/curve_gen.py`). In locked specs, `points_cm` must match analytical recomputation within 0.001 cm (G-85).
+
+###### 3. `qa.json` under Schema 1.1 (`spec: "qa"`, profile `form_precision_v1`)
+Automated QA check plan configuration defined in `specs/pipeline/qa.json` (`schema_version: "1.1"`, `spec: "qa"`):
+- `profile`: requirement profile, typically `"form_precision_v1"` (analytical form precision gate) or `"legacy_structure_v1"`.
+- `scope`: targets array (`scope.targets[]`) and `scope.registry_ref` (`"dimensions.json:precision_targets"`).
+- `check_plan`: ordered checks (e.g. `QA-V1-FORM`, `QA-V1-NURBS-CENSUS`, `QA-V1-WALLS`, etc.).
+- `sampling`: surface evaluation sampling policy (`domain_grid_v1`, `grid_u ≥ 2`, `grid_v ≥ 2`).
+- `limits`: 8 positive operational execution caps.
+- Governed by closed-schema invariants **G-87**…**G-90**; runtime results are stored outside the spec tree in `<project>/runs/form-qa/<run-id>/`.
+
+**Provenance and derivation rules:**
+1. **Units must be explicitly stated in the source input; never guessed from UI display settings or scene defaults.** An ambiguous or missing unit is an escalation or requires an explicit assumption in the ledger (`assumptions.json`, `A-nnn`), never a silent fill.
+2. **Canonical target carries conversion provenance:** the target field (e.g. in `form_references[]`) is marked `origin: "derived"` with `derives_from: ["raw_source_values[0].value", "raw_source_values[0].unit"]` and the registered conversion rule (`/10`), not freehand arithmetic. Already-canonical `_cm` output is never divided again.
+3. **The D8 = A rule for analytical forms:** source parameters for analytical forms (arcs, ellipses, barrel vaults — e.g. `center_cm`, `radius_cm`, `semi_axes_cm`, `station_range_cm`, `from_deg`, `to_deg`) live in `dimensions.json:form_references[]`. Downstream NURBS generators, cross-sections, and point grids are **derived consumers**, not alternative raw-input destinations.
 
 #### 3.2 Tolerance policy
 
@@ -236,13 +299,14 @@ given value; `medium` = a defensible convention with a real alternative; `low` =
 would immediately change. **A first-pass project is legitimately full of `low`, and that is an accurate
 picture, not a defect.**
 
-### Step 6 — Emit the three files
+### Step 6 — Emit the spec files
 
 | File | Content |
 |---|---|
-| `specs/pipeline/dimensions.json` | envelope, then `tolerances`, then **`origins` before the value tree** (G-1), then the tree. Every leaf covered exactly once (G-9). |
+| `specs/pipeline/dimensions.json` | envelope, then `tolerances`, then **`origins` before the value tree** (G-1), then the tree. Every leaf covered exactly once (G-9). Under Schema 1.1, includes `form_references[]` (e.g. `semi_elliptical_barrel`) and `precision_targets[]`. |
 | `specs/pipeline/conflicts_resolved.json` | envelope, `precedence_rules` (the ladder copied in), `conflicts[]`. **May legitimately be empty.** |
 | `specs/pipeline/assumptions.json` | envelope, `assumptions[]` ascending, `cross_references.conflict_sourced_paths`. |
+| `specs/pipeline/qa.json` | (Schema 1.1 / P8) closed automated QA check plan configuration (`spec: "qa"`, profile `form_precision_v1`), verification targets, sampling, and operational bounds. |
 
 Three traps that cost more time than anything else in this stage:
 
@@ -298,6 +362,8 @@ prevent.**
 | 8 | **Roof build-up** — form, layers, drainage | A wrong roof form invalidates massing, NURBS and materials, and `building.overall_height_cm` moves with it. | **Ask.** Where the brief says only "parapet roof", D-PC-05 gives `flat_parapet`, D-PC-06 gives 2°, D-PC-08 gives `internal_downpipe` — each as an `A-nnn`, never as fact. |
 | 9 | **Client or authority constraints** | The agent cannot verify them, and inventing one is worse than omitting it. | **Ask only** (`10` §6 E7). Do-not-default list item 10. |
 | 10 | **Site address, coordinates, true orientation, plot boundary** | A real-world fact the agent cannot see. | **Ask.** A rotation of 0° may be recorded as a *modelling convention* (`A-001`) and must never be reported as the site's true bearing (`10` §6 E9). |
+| 11 | **Analytical form geometry / curves / vaults** — radii, semi-axes, curvature, station ranges | Mathematical curvature and vault profiles dictate structural clearances, spatial volume, and downstream NURBS evaluation. Radii, semi-axes, curvature, and station ranges cannot be inferred or approximated. | **Ask only.** Must come from brief/drawing as given or be escalated (`10` §6 E1). Never silently defaulted. |
+| 12 | **Units** — physical unit labels on raw inputs | Units cannot be guessed from UI display settings, scene defaults, or file metadata. An ambiguous or missing unit changes physical dimensions by 10× (mm vs cm) or 25.4× (inches), corrupting physical scale. | **Must be explicitly stated** in source input. If ambiguous or missing: escalate, or record an explicit assumption (`A-nnn`) in `assumptions.json`. Never silent fill. |
 
 ---
 

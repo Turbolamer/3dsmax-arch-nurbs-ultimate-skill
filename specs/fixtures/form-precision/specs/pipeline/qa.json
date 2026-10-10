@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.1",
+  "spec": "qa",
+  "project": "form-precision",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "form-precision coherent fixture QA plan",
+    "recorded_at": "2026-10-10T00:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01,
+    "form": {
+      "surface_deviation_cm": 0.5,
+      "longitudinal_extent_cm": 0.5,
+      "landmark_deviation_cm": 0.5
+    },
+    "numerical": {
+      "policy": "separate_bounds_v1",
+      "solver_distance_cm": 0.001,
+      "wire_length_cm": 0.0001,
+      "wire_angle_deg": 0.001,
+      "unit_factor_relative": 1e-06,
+      "volume_roundoff_cm3": 0.01
+    },
+    "volume": {
+      "policy": "box_endpoint_propagation_v1",
+      "endpoint_tolerance_ref": "tolerances.linear_cm"
+    }
+  },
+  "origin_inputs": [],
+  "origins": {},
+  "profile": "form_precision_v1",
+  "dependencies": [
+    {
+      "id": "DEP_DIMENSIONS",
+      "format": "json",
+      "spec": "dimensions",
+      "schema_version": "1.1",
+      "file": "specs/pipeline/dimensions.json"
+    },
+    {
+      "id": "DEP_MASSING",
+      "format": "json",
+      "spec": "massing",
+      "schema_version": "1.0",
+      "file": "specs/pipeline/massing.json"
+    },
+    {
+      "id": "DEP_NURBS",
+      "format": "json",
+      "spec": "nurbs",
+      "schema_version": "1.1",
+      "file": "specs/pipeline/nurbs.json"
+    },
+    {
+      "id": "DEP_FACADE_GRIDS",
+      "format": "json",
+      "spec": "facade_grids",
+      "schema_version": "1.0",
+      "file": "specs/pipeline/facade_grids.json"
+    },
+    {
+      "id": "DEP_COMPONENTS_REGISTRY",
+      "format": "json",
+      "spec": "components_registry",
+      "schema_version": "1.0",
+      "file": "specs/pipeline/components_registry.json"
+    },
+    {
+      "id": "DEP_ASSEMBLY",
+      "format": "json",
+      "spec": "assembly",
+      "schema_version": "1.0",
+      "file": "specs/pipeline/assembly.json"
+    },
+    {
+      "id": "DEP_WORLD_TABLE",
+      "format": "csv",
+      "file": "specs/pipeline/world_table.csv",
+      "columns": [
+        "instance_id",
+        "component_ref",
+        "family_ref",
+        "panel_ref",
+        "facade",
+        "level_index",
+        "panel_kind",
+        "component_kind",
+        "x_cm",
+        "y_cm",
+        "z_cm",
+        "rot_z_deg",
+        "width_cm",
+        "height_cm",
+        "thickness_cm",
+        "joint_cm",
+        "layer"
+      ],
+      "join": {
+        "source_key": "instance_id",
+        "target_key": "instance_id"
+      },
+      "foreign_keys": [
+        "component_ref",
+        "family_ref",
+        "panel_ref"
+      ]
+    }
+  ],
+  "scope": {
+    "registry_ref": "dimensions.json:precision_targets",
+    "targets": [
+      {
+        "id": "TGT_PROJECT",
+        "kind": "project",
+        "role": "project",
+        "node_names": []
+      },
+      {
+        "id": "TGT-001",
+        "kind": "nurbs_surface",
+        "role": "design_surface",
+        "node_names": [
+          "SUR_001_Vault"
+        ]
+      },
+      {
+        "id": "TGT_MASSING_01",
+        "kind": "massing_element",
+        "role": "massing_element",
+        "node_names": [
+          "EL_001"
+        ]
+      }
+    ]
+  },
+  "check_plan": [
+    {
+      "id": "CHK_COVERAGE",
+      "kind": "QA-V1-COVERAGE",
+      "target_ref": "TGT_PROJECT",
+      "tolerance_ref": "exact"
+    },
+    {
+      "id": "CHK_FORM_01",
+      "kind": "QA-V1-FORM",
+      "target_ref": "TGT-001",
+      "tolerance_ref": "form_v1",
+      "reference_ref": "REF-001"
+    },
+    {
+      "id": "CHK_CENSUS_NURBS",
+      "kind": "QA-V1-NURBS-CENSUS",
+      "target_ref": "TGT-001",
+      "tolerance_ref": "exact"
+    },
+    {
+      "id": "CHK_CENSUS_MASS",
+      "kind": "QA-V1-CENSUS",
+      "target_ref": "TGT_MASSING_01",
+      "tolerance_ref": "exact"
+    }
+  ],
+  "sampling": {
+    "policy": "domain_grid_v1",
+    "version": "1",
+    "grid_u": 5,
+    "grid_v": 5,
+    "landmarks_policy": "barrel_landmarks_v1",
+    "selected_frame": 0
+  },
+  "limits": {
+    "max_rows_per_batch": 25,
+    "max_targets": 50,
+    "max_samples": 200,
+    "max_calls": 50,
+    "max_batch_seconds": 2.0,
+    "max_total_seconds": 60.0,
+    "max_solver_iterations": 100,
+    "max_response_bytes": 1048576
+  },
+  "capture_plan": []
+}

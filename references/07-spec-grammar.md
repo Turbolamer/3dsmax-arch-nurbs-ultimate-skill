@@ -12,8 +12,9 @@
 > `G-55` / `G-56` were added when the blend tension and the relation parent slots were measured).
 > **Defined at P5:** `facade_grids.json` (§8.3) and `components_registry.json` (§8.4, with
 > invariants `G-57`…`G-70` in §9.8).
-> **Reserved here, defined by their own stage:** `assembly.json`, `materials.json`, `qa.json`,
-> `export.json`.
+> **Defined at P6:** `assembly.json` (§8.5, with invariants `G-71`…`G-83` in §9.9; Mechanism A host deactivation and G-82 volume identity).
+> **Defined under Schema 1.1 (P8 / L-QA):** `qa.json` (§8.7, with invariants `G-87`…`G-90` in §9.10; `G-84`…`G-86` for form references and generators).
+> **Reserved stubs (cancelled 2026-10-05):** `materials.json` (P7), `export.json` (P9).
 >
 > **This document needs no 3ds Max.** Everything here is a data contract. It makes claims about
 > 3ds Max in exactly one place — §11 — and everything in that section is taken from
@@ -36,18 +37,40 @@
 
 ## 2. Units — the authoritative statement
 
-**All lengths are centimetres, all angles are degrees, all areas are square metres.**
+**All lengths are centimetres, all angles are degrees, all areas are square metres or square centimetres, all volumes are cubic centimetres.**
 
-3ds Max scene units are centimetres in this pipeline, so centimetres is the spec unit; nothing is
-converted on the way in or out.
+Specs author canonical centimetres exclusively. Explicit millimetre drawings or imperial inputs
+must be normalised offline before entry into a spec; **no millimetres may be authored disguised
+under a `_cm` key**. Note that mathematical unit definitions (e.g. 1 m = 100 cm, 1 mm = 0.1 cm,
+1 in = 2.54 cm, 1 ft = 30.48 cm) are distinct mathematical conversion factors, separate from the
+executed runtime unit certificate.
+
+At the 3ds Max runtime boundary, emitters and QA collectors perform an adaptive conversion:
+the user's Units Setup is preserved without alteration. In 3ds Max, `units.DisplayType` and
+`units.MetricType` are UI display units metadata ONLY. They affect only UI rollout displays,
+never internal geometry coordinates. Emitters, builders, and QA assessors never use `DisplayType` or
+`MetricType` for dimensional conversion; boundary scaling relies exclusively on certified
+`units.SystemType` and finite positive `units.SystemScale` (`s > 0`).
+
+Let `k` be the base unit scale factor (centimetres per base `units.SystemType` unit, e.g. `mm` = 0.1,
+`cm` = 1.0, `m` = 100.0, `inch` = 2.54, `foot` = 30.48; certified in `scripts/scene_units.py:SYSTEM_TYPE_FACTORS`)
+and `s = units.SystemScale`. The conversion factor is `c = k · s` (centimetres per scene unit, with `f = 1/c` scene
+units per centimetre, managed at the boundary via `scripts/scene_units.py`):
+- **Emitter conversion (write):** lengths and point coordinates are scaled to native scene units:
+  `L_scene = L_cm / c`, `P_scene = P_cm / c`.
+- **Collector conversion (readback):** values read back from Max are converted to canonical units:
+  `L_cm = L_scene · c`, `A_cm2 = A_scene · c²`, `V_cm3 = V_scene · c³` (powers apply strictly per physical dimension).
+- **Invariance:** angles (`_deg`), counts, weights, ratios, normalized parameters, and knot vectors
+  (`[0, 1]`) are dimensionless and are never converted.
 
 | Quantity | Unit | Suffix | Notes |
 |---|---|---|---|
 | Length | cm | `_cm` | **Mandatory suffix. There are no bare length keys.** |
-| Angle | deg | `_deg` | Only for rotations and slopes. |
-| Area | m² | `_m2` | Used for room/floor/plot areas only, never for a surface dimension. |
+| Angle | deg | `_deg` | Only for rotations and slopes. Always degrees, never radians. |
+| Area | m² or cm² | `_m2` or `_cm2` | `_m2` for room/floor/plot areas; `_cm2` for profile/section areas. |
+| Volume | cm³ | `_cm3` | Volumes are always cubic centimetres. Never unscaled or disguised. |
 | Count | integer | `_count`, or bare plural noun | `bay_count`, `interior_column_count`. |
-| Coordinate pair | cm | `_cm`, value is `[x, y]` or `[x, y, z]` | `start_corner_cm`, `footprint_cm`, `column_x_cm`. |
+| Coordinate pair / vector | cm | `_cm`, value is `[x, y]` or `[x, y, z]` | `start_corner_cm`, `footprint_cm`, `column_x_cm`. |
 | Ratio / flag | — | none, or `_ratio` / `_ccw` | `plot_rotation_deg` is an angle and takes `_deg`. |
 
 Enforced by invariant **G-8**. The suffix is a lint, not a comment: a key named `height`, `width`,
@@ -84,7 +107,7 @@ Every file in `specs/pipeline/` opens with exactly these keys, in this order, be
 
 | Key | Type | Req | Constraint | Meaning | Default |
 |---|---|---|---|---|---|
-| `schema_version` | string | yes | semver; the envelope uses `MAJOR.MINOR`, patch optional. The validator's supported major must equal the file's major | Schema revision this file was written against | — |
+| `schema_version` | string | yes | Explicitly supported versions are `"1.0"` and `"1.1"`. Patch spellings (e.g. `"1.0.0"`, `"1.1.0"`) and unknown versions are rejected. | Schema revision this file was written against | — |
 | `spec` | string | yes | must equal the file base name (`dimensions.json` → `"dimensions"`) | which schema this file follows | — |
 | `project` | string | yes | `^[a-z0-9][a-z0-9._-]*$`, identical across all files in one project | project id, used as the output name | — |
 | `units.length` | string | yes | must be `"cm"` | length unit | — |
@@ -94,9 +117,15 @@ Every file in `specs/pipeline/` opens with exactly these keys, in this order, be
 | `source.recorded_at` | string | yes | ISO-8601 date-time | when the input was captured | — |
 | `status` | string | yes | `draft` \| `locked` \| `superseded` | lifecycle state | `draft` |
 
-**`schema_version` is semver and a validator rejects a major mismatch.** Minor and patch drift is
-tolerated and reported as a warning; a major difference is an error. A builder that meets a major it
-does not implement must stop rather than guess.
+**`schema_version` supported versions and compatibility:**
+The pipeline explicitly supports two schema versions:
+- **`"1.0"`**: Historical baseline geometry pipeline without generator sections or analytical form references.
+- **`"1.1"`**: Form references and precision targets (`form_references`, `precision_targets` in `dimensions.json`), generator sections and station sampling in `nurbs.json`, and defined automated QA check plan configuration in `qa.json`.
+
+Both `"1.0"` and `"1.1"` are explicitly supported versions. Version `"1.1"` passes cleanly without warnings
+(including under `--warnings-as-errors`). Unknown versions fail under `--build`. Patch spellings (such as
+`"1.0.0"`, `"1.1.0"`, `"1.2"`) or non-canonical formats are rejected rather than aliased. A builder that
+encounters an unknown or unsupported major/minor version must stop rather than guess.
 
 **`status` and the build gate.** `draft` means a file is still being written. `locked` means the
 values are agreed and downstream stages may consume them. `superseded` means a newer revision
@@ -131,9 +160,19 @@ stage does.
 
 These are the **arithmetic tolerances** used by every equality check in §9 unless a rule names its
 own. They exist because specs are hand-edited; they are not design tolerances. `linear_cm: 0.5` is
-half a millimetre — small enough that a real inconsistency is caught, large enough that
+half a centimetre (5 mm) — small enough that a real inconsistency is caught, large enough that
 `0.1 + 0.2 + 0.3` style float noise does not fail the build. A hand-edited spec that is off by more
 than 0.5 cm is a bug, and the validator is right to reject it. Enforced by **G-33**.
+
+> [!IMPORTANT]
+> **Arithmetic tolerances vs. physical form tolerances and numerical budgets (`A-TOL`):**
+> Arithmetic tolerances in `tolerances` are strictly for algebraic and float-noise consistency checks
+> within authored JSON specs. Per decision `A-TOL`, they are strictly separate from:
+> 1. **Physical form tolerances** (e.g. `form_tolerance_cm: 0.5` or clearance thresholds), which govern
+>    permissible spatial deviation between physical 3ds Max geometry and analytical references; and
+> 2. **Numerical budgets**, which bound chord errors, solver iterations, and cm³ volume deviation.
+> Arithmetic slack in `tolerances.linear_cm` must never be reused as an unverified physical margin or
+> substituted for numerical convergence bounds.
 
 ---
 
@@ -153,16 +192,18 @@ defined now.
 | `components_registry.json` | **P5** | The parametric blocks that grid needs: one entry per distinct `(kind, width, height)` class of panel with an ordered parameter list, plus the family index P6 resolves a panel against. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `defaults` `component_types` `components` `families` |
 | `assembly.json` | **P6** | The last derived file in the chain: where each component instance goes, which `facade_wall` each opening belongs to, the solid cells each of those walls is built from, and the Chaos Scatter setup — plus `layer_map`, which is **data only** and is never applied by a builder. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `defaults` `layer_map` `placements` `opening_cuts` `wall_cells` `scatter` |
 | `materials.json` | P7 — **CANCELLED 2026-10-05** | Renderer selection and Corona PBR materials with slot maps and UV rules. **Not planned work** — materials are assigned by hand. | reserved | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `renderer` `materials` `uv_rules` |
-| `qa.json` | P8 — **CANCELLED 2026-10-05** | Deterministic QA results, viewport captures, and the pass/fail verdict. **Not planned work** — no QA loop exists. | reserved | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `checks` `determinism` `captures` `verdict` |
+| `qa.json` | **P8** | Automated QA configuration and check plan (form precision and structural integrity). Raw capture and results artifacts are stored separately outside pipeline. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `profile` `dependencies` `scope` `check_plan` `sampling` `limits` `capture_plan` |
 | `export.json` | P9 — **CANCELLED 2026-10-05** | FBX / OBJ / USD export settings, tessellation, and instance preservation. **Not planned work** — no exporter exists. | reserved | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `exports` `tessellation` `delivery` |
 | `recipes/*.json` | P4 | Individual NURBS recipe bodies emitted as MAXScript. Not part of the pipeline chain. | reserved | `schema_version` `recipe` `source` `params` `script` |
 
-> **CORRECTED (verified 2026-10-06):** the three rows above previously read just `P7`, `P8`, `P9` in the
-> stage column. **All three stages were cancelled by user decision on 2026-10-05.** Their rows are
-> retained — the `reserved` stubs are real files and G-31 still resolves their `origin_inputs` — but
-> **they are not planned work and no builder emits them.** There is no `qa_check.py`,
-> `capture_views.py` or `export_max.py` in `scripts/`, and this pack does not script material
-> assignment at all. §8.6–§8.8 below document the reserved key sets only.
+> **Pipeline status update (L-QA / A-OWNERS):** **P8 is restored as an automated check plan** per
+> locked decision `L-QA` and owner scope `A-OWNERS`. `qa.json` is a defined, locked configuration
+> and inspection plan specifying the verification profile, sampling density, limits, and capture plan.
+> Raw telemetry, captured scene observations, and pass/fail assessment reports (`qa-results.json`)
+> are stored separately as execution artifacts outside `specs/pipeline/`.
+> **P7 (materials) and P9 (export) remain CANCELLED** by user decision on 2026-10-05; `materials.json`
+> and `export.json` remain reserved stubs and are not planned work (no automated materials or export
+> builders exist). §8.6 and §8.8 document their reserved key sets only.
 
 Every reserved file carries `origin_inputs` — the list of dotted paths in **defined** files it read.
 That is what makes the chain auditable in the forward direction: given any later file you can see
@@ -193,6 +234,9 @@ exactly which locked values produced it. G-31 checks the references resolve.
 | `roof` | object | yes | — | §5.9 | roof build-up and parapet | — |
 | `facades` | array | yes | — | ≥ 1, §5.10 | the four elevations | — |
 | `openings` | array | yes | — | may be empty, §5.11 | doors, windows, glazed bays | — |
+| `form_references` | array | no (1.1) | — | analytical form references, §5.12 | — | — |
+| `precision_targets` | array | no (1.1) | — | precision targets for QA verification, §5.13 | — | — |
+| `raw_source_values` | array | no (1.1) | — | optional raw unrounded intake evidence, §5.14 | — | — |
 
 ### 5.2 `origins` — the traceability map
 
@@ -445,6 +489,47 @@ way to know. The example avoids it by construction: the core sits in the south-e
 carries a `curtain_wall` (a glazed stair frontage, deliberately) while the east elevation's bay 0 —
 also core — carries no opening at all. This is recorded in `assumptions.json` A-016 so a later stage
 does not "helpfully" add one.
+
+### 5.12 `form_references[]` (Schema 1.1)
+
+Authoritative source parameters for analytical curves and surfaces (arcs, ellipse arcs, semi-elliptical barrels) per the D8 = A contract. Downstream stages (S3 NURBS) derive generators and station discretizations from these entries. Governed by invariant **G-86**.
+
+| Key | Type | Req | Units | Meaning | Default |
+|---|---|---|---|---|---|
+| `id` | string | yes | — | `^[A-Za-z][A-Za-z0-9_-]{0,63}$`, unique in file | — |
+| `kind` | string | yes | — | `arc` \| `ellipse_arc` \| `semi_elliptical_barrel` | — |
+| `plane` | string | yes | — | `XY` \| `XZ` \| `YZ` (`XZ` strictly required for `semi_elliptical_barrel`) | — |
+| `center_cm` | array | yes | cm | `[x, y, z]` coordinates of center (center_cm[1] must equal `0` for barrel) | — |
+| `from_deg` | number | yes | deg | start angle of arc/ellipse | — |
+| `to_deg` | number | yes | deg | end angle of arc/ellipse (`(0, 180)` or `(180, 0)` for barrel) | — |
+| `radius_cm` | number | cond | cm | radius for `arc` (`> 0`) | — |
+| `semi_axes_cm` | array | cond | cm | `[a, b]` with `a, b > 0` for `ellipse_arc` and `semi_elliptical_barrel` | — |
+| `construction_count` | integer | cond | — | integer in `2..500` for `arc` and `ellipse_arc` | — |
+| `longitudinal_range_cm` | array | cond | cm | `[s0, s1]` with `s1 > s0` along Y axis for `semi_elliptical_barrel` | — |
+
+### 5.13 `precision_targets[]` (Schema 1.1)
+
+Defines target geometric elements and analytical references for automated QA verification joins (S7/P8). Governed by invariant **G-86**.
+
+| Key | Type | Req | Meaning | Default |
+|---|---|---|---|---|
+| `id` | string | yes | `^[A-Za-z][A-Za-z0-9_-]{0,63}$`, unique in file | — |
+| `role` | string | yes | must be `"design_surface"` | — |
+| `requirement_profile` | string | yes | `"form_precision_v1"` \| `"legacy_structure_v1"` | — |
+| `reference_ref` | string | yes | resolves to a `form_references[].id` | — |
+| `source_ref` | string | yes | selector resolving to target surface (e.g. `nurbs.surfaces[0].id`) | — |
+
+### 5.14 `raw_source_values[]` (Schema 1.1 — optional evidence intake)
+
+Optional raw evidence registry capturing unrounded source values prior to canonical unit normalisation.
+
+| Key | Type | Req | Meaning |
+|---|---|---|---|
+| `id` | string | yes | evidence identifier (e.g. `RAW-span`, `RAW-rise`) |
+| `target_path` | string | yes | path to dimensions destination leaf (e.g. `form_references[0].semi_axes_cm`) |
+| `value` | any | yes | unrounded numeric value or array as given in source |
+| `unit` | string | yes | physical unit label (`mm`, `cm`, `m`, `in`, `ft`, `deg`, etc.) |
+| `source_reference` | string | yes | locator in source document/drawing |
 
 ---
 
@@ -779,8 +864,32 @@ Envelope: `schema_version` · `spec` · `project` · `units` · `source` · `sta
 | Key | Type | Req | Units | Constraint | Meaning | Default |
 |---|---|---|---|---|---|---|
 | `id` | string | yes | — | `^SEC-\d{3}$`, unique, ascending | identity | — |
-| `points_cm` | array | yes | cm | ≥ 2 entries; each exactly 3 finite numbers | the row, in order | — |
+| `points_cm` | array | cond. | cm | ≥ 2 entries; each exactly 3 finite numbers (see expansion rule below) | the row, in order | — |
 | `name` | string | no | — | unique in file, no `-` | curve name inside the set | `Section_<n>` |
+| `generator` | object | no (1.1) | — | see §8.2.1.1 | analytical curve generator specification | — |
+| `form_reference_ref` | string | no (1.1) | — | `^[A-Za-z][A-Za-z0-9_-]{0,63}$`, resolves to `form_references[].id` in `dimensions.json` | analytical form reference id | — |
+| `station_cm` | float | no (1.1) | cm | finite number | evaluation station offset along reference axis | — |
+
+**Schema 1.1 additions (`generator`, `form_reference_ref`, `station_cm`):**
+In Schema 1.1, a section may declare an analytical curve generator along with its form reference and station:
+- **Co-presence constraint:** If any of `generator`, `form_reference_ref`, or `station_cm` appears in a section, **ALL THREE must appear together** (`G-84`). A section with only one or two of these keys is incomplete and fails validation.
+- **The builder boundary — `points_cm` is the ONLY geometric primitive consumed by 3ds Max builders:** 3ds Max builders (`build_nurbs.py`, MAXScript NURBS constructors) never read, evaluate, or interpret `generator` objects. In draft specs, `points_cm` may initially be omitted and generated/expanded from analytical curves via `python scripts/expand_curves.py`. However, **a locked, build-ready `nurbs.json` must carry discrete `points_cm`**. A locked spec lacking `points_cm` fails build validation (`G-85`).
+- **Expansion consistency:** When a `generator` is present, the stored `points_cm` array must match the generator recomputation within **0.001 cm** for every coordinate component (`G-85`). The length of `points_cm` must strictly equal `generator.count`.
+
+#### 8.2.1.1 Analytical curve generators (`generator`)
+
+When present, the `generator` object defines an analytical circular or elliptical arc evaluated onto a local plane:
+
+| Field | Type | Req | Units | Constraint | Meaning | Default |
+|---|---|---|---|---|---|---|
+| `kind` | string | yes | — | `arc` \| `ellipse_arc` | analytical curve family | — |
+| `plane` | string | yes | — | `XY` \| `XZ` \| `YZ` | evaluation plane | — |
+| `center_cm` | array | yes | cm | exactly 3 finite numbers `[x, y, z]` | arc center point | — |
+| `radius_cm` | float | cond. | cm | finite number `> 0`; **required for `arc`**, forbidden for `ellipse_arc` | circular arc radius | — |
+| `semi_axes_cm` | array | cond. | cm | exactly 2 finite numbers `> 0` `[a, b]`; **required for `ellipse_arc`**, forbidden for `arc` | semi-major and semi-minor axes | — |
+| `from_deg` | float | yes | deg | finite number | start angle in degrees | — |
+| `to_deg` | float | yes | deg | finite number; non-degenerate span `0 < \|to_deg − from_deg\| < 360.0` | end angle in degrees | — |
+| `count` | int | yes | — | integer in `2..500` (non-bool) | number of evaluated points | — |
 
 **There is deliberately no `closed` key here.** The library applies one `closed_sections` flag to
 every curve of a loft (`createULoftShell closedSections:`), so a per-section flag would be a value
@@ -1945,6 +2054,33 @@ nothing else (§12).
 For `pavilion-01` the array carries **52 cells over 8 hosts** — `EL-014` 11, `EL-015` 12,
 `EL-016` 6, `EL-017` 7, `EL-018` / `EL-019` / `EL-020` / `EL-021` 4 each.
 
+#### 8.5.8.2 Mechanism A — Host wall deactivation
+
+Because solid host walls (`facade_wall` elements from S2/massing, e.g. `EL-014`..`EL-021`) are created as solid boxes spanning the entire storey and facade, leaving them visible would completely occlude the openings cut through them by the placed facade components and reveal openings.
+
+Under **Mechanism A (Deactivation / Layer Isolation)**, the emitter (`place_components.py` emitting `assembly.ms`) explicitly deactivates each solid host wall:
+```maxscript
+-- Mechanism A: deactivate / hide host wall nodes so discrete cells and placed components remain visible
+for host_node in host_nodes do host_node.isHidden = true
+```
+This leaves only the discrete solid `WAL_` cells and the placed `PLC_` components visible in the viewport and renderer, ensuring openings are cleanly formed without modifying or deleting upstream massing nodes.
+
+#### 8.5.8.3 Box endpoint volume propagation budget for G-82
+
+Invariant **G-82** asserts that for every host wall, the sum of its discrete solid cells' volumes equals the host's own solid volume minus the volume of all clean-through openings cut from it:
+$$\sum V_{\text{cells}} = V_{\text{host}} - \sum V_{\text{openings}}$$
+within a conservative physical volume uncertainty budget $B_{\text{total}}$ in $\text{cm}^3$ derived from the linear arithmetic tolerance $e = \text{tolerances.linear\_cm}$ ($0.5\text{ cm}$).
+
+Given an axis-aligned box with extents $(w, h, t)$ and linear endpoint comparison allowance $e$, the extent uncertainty is $d = 2e$. The conservative per-solid physical volume uncertainty budget $B(w, h, t)$ is the maximum of:
+- Upper product expansion: $(w + d)(h + d)(t + d) - wht$
+- Lower product contraction: $wht - \max(w - d, 0)\max(h - d, 0)\max(t - d, 0)$
+
+For each host wall:
+$$B_{\text{total}} = B(w_{\text{host}}, h_{\text{host}}, t_{\text{host}}) + \sum_{\text{cells}} B(w_c, h_c, t_c) + \sum_{\text{openings}} B(w_o, h_o, t_o)$$
+The volume identity check passes if:
+$$|\sum V_{\text{cells}} - (V_{\text{host}} - \sum V_{\text{openings}})| \le B_{\text{total}}$$
+This budget is strictly dimensional ($\text{cm}^3$, the product of three lengths); it is never $\text{linear\_cm}^2$ or an arbitrary float threshold.
+
 ### 8.6 `materials.json` (P7 — **cancelled 2026-10-05, reserved stub only**)
 
 > **CORRECTED (verified 2026-10-06):** this heading and the two below read as pending stages. They are
@@ -1958,15 +2094,28 @@ For `pavilion-01` the array carries **52 cells over 8 hosts** — `EL-014` 11, `
 | `materials` | one entry per material: class identifier, slot map, parameters, target objects |
 | `uv_rules` | mapping strategy per geometry class — NURBS-generated vs poly-modified |
 
-### 8.7 `qa.json` (P8 — **cancelled 2026-10-05, reserved stub only**)
+### 8.7 `qa.json` (P8 — Automated QA configuration and check plan)
+
+Defined under `schema_version: "1.1"` per locked decision `L-QA` and owner scope `A-OWNERS`. `qa.json` is a closed configuration spec defining automated inspection scope, check plans, tolerances, and operational bounds for form precision and structural integrity. Runtime execution artifacts (`qa-request.json`, `qa-measurements.json`, `qa-results.json`) are stored outside the pipeline spec tree (`<project>/runs/form-qa/<run-id>/`).
+
+**Closed top-level key set (`SpecDef("qa")`):**
+`schema_version`, `spec`, `project`, `units`, `source`, `status`, `tolerances`, `origin_inputs`, `origins`, `profile`, `dependencies`, `scope`, `check_plan`, `sampling`, `limits`, `capture_plan`.
+
+**Strict configuration prohibition:**
+Object fields `measured`, `results`, `pass`, `verdict`, `error`, `checks`, `captures`, `determinism`, `determinism_results`, `enabled`, `disabled` are strictly prohibited anywhere in the configuration value tree (`G-87`). QA execution is never configured by embedding runtime results or disable-flags in `qa.json`.
 
 | Key | Purpose |
 |---|---|
-| `origin_inputs` | paths read from every upstream file |
-| `checks` | one entry per deterministic check: `id`, `rule`, `expected`, `measured`, `tolerance`, `pass` |
-| `determinism` | the scatter configuration save path and the instance count recorded on the previous build, for comparison |
-| `captures` | viewport captures by architectural viewpoint |
-| `verdict` | `pass` \| `fail` plus the failing check ids |
+| `tolerances` | Project arithmetic tolerances (`linear_cm`, `area_m2`, `angle_deg`) plus nested `form` (`surface_deviation_cm > 0`), `numerical` (`separate_bounds_v1`, `solver_distance_cm > 0`, wire/unit/volume bounds), and `volume` (`box_endpoint_propagation_v1`) policy objects |
+| `origin_inputs` | Upstream spec paths read by the QA plan |
+| `origins` | Provenance ledger for authored configuration values |
+| `profile` | Requirement profile: `form_precision_v1` (analytical form precision gate) or `legacy_structure_v1` (structural integrity without analytical targets) |
+| `dependencies` | Discriminated JSON and CSV upstream file bindings (`id`, `format`, `file`, with JSON `spec`/`schema_version` or CSV `columns`/`join`/`foreign_keys` for `specs/pipeline/world_table.csv`) |
+| `scope` | Verification targets (`id`, `kind`, `role`, `node_names`) and conditional `registry_ref` (`dimensions.json:precision_targets`) |
+| `check_plan` | Ordered array of checks (`id`, `kind` in the 8 QA-V1 families, `target_ref`, `tolerance_ref`, conditional `reference_ref`) |
+| `sampling` | Surface sampling configuration (`policy: "domain_grid_v1"`, `version: "1"`, `grid_u ≥ 2`, `grid_v ≥ 2`, `selected_frame`) |
+| `limits` | Bounded execution caps: 8 positive operational limits (`max_rows_per_batch`, `max_targets`, `max_samples`, `max_calls`, `max_batch_seconds`, `max_total_seconds`, `max_solver_iterations`, `max_response_bytes`) |
+| `capture_plan` | Optional array of viewport capture requests for visual inspection |
 
 ### 8.8 `export.json` (P9 — **cancelled 2026-10-05, reserved stub only**)
 
@@ -2037,6 +2186,7 @@ function over the parsed JSON, it does not belong here.
 | **G-31** | Cross-file references resolve | Every id, dotted path and `component_ref` a file references exists in the file that declares it. Every `origin_inputs` path resolves in a **defined** file, and every ledger `field_path` — **bare or file-qualified per §6.1.1** — resolves in a file that exists in the project. |
 | **G-32** | Derived values recompute | Every `origin: "derived"` value equals its documented formula recomputed from its `derives_from` inputs, at the tolerance for its unit. A derived value that disagrees is an error, never a warning — this is what stops a hand edit to `total_height_cm` from surviving. |
 | **G-33** | Tolerances are declared | `tolerances` exists in `dimensions.json`, all three values are present and non-negative, and every arithmetic rule above uses them unless it names its own. |
+| **G-86** | Form references and precision targets are well-formed and resolve | In `dimensions.json` under `schema_version: "1.1"`: validates `form_references[]` (kinds `arc`, `ellipse_arc`, `semi_elliptical_barrel`; required plane, center_cm, from/to_deg, radius_cm or semi_axes_cm, count or longitudinal_range_cm; center_cm[1]==0 and angles (0,180)/(180,0) for barrel) and `precision_targets[]` (role: `design_surface`, profile in `form_precision_v1` / `legacy_structure_v1`, `reference_ref` resolves to a `form_references[].id`, `source_ref` resolves to downstream geometry). If schema_version is `"1.0"`, presence of either field is a FAIL; if `"1.1"` without analytical form targets, reports honest SKIP. **FAIL** on malformed keys, unknown kinds, out-of-range angles/radii, or dangling references |
 
 ### 9.5 Tolerance policy
 
@@ -2081,14 +2231,14 @@ rule in full and for the defect the old sentence caused (17 FAIL rows on a fresh
 
 ### 9.7 NURBS — `nurbs.json` (P4, extended P4b)
 
-Same machinery, no new tolerances. **`G-41`…`G-53` and `G-55` are predicates over one file; nothing needs
+Same machinery, no new tolerances. **`G-41`…`G-53`, `G-55`, `G-84` and `G-85` are predicates over one file; nothing needs
 3ds Max.** `G-54` and `G-56` are the two exceptions and each says so itself: `G-54` observes a commit,
 `G-56` observes the emitted script.
 
 | Id | Title | Check |
 |---|---|---|
 | **G-41** | Identity and naming | `sections[].id` matches `^SEC-\d{3}$`, `surfaces[].id` `^SUR-\d{3}$`, `derivatives[].id` `^DRV-\d{3}$`; each set is unique and ascending. Every `name` (`sections[].name`, `surfaces[].name`, `derivatives[].name`) is unique in the file and contains no `-` (rule N1 — a hyphen in a node name reads as subtraction in emitted MAXScript) |
-| **G-42** | Section shape and rectangularity | `points_cm` has ≥ 2 entries, each exactly 3 finite numbers, no duplicate consecutive point. Every section referenced by one surface has the **same point count** as every other section of that surface — mandatory for `point_grid` / `cv_grid` (a lattice is rectangular) and for `uv_loft` (a network needs matching families). A `rail_section_ids` / `trim_section_ids` entry is a profile of its own and is **not** compared against the cross-sections it travels with |
+| **G-42** | Section shape and rectangularity | `points_cm` has ≥ 2 entries, each exactly 3 finite numbers, no duplicate consecutive point. The rectangular lattice check applies strictly to `NURBS_LATTICE_KINDS` (`u_loft`, `uv_loft`, `point_grid`, `cv_grid`): every section referenced by such a surface must have the **same point count** as every other section of that surface (a lattice is rectangular; matching families for `uv_loft`). Independent sweep sections (`rail_sweep`, `two_rail_sweep`, `trim`) may have differing point counts: a `rail_section_ids` or `trim_section_ids` entry is an independent curve and is **not** compared against the cross-sections it travels with |
 | **G-43** | Kind fits its keys | `kind` ∈ §8.2.3 — **eight values**. A surface carries exactly the keys its kind requires and none of the forbidden ones (§8.2.2). `layer`, when present, is in the surface's declared set. `mat_id ≥ 1`, `merge_tol_cm ≥ 0`, `approximation` keys are integers/floats within §8.2.4 |
 | **G-44** | References resolve and nothing is orphaned | Every id in `section_ids`, `u_section_ids`, `v_section_ids`, `rail_section_ids`, `trim_section_ids`, `parent1_ref`, `parent2_ref`, `surface_ref` resolves within this file. Every section is consumed by **at least one** surface — an unused section is a defect, not a spare, and a rail is a section |
 | **G-45** | Kind-specific cardinality | `u_loft`: ≥ 2 sections. `uv_loft`: ≥ 1 in each family, and not 1 in both. `point_grid` / `cv_grid`: ≥ 2 sections, each with ≥ 2 points |
@@ -2103,6 +2253,8 @@ Same machinery, no new tolerances. **`G-41`…`G-53` and `G-55` are predicates o
 | **G-54** | Emitted-surface census | A committed node contains **exactly** the number of `NURBSSurface` sub-objects the spec implies — for a `trim` that number is **0**, because the kind projects and does not cut (§8.2.8 row 8). **FAIL at build time; honest SKIP with its reason at lint time** — a static file cannot observe a commit, and a check that cannot be evaluated must never report a silent PASS (§9.6). The emitted `.ms` counts the surfaces after `NURBSNode` and throws on a mismatch |
 | **G-55** | Blend tension range | `tension1` / `tension2`, where present, are floats in `0.0 … 1.0`. **FAIL** — Max neither rejects nor bounds a larger tension, and the overshoot grows with it: at `1.0 / 1.0` the worked example's blend reaches `y = 1195.64` against a parent edge at `y = 900`, 295.64 cm outside its own geometry, and drops 50 cm below the springing (§8.2.7) |
 | **G-56** | No synthetic pointer in a relation parent slot | No `parent1ID:` / `parent2ID:` position in the emitted MAXScript holds a literal; every one is a variable bound from a committed sub-object (§8.2.7, §8.2.8 row 4). **FAIL at build** — a string there is an `IntegerPtr` conversion error, and a bare number is an `EXCEPTION_ACCESS_VIOLATION` that **kills the 3ds Max process**: not a catchable MAXScript error, not recoverable from inside the script, and the scene is left with orphans |
+| **G-84** | Generator schema is valid and complete | Validates generator schema, kind-specific keys, non-degenerate angles, and co-presence of `station_cm` and `form_reference_ref`. If any of `generator`, `form_reference_ref`, or `station_cm` appears in a section, all three must appear together. `generator` is a valid object with required kind keys (`radius_cm > 0` for `arc`, `semi_axes_cm` of 2 floats `> 0` for `ellipse_arc`), `plane` ∈ {`XY`, `XZ`, `YZ`}, `center_cm` [3], `count` integer in `2..500`, and angular span `0 < \|to_deg − from_deg\| < 360.0`. `station_cm` is a finite number, and `form_reference_ref` matches `^[A-Za-z][A-Za-z0-9_-]{0,63}$`. Reports compatibility SKIP when no section declares generator metadata |
+| **G-85** | Expanded discrete points match generator recomputation within 0.001 cm | Recomputes analytical points from `generator` and verifies against stored discrete points. Checks that point count matches (`len(points_cm) == generator.count`) and that maximum coordinate deviation across all points is ≤ `0.001 cm`. In `draft` status, unexpanded sections with absent `points_cm` report SKIP; in `locked` status, missing `points_cm` is a FAIL (`expand_curves.py` required). Reports compatibility SKIP when no section declares a generator |
 
 **G-54 is the load-bearing one.** P4 shipped a stage whose entire cost of a wrong decision was
 invisible: a dependent surface that loses its rail produces a *successful build* and a node with no
@@ -2117,8 +2269,17 @@ dependent surface, and G-44's orphan rule now covers rails and trim profiles as 
 before §8.2.7 declared one, a tension was unbounded by construction — and **`G-56` is §8.2.8 row 4
 written as a check**, the way row 4's index rule is enforced in the builder rather than by lint.
 
+**`G-84` and `G-85` govern Schema 1.1 analytical curve generators.** They validate generator schema,
+metadata co-presence (`station_cm` + `form_reference_ref`), and ensure that stored `points_cm` match
+analytical recomputation within 0.001 cm. Both rules report a compatibility SKIP when no section declares
+generator metadata. In `draft` status, `G-85` allows unexpanded sections (omitted `points_cm`), while in
+`locked` status discrete `points_cm` is strictly mandatory for 3ds Max builders. Note also that the G-42
+rectangular lattice check applies strictly to `NURBS_LATTICE_KINDS` (`u_loft`, `uv_loft`, `point_grid`,
+`cv_grid`), while independent sweep curves (`rail_sweep`, `two_rail_sweep`, `trim`) are exempt from
+matching cross-section point counts.
+
 **A `draft` `nurbs.json` is not evaluated.** Same argument as §9.6: the file is computed from
-`massing.json`, so the `init_project.py` stub has no provenance and `G-41`…`G-53` and `G-55` SKIP
+`massing.json`, so the `init_project.py` stub has no provenance and `G-41`…`G-53`, `G-55`, `G-84` and `G-85` SKIP
 with that reason while `status != "locked"`; `--allow-draft` evaluates a **draft with content** and
 still SKIPs an **untouched scaffold stub** — see §9.9, which corrects the older wording of this
 sentence in all three places.
@@ -2205,7 +2366,7 @@ arrangement exactly. Every geometry row names the tolerance it used (§9.5).
 | **G-79** | No layer assignment in the emitted MAXScript | The emitted `assembly.ms` contains no `node.layer`, no `LayerManager` setter, no `.setLayer(`, `setProperty #layer`, `.layerIndex` or `LayerProperties`, and no layer-assignment helper. **FAIL at build time; honest SKIP with its reason at lint time.** Layer is unreachable from this bridge by nine measured routes (§8.5.6), so a builder that tries is a build FAIL, not a silent no-op |
 | **G-80** | Emitted census — and it must **observe the scene** | The emitted `.ms` **walks the scene** and counts what it finds: placed instances, prototypes and the `WAL_`-prefixed wall cells, then **throws** on any mismatch against the three tables and against `wall_cells[]`. **FAIL at build time; honest SKIP with its reason at lint time** — a static JSON file cannot observe a script it did not write. The builder is the single implementation and asserts it on the bytes it has just written. **The scene walk is itself a required needle, not an implementation detail:** the previous census counted iterations of its own loop and therefore reported `cut_count = 16` and passed while the scene held `objects.count` 208 and **zero modifiers anywhere** (`nodes carrying modifiers=0`, `max stack=0`). A counter cannot detect a failed attach, which is why this rule is about what the census looks *at* |
 | **G-81** | **Zero modifiers** — the stage attaches none | `addModifier` **does not appear at all** in the emitted `assembly.ms`: not once, in any function, for any node. The emitted script additionally **asserts the hosts arrive with empty stacks** and throws if any host carries one. **FAIL at build time. Measured, not inferred:** on 2026-10-05 `Extrude` and `Bevel` threw on `addModifier`, five rungs were clean in 38 ms, ten in 28 ms, and **twenty froze Max on the main thread until the machine rebooted.** The ladder is why the ceiling is **zero** rather than small — and the Boolean modifier that used to require a ceiling cannot cut at all in this build (§8.5.8.1), so there is nothing left to bound. The exact breaking point between ten and twenty is not established and must never be re-measured |
-| **G-82** | The cells tile each wall exactly — **the volume identity** | For every host, the sum of its cells' `volume_cm3` equals **the host's volume minus its openings' volume** (each opening taken at the wall's own thickness, because every opening is cut clean through) within `linear_cm²`. Cells must be non-degenerate and lie inside the host's `z_range_cm`. **FAIL** — a difference is either a **gap** (material that was never built) or an **overlap** (material counted twice), and both are wrong in opposite directions, so a count is not enough and an average is not a check. **This is the rule the Boolean route could never have satisfied:** a modifier that removes nothing leaves the volume untouched, so a "successful" cut build reads as a wall with every opening still filled. SKIP with its reason when `massing.json` declares no `facade_wall`, or when `wall_cells[]` is absent — a file without it predates the tiling |
+| **G-82** | The cells tile each wall exactly — **the volume identity** | For every host, the sum of its cells' `volume_cm3` equals **the host's volume minus its openings' volume** (each opening taken at the wall's own thickness, because every opening is cut clean through) within the Box endpoint volume propagation budget (cm³) derived from linear_cm (§13.1, §21.4). Cells must be non-degenerate and lie inside the host's `z_range_cm`. **FAIL** — a difference is either a **gap** (material that was never built) or an **overlap** (material counted twice), and both are wrong in opposite directions, so a count is not enough and an average is not a check. **This is the rule the Boolean route could never have satisfied:** a modifier that removes nothing leaves the volume untouched, so a "successful" cut build reads as a wall with every opening still filled. SKIP with its reason when `massing.json` declares no `facade_wall`, or when `wall_cells[]` is absent — a file without it predates the tiling |
 | **G-83** | Every cell carries its wall's **full thickness** | Each cell's extent in the wall's thin axis equals the host wall's own extent in that axis, within `linear_cm`. **FAIL** — a tiling of solid cells cannot express a partial-depth opening, so a cell that stops short of a face is a **defect, not a style choice**, and the alternative it invites is a silent partial-depth hole: a reveal that is not a reveal. This is stated as an invariant rather than assumed because the cross axis is the one place where "carry the wall's own extent" could quietly become "carry most of it" |
 
 **`G-72`, `G-73`, `G-76` and `G-77` are the four that make this stage a build rather than a
@@ -2242,6 +2403,20 @@ That is what `G-36`, `G-49`, `G-57`, `G-64` and `G-66` were getting wrong, and a
 `scaffold` linted with **17 FAIL rows** because of it. Nothing about a `locked` file changed,
 and `examples/` stays `FAIL 0 / WARN 0` with and without `--build`.
 
+### 9.10 QA configuration invariants (P8)
+
+| Id | Title | Check |
+|---|---|---|
+| **G-87** | QA config: qa.json is well-formed closed configuration | Validates top-level keys match `SpecDef("qa")`: `schema_version`, `spec`, `project`, `units`, `source`, `status`, `tolerances`, `origin_inputs`, `origins`, `profile`, `dependencies`, `scope`, `check_plan`, `sampling`, `limits`, `capture_plan`. Prohibits result/legacy fields anywhere in the config tree (`measured`, `results`, `pass`, `verdict`, `error`, `checks`, `captures`, `determinism`, `determinism_results`, `enabled`, `disabled`). Enforces `profile` ∈ {`form_precision_v1`, `legacy_structure_v1`}. Reports honest SKIP if `qa.json` is absent |
+| **G-88** | QA coverage joins: targets, checks and inferred mandatory families | Validates `scope.targets` array of objects (`id` safe string, `kind` in closed vocabulary, `role`, `node_names` empty for project, non-empty for others). If `profile == "form_precision_v1"`, `scope.registry_ref` must resolve to `dimensions.json:precision_targets` and ≥1 analytical `design_surface` target must exist. Validates `check_plan` array of check objects (`id` safe string, `kind` in closed 8-family vocabulary, `target_ref` resolving to a target id, `tolerance_ref` in closed set; if kind is `QA-V1-FORM`, `reference_ref` is required). Reports honest SKIP if `qa.json` is absent |
+| **G-89** | QA tolerances and schedule: separate arithmetic, form, numerical and limits | Validates `tolerances`: finite non-negative numbers for `linear_cm`, `area_m2`, `angle_deg`. If `profile == "form_precision_v1"`, `tolerances.form` required with `surface_deviation_cm > 0`. `tolerances.numerical`: `policy == "separate_bounds_v1"`, `solver_distance_cm > 0`, non-negative `wire_length_cm`, `wire_angle_deg`, `unit_factor_relative`, `volume_roundoff_cm3`. `tolerances.volume`: `policy == "box_endpoint_propagation_v1"`. `sampling`: `policy == "domain_grid_v1"`, `version == "1"`, `grid_u ≥ 2`, `grid_v ≥ 2`, `selected_frame` is integer. `limits`: all 8 operational limits positive non-bool numbers (`max_rows_per_batch`, `max_targets`, `max_samples`, `max_calls`, `max_batch_seconds`, `max_total_seconds`, `max_solver_iterations`, `max_response_bytes`). Reports honest SKIP if `qa.json` is absent |
+| **G-90** | QA dependencies and provenance: discriminated JSON and CSV bindings | Validates `dependencies`: non-empty array of objects with `id`, `format` ∈ {`json`, `csv`}, `file`. If `format == "json"`: `spec` and `schema_version` required. If `format == "csv"`: `specs/pipeline/world_table.csv` only, required `columns` matching `WORLD_COLUMNS` exactly (17 columns), `join` object and non-empty `foreign_keys` array. Reports honest SKIP if `qa.json` is absent |
+
+**`G-87`…`G-90` govern P8 automated QA configuration.** In earlier pipeline stages (S1 through S5) or in
+projects where QA configuration has not yet been authored, `qa.json` is absent or draft; `G-87`…`G-90` report
+an honest `SKIP` with the reason `"qa.json is absent; QA configuration has not been scaffolded or run"`. At
+the P8 gate, a locked `qa.json` is evaluated strictly under `--build`.
+
 ---
 
 ## 10. The worked example
@@ -2265,6 +2440,11 @@ directions), its `opening_cuts[]` has **one row per `dimensions.json` openings[]
 directions), and it is the first file whose `layer_map` is **data only** and never applied
 (§8.5.6). Because it is the end of the chain, `build_spec.py --stage massing` is no longer the last
 builder in the project: **`scripts/place_components.py --stage assembly` is.**
+
+**QA plan for the worked example:** In `examples/`, the shipped pipeline covers stages S1 through S5
+(`dimensions.json` through `assembly.json`). `qa.json` is not present in `examples/`, so `G-87`…`G-90`
+report honest `SKIP`. Full P8 QA inspection runs in stage S7/P8 on projects with authored QA
+configurations (such as test fixtures under `specs/fixtures/` and projects targeting the P8 QA gate).
 
 **The example carries all four dependent kinds, one each — this changed at stage P4b round 1.** An
 earlier revision of this section said the example carried none of them; that is **stale** and the file
@@ -2333,7 +2513,10 @@ This grammar makes **no claim about 3ds Max**. It is a data contract and needs n
 | Fact this grammar relies on | Status | Provenance |
 |---|---|---|
 | 3ds Max 2026.3.2, `namedpipe` transport, protocol 2, `mainThread` | ✅ verified by live execution | `CHECKPOINT.md` §Environment; `02-mcp-live-orchestration.md` §1 |
-| Lengths are authored in centimetres and handed to Max unchanged | ✅ **verified by live execution (P3).** `units.SystemType` = `centimeters`, `units.SystemScale` = `1.0`. A spec value in cm is the same number in Max | `CHECKPOINT.md` §"Scene units and placement semantics" |
+| Lengths are authored in canonical cm; boundary converts via `c = k · s` to native scene units | ✅ **verified by live execution (P3, Phase 03).** Specs author canonical cm exclusively. 3ds Max boundary converts via factor `c = k · s` (where `k` is cm per base `SystemType` unit and `s = units.SystemScale`). In a cm/1.0 scene, `c = 1.0`; under any other setup, non-cm or non-1.0 scene units receive native values (`L_scene = L_cm / c`) without altering the user's Units Setup. `units.DisplayType` and `units.MetricType` are UI display metadata ONLY (affecting UI rollouts, never geometry coordinates); runtime boundary verification enforces certified `units.SystemType` and finite positive `units.SystemScale > 0` before any scene mutation | `CHECKPOINT.md` §"Scene units and placement semantics"; Phase 03 probe |
+| Relational NURBS resolution: sub-object 1 is not the surface; committed surface is resolved by `superClassOf obj == NURBSSurface`; `(evalPos surf u v) * node.objectTransform` produces world coordinates | ✅ **VERIFIED (Phase 03).** In a relational NURBS set, sub-object 1 is typically a dependent curve or point, never assumed to be the surface. The design surface must be resolved by filtering sub-objects with `superClassOf obj == NURBSSurface` and verifying relational dependencies. Surface evaluation `evalPos <surf> u v` returns coordinates in node-local space; multiplying by `node.objectTransform` produces exact world coordinates | Phase 03 probe; `CHECKPOINT.md` §"Relational NURBS resolution" |
+| Shell cutoff: `abs thickness >= 0.001 cm` is present per `A-CLOSED` | ✅ **VERIFIED (Phase 03 / A-CLOSED).** Resolves the historical contradiction between the library's strict exclusion (`> 0.001`) and validator `G-47`. Under approved policy `A-CLOSED`, an offset shell is generated and counted whenever `abs(thickness_cm) >= 0.001 cm`. Surfaces with `abs(thickness_cm) < 0.001 cm` are single-sided (zero offset) | Phase 03 probe; `_form-units-qa-design.md` §5.2, §14 |
+| Signed mesh volume via tetrahedron summation on `snapshotAsMesh` calculates exact cm³ volume with clean memory management (`free m`, `delete b`) | ✅ **VERIFIED (Phase 03).** Exact mesh volume is computed by summing signed tetrahedron volumes (`dot (cross v1 v2) v3 / 6.0`) across all face triangles of a TriMesh obtained via `snapshotAsMesh <node>`. Correctly evaluates closed meshes and avoids modifier/Boolean limitations. Memory hygiene is strictly enforced by calling `free <TriMesh>` on the mesh and deleting temporary helper nodes (`free m; delete b`) to avoid memory leaks | Phase 03 probe; `CHECKPOINT.md` §"Mesh volume and memory management" |
 | Per-type dimension ranges (§5.6, §5.11) | ⚠️ **Advisory, not verified.** Sourced from `architecture-exterior-pipelines.md` §1.1, which `00-audit-p1.md` §3 flags as VERIFY-only. These are conventions for a human to sanity-check, and `09-defaults.md` (P2b) owns their authoritative form. | repo document, not probed |
 | Layer names in `massing.json` / `assembly.json` | ✅ the vocabulary is closed and declared in §8.1.4. **But an object's layer cannot be assigned from MAXScript in Max 2026** — **nine** routes executed and rejected, final. Layer is *data*, and **no stage applies it** — the **user** applies it in the Layer dialog | `CHECKPOINT.md` §"Design consequences of the layer finding"; `agents/max-assembly.md` §6.3 |
 > **CORRECTED (verified 2026-10-06):** this row previously read *"six routes executed and rejected … application is a P6 concern"*. Both halves were stale. **Nine** routes are ruled out, and **P6 closed it as permanently impossible — no stage applies a layer.** §8.5.6 of this file already carried the correct text ("Applying layers is a human action in the Layer dialog"); this row now agrees with it.
@@ -2343,10 +2526,13 @@ This grammar makes **no claim about 3ds Max**. It is a data contract and needs n
 > **CORRECTED (verified 2026-10-06):** this cell's evidence clause read *"`railID` an `IntegerPtr` of unestablished printed form"*. The printed form **is** established — `<decimal>P`, `0P` on a 1-rail sweep. See the next row, which now carries the measured statement.
 | The **printed string form** of a `nurbsID` / `*ID` (`railID`, `parent1ID`, `parent2ID`) | ✅ **VERIFIED (2026-10-06).** It is an **`IntegerPtr`** and prints as `<decimal>P` — e.g. `3253572981568P`, and `railID` reads **`0P`** on a committed 1-rail sweep. A synthetic integer literal in such a slot hard-crashes Max (`EXCEPTION_ACCESS_VIOLATION`); a string there is a conversion error. Never parse it, never compare two, always bind it from a committed sub-object in the same script (`G-56`) | P4b probe; re-measured 2026-10-06, `railID = "0P"` reproduced 3 of 3; `12-nurbs-gotchas.md` §3.16, §3.23 |
 > **CORRECTED (verified 2026-10-06):** this row previously read *"⚠️ UNVERIFIED, and one earlier reading was wrong … a later controlled probe did not reproduce it"*. **The printed form was measured, and `railID = "0P"` reproduced 3 of 3.** This table contradicted itself row-on-row — the row directly above (the dependent-surface row) already stated `<decimal>P` and `0P` correctly — so the two rows are now reconciled onto the measured answer. "Never parse or compare it" survives; "the printed form is unknown" does not.
+| QA verification boundary: static configuration vs runtime measurement | ✅ **VERIFIED (Phase 03, Phase 10 / L-QA).** Static invariants `G-87`…`G-90` validate the closed JSON structure of `qa.json` without connecting to 3ds Max. Runtime QA execution (stage S7 / P8) interacts with 3ds Max strictly through read-only inspection boundaries (`evalPos` world coordinates, mesh volumes via signed tetrahedra summation on `snapshotAsMesh`, transform matrix reading), leaving the scene untouched | `CHECKPOINT.md`; `_form-units-qa-design.md` §12, §16, §21 |
 
 **Nothing in §2–§8 is validated against 3ds Max geometry, and it does not need to be.** The grammar
 is deliberately upstream of the bridge. P3 is the first stage that touches Max, and its probes
-confirmed only the three facts listed above — units, the `Box` placement primitive, and that layer
+confirmed only the three facts listed above — units (confirming that `DisplayType` and `MetricType`
+are display metadata only, while runtime boundary verification enforces certified `SystemType` and
+`SystemScale > 0` before any scene mutation), the `Box` placement primitive, and that layer
 assignment is impossible from script. If a later probe contradicts something here, the correction
 lands in `09-defaults.md` or `11-layer-standard.md`, not in this file — this file owns shapes and
 rules, not defaults and not scene conventions.
@@ -2379,8 +2565,22 @@ schemas that disagree.
    new reserved file, that means the owning stage ships `examples/<name>.json` and it passes every
    invariant. Without an example, the schema stays `reserved` regardless of how complete §5–§8 look.
 
-### Rules for extending an existing key
+### Rules for extending an existing key or schema
 
+- **Introduction of `schema_version: "1.1"` and backwards compatibility:**
+  Schema version `"1.1"` was introduced to support form references, precision targets, generator
+  sections, and automated QA check plans without breaking historical `"1.0"` pipelines. Any extension
+  must maintain strict backwards compatibility:
+  - A `"1.0"` file must remain valid and must not be required to author any 1.1 keys.
+  - A `"1.1"` file incorporates the new optional blocks and must validate cleanly without warnings
+    under `--warnings-as-errors`.
+  - Upstream builders, validators, and loaders must explicitly support both `"1.0"` and `"1.1"`.
+  - Unsupported versions or unknown patch spellings must fail under `--build`.
+- **Grammar extension requires all six steps:**
+  Extending this grammar — whether adding a new file, adding an optional or required key, or introducing
+  a new schema version — requires executing **all six steps above** (1. schema row, 2. invariant,
+  3. validator implementation, 4. provenance, 5. inventory update in §4, and 6. worked example).
+  Omitting any step produces schema drift and breaks pipeline validation.
 - **A stage may not silently reinterpret an existing key.** If the new meaning differs, the key is
   renamed and the old one deprecated with a note, or `schema_version` major is bumped.
 - **A stage may not narrow a declared range without a conflict entry.** Tightening

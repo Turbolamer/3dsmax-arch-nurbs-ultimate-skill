@@ -178,10 +178,10 @@ recommending both.
 │   ├── max-nurbs.md               # S3 NURBS sets, lofts, sweeps, blends, trims, panelization
 │   ├── max-facade.md              # S4a facade grids, axes, floors, panelization
 │   ├── max-components.md          # S4b component registry (parametric blocks)
-│   ├── max-assembly.md            # S5 place instances, cut openings, Chaos Scatter
-│   ├── max-materials.md           # S6 Corona PBR materials, UVs, glass
-│   ├── max-qa.md                  # S7 deterministic QA + visual verification loop
-│   └── max-export.md              # S8 FBX/OBJ/USD export + delivery MAXScript
+│   ├── max-assembly.md            # S5 place instances, cut openings, Chaos Scatter (last geometry builder)
+│   ├── max-materials.md           # ⛔ S6 cancelled 2026-10-05 (manual hand-off)
+│   ├── max-qa.md                  # S7 deterministic QA + offline/live verification gate (qa_check.py)
+│   └── max-export.md              # ⛔ S8 cancelled 2026-10-05
 ├── references/
 │   ├── 01-architecture-aec-workflow.md      # stage contracts, spec flow
 │   ├── 02-mcp-live-orchestration.md         # ✅ VERIFIED tool inventory + routing (P0)
@@ -198,7 +198,7 @@ recommending both.
 │   ├── 11-layer-standard.md                 # naming/layer/hygiene rules
 │   ├── 12-nurbs-gotchas.md                  # ⚠ NEEDS CORRECTION (P0 headline was wrong)
 │   ├── 13-curve-spline-shapes.md            # shape/spline construction
-│                                           #   ⚠ REAL FILE: maxscript-splines-shapes.md
+│   ├── 13-uv-rules.md                       # UV modifier placement on prototypes vs instances
 │   ├── 14-chaos-scatter.md                  # ★ replaces railclone.md
 │   ├── 15-procedural-graphs.md
 │   ├── 16-corona-materials.md               # ★ Corona material matrix
@@ -212,13 +212,16 @@ recommending both.
 ├── scripts/
 │   ├── env_preflight.py       # ✅ DONE (P0, corrected in P1)
 │   ├── init_project.py        # scaffold workdir + specs/
-│   ├── validate_specs.py      # schema + range + cross-file validation
-│   ├── build_spec.py          # dispatch stage builders
-│   ├── build_nurbs.py         # emit MAXScript from NURBS specs
-│   ├── facade_tables.py       # facade_grids.json → facade_table.csv / world_table.csv
-│   ├── place_components.py    # placement + opening cuts + scatter wiring
-│   ├── ~~qa_check.py~~        # ⛔ P8 cancelled 2026-10-05 — never written
-│   ├── ~~capture_views.py~~   # ⛔ P8 cancelled 2026-10-05 — never written
+│   ├── validate_specs.py      # schema + range + cross-file validation (G-1..G-90)
+│   ├── build_spec.py          # dispatch stage builders (S2 massing)
+│   ├── build_nurbs.py         # emit MAXScript from NURBS specs (S3)
+│   ├── facade_tables.py       # facade_grids.json → facade_table.csv / world_table.csv (S4)
+│   ├── place_components.py    # placement + opening cuts + scatter wiring (S5, LAST geometry builder)
+│   ├── curve_gen.py           # analytical curve generator library (circles, ellipses, parabolas, arches)
+│   ├── expand_curves.py       # analytical curve expansion & station verification
+│   ├── scene_units.py         # scene units translation & scale factor utilities
+│   ├── qa_check.py            # S7 QA gate: offline emit & assessment oracle
+│   ├── ~~capture_views.py~~   # ⛔ P8 visual capture cancelled 2026-10-05 — not written
 │   ├── ~~export_max.py~~      # ⛔ P9 cancelled 2026-10-05 — never written
 │   ├── ~~lint_script.py~~     # ⛔ never written
 │   └── ~~check_skill_md.py~~  # ⛔ never written — dangling refs tracked in CHECKPOINT.md
@@ -242,12 +245,34 @@ Sequential where artifacts are consumed downstream. 🔌 = requires the live Max
 | **P4b** | NURBS remainder — ✅ **done** | `general` | ✅ **control-tested discovery of the rail-sweep / blend / trim API — DONE 2026-10-04, and it overturned P4's "not implemented" finding: all four relation classes construct, commit and evaluate.** `references/07` §8.2.6, `12-nurbs-gotchas.md`, `agents/max-nurbs.md` §6.7 corrected. ✅ **round 2:** both live defects found and fixed (tension default `1.0`→`0.0`; relation parents referenced by `parent1ID:` instead of re-instantiated). ✅ **round 2 — the reference pass:** `maxscript-splines-shapes.md` and `arch-modifiers-and-procedural-reference.md` (the real names behind `13`/`06`) executed claim-by-claim against live Max and corrected — the first largely vindicated, the second substantially wrong; `install_skill.py` packaging gap closed; `maxscript-*.md` deduped; tyFlow tally 13→14 | P4 |
 | **P4b-r** | ✅ Reference claim-by-claim pass — **done 2026-10-04** | `general` | `references/_p4b-remainder-evidence.md` (transcripts) · `maxscript-splines-shapes.md` corrected (10 fixes; `bezierShape()` unusable; `pathParam` inert; multi-spline `updateShape` trap) · `arch-modifiers-and-procedural-reference.md` corrected (3 class names; 6 modifiers need `3dsmax-mcp_add_modifier`; ~13 parameter names do not exist; Data Channel vocabulary rebuilt on the real 32 snake_case operators; §3 retracted — no `mcg_*`, no `curve_model`) · `install_skill.py` `collect_files()` closed | P4b |
 | **P5** | Facade grid + component registry (S4) — ✅ **done** | `general` | ✅ `07` §8.3/§8.4 **define** `facade_grids.json` + `components_registry.json`, §9.8 adds `G-57`…`G-70`; ✅ `scripts/facade_tables.py`; ✅ `examples/{facade_grids,components_registry}.json` + `{facade_table,world_table}.csv`; ✅ `agents/max-facade.md`, `agents/max-components.md`; ✅ `assumptions.json` gains `A-023`/`A-024`. **Gate: the tables were placed in live Max and counted** — 136 rows read by MAXScript, 136 reference instances, `objects.count` 165, five bboxes exact. 136 panels · 140 axes · 29 components. **The stage's own design contract is `references/_p5-contract.md` (revision 2).** Found and fixed: a shared facade-wide v grid produced a 180 × 10 cm glass sliver; `panel_thickness_cm` was an in-range invention; the ledger could not describe an `assumed` value outside `dimensions.json` | P4b-r |
-| **P6** | ★ Assembly + Chaos Scatter (S5) | `general` | `agents/max-assembly.md`, `scripts/place_components.py`, opening-cut recipes, `snippets/chaos_scatter.ms`, `references/14-chaos-scatter.md`. **Both inherited facts are now measured:** the instance route is `copy` + `baseObject =` (`setCopyMode` is absent), a Z rotation is `quat <deg> [0,0,1]` (`rotationZ`/`matrix3`/`angle` are absent), and `node.pos` on a `Box` puts the **base** at `pos.z`. **The `manage_layers` open item is CLOSED as a verified negative** — no object-assignment action exists, so `layer_map` stays data permanently. **The Chaos Scatter hazard is CLOSED by measurement** — the 1/2/5/10 ladder is clean, 20 freezes Max permanently | P5 |
-| **P7** | ~~★ Corona materials + UVs (S6)~~ ⛔ **CANCELLED by the user 2026-10-05 — not pending, not blocked** | — | **Do not start this stage.** Materials are made by hand. What survives is already written up in `CHECKPOINT.md` §"P7 — what the cancelled probes proved" and `references/_p7-evidence.md`: the **renderer set route** (which closed P0) and the Corona class census. The one genuinely missing piece is **UV rules for NURBS surfaces vs poly-modified geometry** — start there if a hand-materialed model ever needs unwrapping. **Note this row supersedes §4.2's "record the renderer choice in the spec so QA can assert it"**, which assumed a QA stage that no longer exists | — |
-| **P8** | ~~QA loop (S7)~~ ⛔ **CANCELLED with P7, 2026-10-05** | — | **Do not start this stage.** `agents/max-qa.md`, `scripts/qa_check.py` and `scripts/capture_views.py` **do not exist and are not planned.** Any text implying a QA loop is now wrong — including §4.1's "determinism hook for P8 QA", which survives only as the `FpInterface` observation and is deferred to a stage that may never exist | — |
-| **P9** | ~~Export (S8)~~ ⛔ **CANCELLED with P7, 2026-10-05** | — | **Do not start this stage.** `references/17-export-formats.md`, `scripts/export_max.py`, `agents/max-export.md` **do not exist and are not planned** | — |
-| **P10** | Orchestrator, SKILL.md rewrite, install, end-to-end test — ✅ **delivered as P10-lite** | `general` | ✅ `SKILL.md`, `AGENTS.md`, `agents/max-orchestrator.md`, `install_skill.py`, 🔌 **full run measured 2026-10-05: input → massing → NURBS → facade → assembly, 254 nodes, 3-run idempotent, 0 modifiers, scene back to 0.** The P7→P9 leg of the original chain is **cancelled**, so the run ends at a Corona-ready model with a hand-materialing hand-off rather than a Corona render. ~~`scripts/{lint_script,check_skill_md}.py`~~ — **never written; P8/P9 were cancelled first and the names are not planned** | P6 |
-| **P11** | Improvement log + close-out pass — ✅ **done 2026-10-06** | `general` | ✅ `references/improvement-log.md` (the **format spec**), `agents/max-orchestrator.md` §6.2 (the **trigger and ownership rule**), pointers into all six `agents/max-*.md` playbooks and a row in `SKILL.md` · ✅ `G-74` lint-side gap found and fixed (the linter never covered `wall_cells[]`; proved by fault injection) · ✅ `curve-construction.md` marked **OBSOLETE** with a router, `architecture-exterior-pipelines.md` corrected in place, tool-routing prose fixed in the two NURBS files **with their geometry untouched** · ✅ three stale rows and one stale `AGENTS.md` section corrected · ✅ two self-defeating `env_preflight.py` probes restructured. **No live bridge was available — nothing here is new evidence about Max.** Remaining open items and their reasons: `CHECKPOINT.md` §"Close-out pass, 2026-10-06" | P10 |
+| **P6** | ★ Assembly + Chaos Scatter (S5, LAST geometry builder) — ✅ **done** | `general` | `agents/max-assembly.md`, `scripts/place_components.py`, opening-cut recipes, `snippets/chaos_scatter.ms`, `references/14-chaos-scatter.md`. **Both inherited facts are now measured:** the instance route is `copy` + `baseObject =` (`setCopyMode` is absent), a Z rotation is `quat <deg> [0,0,1]` (`rotationZ`/`matrix3`/`angle` are absent), and `node.pos` on a `Box` puts the **base** at `pos.z`. **The `manage_layers` open item is CLOSED as a verified negative** — no object-assignment action exists, so `layer_map` stays data permanently. **The Chaos Scatter hazard is CLOSED by measurement** — the 1/2/5/10 ladder is clean, 20 freezes Max permanently | P5 |
+| **P7** | ~~★ Corona materials + UVs (S6)~~ ⛔ **CANCELLED by user decision 2026-10-05 — not pending, not blocked** | — | **Do not start this stage.** Materials are made by hand. What survives is already written up in `CHECKPOINT.md` §"P7 — what the cancelled probes proved" and `references/_p7-evidence.md`: the **renderer set route** (which closed P0) and the Corona class census. UV rules are documented in `references/13-uv-rules.md` (add UV modifier to the 29 prototypes only). The deliverable remains the verified model plus manual handoff | — |
+| **P8** | ★ S7 QA verification gate (`qa_check.py`, `agents/max-qa.md`, `qa.json`) — ✅ **RESTORED & DONE 2026-10-10** | `general` | **Restored as S7 offline/live QA verification gate.** `scripts/qa_check.py`, `agents/max-qa.md`, `specs/pipeline/qa.json` (schema 1.1, rules `G-87`…`G-90`). Implements 3-step loop: offline query emit (`--emit`) → sequential MCP collection (`3dsmax-mcp_execute_maxscript`) → offline assessment (`--assess`) with independent analytical geometry oracle for circular/elliptical arcs and barrel vaults. Evaluates 8 check families: `COVERAGE`, `CENSUS`, `NURBS-CENSUS`, `PLACEMENT`, `WALLS`, `FORM`, `STACK`, `REPLAY`. Verified live at Phase 12 | P6 |
+| **P9** | ~~Export (S8)~~ ⛔ **CANCELLED by user decision 2026-10-05** | — | **Do not start this stage.** `references/17-export-formats.md`, `scripts/export_max.py`, `agents/max-export.md` **do not exist and are not planned** | — |
+| **P10** | Orchestrator, SKILL.md rewrite, install, end-to-end test — ✅ **delivered as P10-lite** | `general` | ✅ `SKILL.md`, `AGENTS.md`, `agents/max-orchestrator.md`, `install_skill.py`, 🔌 **full run measured 2026-10-05: input → massing → NURBS → facade → assembly, 254 nodes, 3-run idempotent, 0 modifiers, scene back to 0.** The P7 and P9 legs remain cancelled, ending at a Corona-ready model with S7 QA gate and manual materialing hand-off | P6 |
+| **P11** | Improvement log + close-out pass — ✅ **done 2026-10-06** | `general` | ✅ `references/improvement-log.md` (the **format spec**), `agents/max-orchestrator.md` §6.2, pointers into playbooks and `SKILL.md` · ✅ `G-74` lint-side gap closed · ✅ `curve-construction.md` marked **OBSOLETE** · ✅ packaging and preflight probes cleaned | P10 |
+
+---
+
+### 4.0b Form Precision & Staged Unit Pipeline (Stages 01..13) — ✅ ALL COMPLETED (2026-10-10)
+
+Executed per `AGENT_PLAN_form_precision.md` and verified live in 3ds Max 2026.3.2:
+
+| Stage | Title / Scope | Deliverables & Verified Evidence | Status |
+|---|---|---|---|
+| **01** | Audit & Problem Formulation | Comprehensive audit of analytical form precision vs point lists, native Max scene unit conversions (SystemType/SystemScale), and S7 QA revival | ✅ DONE |
+| **02** | Decision Gates | Core locks established: L-UNIT (cm canonical in specs, native scene units in Max), L-QA (automated S7 gate), L-D8 (dimensions owns parameters, curves derived), Mechanism A host hiding | ✅ DONE |
+| **03** | Analytical Curve Generator | `scripts/curve_gen.py` — pure Python analytical geometry library for circles, circular arcs, ellipses, elliptical arcs, parabolas, composite arches (trefoil, ogee, segmental, horseshoe) | ✅ DONE |
+| **04** | Curve Expander CLI | `scripts/expand_curves.py` — CLI for analytical expansion, point recomputation, tolerance verification ($\le 0.001\text{ cm}$), station count suggestion | ✅ DONE |
+| **05** | Scene Units Utilities | `scripts/scene_units.py` — certified SystemType mappings, scale factors $c$ and $f$, MAXScript verification preambles, and unit conversion helpers | ✅ DONE |
+| **06** | NURBS Builder Precision | `scripts/build_nurbs.py` updated with analytical curve expansion integration and native unit preambles; `snippets/nurbs_arch_library.ms` units-certified | ✅ DONE |
+| **07** | Massing Builder Units | `scripts/build_spec.py` updated with native scene unit preambles and length factor scaling | ✅ DONE |
+| **08** | Facade Tables Units | `scripts/facade_tables.py` updated with native scene unit handling across grids, registries, and CSVs | ✅ DONE |
+| **09** | Assembly Builder & Mechanism A | `scripts/place_components.py` (S5, LAST geometry builder) updated with native units, Mechanism A host hiding (`host_node.isHidden = true`), zero-modifier guarantee | ✅ DONE |
+| **10** | S7 QA Specification & Oracle | `scripts/qa_check.py` (`--emit` / wire parser / analytical oracle / `--assess`), `agents/max-qa.md`, `qa.json` grammar rules `G-87`…`G-90`, coherent fixture `specs/fixtures/form-precision/` | ✅ DONE |
+| **11** | Host Occlusion & Volume Budget | Verified Mechanism A deactivation (`host_node.isHidden = true` prevents opening occlusion); updated G-82 volume error budget to $B_{\text{total}}$ in $\text{cm}^3$ derived from linear tolerance | ✅ DONE |
+| **12** | Live Acceptance & Precision Proof | Live MCP execution in 3ds Max 2026.3.2: 254 nodes, 3-run replay idempotency, live batch collection (`batch_001.ms`, `batch_002.ms`), offline assessment (`qa_check.py --assess`). Verified 8-micron precision control: `point_grid` achieves $0.0008\text{ cm}$ deviation ($\ll 0.5\text{ cm}$ tolerance) vs `u_loft` B-spline fit error | ✅ DONE |
+| **13** | Active Docs, Handoff & Archive Gate | Active documentation aligned (`AGENTS.md`, `PLAN.md`, `SKILL.md`, `max-orchestrator.md`, `01-pipeline-workflow.md`), S5 confirmed last geometry builder, S7 confirmed QA gate, materials handoff preserved manual | ✅ DONE |
 
 ★ = direct answer to the user's stated priorities. 🔌 = requires the live bridge.
 
@@ -354,12 +379,7 @@ longer be met and are marked as retired rather than silently left to fail.
    2026-10-06 — but a full claim-by-claim pass was never run, because the close-out session had no
    `3dsmax-mcp_*` tool. This stays open rather than being marked done on a vindication.
 4. ✅ `snippets/nurbs_arch_library.ms` has zero known bugs, proven by executing every function.
-5. ⛔ **RETIRED 2026-10-05** — the run ends at a Corona-ready model with a hand-materialing
-   hand-off, so "through a Corona render with a passing QA report" no longer describes the
-   deliverable. The substitute that *was* measured is the P10-lite chain: **254 nodes**, 3-run
-   idempotent, **0 modifiers**, 52/52 cell bboxes exact, per-host volume error **0.000000 cm³**,
-   scene back to **0**.
-6. ⛔ **RETIRED 2026-10-05** — `check_skill_md.py` was never written and is not planned. Dangling
+5. ✅ **UPDATED 2026-10-10 (S7 QA gate active, materials hand-off preserved):** S7 QA verification gate is active and verified via `scripts/qa_check.py` + `qa.json` (`agents/max-qa.md`), evaluating 8 check families (coverage, census, NURBS census, placement, walls occlusion, form precision oracle, modifier stack, replay). S5 (`place_components.py`) is the project's last geometry builder (254 nodes total with S1..S3, 3-run idempotent, 0 modifiers, Mechanism A host deactivation). P7 (Corona materials) and P9 (export) remain cancelled by user decision, handing off the verified model for manual material assignment in Max.
    references are instead tracked as `CHECKPOINT.md` §"Dangling references still routing to bogus
    tools internally", and were resolved by correction, not by a script.
 7. ✅ **The delivered artefact is executed, not merely emitted.** Every `.ms` was `fileIn`-ed and

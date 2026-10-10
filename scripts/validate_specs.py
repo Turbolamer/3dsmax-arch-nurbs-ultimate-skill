@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate spec files against references/07-spec-grammar.md (invariants G-1..G-83).
+"""Validate spec files against references/07-spec-grammar.md (invariants G-1..G-90).
 
 Pure data validation. Standard library only. Never raises on bad input: one
 malformed file becomes a FAIL row, never a traceback, and the run continues so
@@ -64,11 +64,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable, NamedTuple, Optional, Sequence
 
+try:
+    from scripts import curve_gen
+except ImportError:
+    import curve_gen
+
 # --------------------------------------------------------------------------- #
 # Constants declared by references/07-spec-grammar.md
 # --------------------------------------------------------------------------- #
 
 SUPPORTED_SCHEMA_MAJOR = 1
+SUPPORTED_SCHEMA_VERSIONS = frozenset({"1.0", "1.1"})
 
 ENVELOPE_ORDER: tuple[str, ...] = (
     "schema_version",
@@ -87,16 +93,17 @@ STATUSES = ("draft", "locked", "superseded")
 ORIGIN_VALUES = ("given", "assumed", "conflict", "derived")
 OPENING_TYPES = ("window", "door", "entrance", "curtain_wall")
 CONFIDENCES = ("high", "medium", "low")
-#: G-15 ``recheck_stage``. P7 (materials), P8 (QA) and P9 (export) were
-#: CANCELLED by the user on 2026-10-05, so a value naming one is vacuous --
-#: nothing re-checks at a stage that does not exist. P10-P13 are close-out and
-#: documentation passes, not re-examination points for a spec assumption.
-RECHECK_STAGES = ("P3", "P4", "P5", "P6")
+#: G-15 ``recheck_stage``. P7 (materials) and P9 (export) were cancelled by the
+#: user on 2026-10-05, so a value naming them is vacuous. P8 is restored per
+#: L-QA / A-OWNERS. P10-P13 are close-out and documentation passes, not
+#: re-examination points for a spec assumption.
+RECHECK_STAGES = ("P3", "P4", "P5", "P6", "P8")
 NON_CONFLICT_FALLBACK_ID = "R7"
 
 PROJECT_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)(?:\.(\d+))?$")
 LEDGER_ID_RE = re.compile(r"^[AC]-\d{3}$")
+FORM_REF_ID_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
 
 #: 07 section 9.5 -- the tolerance fallback used when a spec declares none.
 FALLBACK_LINEAR_CM = 0.5
@@ -220,6 +227,7 @@ UNIT_LINT_EXEMPT_KEYS = frozenset(
         "origin_inputs",
         "origins",
         "path",
+        "plane",
         "precedence_rules",
         "reason",
         "recheck_stage",
@@ -745,15 +753,21 @@ SPEC_INVENTORY: tuple[SpecDef, ...] = (
     SpecDef(
         "qa",
         "P8",
-        "reserved",
+        "defined",
         (
             "tolerances",
             "origin_inputs",
-            "checks",
-            "determinism",
-            "captures",
-            "verdict",
+            "origins",
+            "profile",
+            "dependencies",
+            "scope",
+            "check_plan",
+            "sampling",
+            "limits",
+            "capture_plan",
         ),
+        leaf_skip_top=frozenset({"origins"}),
+        has_origins=True,
     ),
     SpecDef(
         "export",
@@ -849,6 +863,13 @@ RULE_TITLES: dict[str, str] = {
     "G-81": "zero modifiers (build time)",
     "G-82": "cells tile each host exactly (volume identity)",
     "G-83": "every cell carries its wall's full thickness",
+    "G-84": "generator schema is valid and complete",
+    "G-85": "expanded discrete points match generator recomputation within 0.001 cm",
+    "G-86": "form references and precision targets are well-formed and resolve",
+    "G-87": "QA config: qa.json is well-formed closed configuration",
+    "G-88": "QA coverage joins: targets, checks and inferred mandatory families",
+    "G-89": "QA tolerances and schedule: separate arithmetic, form, numerical and limits",
+    "G-90": "QA dependencies and provenance: discriminated JSON and CSV bindings",
 }
 
 #: Rules that read more than one file. Reported grouped by severity, never by file.
@@ -885,6 +906,11 @@ CROSS_FILE_RULES = (
     "G-76",
     "G-77",
     "G-78",
+    "G-86",
+    "G-87",
+    "G-88",
+    "G-89",
+    "G-90",
 )
 
 
@@ -1452,6 +1478,10 @@ class Session:
     def assembly(self) -> Optional[LoadedFile]:
         return self.by_name("assembly")
 
+    @property
+    def qa(self) -> Optional[LoadedFile]:
+        return self.by_name("qa")
+
     def csv_by_name(self, name: str) -> Optional[Path]:
         """The first sibling ``name`` next to any loaded spec file, or None.
 
@@ -1543,6 +1573,8 @@ def check_envelope(record: LoadedFile, session: Session, report: Report) -> bool
                 f"{spec_def.name} is missing declared top-level keys: {', '.join(absent)}",
             )
         extra = [k for k in keys if k not in expected]
+        if record.path.stem == "dimensions" and doc.get("schema_version") == "1.1":
+            extra = [k for k in extra if k not in ("form_references", "precision_targets")]
         if extra:
             report.warn(
                 "G-1",
@@ -1595,6 +1627,8 @@ def check_envelope(record: LoadedFile, session: Session, report: Report) -> bool
         match = SEMVER_RE.match(version)
         if match is None:
             report.fail("G-3", location, f"schema_version {version!r} is not MAJOR.MINOR[.PATCH]")
+        elif version in SUPPORTED_SCHEMA_VERSIONS:
+            report.ok("G-3", location, f"schema_version {version} supported")
         elif int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR:
             report.fail(
                 "G-3",
@@ -1602,14 +1636,22 @@ def check_envelope(record: LoadedFile, session: Session, report: Report) -> bool
                 f"schema major {match.group(1)}; validator implements major "
                 f"{SUPPORTED_SCHEMA_MAJOR}; a builder must stop rather than guess",
             )
-        elif int(match.group(2)) != 0 or (match.group(3) not in (None, "0")):
-            report.warn(
-                "G-3",
-                location,
-                f"schema_version {version}: minor/patch drift accepted, tolerated by 07 G-3",
-            )
         else:
-            report.ok("G-3", location, f"schema_version {version} supported")
+            if session_build_gate:
+                report.fail(
+                    "G-3",
+                    location,
+                    f"schema_version {version} is not supported; validator supports "
+                    f"{', '.join(sorted(SUPPORTED_SCHEMA_VERSIONS))}",
+                )
+            else:
+                report.warn(
+                    "G-3",
+                    location,
+                    f"schema_version {version}: minor/patch drift accepted in lint, "
+                    f"tolerated by 07 G-3; supported versions are "
+                    f"{', '.join(sorted(SUPPORTED_SCHEMA_VERSIONS))}",
+                )
 
     # G-4
     status = doc.get("status")
@@ -6025,6 +6067,8 @@ NURBS_DRAFT_RULES: tuple[str, ...] = (
     "G-54",
     "G-55",
     "G-56",
+    "G-84",
+    "G-85",
 )
 
 
@@ -6082,6 +6126,9 @@ def check_nurbs_rules(record: LoadedFile, session: Session, report: Report) -> N
         guard("G-54", record.label, report, _g54_surface_census, record)
         guard("G-55", record.label, report, _g55_blend_tension, record)
         guard("G-56", record.label, report, _g56_parent_pointer, record)
+
+    guard("G-84", record.label, report, _g84_generator_schema, record)
+    guard("G-85", record.label, report, _g85_expansion_consistency, record)
 
 
 # ---- shared nurbs readers -------------------------------------------------- #
@@ -7731,6 +7778,202 @@ def _g56_parent_pointer(record: LoadedFile, report: Report) -> None:
             f"NURBSSurface, so each is bound from a committed sub-object and no "
             "`parent1ID:`/`parent2ID:` slot can hold a literal (D3, D4); the same rule is "
             "enforced against the emitted bytes by build_nurbs.py's verify_script",
+        )
+
+
+# ---- G-84 generator schema and metadata completeness ---------------------- #
+
+
+def _g84_generator_schema(record: LoadedFile, report: Report) -> None:
+    """G-84. Generator schema is valid and complete."""
+    location = record.label
+    doc = record.doc
+    if not isinstance(doc, dict):
+        return
+    sections = doc.get("sections")
+    if not sections or not isinstance(sections, list):
+        return
+
+    # If no section has any of generator, form_reference_ref, station_cm:
+    has_any_generator_metadata = any(
+        isinstance(s, dict)
+        and any(k in s for k in ("generator", "form_reference_ref", "station_cm"))
+        for s in sections
+    )
+    if not has_any_generator_metadata:
+        report.skip(
+            "G-84",
+            location,
+            "no section declares generator; compatibility skip (generator optional)",
+        )
+        return
+
+    problems = 0
+    count = 0
+    for index, section in enumerate(sections):
+        if not isinstance(section, dict):
+            continue
+        where = f"{location}::sections[{index}]"
+
+        has_any = any(k in section for k in ("generator", "form_reference_ref", "station_cm"))
+        if not has_any:
+            continue
+
+        has_all = all(k in section for k in ("generator", "form_reference_ref", "station_cm"))
+        if not has_all:
+            report.fail(
+                "G-84",
+                where,
+                "partial generator metadata: generator, form_reference_ref, and station_cm must appear together",
+            )
+            problems += 1
+
+        if "generator" in section:
+            count += 1
+            gen = section["generator"]
+            valid, reason = curve_gen.validate_generator(gen)
+            if not valid:
+                report.fail("G-84", f"{where}.generator", f"generator invalid: {reason}")
+                problems += 1
+
+        if "station_cm" in section:
+            station_cm = section["station_cm"]
+            if not (
+                isinstance(station_cm, (int, float))
+                and not isinstance(station_cm, bool)
+                and math.isfinite(station_cm)
+            ):
+                report.fail(
+                    "G-84",
+                    f"{where}.station_cm",
+                    f"station_cm is {station_cm!r}, expected a finite number",
+                )
+                problems += 1
+
+        if "form_reference_ref" in section:
+            ref = section["form_reference_ref"]
+            if not (isinstance(ref, str) and FORM_REF_ID_RE.match(ref)):
+                report.fail(
+                    "G-84",
+                    f"{where}.form_reference_ref",
+                    f"form_reference_ref is {ref!r}, expected non-empty string matching ^[A-Za-z][A-Za-z0-9_-]{{0,63}}$",
+                )
+                problems += 1
+
+    if problems == 0:
+        report.ok(
+            "G-84",
+            location,
+            f"{count} section(s) declare valid and complete generator metadata",
+        )
+
+
+# ---- G-85 expansion consistency with generator recomputation -------------- #
+
+
+def _g85_expansion_consistency(record: LoadedFile, report: Report) -> None:
+    """G-85. Expanded discrete points match generator recomputation within 0.001 cm."""
+    location = record.label
+    doc = record.doc
+    if not isinstance(doc, dict):
+        return
+    sections = doc.get("sections")
+    if not isinstance(sections, list) or not sections:
+        return
+
+    # If no section declares generator:
+    if not any(isinstance(s, dict) and "generator" in s for s in sections):
+        report.skip(
+            "G-85",
+            location,
+            "no section declares generator; compatibility skip (generator optional)",
+        )
+        return
+
+    problems = 0
+    count = sum(1 for s in sections if isinstance(s, dict) and "generator" in s)
+    for index, section in enumerate(sections):
+        if not isinstance(section, dict) or "generator" not in section:
+            continue
+        where = f"{location}::sections[{index}]"
+
+        points = section.get("points_cm")
+        if not points:
+            if doc.get("status") == "draft":
+                report.skip(
+                    "G-85",
+                    f"{where}.points_cm",
+                    "points_cm absent in draft; unexpanded draft section",
+                )
+            else:
+                report.fail(
+                    "G-85",
+                    f"{where}.points_cm",
+                    "points_cm required in locked nurbs; run expand_curves.py",
+                )
+                problems += 1
+            continue
+
+        gen = section["generator"]
+        if not isinstance(gen, dict):
+            report.fail("G-85", f"{where}.generator", f"generator is {type(gen).__name__}, expected dict")
+            problems += 1
+            continue
+
+        gen_count = gen.get("count")
+        if not isinstance(points, list) or len(points) != gen_count:
+            stored_len = len(points) if isinstance(points, list) else 0
+            report.fail(
+                "G-85",
+                f"{where}.points_cm",
+                f"stored points count {stored_len} != generator count {gen_count}",
+            )
+            problems += 1
+            continue
+
+        try:
+            expected_pts = curve_gen.generator_points(gen)
+        except Exception as exc:
+            report.fail("G-85", f"{where}.generator", f"generator evaluation failed: {exc}")
+            problems += 1
+            continue
+
+        for k, pt in enumerate(points):
+            if k >= len(expected_pts):
+                break
+            exp_pt = expected_pts[k]
+            if not isinstance(pt, (list, tuple)) or len(pt) < 3:
+                report.fail(
+                    "G-85",
+                    f"{where}.points_cm[{k}]",
+                    f"point [{k}] is not a 3D coordinate triple",
+                )
+                problems += 1
+                continue
+            for coord in range(3):
+                val = pt[coord]
+                if not isinstance(val, (int, float)) or isinstance(val, bool) or not math.isfinite(val):
+                    report.fail(
+                        "G-85",
+                        f"{where}.points_cm[{k}]",
+                        f"point [{k}] coordinate {coord} is not a finite number",
+                    )
+                    problems += 1
+                    continue
+                diff = abs(val - exp_pt[coord])
+                if diff > 0.001:
+                    report.fail(
+                        "G-85",
+                        f"{where}.points_cm[{k}]",
+                        f"point [{k}] coordinate {coord} deviates by {diff:.6f} cm > 0.001 cm",
+                    )
+                    problems += 1
+
+    if problems == 0:
+        report.ok(
+            "G-85",
+            location,
+            f"{count} generator section(s) match stored discrete points within 0.001 cm",
         )
 
 
@@ -11962,6 +12205,23 @@ def _cell_geometry(
     return (min(x0, x1), min(y0, y1), min(z0, z1), max(x0, x1), max(y0, y1), max(z0, z1))
 
 
+def box_endpoint_budget_cm3(w: float, h: float, t: float, linear_cm: float) -> float:
+    """Conservative per-solid physical volume uncertainty budget B cm³ (07 §13.1, §21.4).
+
+    For extents w, h, t > 0 and linear tolerance e = linear_cm >= 0,
+    extent uncertainty d = 2 * e.
+    B = max((w+d)(h+d)(t+d) - wht, wht - max(w-d,0)max(h-d,0)max(t-d,0)).
+    If e <= 0, B = 0.0.
+    """
+    if linear_cm <= 0.0:
+        return 0.0
+    d = 2.0 * linear_cm
+    upper_diff = (w + d) * (h + d) * (t + d) - (w * h * t)
+    lower_prod = max(w - d, 0.0) * max(h - d, 0.0) * max(t - d, 0.0)
+    lower_diff = (w * h * t) - lower_prod
+    return max(upper_diff, lower_diff)
+
+
 def _g82_wall_tiling_volume(
     record: LoadedFile, session: Session, tols: P5Tolerances, report: Report
 ) -> None:
@@ -12023,8 +12283,10 @@ def _g82_wall_tiling_volume(
         wy0, wy1 = min(ys), max(ys)
         wall_volume = (wx1 - wx0) * (wy1 - wy0) * abs(wz1 - wz0)
         thickness = min(wy1 - wy0, wx1 - wx0)
+        b_host = box_endpoint_budget_cm3(wx1 - wx0, wy1 - wy0, abs(wz1 - wz0), linear)
 
         cell_volume = 0.0
+        b_cells = 0.0
         for cell in host_cells:
             geometry = _cell_geometry(cell, linear)
             if geometry is None:
@@ -12047,6 +12309,7 @@ def _g82_wall_tiling_volume(
                 bad += 1
                 continue
             cell_volume += (x1 - x0) * (y1 - y0) * (z1 - z0)
+            b_cells += box_endpoint_budget_cm3(x1 - x0, y1 - y0, z1 - z0, linear)
             if z0 < min(wz0, wz1) - linear or z1 > max(wz0, wz1) + linear:
                 report.fail(
                     "G-82",
@@ -12057,6 +12320,7 @@ def _g82_wall_tiling_volume(
                 bad += 1
 
         opening_volume = 0.0
+        b_cuts = 0.0
         for cut in cuts:
             if str(cut.get("host_ref")) != host_id:
                 continue
@@ -12073,15 +12337,17 @@ def _g82_wall_tiling_volume(
                 continue
             # An opening is cut clean through, so its volume carries the wall's thickness.
             opening_volume += run_length * thickness * v_length
+            b_cuts += box_endpoint_budget_cm3(run_length, thickness, v_length, linear)
 
         expected = wall_volume - opening_volume
-        if abs(cell_volume - expected) > linear * linear:
+        vol_budget = b_host + b_cells + b_cuts
+        if abs(cell_volume - expected) > vol_budget:
             report.fail(
                 "G-82",
                 record.label,
                 f"host {host_id}: cells total {cell_volume:g} cm3 but wall {wall_volume:g} minus "
                 f"openings {opening_volume:g} is {expected:g} cm3; a difference of "
-                f"{cell_volume - expected:g} cm3 means the cells do not tile the wall -- a gap "
+                f"{cell_volume - expected:g} cm3 exceeds the volume tolerance budget {vol_budget:g} cm3 -- a gap "
                 "(unbuilt material) or an overlap (double-counted material)",
             )
             bad += 1
@@ -12168,6 +12434,1076 @@ def _g83_wall_cell_thickness(
 
 
 # --------------------------------------------------------------------------- #
+# G-86 form references and precision targets
+# --------------------------------------------------------------------------- #
+
+FORM_REF_ID_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
+
+
+def resolve_source_id_selector(selector: str, session: Session) -> tuple[bool, str, Any]:
+    """Resolve a source-ID selector of the form '<spec>.json:<collection>:<id>'."""
+    if not isinstance(selector, str):
+        return False, f"selector must be a string, got {type(selector).__name__}", None
+    parts = selector.split(":")
+    if len(parts) != 3:
+        return (
+            False,
+            f"selector {selector!r} must have format '<spec>.json:<collection>:<id>' with exactly two colons",
+            None,
+        )
+    raw_spec, collection, target_id = parts[0].strip(), parts[1].strip(), parts[2].strip()
+    if not raw_spec or not collection or not target_id:
+        return False, f"selector {selector!r} contains empty component", None
+    spec_name = raw_spec[:-5] if raw_spec.endswith(".json") else raw_spec
+    if spec_name not in SPEC_BY_NAME:
+        return False, f"spec {raw_spec!r} is not a recognized spec file in SPEC_BY_NAME", None
+    record = session.by_name(spec_name)
+    if record is None:
+        return True, f"spec {spec_name!r} not loaded in session", None
+    if not isinstance(record.doc, dict):
+        return False, f"spec {spec_name}.json is not an object", None
+    if collection not in record.doc:
+        return False, f"collection {collection!r} not found in {spec_name}.json", None
+    items = record.doc[collection]
+    if not isinstance(items, list):
+        return False, f"collection {collection!r} in {spec_name}.json is not a list", None
+    target_item = None
+    for item in items:
+        if not isinstance(item, dict):
+            return False, f"collection {collection!r} in {spec_name}.json contains non-object element", None
+        if item.get("id") == target_id:
+            target_item = item
+            break
+    if target_item is None:
+        return False, f"item with id {target_id!r} not found in collection {collection!r} of {spec_name}.json", None
+    return True, "resolved", target_item
+
+
+def check_g86_form_references(session: Session, report: Report) -> None:
+    """G-86. Form references and precision targets are well-formed and resolve."""
+    dimensions = session.dimensions
+    if dimensions is None or not dimensions.ok or not isinstance(dimensions.doc, dict):
+        return
+    location = dimensions.label
+    doc = dimensions.doc
+    schema_version = doc.get("schema_version")
+
+    if schema_version == "1.0":
+        if "form_references" in doc or "precision_targets" in doc:
+            report.fail("G-86", location, "form_references / precision_targets require schema_version 1.1")
+        else:
+            report.skip("G-86", location, "schema_version 1.0; form_references/precision_targets not present")
+        return
+
+    if schema_version != "1.1":
+        if "form_references" in doc or "precision_targets" in doc:
+            report.fail("G-86", location, "form_references / precision_targets require schema_version 1.1")
+        else:
+            report.skip(
+                "G-86",
+                location,
+                f"schema_version {schema_version}; form_references/precision_targets not present",
+            )
+        return
+
+    if "form_references" not in doc and "precision_targets" not in doc:
+        report.skip(
+            "G-86",
+            location,
+            "schema_version 1.1 without analytical form targets; form_references not present",
+        )
+        return
+
+    problems = 0
+    seen_form_ref_ids: set[str] = set()
+    form_refs = doc.get("form_references")
+
+    if "form_references" in doc:
+        if not isinstance(form_refs, list):
+            report.fail("G-86", f"{location}::form_references", "form_references must be an array of objects")
+            problems += 1
+        else:
+            for i, ref in enumerate(form_refs):
+                if not isinstance(ref, dict):
+                    report.fail("G-86", f"{location}::form_references[{i}]", "form reference must be an object")
+                    problems += 1
+                    continue
+
+                ref_id = ref.get("id")
+                if not isinstance(ref_id, str) or not FORM_REF_ID_RE.match(ref_id):
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}].id",
+                        f"id {ref_id!r} must match ^[A-Za-z][A-Za-z0-9_-]{{0,63}}$",
+                    )
+                    problems += 1
+                elif ref_id in seen_form_ref_ids:
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}].id",
+                        f"duplicate form reference id {ref_id!r}",
+                    )
+                    problems += 1
+                else:
+                    seen_form_ref_ids.add(ref_id)
+
+                kind = ref.get("kind")
+                if kind not in ("arc", "ellipse_arc", "semi_elliptical_barrel"):
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}].kind",
+                        f"kind {kind!r} must be one of 'arc', 'ellipse_arc', 'semi_elliptical_barrel'",
+                    )
+                    problems += 1
+                    continue
+
+                if kind == "arc":
+                    allowed_keys = {
+                        "id",
+                        "kind",
+                        "plane",
+                        "center_cm",
+                        "from_deg",
+                        "to_deg",
+                        "radius_cm",
+                        "construction_count",
+                    }
+                elif kind == "ellipse_arc":
+                    allowed_keys = {
+                        "id",
+                        "kind",
+                        "plane",
+                        "center_cm",
+                        "from_deg",
+                        "to_deg",
+                        "semi_axes_cm",
+                        "construction_count",
+                    }
+                else:  # semi_elliptical_barrel
+                    allowed_keys = {
+                        "id",
+                        "kind",
+                        "plane",
+                        "center_cm",
+                        "from_deg",
+                        "to_deg",
+                        "semi_axes_cm",
+                        "longitudinal_range_cm",
+                    }
+
+                extra_keys = set(ref.keys()) - allowed_keys
+                if extra_keys:
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}]",
+                        f"unlisted/forbidden keys for kind {kind!r}: {', '.join(sorted(extra_keys))}",
+                    )
+                    problems += 1
+
+                missing_keys = allowed_keys - set(ref.keys())
+                if missing_keys:
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}]",
+                        f"missing required keys for kind {kind!r}: {', '.join(sorted(missing_keys))}",
+                    )
+                    problems += 1
+                    continue
+
+                plane = ref["plane"]
+                center_cm = ref["center_cm"]
+                from_deg = ref["from_deg"]
+                to_deg = ref["to_deg"]
+
+                if kind in ("arc", "ellipse_arc"):
+                    if plane not in ("XY", "XZ", "YZ"):
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}].plane",
+                            f"plane {plane!r} must be 'XY', 'XZ', or 'YZ'",
+                        )
+                        problems += 1
+                else:
+                    if plane != "XZ":
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}].plane",
+                            f"barrel plane {plane!r} must be 'XZ'",
+                        )
+                        problems += 1
+
+                if not (
+                    isinstance(center_cm, list)
+                    and len(center_cm) == 3
+                    and all(
+                        isinstance(c, (int, float))
+                        and not isinstance(c, bool)
+                        and math.isfinite(c)
+                        for c in center_cm
+                    )
+                ):
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}].center_cm",
+                        f"center_cm must be a list of 3 finite numbers, got {center_cm!r}",
+                    )
+                    problems += 1
+                elif kind == "semi_elliptical_barrel" and center_cm[1] != 0:
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}].center_cm",
+                        f"barrel center_cm[1] must be 0, got {center_cm[1]!r}",
+                    )
+                    problems += 1
+
+                if not (
+                    isinstance(from_deg, (int, float))
+                    and not isinstance(from_deg, bool)
+                    and math.isfinite(from_deg)
+                ):
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}].from_deg",
+                        f"from_deg must be a finite number, got {from_deg!r}",
+                    )
+                    problems += 1
+                if not (
+                    isinstance(to_deg, (int, float))
+                    and not isinstance(to_deg, bool)
+                    and math.isfinite(to_deg)
+                ):
+                    report.fail(
+                        "G-86",
+                        f"{location}::form_references[{i}].to_deg",
+                        f"to_deg must be a finite number, got {to_deg!r}",
+                    )
+                    problems += 1
+
+                if kind == "semi_elliptical_barrel":
+                    if (from_deg, to_deg) not in ((0, 180), (180, 0), (0.0, 180.0), (180.0, 0.0)):
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}]",
+                            f"barrel (from_deg, to_deg) must be (0, 180) or (180, 0), got ({from_deg}, {to_deg})",
+                        )
+                        problems += 1
+
+                if kind == "arc":
+                    radius_cm = ref["radius_cm"]
+                    if not (
+                        isinstance(radius_cm, (int, float))
+                        and not isinstance(radius_cm, bool)
+                        and math.isfinite(radius_cm)
+                        and radius_cm > 0
+                    ):
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}].radius_cm",
+                            f"radius_cm must be > 0, got {radius_cm!r}",
+                        )
+                        problems += 1
+                    count = ref["construction_count"]
+                    if not (
+                        isinstance(count, int)
+                        and not isinstance(count, bool)
+                        and 2 <= count <= 500
+                    ):
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}].construction_count",
+                            f"construction_count must be integer in 2..500, got {count!r}",
+                        )
+                        problems += 1
+
+                elif kind == "ellipse_arc":
+                    semi_axes = ref["semi_axes_cm"]
+                    if not (
+                        isinstance(semi_axes, list)
+                        and len(semi_axes) == 2
+                        and all(
+                            isinstance(a, (int, float))
+                            and not isinstance(a, bool)
+                            and math.isfinite(a)
+                            and a > 0
+                            for a in semi_axes
+                        )
+                    ):
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}].semi_axes_cm",
+                            f"semi_axes_cm must be [a, b] with a, b > 0, got {semi_axes!r}",
+                        )
+                        problems += 1
+                    count = ref["construction_count"]
+                    if not (
+                        isinstance(count, int)
+                        and not isinstance(count, bool)
+                        and 2 <= count <= 500
+                    ):
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}].construction_count",
+                            f"construction_count must be integer in 2..500, got {count!r}",
+                        )
+                        problems += 1
+
+                elif kind == "semi_elliptical_barrel":
+                    semi_axes = ref["semi_axes_cm"]
+                    if not (
+                        isinstance(semi_axes, list)
+                        and len(semi_axes) == 2
+                        and all(
+                            isinstance(a, (int, float))
+                            and not isinstance(a, bool)
+                            and math.isfinite(a)
+                            and a > 0
+                            for a in semi_axes
+                        )
+                    ):
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}].semi_axes_cm",
+                            f"semi_axes_cm must be [a, b] with a, b > 0, got {semi_axes!r}",
+                        )
+                        problems += 1
+                    long_range = ref["longitudinal_range_cm"]
+                    if not (
+                        isinstance(long_range, list)
+                        and len(long_range) == 2
+                        and all(
+                            isinstance(s, (int, float))
+                            and not isinstance(s, bool)
+                            and math.isfinite(s)
+                            for s in long_range
+                        )
+                        and long_range[1] > long_range[0]
+                    ):
+                        report.fail(
+                            "G-86",
+                            f"{location}::form_references[{i}].longitudinal_range_cm",
+                            f"longitudinal_range_cm must be [s0, s1] with s1 > s0, got {long_range!r}",
+                        )
+                        problems += 1
+
+    seen_target_ids: set[str] = set()
+    targets = doc.get("precision_targets")
+    if "precision_targets" in doc:
+        if not isinstance(targets, list):
+            report.fail("G-86", f"{location}::precision_targets", "precision_targets must be an array of objects")
+            problems += 1
+        else:
+            target_allowed_keys = {
+                "id",
+                "role",
+                "requirement_profile",
+                "reference_ref",
+                "source_ref",
+            }
+            for i, target in enumerate(targets):
+                if not isinstance(target, dict):
+                    report.fail("G-86", f"{location}::precision_targets[{i}]", "precision target must be an object")
+                    problems += 1
+                    continue
+
+                extra_keys = set(target.keys()) - target_allowed_keys
+                if extra_keys:
+                    report.fail(
+                        "G-86",
+                        f"{location}::precision_targets[{i}]",
+                        f"unlisted keys: {', '.join(sorted(extra_keys))}",
+                    )
+                    problems += 1
+
+                missing_keys = target_allowed_keys - set(target.keys())
+                if missing_keys:
+                    report.fail(
+                        "G-86",
+                        f"{location}::precision_targets[{i}]",
+                        f"missing required keys: {', '.join(sorted(missing_keys))}",
+                    )
+                    problems += 1
+                    continue
+
+                t_id = target.get("id")
+                if not isinstance(t_id, str) or not FORM_REF_ID_RE.match(t_id):
+                    report.fail(
+                        "G-86",
+                        f"{location}::precision_targets[{i}].id",
+                        f"id {t_id!r} must match ^[A-Za-z][A-Za-z0-9_-]{{0,63}}$",
+                    )
+                    problems += 1
+                elif t_id in seen_target_ids:
+                    report.fail(
+                        "G-86",
+                        f"{location}::precision_targets[{i}].id",
+                        f"duplicate precision target id {t_id!r}",
+                    )
+                    problems += 1
+                else:
+                    seen_target_ids.add(t_id)
+
+                role = target.get("role")
+                if role != "design_surface":
+                    report.fail(
+                        "G-86",
+                        f"{location}::precision_targets[{i}].role",
+                        f"role must be 'design_surface', got {role!r}",
+                    )
+                    problems += 1
+
+                profile = target.get("requirement_profile")
+                if profile not in ("form_precision_v1", "legacy_structure_v1"):
+                    report.fail(
+                        "G-86",
+                        f"{location}::precision_targets[{i}].requirement_profile",
+                        f"requirement_profile must be 'form_precision_v1' or 'legacy_structure_v1', got {profile!r}",
+                    )
+                    problems += 1
+
+                ref_ref = target.get("reference_ref")
+                if not isinstance(ref_ref, str) or ref_ref not in seen_form_ref_ids:
+                    report.fail(
+                        "G-86",
+                        f"{location}::precision_targets[{i}].reference_ref",
+                        f"reference_ref {ref_ref!r} does not match any form_references id",
+                    )
+                    problems += 1
+
+                src_ref = target.get("source_ref")
+                valid, reason, _ = resolve_source_id_selector(src_ref, session)
+                if not valid:
+                    report.fail(
+                        "G-86",
+                        f"{location}::precision_targets[{i}].source_ref",
+                        f"source_ref {src_ref!r} resolution failed: {reason}",
+                    )
+                    problems += 1
+
+    if problems == 0:
+        n_refs = len(form_refs) if isinstance(form_refs, list) else 0
+        n_tgts = len(targets) if isinstance(targets, list) else 0
+        report.ok(
+            "G-86",
+            location,
+            f"{n_refs} form reference(s), {n_tgts} precision target(s) valid and resolved",
+        )
+
+
+# --------------------------------------------------------------------------- #
+# QA configuration rules (G-87..G-90)
+# --------------------------------------------------------------------------- #
+
+QA_SPEC_BODY_KEYS: tuple[str, ...] = (
+    "tolerances",
+    "origin_inputs",
+    "origins",
+    "profile",
+    "dependencies",
+    "scope",
+    "check_plan",
+    "sampling",
+    "limits",
+    "capture_plan",
+)
+QA_EXPECTED_TOP_KEYS: frozenset[str] = frozenset(ENVELOPE_ORDER + QA_SPEC_BODY_KEYS)
+
+QA_CONFIG_FORBIDDEN_FIELDS: frozenset[str] = frozenset({
+    "measured",
+    "results",
+    "pass",
+    "verdict",
+    "error",
+    "checks",
+    "captures",
+    "determinism",
+    "determinism_results",
+    "enabled",
+    "disabled",
+})
+
+QA_TARGET_KINDS: frozenset[str] = frozenset({
+    "project",
+    "massing_element",
+    "group",
+    "nurbs_surface",
+    "nurbs_derivative",
+    "component_prototype",
+    "placement",
+    "wall_host",
+    "wall_cell",
+})
+
+QA_CHECK_KINDS: frozenset[str] = frozenset({
+    "QA-V1-COVERAGE",
+    "QA-V1-CENSUS",
+    "QA-V1-NURBS-CENSUS",
+    "QA-V1-PLACEMENT",
+    "QA-V1-WALLS",
+    "QA-V1-FORM",
+    "QA-V1-STACK",
+    "QA-V1-REPLAY",
+})
+
+QA_TOLERANCE_REFS: frozenset[str] = frozenset({
+    "exact",
+    "placement_v1",
+    "wall_box_v1",
+    "form_v1",
+    "replay_v1",
+})
+
+QA_OPERATIONAL_LIMIT_KEYS: tuple[str, ...] = (
+    "max_rows_per_batch",
+    "max_targets",
+    "max_samples",
+    "max_calls",
+    "max_batch_seconds",
+    "max_total_seconds",
+    "max_solver_iterations",
+    "max_response_bytes",
+)
+
+
+def _find_prohibited_qa_keys(obj: Any, path: str = "") -> list[tuple[str, str]]:
+    """Recursively search for prohibited result/legacy keys in a dictionary tree."""
+    violations: list[tuple[str, str]] = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            current_path = f"{path}.{k}" if path else k
+            if k in QA_CONFIG_FORBIDDEN_FIELDS:
+                violations.append((current_path, k))
+            violations.extend(_find_prohibited_qa_keys(v, current_path))
+    elif isinstance(obj, list):
+        for i, item in enumerate(obj):
+            current_path = f"{path}[{i}]"
+            violations.extend(_find_prohibited_qa_keys(item, current_path))
+    return violations
+
+
+def check_qa_rules(session: Session, report: Report) -> None:
+    """Validate qa.json against G-87..G-90."""
+    qa_record = session.qa
+    if qa_record is None or not qa_record.ok or not isinstance(qa_record.doc, dict):
+        report.skip("G-87", "(qa)", "qa.json is absent; QA configuration has not been scaffolded or run")
+        report.skip("G-88", "(qa)", "qa.json is absent; QA configuration has not been scaffolded or run")
+        report.skip("G-89", "(qa)", "qa.json is absent; QA configuration has not been scaffolded or run")
+        report.skip("G-90", "(qa)", "qa.json is absent; QA configuration has not been scaffolded or run")
+        return
+
+    location = qa_record.label
+    doc = qa_record.doc
+
+    # -----------------------------------------------------------------------
+    # G-87: QA config: qa.json is well-formed closed configuration
+    # -----------------------------------------------------------------------
+    problems_87 = 0
+    keys = list(doc.keys())
+    missing_keys = [k for k in QA_SPEC_BODY_KEYS if k not in keys]
+    if missing_keys:
+        report.fail(
+            "G-87",
+            location,
+            f"qa.json missing declared top-level keys: {', '.join(sorted(missing_keys))}",
+        )
+        problems_87 += 1
+
+    extra_keys = [k for k in keys if k not in QA_EXPECTED_TOP_KEYS]
+    if extra_keys:
+        report.fail(
+            "G-87",
+            location,
+            f"undeclared top-level keys in qa.json: {', '.join(sorted(extra_keys))}",
+        )
+        problems_87 += 1
+
+    violations = _find_prohibited_qa_keys(doc)
+    if violations:
+        for v_path, v_field in violations:
+            report.fail(
+                "G-87",
+                f"{location}::{v_path}",
+                f"prohibited result/legacy field {v_field!r} found in QA configuration tree",
+            )
+            problems_87 += 1
+
+    profile = doc.get("profile")
+    if profile not in ("form_precision_v1", "legacy_structure_v1"):
+        report.fail(
+            "G-87",
+            f"{location}::profile",
+            f"profile {profile!r} must be 'form_precision_v1' or 'legacy_structure_v1'",
+        )
+        problems_87 += 1
+
+    if problems_87 == 0:
+        report.ok("G-87", location, "qa.json is well-formed closed configuration")
+
+    # -----------------------------------------------------------------------
+    # G-88: QA coverage joins: targets, checks and inferred mandatory families
+    # -----------------------------------------------------------------------
+    problems_88 = 0
+    scope = doc.get("scope")
+    seen_target_ids: set[str] = set()
+    targets_list: list[dict[str, Any]] = []
+
+    if not isinstance(scope, dict):
+        report.fail("G-88", f"{location}::scope", f"scope is {type(scope).__name__}, expected an object")
+        problems_88 += 1
+    else:
+        targets = scope.get("targets")
+        if not isinstance(targets, list):
+            report.fail(
+                "G-88",
+                f"{location}::scope.targets",
+                f"targets is {type(targets).__name__}, expected an array of objects",
+            )
+            problems_88 += 1
+        else:
+            targets_list = targets
+            for i, target in enumerate(targets):
+                if not isinstance(target, dict):
+                    report.fail("G-88", f"{location}::scope.targets[{i}]", "target must be an object")
+                    problems_88 += 1
+                    continue
+
+                t_id = target.get("id")
+                if not isinstance(t_id, str) or not re.match(r"^[A-Za-z0-9][A-Za-z0-9_-]*$", t_id):
+                    report.fail(
+                        "G-88",
+                        f"{location}::scope.targets[{i}].id",
+                        f"target id {t_id!r} is not a valid safe identifier",
+                    )
+                    problems_88 += 1
+                elif t_id in seen_target_ids:
+                    report.fail("G-88", f"{location}::scope.targets[{i}].id", f"duplicate target id {t_id!r}")
+                    problems_88 += 1
+                else:
+                    seen_target_ids.add(t_id)
+
+                kind = target.get("kind")
+                if kind not in QA_TARGET_KINDS:
+                    report.fail(
+                        "G-88",
+                        f"{location}::scope.targets[{i}].kind",
+                        f"target kind {kind!r} not in closed vocabulary {', '.join(sorted(QA_TARGET_KINDS))}",
+                    )
+                    problems_88 += 1
+
+                role = target.get("role")
+                if not isinstance(role, str) or not role.strip():
+                    report.fail(
+                        "G-88",
+                        f"{location}::scope.targets[{i}].role",
+                        f"target role {role!r} must be a non-empty string",
+                    )
+                    problems_88 += 1
+
+                node_names = target.get("node_names")
+                if not isinstance(node_names, list) or not all(isinstance(n, str) for n in node_names):
+                    report.fail(
+                        "G-88",
+                        f"{location}::scope.targets[{i}].node_names",
+                        "node_names must be an array of strings",
+                    )
+                    problems_88 += 1
+                else:
+                    if kind == "project" and len(node_names) != 0:
+                        report.fail(
+                            "G-88",
+                            f"{location}::scope.targets[{i}].node_names",
+                            f"project target node_names must be empty, got {node_names!r}",
+                        )
+                        problems_88 += 1
+                    elif kind != "project" and len(node_names) == 0:
+                        report.fail(
+                            "G-88",
+                            f"{location}::scope.targets[{i}].node_names",
+                            f"non-project target '{kind}' node_names must be non-empty",
+                        )
+                        problems_88 += 1
+
+        if profile == "form_precision_v1":
+            registry_ref = scope.get("registry_ref")
+            draft_skipped_analytical = False
+            if registry_ref != "dimensions.json:precision_targets":
+                report.fail(
+                    "G-88",
+                    f"{location}::scope.registry_ref",
+                    f"form_precision_v1 requires scope.registry_ref == 'dimensions.json:precision_targets', got {registry_ref!r}",
+                )
+                problems_88 += 1
+            else:
+                dim_file = session.dimensions
+                if dim_file is None or not dim_file.ok or not isinstance(dim_file.doc, dict):
+                    if doc.get("status") == "draft":
+                        draft_skipped_analytical = True
+                    else:
+                        report.fail(
+                            "G-88",
+                            f"{location}::scope.registry_ref",
+                            "cannot resolve 'dimensions.json:precision_targets': dimensions.json is not loaded",
+                        )
+                        problems_88 += 1
+                elif "precision_targets" not in dim_file.doc or not isinstance(dim_file.doc.get("precision_targets"), list):
+                    if doc.get("status") == "draft":
+                        draft_skipped_analytical = True
+                    else:
+                        report.fail(
+                            "G-88",
+                            f"{location}::scope.registry_ref",
+                            "cannot resolve 'dimensions.json:precision_targets': precision_targets not found in dimensions.json",
+                        )
+                        problems_88 += 1
+
+            has_design_surface = any(
+                isinstance(t, dict) and t.get("role") == "design_surface"
+                for t in targets_list
+            )
+            if not has_design_surface:
+                if doc.get("status") == "draft":
+                    draft_skipped_analytical = True
+                else:
+                    report.fail(
+                        "G-88",
+                        f"{location}::scope.targets",
+                        "form_precision_v1 requires at least one analytical 'design_surface' target in scope.targets",
+                    )
+                    problems_88 += 1
+
+    check_plan = doc.get("check_plan")
+    seen_check_ids: set[str] = set()
+    if not isinstance(check_plan, list):
+        report.fail(
+            "G-88",
+            f"{location}::check_plan",
+            f"check_plan is {type(check_plan).__name__}, expected an array of objects",
+        )
+        problems_88 += 1
+    else:
+        for j, check in enumerate(check_plan):
+            if not isinstance(check, dict):
+                report.fail("G-88", f"{location}::check_plan[{j}]", "check must be an object")
+                problems_88 += 1
+                continue
+
+            c_id = check.get("id")
+            if not isinstance(c_id, str) or not re.match(r"^[A-Za-z0-9][A-Za-z0-9_-]*$", c_id):
+                report.fail(
+                    "G-88",
+                    f"{location}::check_plan[{j}].id",
+                    f"check id {c_id!r} is not a valid safe identifier",
+                )
+                problems_88 += 1
+            elif c_id in seen_check_ids:
+                report.fail("G-88", f"{location}::check_plan[{j}].id", f"duplicate check id {c_id!r}")
+                problems_88 += 1
+            else:
+                seen_check_ids.add(c_id)
+
+            c_kind = check.get("kind")
+            if c_kind not in QA_CHECK_KINDS:
+                report.fail(
+                    "G-88",
+                    f"{location}::check_plan[{j}].kind",
+                    f"check kind {c_kind!r} not in closed vocabulary {', '.join(sorted(QA_CHECK_KINDS))}",
+                )
+                problems_88 += 1
+
+            t_ref = check.get("target_ref")
+            if not isinstance(t_ref, str) or t_ref not in seen_target_ids:
+                report.fail(
+                    "G-88",
+                    f"{location}::check_plan[{j}].target_ref",
+                    f"target_ref {t_ref!r} does not resolve to any target id in scope.targets",
+                )
+                problems_88 += 1
+
+            tol_ref = check.get("tolerance_ref")
+            if tol_ref not in QA_TOLERANCE_REFS:
+                report.fail(
+                    "G-88",
+                    f"{location}::check_plan[{j}].tolerance_ref",
+                    f"tolerance_ref {tol_ref!r} not in {', '.join(sorted(QA_TOLERANCE_REFS))}",
+                )
+                problems_88 += 1
+
+            if c_kind == "QA-V1-FORM":
+                ref_ref = check.get("reference_ref")
+                if not isinstance(ref_ref, str) or not ref_ref.strip():
+                    report.fail(
+                        "G-88",
+                        f"{location}::check_plan[{j}].reference_ref",
+                        "reference_ref is required for check kind 'QA-V1-FORM'",
+                    )
+                    problems_88 += 1
+
+    if problems_88 == 0:
+        if profile == "form_precision_v1" and draft_skipped_analytical:
+            report.skip(
+                "G-88",
+                location,
+                f"draft qa.json: analytical precision joins skipped until targets are authored ({len(targets_list)} target(s), {len(check_plan) if isinstance(check_plan, list) else 0} check(s))",
+            )
+        else:
+            report.ok(
+                "G-88",
+                location,
+                f"QA coverage joins valid: {len(targets_list)} target(s), {len(check_plan) if isinstance(check_plan, list) else 0} check(s)",
+            )
+
+    # -----------------------------------------------------------------------
+    # G-89: QA tolerances and schedule: separate arithmetic, form, numerical and limits
+    # -----------------------------------------------------------------------
+    problems_89 = 0
+    tolerances = doc.get("tolerances")
+    if not isinstance(tolerances, dict):
+        report.fail(
+            "G-89",
+            f"{location}::tolerances",
+            f"tolerances is {type(tolerances).__name__}, expected an object",
+        )
+        problems_89 += 1
+    else:
+        for k in ("linear_cm", "area_m2", "angle_deg"):
+            v = tolerances.get(k)
+            if not (isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v >= 0):
+                report.fail(
+                    "G-89",
+                    f"{location}::tolerances.{k}",
+                    f"{k} must be a finite non-negative number (>= 0), got {v!r}",
+                )
+                problems_89 += 1
+
+        if profile == "form_precision_v1":
+            form_tol = tolerances.get("form")
+            if not isinstance(form_tol, dict):
+                report.fail(
+                    "G-89",
+                    f"{location}::tolerances.form",
+                    "tolerances.form is required for profile 'form_precision_v1'",
+                )
+                problems_89 += 1
+            else:
+                surf_dev = form_tol.get("surface_deviation_cm")
+                if not (isinstance(surf_dev, (int, float)) and not isinstance(surf_dev, bool) and math.isfinite(surf_dev) and surf_dev > 0):
+                    report.fail(
+                        "G-89",
+                        f"{location}::tolerances.form.surface_deviation_cm",
+                        f"surface_deviation_cm must be a finite positive number (> 0), got {surf_dev!r}",
+                    )
+                    problems_89 += 1
+
+        num_tol = tolerances.get("numerical")
+        if not isinstance(num_tol, dict):
+            report.fail(
+                "G-89",
+                f"{location}::tolerances.numerical",
+                "tolerances.numerical is required and must be an object",
+            )
+            problems_89 += 1
+        else:
+            if num_tol.get("policy") != "separate_bounds_v1":
+                report.fail(
+                    "G-89",
+                    f"{location}::tolerances.numerical.policy",
+                    f"policy must be 'separate_bounds_v1', got {num_tol.get('policy')!r}",
+                )
+                problems_89 += 1
+
+            s_dist = num_tol.get("solver_distance_cm")
+            if not (isinstance(s_dist, (int, float)) and not isinstance(s_dist, bool) and math.isfinite(s_dist) and s_dist > 0):
+                report.fail(
+                    "G-89",
+                    f"{location}::tolerances.numerical.solver_distance_cm",
+                    f"solver_distance_cm must be a finite positive number (> 0), got {s_dist!r}",
+                )
+                problems_89 += 1
+
+            for k in ("wire_length_cm", "wire_angle_deg", "unit_factor_relative", "volume_roundoff_cm3"):
+                v = num_tol.get(k)
+                if not (isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v >= 0):
+                    report.fail(
+                        "G-89",
+                        f"{location}::tolerances.numerical.{k}",
+                        f"{k} must be a finite non-negative number (>= 0), got {v!r}",
+                    )
+                    problems_89 += 1
+
+        vol_tol = tolerances.get("volume")
+        if not isinstance(vol_tol, dict):
+            report.fail(
+                "G-89",
+                f"{location}::tolerances.volume",
+                "tolerances.volume is required and must be an object",
+            )
+            problems_89 += 1
+        elif vol_tol.get("policy") != "box_endpoint_propagation_v1":
+            report.fail(
+                "G-89",
+                f"{location}::tolerances.volume.policy",
+                f"policy must be 'box_endpoint_propagation_v1', got {vol_tol.get('policy')!r}",
+            )
+            problems_89 += 1
+
+    sampling = doc.get("sampling")
+    if not isinstance(sampling, dict):
+        report.fail(
+            "G-89",
+            f"{location}::sampling",
+            f"sampling is {type(sampling).__name__}, expected an object",
+        )
+        problems_89 += 1
+    else:
+        if sampling.get("policy") != "domain_grid_v1":
+            report.fail(
+                "G-89",
+                f"{location}::sampling.policy",
+                f"policy must be 'domain_grid_v1', got {sampling.get('policy')!r}",
+            )
+            problems_89 += 1
+        if sampling.get("version") != "1":
+            report.fail(
+                "G-89",
+                f"{location}::sampling.version",
+                f"version must be '1', got {sampling.get('version')!r}",
+            )
+            problems_89 += 1
+        gu = sampling.get("grid_u")
+        if not (isinstance(gu, int) and not isinstance(gu, bool) and gu >= 2):
+            report.fail(
+                "G-89",
+                f"{location}::sampling.grid_u",
+                f"grid_u must be an integer >= 2, got {gu!r}",
+            )
+            problems_89 += 1
+        gv = sampling.get("grid_v")
+        if not (isinstance(gv, int) and not isinstance(gv, bool) and gv >= 2):
+            report.fail(
+                "G-89",
+                f"{location}::sampling.grid_v",
+                f"grid_v must be an integer >= 2, got {gv!r}",
+            )
+            problems_89 += 1
+        sf = sampling.get("selected_frame")
+        if not (isinstance(sf, int) and not isinstance(sf, bool)):
+            report.fail(
+                "G-89",
+                f"{location}::sampling.selected_frame",
+                f"selected_frame must be an integer, got {sf!r}",
+            )
+            problems_89 += 1
+
+    limits = doc.get("limits")
+    if not isinstance(limits, dict):
+        report.fail(
+            "G-89",
+            f"{location}::limits",
+            f"limits is {type(limits).__name__}, expected an object",
+        )
+        problems_89 += 1
+    else:
+        for k in QA_OPERATIONAL_LIMIT_KEYS:
+            v = limits.get(k)
+            if not (isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v > 0):
+                report.fail(
+                    "G-89",
+                    f"{location}::limits.{k}",
+                    f"{k} must be a positive non-bool number (> 0), got {v!r}",
+                )
+                problems_89 += 1
+
+    if problems_89 == 0:
+        report.ok("G-89", location, "QA tolerances, sampling schedule, and limits valid")
+
+    # -----------------------------------------------------------------------
+    # G-90: QA dependencies and provenance: discriminated JSON and CSV bindings
+    # -----------------------------------------------------------------------
+    problems_90 = 0
+    dependencies = doc.get("dependencies")
+    if not isinstance(dependencies, list) or len(dependencies) == 0:
+        report.fail(
+            "G-90",
+            f"{location}::dependencies",
+            "dependencies must be a non-empty array of objects",
+        )
+        problems_90 += 1
+    else:
+        for i, dep in enumerate(dependencies):
+            if not isinstance(dep, dict):
+                report.fail("G-90", f"{location}::dependencies[{i}]", "dependency item must be an object")
+                problems_90 += 1
+                continue
+
+            dep_id = dep.get("id")
+            if not isinstance(dep_id, str) or not dep_id.strip():
+                report.fail("G-90", f"{location}::dependencies[{i}].id", "id must be a non-empty string")
+                problems_90 += 1
+
+            fmt = dep.get("format")
+            if fmt not in ("json", "csv"):
+                report.fail(
+                    "G-90",
+                    f"{location}::dependencies[{i}].format",
+                    f"format must be 'json' or 'csv', got {fmt!r}",
+                )
+                problems_90 += 1
+
+            dep_file = dep.get("file")
+            if not isinstance(dep_file, str) or not dep_file.strip():
+                report.fail("G-90", f"{location}::dependencies[{i}].file", "file must be a non-empty string")
+                problems_90 += 1
+
+            if fmt == "json":
+                spec_val = dep.get("spec")
+                if not isinstance(spec_val, str) or not spec_val.strip():
+                    report.fail("G-90", f"{location}::dependencies[{i}].spec", "spec is required for format 'json'")
+                    problems_90 += 1
+                s_ver = dep.get("schema_version")
+                if not isinstance(s_ver, str) or not s_ver.strip():
+                    report.fail(
+                        "G-90",
+                        f"{location}::dependencies[{i}].schema_version",
+                        "schema_version is required for format 'json'",
+                    )
+                    problems_90 += 1
+            elif fmt == "csv":
+                if dep_file != "specs/pipeline/world_table.csv":
+                    report.fail(
+                        "G-90",
+                        f"{location}::dependencies[{i}].file",
+                        f"CSV dependency file must be 'specs/pipeline/world_table.csv', got {dep_file!r}",
+                    )
+                    problems_90 += 1
+                cols = dep.get("columns")
+                if not isinstance(cols, list) or tuple(cols) != ASSEMBLY_WORLD_COLUMNS:
+                    report.fail(
+                        "G-90",
+                        f"{location}::dependencies[{i}].columns",
+                        f"columns must match WORLD_COLUMNS exactly: {', '.join(ASSEMBLY_WORLD_COLUMNS)}",
+                    )
+                    problems_90 += 1
+                join = dep.get("join")
+                if not isinstance(join, dict):
+                    report.fail("G-90", f"{location}::dependencies[{i}].join", "join object is required for format 'csv'")
+                    problems_90 += 1
+                fkeys = dep.get("foreign_keys")
+                if not isinstance(fkeys, list) or len(fkeys) == 0:
+                    report.fail(
+                        "G-90",
+                        f"{location}::dependencies[{i}].foreign_keys",
+                        "foreign_keys must be a non-empty array for format 'csv'",
+                    )
+                    problems_90 += 1
+
+    if problems_90 == 0:
+        report.ok(
+            "G-90",
+            location,
+            f"QA dependencies and provenance valid: {len(dependencies)} dependency binding(s)",
+        )
+
+
+# --------------------------------------------------------------------------- #
 # Orchestration
 # --------------------------------------------------------------------------- #
 
@@ -12235,6 +13571,8 @@ def run_checks(session: Session, report: Report) -> None:
 
     guard("G-31", "(cross-file)", report, check_cross_file, session)
     guard("G-33", "(tolerances)", report, check_tolerances_declared, session)
+    guard("G-86", "(form-references)", report, check_g86_form_references, session)
+    guard("G-87", "(qa)", report, check_qa_rules, session)
     guard("G-1", "(inventory)", report, check_inventory, session)
 
 
@@ -12260,6 +13598,13 @@ def check_inventory(session: Session, report: Report) -> None:
                 f"{spec.name}.json",
                 f"absent; this run targets a recipe template library (every loaded file is a "
                 f"recipe), and a template is not a project, so {spec.name} is not expected",
+            )
+            continue
+        if spec.state == "defined" and spec.name == "qa":
+            report.skip(
+                "G-1",
+                "qa.json",
+                "absent; earlier stage / legacy project before S7/P8 QA gate (07 S-4)",
             )
             continue
         if spec.state == "defined":

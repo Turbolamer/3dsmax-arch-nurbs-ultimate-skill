@@ -1,0 +1,1048 @@
+{
+  "protocol_version": "form_qa_wire_v1",
+  "canonicalization": "form_cjson_v1",
+  "project": "form-precision",
+  "run_id": "live-run-001",
+  "qa_hash": "881ca3d9de369c6215c1901706f0a91f645c80ed5042347d1ea5173976a5dfce",
+  "profile": "form_precision_v1",
+  "selected_frame": 0,
+  "methods": {
+    "arc_solver": "interval_lipschitz_arc_v1",
+    "landmark_solver": "interval_committed_surface_v1",
+    "serializer": "invariant_decimal_wire_v1",
+    "factor": "certified_native_factor_v1",
+    "volume": "box_endpoint_propagation_v1"
+  },
+  "dependencies": [
+    {
+      "id": "DEP_DIMENSIONS",
+      "file": "specs/pipeline/dimensions.json",
+      "sha256": "31ad9a28f47ae8ec731bdd244f95466756ac71cc343ac697cd844fbecc5fc44b",
+      "format": "json",
+      "spec": "dimensions",
+      "schema_version": "1.1"
+    },
+    {
+      "id": "DEP_MASSING",
+      "file": "specs/pipeline/massing.json",
+      "sha256": "5b6c6edf20281740f89a84017c929db93b3a3bf16a714b1066ad4f1db9e2de10",
+      "format": "json",
+      "spec": "massing",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "DEP_NURBS",
+      "file": "specs/pipeline/nurbs.json",
+      "sha256": "cee7b3ef8fdacf43b2c280780554e4820ddc1fa2cac2fe8feecaaa42dd44a149",
+      "format": "json",
+      "spec": "nurbs",
+      "schema_version": "1.1"
+    },
+    {
+      "id": "DEP_FACADE_GRIDS",
+      "file": "specs/pipeline/facade_grids.json",
+      "sha256": "9d3729e049043375bee0781553e8830c583b6c74332346fa3f14a1f7d700f959",
+      "format": "json",
+      "spec": "facade_grids",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "DEP_COMPONENTS_REGISTRY",
+      "file": "specs/pipeline/components_registry.json",
+      "sha256": "4f823c9e3b33c44c07fa477cdbe25a4d542482403e60feeb420b40ffeb3b27e7",
+      "format": "json",
+      "spec": "components_registry",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "DEP_ASSEMBLY",
+      "file": "specs/pipeline/assembly.json",
+      "sha256": "fd3afb78e5af9537419747ce62343e9faef9bc849de4b5075d4e19588275bfae",
+      "format": "json",
+      "spec": "assembly",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "DEP_WORLD_TABLE",
+      "file": "specs/pipeline/world_table.csv",
+      "sha256": "9046911074117a4c719a4b92e7d0451a964644e3ac88697b1423e9dc31dc39b4",
+      "format": "csv"
+    }
+  ],
+  "expected_target_ids": [
+    "TGT-001",
+    "TGT_MASSING_01",
+    "TGT_PROJECT"
+  ],
+  "expected_check_ids": [
+    "CHK_CENSUS_MASS",
+    "CHK_CENSUS_NURBS",
+    "CHK_COVERAGE",
+    "CHK_FORM_01"
+  ],
+  "expected_observation_ids": [
+    "O0593b1d13cd49cff2bc167b887a0a915dae4ec418cad2f6a0e6ab8c78eaba36",
+    "O07f3849ce95c1df1d7690844c8b2e3dab4bb8cc6c23c979ffe3d19827611f54",
+    "O11f742fa2f7aa3742de263ebb3b9a59f990b329b47fbc46ba8326f5c586df11",
+    "O168350b9280d3dcf0871104346bd3e6986803ab8712a497b6370a5bf734253f",
+    "O17ff69a9124753e35e0f86a228ec234784a95e78624aaee014efeb966a1c56b",
+    "O1ceedea9e69399cf79a250d4cde8f434c777897ca94ec1ae48b755adca2826b",
+    "O268ff168877cd392e643c21a51a282d3e06d297c9c04aeb9ffbb0d7a5534ed6",
+    "O31283bb680dd16bba9ba9f1fb53a4976efabcdf46161b84e363380f910cf673",
+    "O37636961cf36ae5a33d279efffe0a66a02db63b7050462ebf11963b7a787d96",
+    "O3d9fa4c3adbc0da3deace44993990265a67e9d00f0a1a28688db4f7d0d2d74f",
+    "O415e589dea4d4875dd0d778a1d85985fc81e0ffadcdef43e8d99aae33218b3f",
+    "O43031457d6da9d19762b4f8c0f804d03ebb09f9f6d38ab06be85a07cace7c9f",
+    "O485ee22a60b4683b2eceb02f0816d2590fd772463ae755c94b83e33eac7918d",
+    "O4a6c7a6382ffeeca968c4c8feddefbb3b5d7b3986ff36c6e023c4897f89249c",
+    "O610d5dde41f1658e4edc265032d949b9de617bb01ac15ae044d20d6e76b4165",
+    "O6ff59c74f5607baa6d22c7759086f08db65d06de2d50bdd611adb6b59c6848a",
+    "O7bb47b8ca6ee3bacd980b8910e5a20dc9adf40af344e57097a80a95cf0996f6",
+    "O8213f19cb0f87a5204c4bb7560d84340ed34131049674cb5ded49c62523c3b0",
+    "O850fe36d952faac847cded819619e831d0405fa14a784eb1be4afd6f2306c10",
+    "O86c3c75032d009d58e96ea9b5bcce20d44d91f21b053fbef55e07c521ee1716",
+    "O88ee685f644d2dc6592e0dd3456e02883d0c8879bbe7dadf182212ea49940c1",
+    "O9c52a1b79fcef5457f82e25fcdb10785ea9a2e75417488188d876ec731c1ab2",
+    "O9da689b2d05821174ccc212b95a2ba18b44508c5d46e601c5610d0cf4f099b1",
+    "Oa21f2e009ceb1f210a82988e6f715a43f106c640b8d9a69e2883179962352a2",
+    "Oa523eefbd3179fa2241bf091b6eb25bf48003859287f04a9382060c93a4676c",
+    "Oaa7c39b7cc285f1cba59d3c4e84be3ab04df7ffc0e799c7929fb9bb33414d2e",
+    "Oab09deae4004ad0c06126f608b9110d65f774b1089e38bd39dc43966def3056",
+    "Ob178856d0a3c9d037289b0ee6b9a908a3c8cb3b5de0579355e7171e20caad25",
+    "Ob60bfb247107fc24fac42d123fa7a27c802bc973df2ba6aceaf1e89ff421284",
+    "Ob68274c771d6215cf161825a6c77cda089880b4bb7f698ce6e7ddb1c30dcda8",
+    "Obcb46c39770bae6b59db73c94a9679d78ca21ccba639ecc7e688a299b0f1c82",
+    "Oc311dd6ac9d18c53a9db807a7c2bb907def8d87ed122f59a326a6d72e4ee563",
+    "Ocdce6c57bbc99b4152a38efb1cb7a80884e88fafe662086e75eead8e4702342",
+    "Oce500f8261ad0db8c4b71cf6d1779232b7acafa34b4bb39ebc64b723945bd29",
+    "Od502c8b484dcb36d66c4c1a05592077be5c40e95779b3fd3f789db2d24a8ad9",
+    "Oe99577f9459654b7201b34cee576ac92ae9a20be7b1efac2a00f281ed12fcaa",
+    "Oeb6094a266f7eccab0577f37550719508a455f80c5283b3d1f6070acdfe2440",
+    "Ofce2496aca8782e8513e4bb64b50842ff31b5921ff12a3cc1f678971584c134",
+    "Ofd85417e1b77cb2af0145f6c11ac41acd81ba3756b1df582796507eefe20f96"
+  ],
+  "expected_sample_ids": [
+    "S0aa01fb899abf8cc0b0139f28143ac8b3b9a22d0b65422be1bdc1e1a5dc6ca5",
+    "S0d5c23dc5b5bc89c7ba6073b9043aebed014fa7d11e798f4bc6a8e096e6aa05",
+    "S113333d7f738b1cd286af8d6d15a229b374e6aebdc6703a50047f5288ac6dbe",
+    "S13aa21f0c9ade41740ad881fc5fec47cb2afcb5e1978894b8bdc6b4ca5966ae",
+    "S13ef18b3e3d81de26d055efa3fb67ff2979372af451e601f49be8dbcd7953a7",
+    "S1db610a130ec9d8a7404d008d9960e3346cf378fd86a764c52e16381b90f2d2",
+    "S20944fa119054d8ccc25d38ebfcce4b0a2bfc438ecfa82c7541209b34cdbf95",
+    "S2613cff1a2ca16df290cd7014f244530867e4887a6271500671c92e26333267",
+    "S2a40a93cbf2bb0df417334fba01f25884585534bbb327c0f361e52f2a5a5f2f",
+    "S2a9ab830884cbe712525a2035f6c01a4b18ae7d9cdf1a7eef316d2cf8762164",
+    "S3e52108bb82aa549fa7633ef6f5302ee196b9bf0b2773bec8da9bd72b430f8b",
+    "S3f1af1a0dcde2bcd1e71e7c791092a92212f8ce6ea25e30205dd06722000fe4",
+    "S4532bd751923417106eda8c5b532aa04946dbb3c33b89bb08bae7d1facee7f3",
+    "S45935ffa21c92e5c13634bb33ad16159400566c6105dc5c63eb3eb4467cf9ec",
+    "S463d26a25b0fa899d71504f9a467a9737790606c2c50df5142d7c214ff4c8d9",
+    "S4c4b6b13839e3995c3855b2d97f432887eed14326a770a368ce837b41929c30",
+    "S52e284e4ec1463d66b819dab11d2f982014a7bc9926bdb191f370b8d7803567",
+    "S5317409976514c9805bb816e0c13e65ad70f493179dc54acd22d2a7dbacbb72",
+    "S5ccbbfa99923f9f7053f90256e960ec15390e7ebae8d69414f1893f316a0f2d",
+    "S6c12a3c4332c08f481487d6a3c1a308335eed4b3547a980fd5902674d0940f6",
+    "S74d32c149cd732b342c8d50f39f82aef67328d68e2970caebe2b40043deb2b4",
+    "S78824a0031f8c609f2e318942777063f730c4eaffdd42c038be88e5cf32e3b2",
+    "S7e95379149d5a777c03cd78306c925eefab841647b60f0ba1a454e41f53639a",
+    "S95e2ee180cd39abc1a5643b43cc1cc587a243244646604fac85c6d8ed1b6476",
+    "S99658d295805b21a8ca1f7f2ae531c9f6a8f61a679cf349bfe94af75d1a5e39",
+    "S9d1e66a92de7d03701de63f72d672d7e4a68fbcfb68ab351ca7f3f17e25482a",
+    "Sa3806dd62c06391de017c18040812c5176a35364e89b94e673650148084592c",
+    "Sa6f3d6d594dac02e442e0fd653468c362496110d978208b43855e7204be4ada",
+    "Sa7ed7c80db26396364bec4be02d3905e9ab4671883f8f25b6fba7c00d183cd8",
+    "Sa9227d515b86e53dccec4cfb70d55112405c15b518c1836ed6c10c1679f53ec",
+    "Saf3333f3b6bf6ce8f2cefc5673771214e88855834d219fbb576edc6ddd0b71f",
+    "Sc8bd4aaf6964d777f796b2fa1cada2ec059d058eeb37c8e4190c496bc06b018",
+    "Sca27fff7c5b48f8b2e919e8b38a14eb92b5cfa21b2f742a34a592961220ba94",
+    "Sca452ab8c7f52b50f54a3c57432fcf7c37f39ee5c35d691152982246871a444",
+    "Se1aa619c0d93dc3644a9d1c8dfec42eadf67c67f12b4771ef0f4483ea49a884",
+    "Se516a2671fad5d3c8a16653aea9ca9357b4086d0cd016e7f392d6fd24a7d164",
+    "Se89dc7426392e703c617a64af734a4f1e6f98d8a22af26628d0b7ae37823c48",
+    "Sec0df9a3d922e9c1791b52d470cb71da082d92917475032a6d3bf653f4c3e32",
+    "Sfdd5519da7eb0503fb7ec9e741acb2a0bdeea09ac7dfb1df40a1124bb4eabf7"
+  ],
+  "observations": [
+    {
+      "id": "Ocdce6c57bbc99b4152a38efb1cb7a80884e88fafe662086e75eead8e4702342",
+      "check_id": "CHK_COVERAGE",
+      "target_id": "TGT_PROJECT",
+      "sample_id": "Sec0df9a3d922e9c1791b52d470cb71da082d92917475032a6d3bf653f4c3e32",
+      "schedule_label": "record",
+      "evidence_source": "assessment",
+      "metrics": [
+        {
+          "id": "binding",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 4,
+          "expected_labels": [
+            "form-precision",
+            "live-run-001",
+            "local_only_v1"
+          ],
+          "tolerance_ref": "exact",
+          "method_id": "coverage_sets_v1"
+        }
+      ]
+    },
+    {
+      "id": "Ob68274c771d6215cf161825a6c77cda089880b4bb7f698ce6e7ddb1c30dcda8",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S9d1e66a92de7d03701de63f72d672d7e4a68fbcfb68ab351ca7f3f17e25482a",
+      "schedule_label": "grid/0/0",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O9c52a1b79fcef5457f82e25fcdb10785ea9a2e75417488188d876ec731c1ab2",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S5317409976514c9805bb816e0c13e65ad70f493179dc54acd22d2a7dbacbb72",
+      "schedule_label": "grid/0/1",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O9da689b2d05821174ccc212b95a2ba18b44508c5d46e601c5610d0cf4f099b1",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S113333d7f738b1cd286af8d6d15a229b374e6aebdc6703a50047f5288ac6dbe",
+      "schedule_label": "grid/0/2",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O1ceedea9e69399cf79a250d4cde8f434c777897ca94ec1ae48b755adca2826b",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Se1aa619c0d93dc3644a9d1c8dfec42eadf67c67f12b4771ef0f4483ea49a884",
+      "schedule_label": "grid/0/3",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O415e589dea4d4875dd0d778a1d85985fc81e0ffadcdef43e8d99aae33218b3f",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S13aa21f0c9ade41740ad881fc5fec47cb2afcb5e1978894b8bdc6b4ca5966ae",
+      "schedule_label": "grid/0/4",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O6ff59c74f5607baa6d22c7759086f08db65d06de2d50bdd611adb6b59c6848a",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Sa3806dd62c06391de017c18040812c5176a35364e89b94e673650148084592c",
+      "schedule_label": "grid/1/0",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Od502c8b484dcb36d66c4c1a05592077be5c40e95779b3fd3f789db2d24a8ad9",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S20944fa119054d8ccc25d38ebfcce4b0a2bfc438ecfa82c7541209b34cdbf95",
+      "schedule_label": "grid/1/1",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O0593b1d13cd49cff2bc167b887a0a915dae4ec418cad2f6a0e6ab8c78eaba36",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S6c12a3c4332c08f481487d6a3c1a308335eed4b3547a980fd5902674d0940f6",
+      "schedule_label": "grid/1/2",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oab09deae4004ad0c06126f608b9110d65f774b1089e38bd39dc43966def3056",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S7e95379149d5a777c03cd78306c925eefab841647b60f0ba1a454e41f53639a",
+      "schedule_label": "grid/1/3",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O8213f19cb0f87a5204c4bb7560d84340ed34131049674cb5ded49c62523c3b0",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S45935ffa21c92e5c13634bb33ad16159400566c6105dc5c63eb3eb4467cf9ec",
+      "schedule_label": "grid/1/4",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oc311dd6ac9d18c53a9db807a7c2bb907def8d87ed122f59a326a6d72e4ee563",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Saf3333f3b6bf6ce8f2cefc5673771214e88855834d219fbb576edc6ddd0b71f",
+      "schedule_label": "grid/2/0",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O86c3c75032d009d58e96ea9b5bcce20d44d91f21b053fbef55e07c521ee1716",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S463d26a25b0fa899d71504f9a467a9737790606c2c50df5142d7c214ff4c8d9",
+      "schedule_label": "grid/2/1",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Ob60bfb247107fc24fac42d123fa7a27c802bc973df2ba6aceaf1e89ff421284",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S13ef18b3e3d81de26d055efa3fb67ff2979372af451e601f49be8dbcd7953a7",
+      "schedule_label": "grid/2/2",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O168350b9280d3dcf0871104346bd3e6986803ab8712a497b6370a5bf734253f",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S3f1af1a0dcde2bcd1e71e7c791092a92212f8ce6ea25e30205dd06722000fe4",
+      "schedule_label": "grid/2/3",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O7bb47b8ca6ee3bacd980b8910e5a20dc9adf40af344e57097a80a95cf0996f6",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Sca27fff7c5b48f8b2e919e8b38a14eb92b5cfa21b2f742a34a592961220ba94",
+      "schedule_label": "grid/2/4",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O4a6c7a6382ffeeca968c4c8feddefbb3b5d7b3986ff36c6e023c4897f89249c",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S74d32c149cd732b342c8d50f39f82aef67328d68e2970caebe2b40043deb2b4",
+      "schedule_label": "grid/3/0",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O17ff69a9124753e35e0f86a228ec234784a95e78624aaee014efeb966a1c56b",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S3e52108bb82aa549fa7633ef6f5302ee196b9bf0b2773bec8da9bd72b430f8b",
+      "schedule_label": "grid/3/1",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oe99577f9459654b7201b34cee576ac92ae9a20be7b1efac2a00f281ed12fcaa",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S99658d295805b21a8ca1f7f2ae531c9f6a8f61a679cf349bfe94af75d1a5e39",
+      "schedule_label": "grid/3/2",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O37636961cf36ae5a33d279efffe0a66a02db63b7050462ebf11963b7a787d96",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S95e2ee180cd39abc1a5643b43cc1cc587a243244646604fac85c6d8ed1b6476",
+      "schedule_label": "grid/3/3",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Obcb46c39770bae6b59db73c94a9679d78ca21ccba639ecc7e688a299b0f1c82",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Sa7ed7c80db26396364bec4be02d3905e9ab4671883f8f25b6fba7c00d183cd8",
+      "schedule_label": "grid/3/4",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Ofd85417e1b77cb2af0145f6c11ac41acd81ba3756b1df582796507eefe20f96",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S0d5c23dc5b5bc89c7ba6073b9043aebed014fa7d11e798f4bc6a8e096e6aa05",
+      "schedule_label": "grid/4/0",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O610d5dde41f1658e4edc265032d949b9de617bb01ac15ae044d20d6e76b4165",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S5ccbbfa99923f9f7053f90256e960ec15390e7ebae8d69414f1893f316a0f2d",
+      "schedule_label": "grid/4/1",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oa21f2e009ceb1f210a82988e6f715a43f106c640b8d9a69e2883179962352a2",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Sfdd5519da7eb0503fb7ec9e741acb2a0bdeea09ac7dfb1df40a1124bb4eabf7",
+      "schedule_label": "grid/4/2",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O268ff168877cd392e643c21a51a282d3e06d297c9c04aeb9ffbb0d7a5534ed6",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S1db610a130ec9d8a7404d008d9960e3346cf378fd86a764c52e16381b90f2d2",
+      "schedule_label": "grid/4/3",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O07f3849ce95c1df1d7690844c8b2e3dab4bb8cc6c23c979ffe3d19827611f54",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Sc8bd4aaf6964d777f796b2fa1cada2ec059d058eeb37c8e4190c496bc06b018",
+      "schedule_label": "grid/4/4",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "surface_point",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O3d9fa4c3adbc0da3deace44993990265a67e9d00f0a1a28688db4f7d0d2d74f",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S4532bd751923417106eda8c5b532aa04946dbb3c33b89bb08bae7d1facee7f3",
+      "schedule_label": "station/first/left",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oa523eefbd3179fa2241bf091b6eb25bf48003859287f04a9382060c93a4676c",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Sca452ab8c7f52b50f54a3c57432fcf7c37f39ee5c35d691152982246871a444",
+      "schedule_label": "station/first/crown",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oce500f8261ad0db8c4b71cf6d1779232b7acafa34b4bb39ebc64b723945bd29",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S0aa01fb899abf8cc0b0139f28143ac8b3b9a22d0b65422be1bdc1e1a5dc6ca5",
+      "schedule_label": "station/first/right",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oeb6094a266f7eccab0577f37550719508a455f80c5283b3d1f6070acdfe2440",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Se89dc7426392e703c617a64af734a4f1e6f98d8a22af26628d0b7ae37823c48",
+      "schedule_label": "station/middle/left",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oaa7c39b7cc285f1cba59d3c4e84be3ab04df7ffc0e799c7929fb9bb33414d2e",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Sa6f3d6d594dac02e442e0fd653468c362496110d978208b43855e7204be4ada",
+      "schedule_label": "station/middle/crown",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "Ofce2496aca8782e8513e4bb64b50842ff31b5921ff12a3cc1f678971584c134",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S52e284e4ec1463d66b819dab11d2f982014a7bc9926bdb191f370b8d7803567",
+      "schedule_label": "station/middle/right",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O88ee685f644d2dc6592e0dd3456e02883d0c8879bbe7dadf182212ea49940c1",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S2613cff1a2ca16df290cd7014f244530867e4887a6271500671c92e26333267",
+      "schedule_label": "station/last/left",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O43031457d6da9d19762b4f8c0f804d03ebb09f9f6d38ab06be85a07cace7c9f",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "Se516a2671fad5d3c8a16653aea9ca9357b4086d0cd016e7f392d6fd24a7d164",
+      "schedule_label": "station/last/crown",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O485ee22a60b4683b2eceb02f0816d2590fd772463ae755c94b83e33eac7918d",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S78824a0031f8c609f2e318942777063f730c4eaffdd42c038be88e5cf32e3b2",
+      "schedule_label": "station/last/right",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "landmark_position",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O11f742fa2f7aa3742de263ebb3b9a59f990b329b47fbc46ba8326f5c586df11",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S2a40a93cbf2bb0df417334fba01f25884585534bbb327c0f361e52f2a5a5f2f",
+      "schedule_label": "endpoint/s0",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "extent",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O31283bb680dd16bba9ba9f1fb53a4976efabcdf46161b84e363380f910cf673",
+      "check_id": "CHK_FORM_01",
+      "target_id": "TGT-001",
+      "sample_id": "S4c4b6b13839e3995c3855b2d97f432887eed14326a770a368ce837b41929c30",
+      "schedule_label": "endpoint/s1",
+      "evidence_source": "live",
+      "reference_ref": "REF-001",
+      "metrics": [
+        {
+          "id": "extent",
+          "kind": "point",
+          "quantity": "point",
+          "unit": "scene",
+          "space": "world_scene",
+          "arity": 3,
+          "tolerance_ref": "form_v1",
+          "method_id": "finite_barrel_samples_v1"
+        }
+      ]
+    },
+    {
+      "id": "O850fe36d952faac847cded819619e831d0405fa14a784eb1be4afd6f2306c10",
+      "check_id": "CHK_CENSUS_NURBS",
+      "target_id": "TGT-001",
+      "sample_id": "S2a9ab830884cbe712525a2035f6c01a4b18ae7d9cdf1a7eef316d2cf8762164",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "exact",
+          "method_id": "qa-v1-nurbs-census_v1"
+        }
+      ]
+    },
+    {
+      "id": "Ob178856d0a3c9d037289b0ee6b9a908a3c8cb3b5de0579355e7171e20caad25",
+      "check_id": "CHK_CENSUS_MASS",
+      "target_id": "TGT_MASSING_01",
+      "sample_id": "Sa9227d515b86e53dccec4cfb70d55112405c15b518c1836ed6c10c1679f53ec",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "exact",
+          "method_id": "qa-v1-census_v1"
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "id": "batch_001",
+      "ordinal": 0,
+      "kind": "observations",
+      "observation_ids": [
+        "O0593b1d13cd49cff2bc167b887a0a915dae4ec418cad2f6a0e6ab8c78eaba36",
+        "O07f3849ce95c1df1d7690844c8b2e3dab4bb8cc6c23c979ffe3d19827611f54",
+        "O168350b9280d3dcf0871104346bd3e6986803ab8712a497b6370a5bf734253f",
+        "O17ff69a9124753e35e0f86a228ec234784a95e78624aaee014efeb966a1c56b",
+        "O1ceedea9e69399cf79a250d4cde8f434c777897ca94ec1ae48b755adca2826b",
+        "O268ff168877cd392e643c21a51a282d3e06d297c9c04aeb9ffbb0d7a5534ed6",
+        "O37636961cf36ae5a33d279efffe0a66a02db63b7050462ebf11963b7a787d96",
+        "O415e589dea4d4875dd0d778a1d85985fc81e0ffadcdef43e8d99aae33218b3f",
+        "O4a6c7a6382ffeeca968c4c8feddefbb3b5d7b3986ff36c6e023c4897f89249c",
+        "O610d5dde41f1658e4edc265032d949b9de617bb01ac15ae044d20d6e76b4165",
+        "O6ff59c74f5607baa6d22c7759086f08db65d06de2d50bdd611adb6b59c6848a",
+        "O7bb47b8ca6ee3bacd980b8910e5a20dc9adf40af344e57097a80a95cf0996f6",
+        "O8213f19cb0f87a5204c4bb7560d84340ed34131049674cb5ded49c62523c3b0",
+        "O86c3c75032d009d58e96ea9b5bcce20d44d91f21b053fbef55e07c521ee1716",
+        "O9c52a1b79fcef5457f82e25fcdb10785ea9a2e75417488188d876ec731c1ab2",
+        "O9da689b2d05821174ccc212b95a2ba18b44508c5d46e601c5610d0cf4f099b1",
+        "Oa21f2e009ceb1f210a82988e6f715a43f106c640b8d9a69e2883179962352a2",
+        "Oab09deae4004ad0c06126f608b9110d65f774b1089e38bd39dc43966def3056",
+        "Ob60bfb247107fc24fac42d123fa7a27c802bc973df2ba6aceaf1e89ff421284",
+        "Ob68274c771d6215cf161825a6c77cda089880b4bb7f698ce6e7ddb1c30dcda8",
+        "Obcb46c39770bae6b59db73c94a9679d78ca21ccba639ecc7e688a299b0f1c82",
+        "Oc311dd6ac9d18c53a9db807a7c2bb907def8d87ed122f59a326a6d72e4ee563",
+        "Od502c8b484dcb36d66c4c1a05592077be5c40e95779b3fd3f789db2d24a8ad9",
+        "Oe99577f9459654b7201b34cee576ac92ae9a20be7b1efac2a00f281ed12fcaa",
+        "Ofd85417e1b77cb2af0145f6c11ac41acd81ba3756b1df582796507eefe20f96"
+      ],
+      "trace_slot_ids": [],
+      "max_rows": 25
+    },
+    {
+      "id": "batch_002",
+      "ordinal": 1,
+      "kind": "observations",
+      "observation_ids": [
+        "O11f742fa2f7aa3742de263ebb3b9a59f990b329b47fbc46ba8326f5c586df11",
+        "O31283bb680dd16bba9ba9f1fb53a4976efabcdf46161b84e363380f910cf673",
+        "O3d9fa4c3adbc0da3deace44993990265a67e9d00f0a1a28688db4f7d0d2d74f",
+        "O43031457d6da9d19762b4f8c0f804d03ebb09f9f6d38ab06be85a07cace7c9f",
+        "O485ee22a60b4683b2eceb02f0816d2590fd772463ae755c94b83e33eac7918d",
+        "O850fe36d952faac847cded819619e831d0405fa14a784eb1be4afd6f2306c10",
+        "O88ee685f644d2dc6592e0dd3456e02883d0c8879bbe7dadf182212ea49940c1",
+        "Oa523eefbd3179fa2241bf091b6eb25bf48003859287f04a9382060c93a4676c",
+        "Oaa7c39b7cc285f1cba59d3c4e84be3ab04df7ffc0e799c7929fb9bb33414d2e",
+        "Ob178856d0a3c9d037289b0ee6b9a908a3c8cb3b5de0579355e7171e20caad25",
+        "Oce500f8261ad0db8c4b71cf6d1779232b7acafa34b4bb39ebc64b723945bd29",
+        "Oeb6094a266f7eccab0577f37550719508a455f80c5283b3d1f6070acdfe2440",
+        "Ofce2496aca8782e8513e4bb64b50842ff31b5921ff12a3cc1f678971584c134"
+      ],
+      "trace_slot_ids": [],
+      "max_rows": 13
+    }
+  ],
+  "certificate_sha256": "e846f0e2dae0903318a3f3d5dee728fd0f64b7944512382dcce97485a9a470d0",
+  "request_hash": "4317445f8b1276a7cf71ec0ddc75977dc1d1ebfeda7bd96591cb970f4a9e023e"
+}

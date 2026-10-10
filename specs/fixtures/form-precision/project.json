@@ -1,0 +1,30 @@
+{
+  "project": "form-precision",
+  "schema_version": "1.0",
+  "created_at": "2026-10-09T23:35:40Z",
+  "generator": "scripts/init_project.py",
+  "generator_version": "1.0",
+  "grammar": "references/07-spec-grammar.md",
+  "target": {
+    "application": "3dsmax-mcp",
+    "max_version": "2026",
+    "length_unit": "cm",
+    "angle_unit": "deg"
+  },
+  "notes": [
+    "The renderer is NOT recorded here. 07 section 4 and PLAN section 4.2 require it to be detected at build time and stored in materials.json; assuming it at scaffold time is the assumption creep the repo risk list forbids.",
+    "No plugin presence is recorded. Only a live probe establishes that, and the probe result belongs in a build artifact, not a manifest.",
+    "specs/recipes/ and specs/export/ are created empty: 07 section 4 reserves recipe bodies to P4 and exports to P9."
+  ],
+  "files": [
+    "project.json",
+    "specs/pipeline/assembly.json",
+    "specs/pipeline/assumptions.json",
+    "specs/pipeline/components_registry.json",
+    "specs/pipeline/conflicts_resolved.json",
+    "specs/pipeline/dimensions.json",
+    "specs/pipeline/facade_grids.json",
+    "specs/pipeline/massing.json",
+    "specs/pipeline/nurbs.json"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "verdict": "FAIL",
+  "protocol_version": "form_qa_wire_v1",
+  "project": "form-precision",
+  "run_id": "live-run-001",
+  "request_hash": "4317445f8b1276a7cf71ec0ddc75977dc1d1ebfeda7bd96591cb970f4a9e023e",
+  "summary": {
+    "total": 4,
+    "passed": 3,
+    "failed": 1,
+    "incomplete": 0
+  },
+  "checks": {
+    "CHK_CENSUS_MASS": {
+      "id": "CHK_CENSUS_MASS",
+      "kind": "QA-V1-CENSUS",
+      "target_id": "TGT_MASSING_01",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_CENSUS_NURBS": {
+      "id": "CHK_CENSUS_NURBS",
+      "kind": "QA-V1-NURBS-CENSUS",
+      "target_id": "TGT-001",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_COVERAGE": {
+      "id": "CHK_COVERAGE",
+      "kind": "QA-V1-COVERAGE",
+      "target_id": "TGT_PROJECT",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_FORM_01": {
+      "id": "CHK_FORM_01",
+      "kind": "QA-V1-FORM",
+      "target_id": "TGT-001",
+      "status": "FAIL",
+      "n_expected": 36,
+      "n_observed": 36,
+      "metrics": {
+        "max_deviation_cm": 2.946168810558147,
+        "mean_deviation_cm": 1.1330128767737517,
+        "rms_deviation_cm": 1.6827925877397785,
+        "tolerance_cm": 0.5
+      },
+      "errors": [
+        "Surface deviation 2.9462 cm exceeds tolerance 0.5000 cm"
+      ]
+    }
+  },
+  "limits_evaluated": {
+    "max_targets_ok": true,
+    "max_samples_ok": true,
+    "drift_detected": false
+  }
+}

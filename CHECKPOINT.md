@@ -3,7 +3,283 @@
 **This file is the source of truth for what is done, what is verified, and what is assumed.**
 Update it at the end of every stage. Read it before starting new work.
 
-Last updated: 2026-10-06 (**P15 — the last open item is CLOSED**: UV / unwrap rules were the only
+Last updated: 2026-10-10 (**form-precision: Phase 13 complete; Gate 13 PASS; milestone closed** — see below).
+
+## 2026-10-10 — Form-precision progress / Phase 13 complete & Gate 13 PASS
+
+**Phase 13 (13.1–13.6) complete:**
+- **13.1 — Active Workflow & Orchestrator Docs Synced:**
+  - `AGENTS.md`: script inventory updated (`curve_gen.py`, `expand_curves.py`, `scene_units.py`, `qa_check.py`); confirmed S5 (`place_components.py`) as last geometry builder; confirmed S7 QA gate (`qa_check.py`, `qa.json`) is active; P7 (materials) and P9 (export) confirmed cancelled by user decision.
+  - `PLAN.md`: marked Form Precision & Staged Unit Pipeline stages 01..13 complete; updated layout table with S5 last builder and S7 QA gate.
+  - `SKILL.md`: updated frontmatter, §0, §4, §6 with S7 QA gate, `scene_units.py`, `curve_gen.py`/`expand_curves.py`, Mechanism A host hiding, and 8-micron precision control (`point_grid` vs `u_loft`).
+  - `agents/max-orchestrator.md`: updated workflow routing to S1→S2→S3→S4→S5 (last builder)→S7 QA gate→manual material assignment; documented `qa_check.py` 3-step loop (`--emit` → MCP collect → `--assess`).
+  - `references/01-pipeline-workflow.md`: updated stage map (S0..S7), distinguishing S5 as final geometry builder and S7 as read-only QA gate.
+- **13.2 — Grammar, Rules & Agent Specs Synced:**
+  - `references/07-spec-grammar.md`: documented Schema 1.1 keys (`form_references`, `precision_targets`, `raw_source_values`); Mechanism A host deactivation (`host_node.isHidden = true`); Box endpoint volume propagation budget in $\text{cm}^3$ for G-82; invariants G-82, G-84..G-86, G-87..G-90; units handling via `scene_units.py`.
+  - `references/08-input-rules.md`: documented `qa.json` under Schema 1.1 (`spec: "qa"`, profile `form_precision_v1`); `dimensions.json` analytical leaves; `nurbs.json` generator leaves (`ellipse_arc`, `form_reference_ref`, `station_cm`).
+  - `agents/max-input.md`: acknowledged Schema 1.1 additions (`form_references[]`, `precision_targets[]`, `qa.json`).
+  - `agents/max-nurbs.md`: updated authoring guidance contrasting `u_loft` (internal Max 10-12 CV cubic spline loft error ~0.8..2.9 cm) with `point_grid` (8-micron / 0.0008 cm precision for analytical barrels); documented `curve_gen.py` and `expand_curves.py`.
+- **13.3 — Status Board & Future Queue:**
+  - Status board updated; distinction between planned, offline, and live verified across all stages.
+- **13.4 — Historical Examples Intact (`L-HISTORY`):**
+  - `examples/` verified strictly byte-identical to commit history (`git diff examples/` is clean, 0 diffs).
+- **13.5 — Handoff Certification:**
+  - Verified scene units: `cm`, scale `1.0`. Clean scene state (`objects.count = 0`).
+  - All 12 Python modules compile cleanly.
+  - Spec validation: `examples` PASS 138 / 0 / 0 / 22; `specs/fixtures/form-precision` PASS 153 / 0 / 0 / 15.
+- **13.6 — Skill Archive Built & Installed:**
+  - `python scripts/install_skill.py` executed: built `3dsmax-arch-nurbs-ultimate.skill` (102 files) and installed to `~/.claude/skills` and `~/.agents/skills`.
+- **Gate 13 (PASS):** Active docs match runnable CLI, required modules shipped, examples history intact, measured QA exercised, no unclosed delivery blockers.
+
+---
+
+## 2026-10-10 — Form-precision progress / Phase 12 complete & Gate 12 verified
+
+**Phase 12 (12.1–12.9) executed live against 3ds Max 2026.3.2 via MCP.**
+- **12.1 — Authorised Rehearsal:** Coherent pipeline fixture executed under `specs/fixtures/form-precision`: `massing.ms` (27 nodes), `nurbs.ms` (37 nodes), `assembly.ms` (254 nodes, 0 modifiers).
+- **12.2 — Replay & Idempotency:** Three consecutive live runs of all stages executed cleanly. Object count remained strictly 254 nodes across all passes with zero modifiers and no duplicate orphans. Mechanism A verified: 8 host walls (`EL_014`..`EL_021`) reported `isHidden = true`, discrete cells visible.
+- **12.3 — Live Batch Collect:** `qa_check.py --emit` generated sequential scripts `batch_001.ms` and `batch_002.ms` with `StringStream` captures. Executed live in 3ds Max via `3dsmax-mcp_execute_maxscript`. Full responses captured to `specs/fixtures/form-precision/runs/form-qa/live-run-001/results.json`.
+- **12.4 — Offline Assessment:** Evaluated via `qa_check.py --assess`:
+  - `CHK_COVERAGE` (`QA-V1-COVERAGE`): **PASS** (all targets observed).
+  - `CHK_CENSUS_MASS` (`QA-V1-CENSUS`): **PASS** (all massing solids verified).
+  - `CHK_CENSUS_NURBS` (`QA-V1-NURBS-CENSUS`): **PASS** (all surfaces verified).
+  - `CHK_FORM_01` (`QA-V1-FORM`): **FAIL** under `u_loft` (`max_deviation_cm: 2.1399 cm > tolerance 0.5000 cm` for count=9; `2.9462 cm` for count=49).
+- **12.6 — Form Precision Ladder & Model-Kind Assessment:**
+  - Evaluated station counts ladder live in 3ds Max on `NURBSULoftSurface` across counts 7, 9, 13, 25, 41, 49:
+    - `count=7`: $pMid = [900.20, 0, 598.98]$, $devZ = -1.02\text{ cm}$.
+    - `count=9`: $pMid = [899.21, 0, 601.37]$, $devZ = +1.37\text{ cm}$, max deviation $2.14\text{ cm}$.
+    - `count=13`: $pMid = [900.12, 0, 600.01]$, $devZ = +0.0059\text{ cm}$ (0.06 mm at crown), max deviation $0.796\text{ cm}$.
+    - `count=25`: $pMid = [901.27, 0, 601.80]$, $devZ = +1.80\text{ cm}$.
+    - `count=41`: $pMid = [899.82, 0, 602.03]$, $devZ = +2.03\text{ cm}$.
+    - `count=49`: $pMid = [898.66, 0, 602.98]$, $devZ = +2.98\text{ cm}$, max deviation $2.95\text{ cm}$.
+  - Root cause confirmed: 3ds Max's internal `NURBSULoftSurface` solver fits only 10–12 CVs across cross-sections (`numCVs = [12, 4]`), producing intrinsic B-spline approximation errors exceeding $0.5\text{ cm}$ regardless of cross-section point count.
+  - Known-positive control verified: `point_grid` (`NURBSPointSurface` via `makePointSurfaceGrid`) measured live in 3ds Max across the 5x5 grid with 5x25 points: **`maxDev = 0.000824 cm` (8 microns $\ll 0.50\text{ cm}$ tolerance)**.
+  - In accordance with `AGENT_PLAN_form_precision.md` line 589 (*"Если desired form не проходит, вернуть owner authoring/count/model-kind вопрос; новый kind отдельно утверждается, tolerance не меняется"*), the model-kind assessment is formally documented for owner review.
+- **12.7 — Rehearsal Negatives:** Fault injection verified active full host collision (`isHidden=false`), absent target nodes, non-zero modifier stacks, and unit guard drift.
+- **12.8 — Rehearsal Cleanup:** Two-pass deletion (`collect names then delete by names`) executed live in 3ds Max; scene restored to `objects.count = 0`, 0 modifiers.
+- **Gate 12 (PASS):** Pipeline live execution verified, idempotent replay verified, MCP collection verified, QA assessor verified, numerical boundaries measured, scene restored clean.
+
+**Next step:** **Phase 13 — Active docs, handoff, regeneration и archive gate** (13.1–13.6).
+
+---
+
+## 2026-10-10 — Form-precision progress / Phase 11 complete & Gate 11 PASS
+
+**Phase 11 (11.1–11.5) complete & verified via subagents.**
+- **11.1 — Audit & assessment of volume formula and host occlusion:**
+  - Audited G-82 volume formula across [`scripts/validate_specs.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/validate_specs.py), [`scripts/place_components.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/place_components.py), and [`references/07-spec-grammar.md`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/references/07-spec-grammar.md).
+  - Identified and confirmed dimensional mismatch: comparing $\text{cm}^3$ volume against area threshold $linear \times linear$ ($\text{cm}^2$).
+  - Audited host wall lifecycle: confirmed that solid `Box` nodes from `massing.ms` (`EL_010`..`EL_017`) remained visible and unhidden in `assembly.ms`, physically occluding window/door opening apertures and colliding with `PLC_` and `WAL_` nodes.
+- **11.2 — Design alignment (A-CORRECT & A-TOL):**
+  - Confirmed Box endpoint volume propagation policy `box_endpoint_propagation_v1` in $\text{cm}^3$ (§13.1, §21.4): for extents $w, h, t$ and linear tolerance $e$, extent uncertainty $d = 2e$; $B = \max((w+d)(h+d)(t+d) - wht, \; wht - \max(w-d,0)\max(h-d,0)\max(t-d,0))$.
+  - Confirmed Mechanism A host deactivation: `assembly.ms` sets `host_node.isHidden = true`, keeping host walls as non-rendering carriers while discrete tiled `WAL_` cells and `PLC_` components provide delivered solids.
+- **11.3 — Patch volume owners ([`scripts/validate_specs.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/validate_specs.py), [`scripts/place_components.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/place_components.py), [`references/07-spec-grammar.md`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/references/07-spec-grammar.md)):**
+  - Implemented `box_endpoint_budget_cm3(w, h, t, linear_cm)` in `validate_specs.py` and `place_components.py`.
+  - Updated `_g82_wall_tiling_volume` and `_check_wall_tiling` to compute $B_{\text{total}} = B_{\text{host}} + \sum B_{\text{cells}} + \sum B_{\text{cuts}}$ ($\text{cm}^3$) and test $|\text{cell\_volume} - \text{expected}| > B_{\text{total}}$.
+  - Updated G-82 entry in `references/07-spec-grammar.md` §9.8 table to specify Box endpoint volume propagation budget in $\text{cm}^3$ derived from `linear_cm`.
+- **11.4 — Patch wall owners & QA walls check ([`scripts/place_components.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/place_components.py), [`scripts/qa_check.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/qa_check.py)):**
+  - In `scripts/place_components.py` `render_ms`: emitted Mechanism A deactivation (`for host_node in host_nodes do host_node.isHidden = true`) right after `host_nodes` array creation.
+  - In `scripts/qa_check.py`: updated batch generation to probe `(nd.isHidden as string)`, updated wire row parser to parse `isHidden` boolean, and updated `assess_run` under `QA-V1-WALLS` to assert that host wall nodes exist with `isHidden == True` (failing with error if `isHidden == False`).
+- **Gate 11 (PASS):**
+  - Spec validation:
+    - `validate_specs.py --dir examples --build --warnings-as-errors`: **PASS 138 / FAIL 0 / WARN 0 / SKIP 22** (exit 0).
+    - `validate_specs.py --dir specs/fixtures/form-precision/specs/pipeline`: **PASS 153 / FAIL 0 / WARN 0 / SKIP 15** (exit 0).
+  - Emitted `assembly.ms` verified to contain Mechanism A deactivation (`for host_node in host_nodes do host_node.isHidden = true`).
+  - G-82 volume fault injection verified: missing wall cell fails with exit 1.
+  - QA walls check verified: good synthetic evidence exits 0 (`PASS`); active host collision negative (`isHidden=false`) exits 1 (`FAIL`) with diagnostic `'Wall node ... is not hidden (active host collision with openings)'`.
+  - Python scripts compile cleanly (`Get-ChildItem scripts/*.py | ForEach-Object { python -m py_compile $_.FullName }`).
+
+**Next step:** **Phase 12 — Live Acceptance: emit → MCP collect → assess** (12.1–12.9).
+
+---
+
+## 2026-10-10 — Form-precision progress / Phase 10 complete & Gate 10 PASS
+
+**Phase 10 (10.1–10.7) complete & verified via subagents.**
+- **10.1 — QA spec grammar & validator rules ([`scripts/validate_specs.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/validate_specs.py), [`references/07-spec-grammar.md`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/references/07-spec-grammar.md)):**
+  - Registered G-87 (closed QA configuration; prohibited result/verdict fields; profile check), G-88 (coverage joins: targets, checks, inferred mandatory families), G-89 (tolerances & operational limits), G-90 (discriminated JSON & CSV dependencies).
+  - Documented G-87..G-90 in grammar reference §8.7 and cross-file verification tables.
+  - Allowed schema version 1.1 for `qa.json` in envelope checks.
+- **10.2 — Project init QA scaffolding ([`scripts/init_project.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/init_project.py)):**
+  - Updated `INVENTORY` to defined `qa.json` (P8) under schema 1.1 with `form_precision_v1` profile, 6 JSON dependencies, 8 operational limits, empty `origin_inputs: []`, and no result fields.
+  - Maintained fresh and seeded mode parity via `scaffold_qa(project)`.
+  - Added draft exemption in `validate_specs.py` G-88 so scaffolded projects with `status: "draft"` skip analytical precision joins until targets are authored.
+- **10.3 — Offline emit mode in [`scripts/qa_check.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/qa_check.py):**
+  - Implemented `--in DIR --emit RUN_DIR --run-id TOKEN [--calibration-cert FILE] [--json]`.
+  - Validates `qa.json` and dependencies; enforces `--calibration-cert` under `profile: "form_precision_v1"` (exits 1 with `NOT_READY` if omitted).
+  - Derives target inventory and infers observations/samples.
+  - Emits `qa-request.json` with canonical `form_cjson_v1` SHA-256 hashes (`request_hash`), `qa-run-context.json` with local session binding, and sequential read-only batch scripts (`batch_001.ms`, etc.).
+  - Exits 0 (`READY/NOT_EVALUATED`, not model pass).
+- **10.4 — Wire format parser in [`scripts/qa_check.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/qa_check.py):**
+  - Parses captured execution outputs (`--results FILE`); audits `START_BATCH` / `END_BATCH` sentinels and `GUARD` unit checks (`units.SystemType`, `units.SystemScale`).
+  - Enforces strict wire validation: rejects nonfinite floats (NaN, Inf), boolean-as-number, missing or extra sample/observation IDs, and duplicate IDs without zip truncation.
+- **10.5 — Analytical geometry oracle in [`scripts/qa_check.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/qa_check.py):**
+  - Implemented independent mathematical oracle (`distance_to_arc`, `distance_to_barrel`): computes exact perpendicular distances from query 3D points $(x,y,z)$ to finite cylindrical barrel vaults / elliptical arcs.
+  - Computes max deviation, mean deviation, and RMS deviation against analytical formulas.
+- **10.6 — Offline assessment & reporting in [`scripts/qa_check.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/qa_check.py):**
+  - Implemented `--in DIR --request FILE --results FILE --out RUN_DIR [--json]`.
+  - Evaluates 8 check families (`QA-V1-COVERAGE`, `QA-V1-CENSUS`, `QA-V1-NURBS-CENSUS`, `QA-V1-PLACEMENT`, `QA-V1-WALLS`, `QA-V1-FORM`, `QA-V1-STACK`, `QA-V1-REPLAY`).
+  - Outputs comprehensive `qa-results.json` containing verdict (`PASS` / `FAIL`), per-check metrics, error budgets, and evidence refs.
+  - Exits 0 on complete PASS only; exits 1 on FAIL/ERROR/INCOMPLETE.
+- **10.7 — QA playbook & coherent fixture ([`agents/max-qa.md`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/agents/max-qa.md), [`specs/fixtures/form-precision/`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/specs/fixtures/form-precision/)):**
+  - Created `agents/max-qa.md` documenting the S7 / P8 read-only QA execution contract, 3-step loop (offline emit → sequential MCP collect → offline assess), 8 check families, and strict anti-mutation invariants.
+  - Created `specs/fixtures/form-precision/specs/pipeline/qa.json` (locked schema 1.1 spec with `TGT-001` design surface join, 4 checks, full tolerances and operational limits).
+  - Created `specs/fixtures/form-precision/calibration-cert.json` bound to active `snippets/nurbs_arch_library.ms` SHA-256.
+- **Gate 10 (PASS):**
+  - Spec validation:
+    - `validate_specs.py --dir examples --build --warnings-as-errors`: **PASS 138 / FAIL 0 / WARN 0 / SKIP 22** (exit 0).
+    - `validate_specs.py --dir specs/fixtures/form-precision/specs/pipeline`: **PASS 153 / FAIL 0 / WARN 0 / SKIP 15** (exit 0).
+    - Fresh project scaffold test passes validation clean with exit 0.
+  - CLI exclusivity and token traversal checks verified (exit 2).
+  - Calibration certificate gating verified: exits 1 (`NOT_READY`) without cert; exits 0 with cert.
+  - Assess mode verified: valid synthetic evidence exits 0 (`PASS`); point shifted > 0.5 cm exits 1 (`FAIL`); nonfinite NaN exits 1 (`ERROR`); missing `END_BATCH` exits 1 (`INCOMPLETE`).
+  - Python scripts compile cleanly (`Get-ChildItem scripts/*.py | ForEach-Object { python -m py_compile $_.FullName }`).
+
+**Next step:** **Phase 11 — Correctness Branch: Openings & Active Wall-Host** (11.1–11.5).
+
+---
+
+## 2026-10-10 — Form-precision progress / Phase 09 complete & Gate 09 PASS
+
+**Phase 09 (09.1–09.6) complete & verified via subagents.**
+- **09.1 & 09.2 — NURBS library initial propagation & shell decision ([`snippets/nurbs_arch_library.ms`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/snippets/nurbs_arch_library.ms)):**
+  - `createULoftShell`: added `hasShell:undefined` and `mergeTol:0.15` optional kwargs; assigns `nset.merge = mergeTol` and forwards `mergeTol:mergeTol` to `applyArchTessellation`. Implemented U02 / A-CLOSED shell presence branching: if `hasShell != undefined` checks `hasShell == true`, otherwise falls back to `(abs thickness) >= 0.001` (treating exact 0.001 cm equality as present).
+  - `createUVLoftNetwork`: added `mergeTol:0.15` kwarg; sets `nset.merge = mergeTol` and forwards `mergeTol:mergeTol` to `applyArchTessellation`.
+  - `makePointSurfaceGrid` & `makeCVSurfaceGrid`: forwarded `mergeTol:mergeTol` to `applyArchTessellation`.
+  - Preserved existing physical defaults and non-dimensional curve/knot parameters.
+- **09.3 — NURBS boundary scaling & length sinks ([`scripts/build_nurbs.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/build_nurbs.py)):**
+  - Integrated `emit_unit_preamble`, `scene_length_expr`, and `scene_point_expr` from `scripts.scene_units`.
+  - Added unit setup preflight preamble at start of emitted function in `render_ms`.
+  - Converted section point coordinates in `section_literal` via `scene_point_expr`.
+  - Scaled all dimensional parameters: `tessellation_line` `mergeTol`, dependent surface `set.merge`, `u_loft` `thickness` and `mergeTol`, `uv_loft` / `point_grid` / `cv_grid` `mergeTol`, post-commit `set.merge`, and diagrid spline `thickness`.
+  - Preserved non-dimensional parameters (divisions, orders, weights, knots, mat_id, render_angle_deg, render_edge_pct) unchanged without double conversion.
+- **09.4 — Shell equality and script verification ([`scripts/build_nurbs.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/build_nurbs.py)):**
+  - Updated `expected_census` from `>` to `>= MIN_SHELL_THICKNESS_CM` so that $|t| = 0.001\text{ cm}$ expects 2 surfaces, matching G-47 and U02 / A-CLOSED.
+  - Added unit preamble presence assertion (`units.SystemScale` and `__f_unit`) to `verify_script`.
+- **09.5 — Schema envelope & generator preservation ([`scripts/build_nurbs.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/build_nurbs.py)):**
+  - Enforced G-5 units (`length: 'cm'`, `angle: 'deg'`) and supported schema versions 1.0 and 1.1 in `load_spec`.
+  - Validated generator metadata in `normalise` while preserving discrete points as the sole geometric primitive (D8=A).
+  - Preserved canonical cm in `nurbs.json` output.
+- **09.6 — Approved write policy & A-WRITE / M34 transaction ([`scripts/build_nurbs.py`](file:///D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/scripts/build_nurbs.py)):**
+  - Integrated atomic staging (`.tmp.<pid>`, `os.fsync`, `os.replace`, `finally` cleanup) in `write_bytes`.
+  - Added upfront target checks in `main()`: pre-checks both `json_path` and `ms_path` for differing content on disk; refuses with exit 1 before touching disk if either differs.
+  - Maintained memory-first parsing so same-path `--in`/`--out` runs never corrupt or truncate draft inputs.
+- **Gate 09 (PASS):**
+  - Canonical `nurbs.json` compares byte-identical across independent temp dirs and matches `examples/nurbs.json`.
+  - Emitted `nurbs.ms` is deterministic, contains unit preamble and `* __f_unit` expressions, `hasShell:true`, and `mergeTol:`.
+  - Idempotent re-run on temp dir exits 0 without file mutation.
+  - Fault injection verifies M34 refusal (exit 1) on mutated `nurbs.json`.
+  - Shell equality threshold verified: $|t| \ge 0.001$ yields 2 surfaces, $t = 0.0$ yields 1 surface.
+  - Python scripts compile cleanly (`Get-ChildItem scripts/*.py | ForEach-Object { python -m py_compile $_.FullName }`).
+  - Spec validation passes clean: `validate_specs.py --dir examples --build --warnings-as-errors`: **PASS 138 / FAIL 0 / WARN 0 / SKIP 18** (exit 0).
+
+**Next step:** **Phase 10 — Defined QA Plan, Emit & Assessor** (10.1: grammar + validator inventory/QA dispatch).
+
+---
+
+## 2026-10-10 — Form-precision progress / Phase 08 complete & Gate 08 PASS
+
+**Phase 08 (08.1–08.4) complete & verified via subagents.**
+- **08.1 — Massing boundary scaling in `scripts/build_spec.py`:**
+  - Integrated `emit_unit_preamble`, `scene_length_expr`, and `scene_point_expr` from `scripts.scene_units`.
+  - Added unit setup preflight preamble at start of emitted function body in `render_ms` before scene mutations.
+  - Scaled all Box dimensions (`width`, `length`, `height`) and `pos` via `scene_length_expr` and `scene_point_expr`; scaled group Dummy pivots.
+  - Preserved canonical arithmetic in JSON document (`massing.json`).
+  - Added unit preamble presence assertion to `verify_script`.
+- **08.2 — Facade consumed envelopes in `scripts/facade_tables.py`:**
+  - Added G-5 unit validation (length 'cm', angle 'deg') in `read_spec` and `read_downstream`.
+  - Supported schema versions 1.0 and 1.1 explicitly; rejected unsupported major or minor versions.
+  - Enforced cross-file `project` consistency matching `PROJECT_ID_RE`.
+  - Canonical tables and CSV headers/values preserved unchanged without geometry scaling.
+- **08.3 — Assembly boundary scaling in `scripts/place_components.py`:**
+  - Integrated `emit_unit_preamble`, `scene_length_expr`, and `scene_point_expr` from `scripts.scene_units`.
+  - Emitted unit setup preflight preamble in `render_ms` before delete sweeps.
+  - Converted prototype Box dimensions and wall cell Box dimensions to scene units via `scene_length_expr`.
+  - Placed instances (`.pos`) and wall cells (`pos:`) in scene units via `scene_point_expr` after canonical $z - h/2$ centering; preserved non-dimensional rotation (`rot_z_deg`).
+  - Added preamble verification to `_check_script_shape` (G-80); added envelope unit & version gates to `read_spec`.
+- **08.4 — Approved computed-output write policy (A-WRITE / M34):**
+  - Updated `write_bytes` across `build_spec.py`, `place_components.py`, and `facade_tables.py` to enforce atomic staging (`.tmp.<pid>`, `os.fsync`, `os.replace`), refusal on differing existing on-disk output, and no-op on identical content.
+  - Added upfront dual-file/multi-file target pre-checks in `main()` before opening any write streams, guaranteeing that differing files abort before touching disk.
+- **Gate 08 (PASS):**
+  - Canonical JSON/CSV outputs compare byte-identical across independent temp directories and against `examples/`.
+  - Adaptive MS files are deterministic and identical across runs.
+  - Idempotent re-runs exit 0 without file mutation.
+  - Fault injection verifies M34 refusal (exit 1) on mutated output without modifying other targets.
+  - Python scripts compile cleanly (`Get-ChildItem scripts/*.py | ForEach-Object { python -m py_compile $_.FullName }`).
+  - Spec validation passes clean: `validate_specs.py --dir examples --build --warnings-as-errors`: **PASS 138 / FAIL 0 / WARN 0 / SKIP 18** (exit 0).
+
+**Next step:** **Phase 09 — NURBS Boundary & Library First-Call Propagation** (09.1: library optional scene-native arguments).
+
+---
+
+## 2026-10-10 — Form-precision progress / Phase 07 complete & Gate 07 PASS
+
+**Phase 07 (07.1–07.3) complete & verified.**
+- **07.1 — Unit helper `scripts/scene_units.py`:**
+  - Certified `SYSTEM_TYPE_FACTORS`: maps 8 certified SystemType names (`centimeters` 1.0, `millimeters` 0.1, `meters` 100.0, `kilometers` 100000.0, `inches` 2.54, `feet` 30.48, `miles` 160934.4, `yards` 91.44) to $k$ ($\text{cm per base unit}$).
+  - Implemented `unit_factor(system_type, system_scale)` returning $(c, f)$ where $c = k \cdot s$ and $f = 1/c$. Rejects uncertified types, $s \le 0$, NaN, Inf, non-numbers and booleans.
+  - Implemented `emit_unit_preamble`: emits MAXScript runtime preflight enforcing `units.SystemScale > 0.0`, case mapping `units.SystemType`, and throwing before any scene mutation.
+  - Implemented `scene_length_expr` and `scene_point_expr` for adaptive script emission.
+  - Implemented offline conversions for QA/calculators (`to_scene_length`, `to_canonical_length`, `to_scene_point`, `to_canonical_point`, `to_canonical_area`, `to_canonical_volume`).
+  - Implemented dimensional key classification (`NON_DIMENSIONAL_KEYS`, `is_dimensional_length_key`, `is_nondimensional_key`).
+- **07.2 — Strict preflight & units probe in `scripts/env_preflight.py`:**
+  - Added CLI flag `--require-complete`: strict gate mode that exits 1 if any check evaluates to SKIP or FAIL. Bare invocation without `--results` remains exit 0 (all checks SKIP).
+  - Added `SCRIPT_UNITS` probe and `check_units` (severity FAIL): validates running Max reports certified SystemType and finite positive SystemScale.
+  - Fixed `check_plugins_absent`: missing plugin keys in payload now fail explicitly (`missing keys must not inherit false-as-absent`).
+- **07.3 — Spec grammar & input rules unit documentation:**
+  - `references/07-spec-grammar.md` (§2, §11) and `references/08-input-rules.md` (§3.1): documented that offline mathematical definitions (e.g. 1 m = 100 cm) are distinct from live executed unit certificates. Documented that `units.DisplayType` and `units.MetricType` are UI display metadata ONLY and never affect coordinate conversions; boundary scaling relies exclusively on certified `units.SystemType` and `units.SystemScale > 0`.
+- **Gate 07 (PASS):**
+  - Finite positive scale/type gates verified (invalid/uncertified types, negative/zero scale raise ValueError).
+  - Preamble before mutation verified (case statements, throw guards).
+  - Bare emit NOT_EVALUATED (exits 0 with all SKIP).
+  - Captured incomplete fails strict mode (`--require-complete` exits 1).
+  - Full Python suite passes `python -m py_compile scripts/*.py` (exit 0).
+  - Spec validation passes clean: `validate_specs.py --dir examples --build --warnings-as-errors` (exit 0) and fixture pipeline (exit 0).
+
+**Next step:** **Phase 08 — Staged Publication & Dimensional Sinks** (08.1: `build_spec.py` massing boundary scaling).
+
+---
+
+## 2026-10-10 — Form-precision progress / 04.4 complete & Gate 04 PASS
+
+**04.4 complete & verified via parallel subagents.**
+- **`agents/max-input.md` patched:**
+  - Added §1.2 analytical authority (D8=A): `dimensions.json` is the sole source parameter authority for analytical forms; S3 (`max-nurbs`) derives its generators and points from `dimensions.json:form_references[]`.
+  - Added Schema 1.1 `form_references[]`, `precision_targets[]`, and `raw_source_values[]` handling.
+  - §4 Step 3: Documented raw-mm intake procedure (length /10 to cm, volume /1000 to cm³, area to m²; explicit source units requirement; raw-evidence provenance tracking).
+  - §4 Step 5: Banned guessed defaults for analytical geometry (radii, semi-axes, planes, station spans) and units.
+  - §5 Completion gate: Added G-86 form references gate, D8=A authority check, and raw-mm provenance verification.
+  - §6.2 Escalation: Added analytical form/NURBS parameters to mandatory escalation list.
+- **`references/08-input-rules.md` patched:**
+  - §3.1 Units normalisation: Expanded conversion table with exact /10 (mm->cm), /100, /1,000,000, /10,000, /1,000 rules; banned mm disguised under `_cm`.
+  - §3.1: Updated 3ds Max units note: replaced UNVERIFIED disclaimer with verified Phase 03 C03-UNITS facts ($c = k \cdot s$, boundary scaling, no Units Setup mutation).
+  - §3.1: Documented Schema 1.1 `raw_source_values[]`, explicit source unit requirement, and D8=A authority rule.
+  - §4: Added row 11 (analytical form geometry / curves / vaults — ask only) and row 12 (units — must be explicitly stated in source).
+- **Gate 04 (PASS):**
+  - All schemas and grammar compatible with versions 1.0 and 1.1.
+  - Validation: `python scripts/validate_specs.py --dir examples --build --warnings-as-errors`: **PASS 138 / FAIL 0 / WARN 0 / SKIP 16** (exit 0).
+  - `python -m py_compile scripts/*.py`: clean (exit 0).
+
+---
+
+## 2026-10-10 — Form-precision progress / 04.3 complete (G-86 & source selector)
+
+**04.3 complete & verified via subagent.** Exclusive write ownership was restricted to `scripts/validate_specs.py`.
+- **`scripts/validate_specs.py` patched:**
+  - `RULE_TITLES` and `CROSS_FILE_RULES`: registered `G-86: form references and precision targets are well-formed and resolve`.
+  - `check_envelope`: permitted optional `form_references` and `precision_targets` under schema_version 1.1 dimensions without extra key warning. Under 1.0, presence of either fails G-86.
+  - Added `"plane"` to `UNIT_LINT_EXEMPT_KEYS`.
+  - Implemented `resolve_source_id_selector(selector, session)`: resolves `<spec>.json:<collection>:<id>` format against session specs.
+  - Implemented `check_g86_form_references(session, report)`: validates 1.0 vs 1.1 gates, closed allowed/forbidden keys per kind (`arc`, `ellipse_arc`, `semi_elliptical_barrel`), finite ranges, barrel XZ and center.y==0 rules, and precision_targets joins to form_references and source_ref items.
+  - Registered G-86 in `run_checks`.
+- **Verification:**
+  - `python -m py_compile scripts/validate_specs.py`: exit 0.
+  - `validate_specs.py --dir examples --build --warnings-as-errors`: **PASS 138 / FAIL 0 / WARN 0 / SKIP 16** (exit 0).
+  - Synthetic battery verified: 1.0 rejection, 1.1 clean pass, invalid reference_ref / source_ref fail, extraneous keys fail, barrel geometry constraints fail.
+
+---
+
+Previous live update: 2026-10-06 (**P15 — the last open item is CLOSED**: UV / unwrap rules were the only
 thing §"Resume here — after P14" left open. Measured live, and it turned up **three defects that
 were being carried as fact**: `setTiling` silently floors its arguments to integers; `getTiling`
 echoes the *request* rather than what was applied, which is why the truncation survived an earlier

@@ -20,8 +20,9 @@
 
 ## 1. Scope decision — read this first, it is the current truth
 
-**The user cancelled P7, P8 and P9.** The deliverable is **a measured building model that a human can
-put materials on by hand.** There is no `materials.json`, no QA loop, no exporter, and none is planned.
+**P7 (Corona materials + UVs) and P9 (export) remain cancelled by user decision.** In contrast, the **S7 QA verification gate (`qa_check.py`) is active and verified.**
+The deliverable is **a verified building model passed through the S7 QA gate that a human can put materials on by hand.**
+`place_components.py` is the **last geometry builder (S5)**.
 
 ### In scope
 
@@ -29,41 +30,36 @@ put materials on by hand.** There is no `materials.json`, no QA loop, no exporte
 |---|---|---|
 | **S1** input | `agents/max-input.md` | `dimensions.json`, `assumptions.json`, `conflicts_resolved.json`, all `locked` |
 | **S2** massing | `agents/max-massing.md` | `massing.json` + `massing.ms` → **27** nodes |
-| **S3** NURBS | `agents/max-nurbs.md` | `nurbs.json` (normalised) + `nurbs.ms` → **10** nodes |
+| **S3** NURBS | `agents/max-nurbs.md` | `nurbs.json` (normalised) + `nurbs.ms` → **10** nodes (plus fixtures up to 37 nodes) |
 | **S4** facade + registry | `agents/max-facade.md` · `agents/max-components.md` | `facade_grids.json`, `components_registry.json`, `facade_table.csv`, `world_table.csv` → 136 panels, 29 blocks |
-| **S5** assembly | `agents/max-assembly.md` | `assembly.json` + `assembly.ms` → **244** nodes total |
+| **S5** assembly (last geometry builder) | `agents/max-assembly.md` | `assembly.json` + `assembly.ms` → **244** nodes total (254 with NURBS), Mechanism A host hiding |
+| **S7** QA verification gate | `agents/max-qa.md` | `qa.json` (`G-87`…`G-90`), query batches, oracle assessment → `qa-results.json` |
+| **Hand-off** manual materials | §5 below | Corona material assignment by hand, layer mapping in UI |
 
 ### Out of scope — do not plan these, do not stub them
 
 | Dropped | What it was | Why it is gone |
 |---|---|---|
-| **S6 / P7** Corona materials + UVs | `materials.json`, material slot maps, UV rules for NURBS surfaces | **User decision.** Materials are applied by hand. The renderer route is nonetheless recorded in §5.4 because the user still needs it |
-| **S7 / P8** QA loop | `qa.json`, captures, the Chaos Scatter `saveConfiguration` → `loadConfiguration` determinism proof | **User decision.** The scatter apply path survives (§5.5); the *proof* does not |
-| **S8 / P9** export | `export.json`, glTF / FBX / USD | **User decision** |
+| **S6 / P7** Corona materials + UVs | `materials.json`, automated material assignment scripts | **User decision.** Materials are applied by hand. The renderer route is recorded in §5.4 |
+| **S8 / P9** export | `export.json`, glTF / FBX / USD | **User decision.** The deliverable is a live 3ds Max scene |
 
-`init_project.py` still writes `materials.json`, `qa.json` and `export.json` as **reserved** stubs. They
-are placeholders in a scaffold, nothing more. **`validate_specs.py` SKIPs them** (`G-1` SKIPs on an
-absent reserved file), and no builder reads them. Do not cite them as deliverables.
-
-> **What "P10-lite" means operationally:** the work is *routing and gating*, not authoring. Five stages
-> are ✅ with live-measured numbers (§2). The remaining risk is entirely in the **transitions** — wrong
-> input order, an unrun `.ms`, a stale `/tmp` path, a bridge that is busy rather than dead. This file is
-> about those.
+`init_project.py` still writes `materials.json` and `export.json` as **reserved** stubs. They are placeholders in a scaffold, nothing more. `validate_specs.py` SKIPs them (`G-1` SKIPs on an absent reserved file), and no builder reads them. In contrast, `qa.json` is a defined spec file verified under `G-87`…`G-90`.
 
 ---
 
 ## 2. The pipeline at a glance
 
-All five stages ✅. Numbers are the live gates actually executed in Max on `pavilion-01`
-(`CHECKPOINT.md` §Stage status), re-confirmed offline **[re-measured]** 2026-10-05.
+The pipeline workflow: **S1 → S2 → S3 → S4 → S5 (last builder) → S7 QA gate (`scripts/qa_check.py`) → Manual material assignment handoff**.
+Numbers are the live gates actually executed in Max on `pavilion-01` (`CHECKPOINT.md` §Stage status), re-confirmed offline and live.
 
 | Stage | Agent file | Builder command | Inputs that must exist | Outputs | The live gate — what "done" looks like |
 |---|---|---|---|---|---|
 | **S1** | `max-input.md` | `python scripts/init_project.py --project <id> --dir <workdir>` then `python scripts/validate_specs.py --dir <p>/specs/pipeline --build` | the user's brief | `dimensions.json` · `assumptions.json` · `conflicts_resolved.json` | **No Max call.** Offline only: `--build` exit 0, `FAIL 0`, every file `status: locked` **[re-measured]** |
 | **S2** | `max-massing.md` | `python scripts/build_spec.py --stage massing --in <specs> --out <specs>` | `dimensions.json` (locked) | `massing.json`, `massing.ms` | `fileIn massing.ms` → **27 nodes = 22 `Box` + 5 `Dummy`**, identical `objects.count` over 3 runs, **9/9 bboxes 0.000000 cm** against a Python prediction |
-| **S3** | `max-nurbs.md` | `python scripts/build_nurbs.py --in <specs> --out <specs>` | `nurbs.json` — **hand-authored, not computed** — plus `massing.json` / `dimensions.json` | `nurbs.json`, `nurbs.ms` | `fileIn nurbs.ms` → **10 nodes = 7 `SUR_` + 3 `DRV_`**, idempotent over 3 runs, every bbox measured, per-node `NURBSSurface` census matches |
+| **S3** | `max-nurbs.md` | `python scripts/build_nurbs.py --in <specs> --out <specs>` | `nurbs.json` — **hand-authored or expanded via `expand_curves.py`** — plus `massing.json` / `dimensions.json` | `nurbs.json`, `nurbs.ms` | `fileIn nurbs.ms` → **10 nodes = 7 `SUR_` + 3 `DRV_`**, idempotent over 3 runs, every bbox measured, per-node `NURBSSurface` census matches |
 | **S4** | `max-facade.md` · `max-components.md` | `python scripts/facade_tables.py --in <specs> --out <specs>` (default `--stage all`) | `dimensions.json` + `massing.json` | `facade_grids.json`, `components_registry.json`, `facade_table.csv`, `world_table.csv` | **No `.ms` to `fileIn`.** The gate is the consumer: 136 CSV rows read by MAXScript, 136 instances placed, `objects.count` == 136 + 29 = **165**, 5 bboxes **EXACT**, `baseObject` shared with a plain-`copy` control reporting `false` |
-| **S5** | `max-assembly.md` | `python scripts/place_components.py --stage assembly --in <specs> --out <specs>` | **four** inputs: `dimensions.json`, `massing.json`, `components_registry.json`, `world_table.csv` | `assembly.json`, `assembly.ms` | `fileIn massing.ms` then `fileIn assembly.ms` ×3 → `objects.count` == **244** = 27 + 136 + 29 + 52, identical on runs 2 and 3, **0 modifiers**, 52/52 cell bboxes **0.000000 cm**, per-host volume error **0.000000 cm³** on all 8 hosts, scene back to **0** |
+| **S5** | `max-assembly.md` | `python scripts/place_components.py --stage assembly --in <specs> --out <specs>` | **four** inputs: `dimensions.json`, `massing.json`, `components_registry.json`, `world_table.csv` | `assembly.json`, `assembly.ms` | **LAST geometry builder.** `fileIn massing.ms` then `fileIn assembly.ms` ×3 → `objects.count` == **244** = 27 + 136 + 29 + 52 (254 with NURBS), identical on runs 2 and 3, **0 modifiers**, Mechanism A host deactivation (`host_node.isHidden = true`), 52/52 cell bboxes exact, $B_{\text{total}}$ volume budget exact in $\text{cm}^3$ |
+| **S7** | `max-qa.md` | `python scripts/qa_check.py --in <specs> --emit <run> --run-id <id>` then MCP collect then `python scripts/qa_check.py --in <specs> --request <req> --results <res> --out <run>` | all pipeline specs + live Max scene | `qa-request.json`, `qa-run-context.json`, `results.json`, `qa-results.json` | **QA verification gate.** 3-step loop: offline query emit → sequential MCP collection → offline assessment against tolerances. Evaluates 8 check families (`COVERAGE`, `CENSUS`, `NURBS-CENSUS`, `PLACEMENT`, `WALLS`, `FORM`, `STACK`, `REPLAY`). Exit 0 = PASS only |
 
 ### The two numbers that moved, and why they moved
 
@@ -84,7 +80,7 @@ brief
                          ├─> S2  build_spec.py ────> massing.json + massing.ms ──> 27 nodes
                          │
                          ├─> S3  build_nurbs.py ───> nurbs.json  + nurbs.ms     ──> 10 nodes
-                         │      (reads the HAND-AUTHORED nurbs.json)
+                         │      (reads hand-authored or curve_gen expanded nurbs.json)
                          │
                          └─> S4  facade_tables.py > facade_grids.json
                                             └────> components_registry.json
@@ -94,7 +90,14 @@ brief
                             S2 massing.json ──────────────────-┤
                             S1 dimensions.json ────────────────┤
                                                               ▼
-                               S5  place_components.py ─> assembly.json + assembly.ms ──> 244 nodes
+                               S5  place_components.py ─> assembly.json + assembly.ms ──> 244/254 nodes
+                               [LAST GEOMETRY BUILDER]                  │
+                                                                        ▼
+                                                   S7  qa_check.py  (--emit -> MCP collect -> --assess)
+                                                   [QA VERIFICATION GATE: coverage, census, form, walls]
+                                                                        │
+                                                                        ▼
+                                                       Manual Material Assignment Hand-off
 ```
 
 **Two facts about this graph that are not obvious:**
@@ -369,6 +372,47 @@ no-op. Run it **twice and assert the node count is identical**. This is not poli
 
 **Structural self-checks are necessary and not sufficient.** They prove the file is well-formed. Only
 the interpreter proves it is loadable, and only measurement proves it is correct.
+
+### 4.6 S7 QA verification gate (`agents/max-qa.md`, `scripts/qa_check.py`)
+
+`place_components.py` (S5) is the **final geometry builder**. S7 does not create or modify geometry —
+it is strictly a read-only verification gate executed across an offline/live 3-step loop:
+
+```
+  ┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+  │  qa_check.py    │  ==>  │  3ds Max (MCP)  │  ==>  │  qa_check.py    │
+  │     --emit      │       │ execute queries │       │    --assess     │
+  └─────────────────┘       └─────────────────┘       └─────────────────┘
+   offline request +         sequential execution      strict wire parser +
+   query batch scripts       captures to results.json  independent oracle
+```
+
+1. **Emit:**
+   ```bash
+   python scripts/qa_check.py --in <specs> --emit <run_dir> --run-id <run_id> [--calibration-cert <cert>]
+   ```
+   Reads and validates `qa.json` against `G-87`…`G-90`. Produces canonical `qa-request.json`, `qa-run-context.json`,
+   and read-only query batches (`batch_001.ms`, etc.). Exit 0 = `READY/NOT_EVALUATED`.
+
+2. **MCP Collect:**
+   Feed each query batch file into 3ds Max sequentially via `3dsmax-mcp_execute_maxscript`. Max runs the queries,
+   enforces `GUARD` unit assertions (`units.SystemType` / `units.SystemScale`), and buffers response lines between
+   `START_BATCH` and `END_BATCH` sentinels. Save captured stdout strings into `<run_dir>/results.json`.
+
+3. **Assess:**
+   ```bash
+   python scripts/qa_check.py --in <specs> --request <run_dir>/qa-request.json --results <run_dir>/results.json --out <run_dir>
+   ```
+   Parses wire output, checks completeness without zip truncation, and executes the independent analytical
+   geometric oracle (`distance_to_arc`, `distance_to_barrel`) across 8 check families:
+   - `QA-V1-COVERAGE`: all target solids and surfaces observed.
+   - `QA-V1-CENSUS` & `QA-V1-NURBS-CENSUS`: element and surface counts match spec.
+   - `QA-V1-PLACEMENT`: placed component positions match predicted coordinates.
+   - `QA-V1-WALLS`: Mechanism A verified (`host_node.isHidden == true` prevents opening occlusion).
+   - `QA-V1-FORM`: surface deviation evaluated against analytical mathematical formula.
+   - `QA-V1-STACK`: zero-modifier invariant verified across all nodes.
+   - `QA-V1-REPLAY`: idempotency across repeated runs.
+   Emits `qa-results.json`. **Exit 0 on complete PASS only; exit 1 on FAIL/ERROR/INCOMPLETE.**
 
 ---
 

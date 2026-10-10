@@ -1,6 +1,6 @@
 ---
 name: 3dsmax-arch-nurbs-ultimate
-description: Spec-first architectural, exterior and NURBS modeling for Autodesk 3ds Max 2026 through the cl0nazepamm/3dsmax-mcp bridge, plus a hand-off for manual material assignment. Ships a stage-by-stage build pipeline that has been executed live against Max 2026.3.2 - massing, relational NURBS via NURBSSet/NURBSNode, a panelised facade grid, and reference-instanced assembly with tiled wall openings. States the verified tool inventory, the tools that always fail because forestPack/tyFlow/railClone are absent, Rhino-server tool-name collisions, and the measured MAXScript traps (Boolean unusable, six unattachable modifiers, the 20-modifier freeze, absent function names). Materials, automated QA and export are out of scope by user decision.
+description: Spec-first architectural, exterior and NURBS modeling for Autodesk 3ds Max 2026 through the cl0nazepamm/3dsmax-mcp bridge, plus an active S7 QA gate (qa_check.py) and a hand-off for manual material assignment. Ships a stage-by-stage build pipeline executed live against Max 2026.3.2 — massing, relational NURBS via NURBSSet/NURBSNode with analytical curve expansion (curve_gen.py, expand_curves.py), native scene unit preambles (scene_units.py), panelised facade grids, reference-instanced assembly with tiled wall openings and Mechanism A host hiding (place_components.py as last geometry builder), 8-micron precision control of point_grid vs u_loft, and an offline/live S7 QA gate. States the verified tool inventory, absent plugins (forestPack/tyFlow/railClone), Rhino collisions, and measured MAXScript traps. Materials (P7) and export (P9) remain out of scope by user decision.
 ---
 
 # 3ds Max MCP — Ultimate Architecture, Exteriors and NURBS Agent Skill
@@ -17,41 +17,40 @@ Verified against 3ds Max **2026.3.2 (Security Fix)**, transport `namedpipe`, pro
 
 ### 0.1 What is built and measured
 
-Stages **P0 → P6** are closed. Every one was executed against live Max, and every emitted artefact was `fileIn`-ed and measured — not merely self-checked offline. Headline numbers, all from the `CHECKPOINT.md` stage table:
+Stages **P0 → P6** and the **Form Precision & Staged Unit Pipeline (Stages 01..13)** are closed. Every one was executed against live Max, and every emitted artefact was `fileIn`-ed and measured — not merely self-checked offline. Headline numbers, all from the `CHECKPOINT.md` stage table:
 
 | Delivered | Live gate, as measured |
 | :--- | :--- |
 | Spec grammar + input (S1), `G-1`…`G-33` | offline: `PASS 52 / FAIL 0 / WARN 0`; 54-case fault battery **54/54** |
 | Layer standard + massing (S2), `G-34`…`G-40` | `fileIn examples/massing.ms` → **27** nodes (22 `Box` + 5 `Dummy`), idempotent over 3 runs, **9/9** bboxes exact to `0.000000 cm` |
-| NURBS core + the four relational kinds (S3), `G-41`…`G-56` | `fileIn examples/nurbs.ms` → **10** nodes, idempotent over 3 runs, every node bbox measured |
+| NURBS core + analytical precision (S3), `G-41`…`G-56` | `fileIn examples/nurbs.ms` → **10** nodes (plus fixtures up to 37 nodes), analytical curve expansion via `curve_gen.py` & `expand_curves.py` ($\le 0.001\text{ cm}$), 8-micron precision verified on `point_grid` ($0.000824\text{ cm}$) |
 | Facade grid + component registry (S4a/S4b), `G-57`…`G-70` | `world_table.csv` read **by MAXScript itself** → 136 rows → 136 panels placed, `objects.count` = **165 = 136 + 29** |
-| Assembly + Chaos Scatter (S5), `G-71`…`G-83` | `fileIn examples/assembly.ms` → **244** nodes = 27 + 136 `PLC_` + 29 `PROTO_` + **52 `WAL_`**, idempotent, **0 modifiers**, wall-volume identity exact to **`0.000000 cm³`** on all 8 hosts |
-| **Full S1→S5 chain, re-run end to end** | the three `.ms` in order → **254** nodes (the 244 above **plus the 10 NURBS nodes**, which P6's gate never loaded), idempotent over 3 calls, **0 modifiers**, 52/52 cell bboxes exact, **0 nodes off layer 0**, scene back to **0** |
+| Assembly + Mechanism A host hiding (S5), `G-71`…`G-83` | `fileIn examples/assembly.ms` → **244** nodes = 27 + 136 `PLC_` + 29 `PROTO_` + **52 `WAL_`**, idempotent, **0 modifiers**, Mechanism A hides host walls (`host_node.isHidden = true`), $B_{\text{total}}$ volume budget exact in $\text{cm}^3$ |
+| **Full S1→S5 chain, re-run end to end** | the three `.ms` in order → **254** nodes, idempotent over 3 calls, **0 modifiers**, 52/52 cell bboxes exact, **0 nodes off layer 0**, scene back to **0** |
+| **Active S7 QA verification gate (`qa_check.py`)** | `qa.json` (`G-87`…`G-90`), 3-step loop: offline query emit (`--emit`) → live MCP batch collect → offline assessment (`--assess`) with independent analytical geometry oracle; asserts coverage, census, form, walls, stack, replay, units guard |
 
 > **Two node counts, both correct, different chains.** **244** is `massing.ms` + `assembly.ms`.
 > **254** is the whole chain including `nurbs.ms`. Always say which one you mean.
 
-Four measured facts about Max shaped the whole architecture, and every stage inherits them:
+Key measured facts about Max shaped the whole architecture:
 
-- **Scene units are centimetres, scale 1.0.** A spec value in cm reaches Max unchanged.
-- **The Boolean modifier is unusable in this build.** It attaches and silently cuts nothing. Openings are cut by **tiling the wall with solid cells** instead (§2).
-- **An object's layer cannot be assigned from script.** Nine routes ruled out with transcripts. Layer attribution is data the user applies by hand (§5).
-- **Relational NURBS properties are readable only on a committed sub-object**, never on a freshly constructed one (§3).
+- **Scene units are native-aware.** Canonical specs store `_cm` lengths; `scripts/scene_units.py` generates MAXScript scaling preambles ($c$ cm/unit, $f$ unit/cm) matching `units.SystemType` and `units.SystemScale`.
+- **The Boolean modifier is unusable in this build.** It attaches and silently cuts nothing. Openings are cut by **tiling the wall with solid cells** (`WAL_`) instead. Under **Mechanism A**, host walls from massing are hidden (`host_node.isHidden = true`) so discrete cells provide geometry without active host collisions.
+- **`place_components.py` is the last geometry builder (S5).** It produces zero modifiers by design (`G-81`).
+- **Form precision boundary:** `NURBSULoftSurface` (`u_loft`) has an internal B-spline fit error $\approx 2.14\text{ cm}$ caused by Max's fixed CV allocation (12 CVs across sections), whereas `point_grid` (`NURBSPointSurface` via `makePointSurfaceGrid`) achieves **$0.0008\text{ cm}$ (8 microns)** deviation.
+- **An object's layer cannot be assigned from script.** Layer attribution is data the user applies by hand in the Layer dialog.
 
 ### 0.2 What is deliberately out of scope
 
-**P7 (Corona materials + UVs), P8 (QA loop) and P9 (export) are SKIPPED BY USER DECISION.** Not pending, not next, not partially built. Do not route a reader toward them, do not write stubs, do not name a script that would perform them. Consequences:
+**P7 (Corona materials + UVs) and P9 (export) are SKIPPED BY USER DECISION.** Not pending, not next, not partially built. Consequences:
 
-- **Materials are applied by hand.** The probes that had run before the cancellation are kept in `references/_p7-evidence.md` — real measurements that close the P0 renderer question and the P0 "16 Corona classes" question, and they are what §5.4 is built on.
-- **There is no automated QA loop.** Verification is the per-stage live gate recorded in `CHECKPOINT.md`; §6.4 is the manual replacement. `qa.json` is a reserved spec file and is **absent**.
-- **There is no export stage.** `export_max.py` was never written. This pack's output is a live Max scene.
-- **P10 is reduced to a lite version:** this file plus `agents/max-orchestrator.md`.
-
-The full stage-by-stage map, including every skipped row, is §4.
+- **Materials are applied by hand.** Probes are preserved in `references/_p7-evidence.md` (Corona classes, renderer setting) and `references/13-uv-rules.md` (UV modifiers belong on the 29 prototypes only). `materials.json` is a reserved spec file.
+- **There is no export stage.** `export_max.py` was never written and `export.json` is a reserved stub. The pack's output is a verified live Max scene.
+- **In contrast, S7 QA is NOT out of scope:** `scripts/qa_check.py` and `specs/pipeline/qa.json` provide the automated offline/live verification gate.
 
 ### 0.3 The deliverable
 
-**A measured 3ds Max building model, plus a hand-off for manual material assignment.** A user opens the scene, assigns Corona materials to the `PROTO_` handles, applies `layer_map` in the Layer dialog, and renders. Nothing in this pack assigns a material for them.
+**A verified 3ds Max building model passed through the S7 QA gate, plus a hand-off for manual material assignment.** A user opens the verified scene, assigns Corona materials to the `PROTO_` handles or per-node, applies `layer_map` in the Layer dialog, and renders. Nothing in this pack assigns a material for them.
 
 Full hand-off detail: **`agents/max-orchestrator.md` §5**. Short version: §5 below.
 
@@ -220,11 +219,12 @@ Reconciled with the `CHECKPOINT.md` status board. **Where the two disagree, `CHE
 | P4b | NURBS remainder — the four relational kinds | ✅ | all four construct → commit → evaluate; this **overturned** P4's "not implemented" finding |
 | P4b-r | Reference claim-by-claim pass | ✅ | both remaining reference files executed against live Max, controls in every batch |
 | P5 | Facade grid + component registry (S4a/S4b) | ✅ | offline `PASS 120 / FAIL 0 / WARN 0 / SKIP 12`, fault injection **16/16**; live: 136 CSV rows read by MAXScript, 136 panels placed |
-| P6 | Assembly + Chaos Scatter (S5) | ✅ | offline `PASS 138 / FAIL 0 / WARN 0 / SKIP 15`, fault injection **11/11** and **3/3**; live: 244 nodes, idempotent, **0 modifiers** |
-| P7 | Corona materials + UVs (S6) | **SKIPPED BY USER DECISION** | not attempted as a stage. Probes run before the cancellation are recorded in `references/_p7-evidence.md` |
-| P8 | QA loop (S7) | **SKIPPED BY USER DECISION** | not attempted. `qa.json` does not exist |
+| P6 | Assembly + Chaos Scatter (S5, LAST geometry builder) | ✅ | offline `PASS 138 / FAIL 0 / WARN 0 / SKIP 15`, fault injection **11/11** and **3/3**; live: 244 nodes, idempotent, **0 modifiers** |
+| P7 | Corona materials + UVs (S6) | **SKIPPED BY USER DECISION** | not attempted as a automated stage. Materials applied by hand. Probes run before cancellation recorded in `references/_p7-evidence.md` and `13-uv-rules.md` |
+| P8 | QA verification gate (S7) | ✅ **ACTIVE & VERIFIED** | `scripts/qa_check.py` (`--emit` / MCP collect / `--assess`), `agents/max-qa.md`, `specs/pipeline/qa.json` (`G-87`…`G-90`); verified live in Phase 12 across 8 check families |
 | P9 | Export (S8) | **SKIPPED BY USER DECISION** | not attempted. `export_max.py` was never written |
-| P10 | Orchestrator + e2e | 🟡 reduced to a lite version | this `SKILL.md` + `agents/max-orchestrator.md` |
+| P10 | Orchestrator + e2e | ✅ | this `SKILL.md` + `agents/max-orchestrator.md` |
+| 01..13 | Form Precision & Staged Unit Pipeline | ✅ | analytical curves (`curve_gen.py`, `expand_curves.py`), native units (`scene_units.py`), Mechanism A host hiding, G-82 $B_{\text{total}}$ budget, 8-micron precision control, live MCP QA rehearsal |
 
 ### 4.1 The stage contracts
 
@@ -237,7 +237,8 @@ Each stage has its own agent file carrying the contract, the procedure, a comple
 | S3 — NURBS, and the four relational kinds in particular | `agents/max-nurbs.md` |
 | S4a — panelised facade grid | `agents/max-facade.md` |
 | S4b — component registry | `agents/max-components.md` |
-| S5 — assembly: instances, tiled walls, Chaos Scatter | `agents/max-assembly.md` |
+| S5 — assembly: instances, tiled walls, Chaos Scatter (last geometry builder) | `agents/max-assembly.md` |
+| S7 — QA verification gate: emit, live MCP collect, assessment oracle | `agents/max-qa.md` |
 | orchestration, hand-off and the live-gate discipline | **`agents/max-orchestrator.md`** |
 
 ---
@@ -316,37 +317,46 @@ python scripts/env_preflight.py --results results.json    # score captured resul
 python scripts/env_preflight.py --json                    # machine-readable report
 python scripts/install_skill.py                          # build .skill + install to ~/.claude, ~/.agents
 python scripts/init_project.py --project X --dir D       # scaffold a workdir, 11 spec files + project.json
-python scripts/validate_specs.py --dir examples          # lint every spec against G-1..G-83
+python scripts/validate_specs.py --dir examples          # lint every spec against G-1..G-90
 python scripts/build_spec.py --stage massing --in examples --out examples   # emits massing.json + massing.ms
 python scripts/build_nurbs.py --in examples --out examples                 # emits nurbs.json + nurbs.ms
 python scripts/facade_tables.py --in examples --out examples              # emits both P5 JSONs + both CSVs
-python scripts/place_components.py --in examples --out examples           # emits assembly.json + assembly.ms
+python scripts/place_components.py --in examples --out examples           # emits assembly.json + assembly.ms (S5, LAST geometry builder)
+python scripts/curve_gen.py                              # analytical curve generator library (import module)
+python scripts/expand_curves.py --project-dir <p> --in <in.json> --out <out.json>  # expand draft curves, recompute, verify <= 0.001 cm
+python scripts/scene_units.py                            # scene units translation & scale factor utilities
+python scripts/qa_check.py --in <p> --emit <run_dir> --run-id <id>          # S7 QA gate: emit query batches + request context
+python scripts/qa_check.py --in <p> --request <req> --results <res> --out <run_dir> # S7 QA gate: assess captured results against tolerances
 python -m py_compile scripts/*.py                        # the only "test" that exists
 ```
 
 Three constraints on that list:
 
 - **`build_spec.py` accepts `--stage massing` only** and exits non-zero for anything else.
-- **`place_components.py` reads four inputs** — `components_registry.json`, `world_table.csv`, `massing.json`, `dimensions.json` — all of which must be `locked` unless `--allow-draft`. Copying only what `build_spec.py` writes makes it refuse with *"dimensions.json is missing … a builder never invents an input"*. That refusal is correct.
+- **`place_components.py` is the LAST geometry builder (S5)**. It reads four inputs — `components_registry.json`, `world_table.csv`, `massing.json`, `dimensions.json` — all of which must be `locked` unless `--allow-draft`.
 - **An emitted `.ms` is not done until it has been `fileIn`-ed and measured**, and an emitted **CSV** is not done until it has been placed in Max and counted. Self-checks prove a file is well-formed and prove nothing about whether MAXScript will load it.
 
 ### 6.3 Named in `PLAN.md` but NOT written — never reference these as if they run
 
-`qa_check.py` · `capture_views.py` · `export_max.py` · `lint_script.py` · `check_skill_md.py` · any `materials`-building script. `materials.json` and `qa.json` are reserved spec files and are **absent**, so `G-1` SKIPs on them.
+`capture_views.py` · `export_max.py` · `lint_script.py` · `check_skill_md.py` · any `materials`-building script. `materials.json` and `export.json` are reserved spec files and are **absent**, so `G-1` SKIPs on them. In contrast, `qa_check.py` and `qa.json` are **implemented and active** as the S7 offline/live QA gate (`agents/max-qa.md`).
 
-### 6.4 Verifying a stage without the QA loop
+### 6.4 Verifying a stage: per-stage checks and the active S7 QA gate
 
-There is no automated QA stage, so verification is per-stage and manual. This is the loop that replaces it:
+Verification combines stage-by-stage live checks with the formal **S7 QA verification gate**:
 
-1. **Preflight.** Run `env_preflight.py` bare. It **prints** the MAXScript probe bodies; paste each into `execute_maxscript`, collect the returned strings, write a JSON file mapping check name → captured output, then re-run with `--results`. A bare invocation exits 0 with everything SKIP — that is not a pass, it is a non-run. It is two-phase by design and cannot talk to Max itself.
+1. **Preflight.** Run `env_preflight.py` bare. It **prints** the MAXScript probe bodies; paste each into `execute_maxscript`, collect the returned strings, write a JSON file mapping check name → captured output, then re-run with `--results`.
 2. **Run the emitted script and count.** `fileIn examples/massing.ms`, `examples/nurbs.ms`, `examples/assembly.ms`. Every builder is `fn`-wrapped and idempotent — invoke it three times and confirm the node count and every bbox are identical.
-3. **Measure against an independent prediction.** Read `node.min` / `node.max` and compare against a prediction recomputed in Python from the spec files. A verdict must require that the expected number of comparisons actually **happened** — one comparison harness in this repo printed `PASS` having made zero, because prediction keys used `EL-014` and node names use `EL_014`.
+3. **Measure against an independent prediction.** Read `node.min` / `node.max` and compare against a prediction recomputed in Python from the spec files.
 4. **Instance structure.** `get_hierarchy`, `get_instances`, and `baseObject` equality with a control that is a plain `copy` renamed so it falls **outside** the population being scanned.
 5. **Naming and reference hygiene.** `get_dependencies`, `walk_references`, `get_wired_params`, `list_wireable_params`.
 6. **Scatter determinism.** Snapshot with `saveConfiguration(filePath, reserved)`, restore with `loadConfiguration(filePath)`, read `getInstanceCount()` before and after. If the counts differ, the seed is not applied.
 7. **Visual confirmation.** `capture_multi_view` for an overview sheet, `capture_viewport` for one framed view, `isolate_and_capture_selected` for a single element. Eye-level perspective at `165–180 cm` plus a three-quarter bird's-eye.
 8. **Clean up in the same call that created the objects.** `for o in objects do delete o` **silently skips entries** — collect the names first, then delete by name, and run it twice, because deleting a base does not delete its instances.
-9. **Render only on request.** `render_scene` produces a real image; do not start one unprompted.
+9. **The S7 QA Gate (`qa_check.py`):**
+   - **Emit:** `python scripts/qa_check.py --in <p> --emit <run_dir> --run-id <token> [--calibration-cert <cert>]`. Generates `qa-request.json`, `qa-run-context.json`, and sequential query scripts (`batch_001.ms`, etc.).
+   - **Capture:** Execute read-only batch scripts via `3dsmax-mcp_execute_maxscript` and record wire strings to `results.json`.
+   - **Assess:** `python scripts/qa_check.py --in <p> --request <run_dir>/qa-request.json --results <run_dir>/results.json --out <run_dir>`. Computes analytical geometry errors via independent oracle, checks host wall hiding (`Mechanism A`), zero modifiers, and unit guards. Exits 0 on PASS only.
+10. **Render only on request.** `render_scene` produces a real image; do not start one unprompted.
 
 ### 6.5 The control rule — it is not optional
 

@@ -32,6 +32,19 @@ grid's rows are its lattice, and a **rail and a trim profile are rows too**. Tha
 ordinary `surfaces[]` entry that *refers* to other surfaces by id. The last four kinds arrived at P4b;
 their keys and defaults are §6.7.
 
+**`points_cm` remains the ONLY geometric primitive the builder consumes.** The builder
+(`scripts/build_nurbs.py`) does not evaluate analytical curve formulas directly.
+For analytical curved sections (barrel vaults, arches): draft `nurbs.json` authors `generator`,
+`form_reference_ref`, and `station_cm` joined to `dimensions.json:form_references[]`.
+Curve discretization is powered by `scripts/curve_gen.py` (pure Python analytical curve generation,
+coordinate quantization `q6`, and chord bounds) and driven via `scripts/expand_curves.py`:
+- Before locking, the author runs `python scripts/expand_curves.py --project-dir <p> --in <draft> --out <nurbs.json>`
+  to populate discrete `points_cm`.
+- Consistency check: `python scripts/expand_curves.py --project-dir <p> --in <nurbs.json> --check` verifies
+  stored `points_cm` against analytical recomputation within 0.001 cm (enforced by `G-85`).
+- Station count suggestion: query chord-bound suggestions using
+  `python scripts/expand_curves.py --project-dir <p> --in <draft> --suggest-count --section-id <id> --tol-cm <x>`.
+
 | **Never** built by S3 | Consumed by | Correct instrument |
 |---|---|---|
 | Massing solids, slabs, columns, core walls, plinths | **S2** | `massing.json`. A Z-prism is not NURBS |
@@ -71,23 +84,36 @@ Executing an already-verified emitted script is **not** a probe (`01` §6).
 | Source | What you take from it |
 |---|---|
 | `specs/pipeline/massing.json` | **The contract you build from** — `storeys[].z_range_cm`, `elements[].z_range_cm`, `roof.deck_level_cm`, `site.footprint_*` |
-| `dimensions.json` · `assumptions.json` · `conflicts_resolved.json` | `levels[]`, `structure.*_bay_cm`, `column_section_cm`, `floor_plates[].thickness_cm`, `roof.*` — and every `A-nnn` whose provenance touches a surface |
-| `references/07-spec-grammar.md` | **§8.2** the schema in full · **§8.2.7** the four dependent kinds · **§8.2.8** what a spec may not encode · **§9.7** `G-41`…`G-54` · §3.1 the lock gate · §5.2 `origins` granularity · §2 units · §9.5 exact counts |
+| `dimensions.json` · `assumptions.json` · `conflicts_resolved.json` | `levels[]`, `structure.*_bay_cm`, `column_section_cm`, `floor_plates[].thickness_cm`, `roof.*`, `form_references[]` (joined to `sections[].form_reference_ref` and `generator` for analytical curves) — and every `A-nnn` whose provenance touches a surface |
+| `references/07-spec-grammar.md` | **§8.2** the schema in full · **§8.2.7** the four dependent kinds · **§8.2.8** what a spec may not encode · **§9.7** `G-41`…`G-54`, `G-84`, `G-85` · §3.1 the lock gate · §5.2 `origins` granularity · §2 units · §9.5 exact counts |
 | `references/11-layer-standard.md` | §1 the eight layer names · §2 `kind` → layer · **§3.1 naming, N1–N5** · §6 the delivery checklist H1–H12 |
 | `snippets/nurbs_arch_library.ms` | The 12 functions you may call. **Read it; do not patch it** (§3) |
-| `scripts/build_nurbs.py` · `scripts/validate_specs.py` | The two CLIs. Read their `--help`; never guess a flag |
+| `scripts/build_nurbs.py` · `scripts/validate_specs.py` · `scripts/expand_curves.py` | The three CLIs. Read their `--help`; never guess a flag |
 | `CHECKPOINT.md` | §"Verified facts" — **the transcript of record** for §6 and §7 |
 
 ### 2.2 What you own, and the lock gate
 
 | Path | Action |
 |---|---|
-| `<project>/specs/pipeline/nurbs.json` | **Emitted by the builder.** Never hand-written, never hand-edited |
+| `<project>/specs/pipeline/nurbs.json` | **Emitted by the builder (or expanded from draft).** Never hand-written, never hand-edited |
 | the builder's `nurbs.ms` output path | **Emitted by the builder.** Never hand-written, never hand-patched |
 | `specs/recipes/*.json` | **You own this directory** — four templates, §13. They are `draft`, they are read-only inputs to a build, and they are never consumed as a project's spec |
 
-**You modify nothing else** — not `references/`, not the two `scripts/`, not `examples/`, not
+**You modify nothing else** — not `references/`, not `scripts/`, not `examples/`, not
 `snippets/`, not the other `agents/`, not `CHECKPOINT.md`, not S2's locked files.
+
+#### Draft authoring contract with curve expansion
+- For analytical curved sections (barrel vaults, arches): draft `nurbs.json` authors `generator`,
+  `form_reference_ref`, and `station_cm` joined to `dimensions.json:form_references[]`.
+- **`points_cm` remains the ONLY geometric primitive builder consumes.** The builder
+  (`scripts/build_nurbs.py`) does not parse or evaluate generator formulas.
+- **Before locking**, the author runs `python scripts/expand_curves.py --project-dir <p> --in <draft> --out <nurbs.json>`
+  to populate discrete `points_cm`.
+- Author can check consistency with `python scripts/expand_curves.py --project-dir <p> --in <nurbs.json> --check`.
+- Author can query chord-bound suggestions using
+  `python scripts/expand_curves.py --project-dir <p> --in <draft> --suggest-count --section-id <id> --tol-cm <x>`.
+- In a locked spec, `G-85` enforces that discrete `points_cm` are populated and match analytical
+  recomputation within 0.001 cm (failing if absent in locked specs; skipping in draft).
 
 > **A builder must refuse any spec file whose `status` is not `locked`, naming the file and the status
 > it found** (`07` §3.1). Exit non-zero. Checked before anything else is read.
@@ -123,6 +149,7 @@ instead, naming what it could not evaluate. **Both outcomes mean the same thing:
 |---|---|
 | `scripts/build_nurbs.py` | Exposes `--in <dir> --out <dir> [--json] [--build] [--allow-draft]`; reads `<in>/nurbs.json`; writes `<out>/nurbs.json` and `<out>/nurbs.ms`; refuses non-`locked` input with non-zero exit; self-checks `G-41`…`G-54` **before writing**, and refuses to write a file for which the self-check produced no row at all. On a dependent surface it also emits the **`G-54` census** (§6.7) and refuses to write a `.ms` whose census counts by literal index |
 | `scripts/validate_specs.py` | Flags `--dir --file --json --rule --warnings-as-errors --build --allow-draft` |
+| `scripts/expand_curves.py` | Exposes `--project-dir <p> --in <draft> [--out <out>] [--check] [--suggest-count] [--section-id <id>] [--tol-cm <tol>] [--json]`. Expands analytical curve generators into discrete `points_cm`, checks consistency within 0.001 cm, or suggests chord-bound station counts |
 | `snippets/nurbs_arch_library.ms` | 12 functions, all 12 executed live 2026-10-04. **Zero open bugs.** It is not a rewrite target. Note the four dependent kinds need **no** library function — the builder emits their classes directly (§6.7.4) |
 | `examples/nurbs.json` / `examples/nurbs.ms` | The `pavilion-01` worked case — the four measured numbers in §6.2 come from it. It contains **no dependent surface**, so `G-50`…`G-53` are *vacuously* satisfied there and `G-54` SKIPs. That is the honest state, not a pass |
 
@@ -145,11 +172,11 @@ Ordered and deterministic. Each step has a pass condition.
 
 | # | Step | Do | Pass condition |
 |---|---|---|---|
-| 1 | **Verify the input is locked** | Read the six envelope keys of `massing.json` and of `nurbs.json`. Apply §2.2 in full | Both `locked`, `project` agrees, `units.length == "cm"` |
+| 1 | **Verify the input is locked & expand curves if draft** | Read the six envelope keys of `massing.json` and of `nurbs.json`. For analytical curved sections (barrel vaults, arches): draft `nurbs.json` authors `generator`, `form_reference_ref`, and `station_cm` joined to `dimensions.json:form_references[]`. Before locking, query chord bounds via `expand_curves.py --suggest-count`, run `python scripts/expand_curves.py --project-dir <p> --in <draft> --out <nurbs.json>` to populate discrete `points_cm`, and verify with `--check`. `points_cm` remains the ONLY geometric primitive builder consumes. Apply §2.2 in full | Both `locked`, `project` agrees, `units.length == "cm"`, all sections carry discrete `points_cm` matching generator within 0.001 cm (`G-85`) |
 | 2 | **Read `massing.json` into the surface model** | Read §2.1 once, in order. Take `tolerances` **verbatim** — a builder may not widen them. A springing level from `storeys[1].z_range_cm[1]`; a plan extent from `site.footprint_*`; a bay from `structure.*_bay_cm`; a shell from `floor_plates[i].thickness_cm` | Every value used is a real key path. **Every `origins` entry is `derived`** (`G-49`) — S1 and S2 already resolved `given` / `assumed` / `conflict` |
-| 3 | **Classify each candidate against §6** | Each surface is exactly one of the **eight** kinds in §6.1. Every section belongs to ≥ 1 surface (`G-44`) | Every refusal recorded with the surface id and reason, and escalated (§10). **A form that needs a rail sweep, a 2-rail sweep, a blend or a projected trim is S3's own work, not an escalation** — classify it, write the keys §6.7 states, and build it (§6.7) |
+| 3 | **Classify each candidate against §6** | Each surface is exactly one of the **eight** kinds in §6.1. Every section belongs to ≥ 1 surface (`G-44`). **G-42 rectangular lattice checks apply to lofts/grids**, while independent sweep sections may differ in point count across families | Every refusal recorded with the surface id and reason, and escalated (§10). **A form that needs a rail sweep, a 2-rail sweep, a blend or a projected trim is S3's own work, not an escalation** — classify it, write the keys §6.7 states, and build it (§6.7) |
 | 4 | **Emit `nurbs.json` and `nurbs.ms`** | Run the builder (§5). **You do not hand-write either file.** Then read `nurbs.json` back from disk and verify it independently — recompute one arc or one lattice Z by hand and compare | The file matches your hand computation at `tolerances.linear_cm`; the section set matches what you derived |
-| 5 | **Validate** | `python scripts/validate_specs.py --dir <specs_dir> --build` | Exit **0**. `G-41`…`G-49` **PASS** or **SKIP with a stated reason** — see §8 row 2 |
+| 5 | **Validate** | `python scripts/validate_specs.py --dir <specs_dir> --build` | Exit **0**. `G-41`…`G-54`, `G-84`, `G-85` **PASS** or **SKIP with a stated reason** — see §8 row 2 |
 | 6 | **Run in 3ds Max** | §7. One script per call, under ~2 s. **The orchestrator runs this, not a subagent** | Returns without error; the scene holds the expected nodes |
 | 7 | **Measure** | §8. Node count, names, `node.min` / `node.max`, parameter domains, and the **evaluated** surface against the lattice | Every node present and named; the four numbers in §6.2 explained by what came back |
 | 8 | **Clean up, then report** | §9. Delete what you created in the same call, then return §12 | Only the S3 nodes remain; the report is under the §12 cap |
@@ -163,6 +190,12 @@ replace them), so a rebuild yields the same node-name set (`11` N3/H10).
 ## 5. The build commands
 
 ```
+# Draft curve expansion, consistency check, and count suggestion:
+python scripts/expand_curves.py --project-dir <p> --in <draft> --out <nurbs.json>
+python scripts/expand_curves.py --project-dir <p> --in <nurbs.json> --check
+python scripts/expand_curves.py --project-dir <p> --in <draft> --suggest-count --section-id <id> --tol-cm <x>
+
+# Build and validate:
 python scripts/build_nurbs.py --in <specs_dir> --out <out_dir>
 python scripts/build_nurbs.py --in <specs_dir> --out <out_dir> --json
 python scripts/validate_specs.py --dir <specs_dir> --build
@@ -172,12 +205,15 @@ python scripts/validate_specs.py --dir <specs_dir> --build
 |---|---|
 | Reads | exactly one file, `<in>/nurbs.json` — this builder has **no stage selector**, unlike `build_spec.py` — plus `dimensions.json` and `massing.json` **optional** — absent, they degrade `G-49` to a SKIP with a reason rather than a false PASS |
 | Writes | `<out>/nurbs.json` and `<out>/nurbs.ms`. `--out` defaults to `--in`; `--json` gives a machine-readable report on stdout, including `surface_index_strategy` and the self-check tally |
-| Exit **0** | The lock gate passed **and** the `G-41`…`G-54` self-check produced no failure |
+| Exit **0** | The lock gate passed **and** the `G-41`…`G-54` self-check produced no failure (and `validate_specs.py` confirms `G-41`…`G-54`, `G-84`, `G-85`) |
 | Exit **non-zero** | A refusal naming the reason — the file path and the `status` found, the `G-` id that fired, or the list of failed invariants |
 | Determinism | Byte-identical output for byte-identical input |
 | Layer code | **None.** `nurbs.ms` is geometry only. Adding layer code is a defect, not an improvement — it cannot work (§7) |
 | Surface index | **No literal index is ever emitted.** The builder emits a resolver that walks `getNURBSSet node #relational` and takes the **first** object with `superClassOf o == NURBSSurface`, and **throws** naming the node if there is none. **It never filters by comparing an index against a pre-commit ordinal** — the two numbering schemes differ (§6.7.6) — and a dependent relation is matched by `classOf`, not by superclass alone (§6.4.1) |
 | `G-54` census | Emitted **only when a dependent surface exists**, so every pre-P4b spec's bytes are unchanged. It counts the node's `NURBSSurface` sub-objects **after `NURBSNode` + `stopCreating`** and throws a named error naming the **node, the expected count and the actual count**. This is the one part of the build that cannot be verified offline — only the live run resolves it (§6.7) |
+| `points_cm` primitive | **`points_cm` remains the ONLY geometric primitive builder consumes.** `build_nurbs.py` does not parse or evaluate generator formulas |
+| Curve generators | `G-84` verifies generator schema validity and metadata completeness (`form_reference_ref`, `station_cm`); `G-85` enforces expanded discrete `points_cm` match generator recomputation within 0.001 cm in locked specs |
+| Rectangular lattice | **`G-42` rectangular lattice checks apply to lofts/grids** (`u_loft`, `uv_loft`, `point_grid`, `cv_grid`), while independent sweep sections (`rail_sweep`, `two_rail_sweep`) may differ in point count across families |
 
 **A non-zero exit is a stop**: fix the spec through S2 (§10) or the builder through its owner (§3).
 Never rename a key, widen `tolerances`, drop a leaf, delete a section, or lower an order to silence a
@@ -252,6 +288,23 @@ the lattice and compares it to the lattice passes a surface that is 58 cm out of
 **CORRECTED (2026-10-06):** this sentence used to say "asserted by P8". **P8 (S7, automated QA) was
 cancelled on 2026-10-05**, so no automated check asserts it. **The rule stands for whoever measures this
 surface** — S3's own gate does — and it is the user's to apply if they measure it themselves.
+
+### 6.2.1 Surface precision: `u_loft` vs `point_grid` for analytical barrels
+
+When building analytical curved surfaces (such as barrel vaults, semi-elliptical arches, and domes), the choice between `u_loft` and `point_grid` has major geometric precision consequences:
+
+| Surface kind | Representation in 3ds Max | Measured accuracy against analytical curve | Best used for |
+|---|---|---|---|
+| `u_loft` | `NURBSULoftSurface` (lofts cross-section curves) | Fits a 10–12 CV cubic spline across stations, producing **~0.8..2.9 cm deviation** on large arcs (e.g. 600 cm semi-axis barrel) | Swept roofs and canopies where parallel shell offset (`thickness_cm`) is needed and ~1–3 cm spline fitting slack is acceptable |
+| `point_grid` | `NURBSPointSurface` (via `MCP_NURBS_Arch.makePointSurfaceGrid`) | Passes directly through all supplied lattice points, achieving **8-micron precision (0.0008 cm)** matching analytical barrels | Precision architectural barrels, vaults, and QA-gated analytical surfaces evaluated under `form_precision_v1` |
+
+**NURBS Authoring Guidance:**
+1. **Analytical precision gate (`form_precision_v1`):** To pass automated QA form precision verification (`QA-V1-FORM`) against analytical references (`dimensions.json:form_references`), author barrel vaults as `point_grid`. The discrete grid points pass directly through the analytical curve stations and evaluate to within 8 microns of the mathematical geometry.
+2. **Loft fitting deviation:** `u_loft` surfaces fit an approximating cubic spline curve across cross-sections; on architectural scale profiles (spans of 12–18 m), this interpolation introduces up to 2.9 cm deviation from the true analytical ellipse or circle.
+3. **Generator discretization loop:**
+   - Author analytical sections in draft `nurbs.json` with `generator: {kind: "ellipse_arc", plane: "XZ", center_cm: [x,y,z], semi_axes_cm: [a,b], from_deg: 0, to_deg: 180, count: N}` and `form_reference_ref`.
+   - Run `python scripts/expand_curves.py --project-dir <p> --in <draft> --out <nurbs.json>` to evaluate the generator formulas using `scripts/curve_gen.py` and populate quantized `points_cm`.
+   - Run `python scripts/expand_curves.py --project-dir <p> --in <nurbs.json> --check` to verify that discrete `points_cm` match analytical recomputation within 0.001 cm (`G-85`).
 
 ### 6.3 The commit rule
 
@@ -716,12 +769,12 @@ thread** and a long script freezes the UI.
 ## 8. Verification — the completion gate
 
 Check every row. **The validator covers the mechanical subset only**; rows 3, 5, 6, 7, 8, 9, 13, 14, 15,
-16, 17, 18 and 19 are yours.
+16, 17, 18 and 19 are yours (rows 1, 2, 4, 12, 20 and 21 are automated).
 
 | # | Gate | Checked by |
 |---|---|---|
-| 1 | `python scripts/validate_specs.py --dir <specs_dir> --build` exits **0**, with `G-41`…`G-54` **all PASS** | the transcript of the final run |
-| 2 | **A SKIP on any of `G-41`…`G-54` is not a pass.** A check that cannot be evaluated reports SKIP with its reason, never a silent PASS (`07` §9.7). `G-46` legitimately SKIPs when no `cv_grid` declares an order; `G-48` when `derivatives[]` is empty; `G-49` when `dimensions.json` / `massing.json` is absent; `G-50`…`G-53` when the file has **no dependent surface**; and **`G-54` always SKIPs at lint time, by construction** — the census is observed in live Max, not in the file. Each SKIP is named and escalated | you, reading the `--json` output |
+| 1 | `python scripts/validate_specs.py --dir <specs_dir> --build` exits **0**, with `G-41`…`G-54`, `G-84`, `G-85` **all PASS** (or legitimate SKIP with stated reason) | the transcript of the final run |
+| 2 | **A SKIP on any of `G-41`…`G-54`, `G-84`, `G-85` is not a pass.** A check that cannot be evaluated reports SKIP with its reason, never a silent PASS (`07` §9.7). `G-46` legitimately SKIPs when no `cv_grid` declares an order; `G-48` when `derivatives[]` is empty; `G-49` when `dimensions.json` / `massing.json` is absent; `G-50`…`G-53` when the file has **no dependent surface**; **`G-54` always SKIPs at lint time, by construction** — the census is observed in live Max, not in the file; and **`G-84` / `G-85` legitimately SKIP when no section declares generator metadata** (or `G-85` SKIPs in draft if points are unexpanded). Each SKIP is named and escalated | you, reading the `--json` output |
 | 3 | **Every surface and derivative node exists**, named the spec `name`, and **the scene holds nothing else** | you — `3dsmax-mcp_get_scene_info` (`11` H5/H6) |
 | 4 | Every `origins` entry is `derived` with a non-empty `derives_from` resolving in `massing.json`, `dimensions.json` **or this file**; every `origin_inputs` path resolves in `massing.json` or `dimensions.json`; `tolerances` equals `massing.json`'s, unwidened | **G-49**, **G-31** |
 | 5 | Every section is consumed by **at least one** surface; every `section_ids` / `u_section_ids` / `v_section_ids` / `rail_section_ids` / `trim_section_ids` / `surface_ref` / `parent1_ref` / `parent2_ref` resolves inside the file, and every relation parent is **declared earlier** | **G-44**, **G-52** |
@@ -739,6 +792,10 @@ Check every row. **The validator covers the mechanical subset only**; rows 3, 5,
 | 17 | **Every `blend` states `tension1` and `tension2` explicitly, and neither edge pair is coincident or same-side-same-axis.** `0.0` is the neutral value; above it the blend overshoots **both** edges by an unbounded amount, and a coincident pair is a zero-area surface — both silently (§6.7.5) | you — the spec, plus the blend's own sampled bbox against its two parents' extents |
 | 18 | **Every `trim` emits `trim:false`, and no spec claims a cut.** The class projects; it does not cut. An aperture is a Boolean-modifier or surface-split job outside this stage (§6.7.5) | you — the emitted `.ms`, and the spec's intent |
 | 19 | **Every committed sub-object was located by `classOf` / `superClassOf`, never by comparing an index to a pre-commit ordinal** (§6.7.6) | you — the resolvers in the emitted `.ms` |
+| 20 | **`G-84` generator schema validity.** If any section declares `generator`, `form_reference_ref`, or `station_cm`, all three must appear together; generator payload must validate against its schema, `station_cm` must be finite, and `form_reference_ref` must match `^[A-Za-z][A-Za-z0-9_-]{0,63}$`. SKIPs when no section declares generator metadata | **G-84** |
+| 21 | **`G-85` points expansion consistency.** For every section with a `generator`, discrete `points_cm` must be populated (required in locked specs; draft sections without points legitimately SKIP) with matching length, and each discrete coordinate must match analytical generator recomputation within **0.001 cm**. SKIPs when no section declares generator metadata | **G-85** |
+
+> **Rectangularity scope (G-42):** `G-42` rectangular lattice checks apply to lofts and grids (`u_loft`, `uv_loft`, `point_grid`, `cv_grid`), where every row of a surface family must share an identical point count to maintain the `(iv - 1) * nU + iu` stride. Independent sweep sections and rails (`rail_sweep`, `two_rail_sweep`) are independent curves, so rail and cross-section point counts may legitimately differ (e.g., a 3-point rail with 5-point cross-sections) — contact is governed by `G-51`, not rectangular stride.
 
 **The measurement route.** Read the node back and compare against the spec — do not eyeball a
 viewport and do not ask a tool whether the geometry "looks right".
@@ -882,7 +939,7 @@ Return **exactly** this, **≤ 12 lines** — no file dumps, no JSON blobs, no t
 S3 <project id>
 FILES: <path> (<n> lines) · <path> (<n> lines)
 VALIDATOR: scripts/validate_specs.py --dir <specs_dir> --build -> exit <n>  (PASS <n> · FAIL <n> · WARN <n> · SKIP <n>)
-G-41..G-54: <n> PASS / <n> SKIP — <for each SKIP, the reason the check could not be evaluated; G-54 always SKIPs at lint>
+G-41..G-54, G-84..G-85: <n> PASS / <n> SKIP — <for each SKIP, the reason the check could not be evaluated; G-54 always SKIPs at lint; G-84/G-85 SKIP if generator metadata absent>
 BUILDER: scripts/build_nurbs.py -> exit <n> · <n> sections / <n> surfaces (<by kind>) · <n> derivatives · surface index resolved by superclass, no literal index emitted
 DEPENDENT: <n> dependent surface(s) (<kinds>) · G-50..G-53 <n> PASS / <n> FAIL · G-54 census <for each node: id -> expected, actual> · <"none in this spec" if there are none>
 LIVE: nurbs.ms fileIn-ed in 3ds Max by the orchestrator, no error · <n>/<n> nodes present · <n> nodes deleted in the sweep · scene otherwise empty

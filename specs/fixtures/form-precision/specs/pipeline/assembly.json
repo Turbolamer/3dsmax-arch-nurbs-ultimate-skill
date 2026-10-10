@@ -1,0 +1,5849 @@
+{
+  "schema_version": "1.0",
+  "spec": "assembly",
+  "project": "form-precision",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "components_registry.json -- what each panel instance is; world_table.csv -- where every instance goes, one data row per placements[] entry; massing.json -- the facade_wall envelope the openings are cut in; dimensions.json -- the openings and the facade runs",
+    "recorded_at": "2026-10-09T23:35:40Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [
+    "components[0].id",
+    "components[0].kind",
+    "components[0].layer",
+    "components[0].name",
+    "components[0].parameters[0].name",
+    "components[0].parameters[0].source",
+    "components[0].parameters[0].units",
+    "components[0].parameters[0].value",
+    "components[0].parameters[1].name",
+    "components[0].parameters[1].source",
+    "components[0].parameters[1].units",
+    "components[0].parameters[1].value",
+    "components[0].parameters[2].name",
+    "components[0].parameters[2].source",
+    "components[0].parameters[2].units",
+    "components[0].parameters[2].value",
+    "components[0].parameters[3].name",
+    "components[0].parameters[3].source",
+    "components[0].parameters[3].units",
+    "components[0].parameters[3].value",
+    "components[0].serves_panel_kinds[0]",
+    "components[0].size_cm[0]",
+    "components[0].size_cm[1]",
+    "components[0].size_cm[2]",
+    "components[10].id",
+    "components[10].kind",
+    "components[10].layer",
+    "components[10].name",
+    "components[10].parameters[0].name",
+    "components[10].parameters[0].source",
+    "components[10].parameters[0].units",
+    "components[10].parameters[0].value",
+    "components[10].parameters[1].name",
+    "components[10].parameters[1].source",
+    "components[10].parameters[1].units",
+    "components[10].parameters[1].value",
+    "components[10].parameters[2].name",
+    "components[10].parameters[2].source",
+    "components[10].parameters[2].units",
+    "components[10].parameters[2].value",
+    "components[10].parameters[3].name",
+    "components[10].parameters[3].source",
+    "components[10].parameters[3].units",
+    "components[10].parameters[3].value",
+    "components[10].serves_panel_kinds[0]",
+    "components[10].size_cm[0]",
+    "components[10].size_cm[1]",
+    "components[10].size_cm[2]",
+    "components[11].id",
+    "components[11].kind",
+    "components[11].layer",
+    "components[11].name",
+    "components[11].parameters[0].name",
+    "components[11].parameters[0].source",
+    "components[11].parameters[0].units",
+    "components[11].parameters[0].value",
+    "components[11].parameters[1].name",
+    "components[11].parameters[1].source",
+    "components[11].parameters[1].units",
+    "components[11].parameters[1].value",
+    "components[11].parameters[2].name",
+    "components[11].parameters[2].source",
+    "components[11].parameters[2].units",
+    "components[11].parameters[2].value",
+    "components[11].parameters[3].name",
+    "components[11].parameters[3].source",
+    "components[11].parameters[3].units",
+    "components[11].parameters[3].value",
+    "components[11].serves_panel_kinds[0]",
+    "components[11].size_cm[0]",
+    "components[11].size_cm[1]",
+    "components[11].size_cm[2]",
+    "components[12].id",
+    "components[12].kind",
+    "components[12].layer",
+    "components[12].name",
+    "components[12].parameters[0].name",
+    "components[12].parameters[0].source",
+    "components[12].parameters[0].units",
+    "components[12].parameters[0].value",
+    "components[12].parameters[1].name",
+    "components[12].parameters[1].source",
+    "components[12].parameters[1].units",
+    "components[12].parameters[1].value",
+    "components[12].parameters[2].name",
+    "components[12].parameters[2].source",
+    "components[12].parameters[2].units",
+    "components[12].parameters[2].value",
+    "components[12].parameters[3].name",
+    "components[12].parameters[3].source",
+    "components[12].parameters[3].units",
+    "components[12].parameters[3].value",
+    "components[12].serves_panel_kinds[0]",
+    "components[12].size_cm[0]",
+    "components[12].size_cm[1]",
+    "components[12].size_cm[2]",
+    "components[13].id",
+    "components[13].kind",
+    "components[13].layer",
+    "components[13].name",
+    "components[13].parameters[0].name",
+    "components[13].parameters[0].source",
+    "components[13].parameters[0].units",
+    "components[13].parameters[0].value",
+    "components[13].parameters[1].name",
+    "components[13].parameters[1].source",
+    "components[13].parameters[1].units",
+    "components[13].parameters[1].value",
+    "components[13].parameters[2].name",
+    "components[13].parameters[2].source",
+    "components[13].parameters[2].units",
+    "components[13].parameters[2].value",
+    "components[13].parameters[3].name",
+    "components[13].parameters[3].source",
+    "components[13].parameters[3].units",
+    "components[13].parameters[3].value",
+    "components[13].serves_panel_kinds[0]",
+    "components[13].size_cm[0]",
+    "components[13].size_cm[1]",
+    "components[13].size_cm[2]",
+    "components[14].id",
+    "components[14].kind",
+    "components[14].layer",
+    "components[14].name",
+    "components[14].parameters[0].name",
+    "components[14].parameters[0].source",
+    "components[14].parameters[0].units",
+    "components[14].parameters[0].value",
+    "components[14].parameters[1].name",
+    "components[14].parameters[1].source",
+    "components[14].parameters[1].units",
+    "components[14].parameters[1].value",
+    "components[14].parameters[2].name",
+    "components[14].parameters[2].source",
+    "components[14].parameters[2].units",
+    "components[14].parameters[2].value",
+    "components[14].parameters[3].name",
+    "components[14].parameters[3].source",
+    "components[14].parameters[3].units",
+    "components[14].parameters[3].value",
+    "components[14].serves_panel_kinds[0]",
+    "components[14].size_cm[0]",
+    "components[14].size_cm[1]",
+    "components[14].size_cm[2]",
+    "components[15].id",
+    "components[15].kind",
+    "components[15].layer",
+    "components[15].name",
+    "components[15].parameters[0].name",
+    "components[15].parameters[0].source",
+    "components[15].parameters[0].units",
+    "components[15].parameters[0].value",
+    "components[15].parameters[1].name",
+    "components[15].parameters[1].source",
+    "components[15].parameters[1].units",
+    "components[15].parameters[1].value",
+    "components[15].parameters[2].name",
+    "components[15].parameters[2].source",
+    "components[15].parameters[2].units",
+    "components[15].parameters[2].value",
+    "components[15].parameters[3].name",
+    "components[15].parameters[3].source",
+    "components[15].parameters[3].units",
+    "components[15].parameters[3].value",
+    "components[15].serves_panel_kinds[0]",
+    "components[15].size_cm[0]",
+    "components[15].size_cm[1]",
+    "components[15].size_cm[2]",
+    "components[16].id",
+    "components[16].kind",
+    "components[16].layer",
+    "components[16].name",
+    "components[16].parameters[0].name",
+    "components[16].parameters[0].source",
+    "components[16].parameters[0].units",
+    "components[16].parameters[0].value",
+    "components[16].parameters[1].name",
+    "components[16].parameters[1].source",
+    "components[16].parameters[1].units",
+    "components[16].parameters[1].value",
+    "components[16].parameters[2].name",
+    "components[16].parameters[2].source",
+    "components[16].parameters[2].units",
+    "components[16].parameters[2].value",
+    "components[16].parameters[3].name",
+    "components[16].parameters[3].source",
+    "components[16].parameters[3].units",
+    "components[16].parameters[3].value",
+    "components[16].serves_panel_kinds[0]",
+    "components[16].size_cm[0]",
+    "components[16].size_cm[1]",
+    "components[16].size_cm[2]",
+    "components[17].id",
+    "components[17].kind",
+    "components[17].layer",
+    "components[17].name",
+    "components[17].parameters[0].name",
+    "components[17].parameters[0].source",
+    "components[17].parameters[0].units",
+    "components[17].parameters[0].value",
+    "components[17].parameters[1].name",
+    "components[17].parameters[1].source",
+    "components[17].parameters[1].units",
+    "components[17].parameters[1].value",
+    "components[17].parameters[2].name",
+    "components[17].parameters[2].source",
+    "components[17].parameters[2].units",
+    "components[17].parameters[2].value",
+    "components[17].parameters[3].name",
+    "components[17].parameters[3].source",
+    "components[17].parameters[3].units",
+    "components[17].parameters[3].value",
+    "components[17].serves_panel_kinds[0]",
+    "components[17].size_cm[0]",
+    "components[17].size_cm[1]",
+    "components[17].size_cm[2]",
+    "components[18].id",
+    "components[18].kind",
+    "components[18].layer",
+    "components[18].name",
+    "components[18].parameters[0].name",
+    "components[18].parameters[0].source",
+    "components[18].parameters[0].units",
+    "components[18].parameters[0].value",
+    "components[18].parameters[1].name",
+    "components[18].parameters[1].source",
+    "components[18].parameters[1].units",
+    "components[18].parameters[1].value",
+    "components[18].parameters[2].name",
+    "components[18].parameters[2].source",
+    "components[18].parameters[2].units",
+    "components[18].parameters[2].value",
+    "components[18].parameters[3].name",
+    "components[18].parameters[3].source",
+    "components[18].parameters[3].units",
+    "components[18].parameters[3].value",
+    "components[18].serves_panel_kinds[0]",
+    "components[18].size_cm[0]",
+    "components[18].size_cm[1]",
+    "components[18].size_cm[2]",
+    "components[19].id",
+    "components[19].kind",
+    "components[19].layer",
+    "components[19].name",
+    "components[19].parameters[0].name",
+    "components[19].parameters[0].source",
+    "components[19].parameters[0].units",
+    "components[19].parameters[0].value",
+    "components[19].parameters[1].name",
+    "components[19].parameters[1].source",
+    "components[19].parameters[1].units",
+    "components[19].parameters[1].value",
+    "components[19].parameters[2].name",
+    "components[19].parameters[2].source",
+    "components[19].parameters[2].units",
+    "components[19].parameters[2].value",
+    "components[19].parameters[3].name",
+    "components[19].parameters[3].source",
+    "components[19].parameters[3].units",
+    "components[19].parameters[3].value",
+    "components[19].serves_panel_kinds[0]",
+    "components[19].size_cm[0]",
+    "components[19].size_cm[1]",
+    "components[19].size_cm[2]",
+    "components[1].id",
+    "components[1].kind",
+    "components[1].layer",
+    "components[1].name",
+    "components[1].parameters[0].name",
+    "components[1].parameters[0].source",
+    "components[1].parameters[0].units",
+    "components[1].parameters[0].value",
+    "components[1].parameters[1].name",
+    "components[1].parameters[1].source",
+    "components[1].parameters[1].units",
+    "components[1].parameters[1].value",
+    "components[1].parameters[2].name",
+    "components[1].parameters[2].source",
+    "components[1].parameters[2].units",
+    "components[1].parameters[2].value",
+    "components[1].parameters[3].name",
+    "components[1].parameters[3].source",
+    "components[1].parameters[3].units",
+    "components[1].parameters[3].value",
+    "components[1].serves_panel_kinds[0]",
+    "components[1].size_cm[0]",
+    "components[1].size_cm[1]",
+    "components[1].size_cm[2]",
+    "components[20].id",
+    "components[20].kind",
+    "components[20].layer",
+    "components[20].name",
+    "components[20].parameters[0].name",
+    "components[20].parameters[0].source",
+    "components[20].parameters[0].units",
+    "components[20].parameters[0].value",
+    "components[20].parameters[1].name",
+    "components[20].parameters[1].source",
+    "components[20].parameters[1].units",
+    "components[20].parameters[1].value",
+    "components[20].parameters[2].name",
+    "components[20].parameters[2].source",
+    "components[20].parameters[2].units",
+    "components[20].parameters[2].value",
+    "components[20].parameters[3].name",
+    "components[20].parameters[3].source",
+    "components[20].parameters[3].units",
+    "components[20].parameters[3].value",
+    "components[20].serves_panel_kinds[0]",
+    "components[20].size_cm[0]",
+    "components[20].size_cm[1]",
+    "components[20].size_cm[2]",
+    "components[21].id",
+    "components[21].kind",
+    "components[21].layer",
+    "components[21].name",
+    "components[21].parameters[0].name",
+    "components[21].parameters[0].source",
+    "components[21].parameters[0].units",
+    "components[21].parameters[0].value",
+    "components[21].parameters[1].name",
+    "components[21].parameters[1].source",
+    "components[21].parameters[1].units",
+    "components[21].parameters[1].value",
+    "components[21].parameters[2].name",
+    "components[21].parameters[2].source",
+    "components[21].parameters[2].units",
+    "components[21].parameters[2].value",
+    "components[21].parameters[3].name",
+    "components[21].parameters[3].source",
+    "components[21].parameters[3].units",
+    "components[21].parameters[3].value",
+    "components[21].serves_panel_kinds[0]",
+    "components[21].size_cm[0]",
+    "components[21].size_cm[1]",
+    "components[21].size_cm[2]",
+    "components[22].id",
+    "components[22].kind",
+    "components[22].layer",
+    "components[22].name",
+    "components[22].parameters[0].name",
+    "components[22].parameters[0].source",
+    "components[22].parameters[0].units",
+    "components[22].parameters[0].value",
+    "components[22].parameters[1].name",
+    "components[22].parameters[1].source",
+    "components[22].parameters[1].units",
+    "components[22].parameters[1].value",
+    "components[22].parameters[2].name",
+    "components[22].parameters[2].source",
+    "components[22].parameters[2].units",
+    "components[22].parameters[2].value",
+    "components[22].parameters[3].name",
+    "components[22].parameters[3].source",
+    "components[22].parameters[3].units",
+    "components[22].parameters[3].value",
+    "components[22].serves_panel_kinds[0]",
+    "components[22].size_cm[0]",
+    "components[22].size_cm[1]",
+    "components[22].size_cm[2]",
+    "components[23].id",
+    "components[23].kind",
+    "components[23].layer",
+    "components[23].name",
+    "components[23].parameters[0].name",
+    "components[23].parameters[0].source",
+    "components[23].parameters[0].units",
+    "components[23].parameters[0].value",
+    "components[23].parameters[1].name",
+    "components[23].parameters[1].source",
+    "components[23].parameters[1].units",
+    "components[23].parameters[1].value",
+    "components[23].parameters[2].name",
+    "components[23].parameters[2].source",
+    "components[23].parameters[2].units",
+    "components[23].parameters[2].value",
+    "components[23].parameters[3].name",
+    "components[23].parameters[3].source",
+    "components[23].parameters[3].units",
+    "components[23].parameters[3].value",
+    "components[23].serves_panel_kinds[0]",
+    "components[23].size_cm[0]",
+    "components[23].size_cm[1]",
+    "components[23].size_cm[2]",
+    "components[24].id",
+    "components[24].kind",
+    "components[24].layer",
+    "components[24].name",
+    "components[24].parameters[0].name",
+    "components[24].parameters[0].source",
+    "components[24].parameters[0].units",
+    "components[24].parameters[0].value",
+    "components[24].parameters[1].name",
+    "components[24].parameters[1].source",
+    "components[24].parameters[1].units",
+    "components[24].parameters[1].value",
+    "components[24].parameters[2].name",
+    "components[24].parameters[2].source",
+    "components[24].parameters[2].units",
+    "components[24].parameters[2].value",
+    "components[24].parameters[3].name",
+    "components[24].parameters[3].source",
+    "components[24].parameters[3].units",
+    "components[24].parameters[3].value",
+    "components[24].serves_panel_kinds[0]",
+    "components[24].size_cm[0]",
+    "components[24].size_cm[1]",
+    "components[24].size_cm[2]",
+    "components[25].id",
+    "components[25].kind",
+    "components[25].layer",
+    "components[25].name",
+    "components[25].parameters[0].name",
+    "components[25].parameters[0].source",
+    "components[25].parameters[0].units",
+    "components[25].parameters[0].value",
+    "components[25].parameters[1].name",
+    "components[25].parameters[1].source",
+    "components[25].parameters[1].units",
+    "components[25].parameters[1].value",
+    "components[25].parameters[2].name",
+    "components[25].parameters[2].source",
+    "components[25].parameters[2].units",
+    "components[25].parameters[2].value",
+    "components[25].parameters[3].name",
+    "components[25].parameters[3].source",
+    "components[25].parameters[3].units",
+    "components[25].parameters[3].value",
+    "components[25].serves_panel_kinds[0]",
+    "components[25].size_cm[0]",
+    "components[25].size_cm[1]",
+    "components[25].size_cm[2]",
+    "components[26].id",
+    "components[26].kind",
+    "components[26].layer",
+    "components[26].name",
+    "components[26].parameters[0].name",
+    "components[26].parameters[0].source",
+    "components[26].parameters[0].units",
+    "components[26].parameters[0].value",
+    "components[26].parameters[1].name",
+    "components[26].parameters[1].source",
+    "components[26].parameters[1].units",
+    "components[26].parameters[1].value",
+    "components[26].parameters[2].name",
+    "components[26].parameters[2].source",
+    "components[26].parameters[2].units",
+    "components[26].parameters[2].value",
+    "components[26].parameters[3].name",
+    "components[26].parameters[3].source",
+    "components[26].parameters[3].units",
+    "components[26].parameters[3].value",
+    "components[26].serves_panel_kinds[0]",
+    "components[26].size_cm[0]",
+    "components[26].size_cm[1]",
+    "components[26].size_cm[2]",
+    "components[27].id",
+    "components[27].kind",
+    "components[27].layer",
+    "components[27].name",
+    "components[27].parameters[0].name",
+    "components[27].parameters[0].source",
+    "components[27].parameters[0].units",
+    "components[27].parameters[0].value",
+    "components[27].parameters[1].name",
+    "components[27].parameters[1].source",
+    "components[27].parameters[1].units",
+    "components[27].parameters[1].value",
+    "components[27].parameters[2].name",
+    "components[27].parameters[2].source",
+    "components[27].parameters[2].units",
+    "components[27].parameters[2].value",
+    "components[27].parameters[3].name",
+    "components[27].parameters[3].source",
+    "components[27].parameters[3].units",
+    "components[27].parameters[3].value",
+    "components[27].serves_panel_kinds[0]",
+    "components[27].size_cm[0]",
+    "components[27].size_cm[1]",
+    "components[27].size_cm[2]",
+    "components[28].id",
+    "components[28].kind",
+    "components[28].layer",
+    "components[28].name",
+    "components[28].parameters[0].name",
+    "components[28].parameters[0].source",
+    "components[28].parameters[0].units",
+    "components[28].parameters[0].value",
+    "components[28].parameters[1].name",
+    "components[28].parameters[1].source",
+    "components[28].parameters[1].units",
+    "components[28].parameters[1].value",
+    "components[28].parameters[2].name",
+    "components[28].parameters[2].source",
+    "components[28].parameters[2].units",
+    "components[28].parameters[2].value",
+    "components[28].parameters[3].name",
+    "components[28].parameters[3].source",
+    "components[28].parameters[3].units",
+    "components[28].parameters[3].value",
+    "components[28].serves_panel_kinds[0]",
+    "components[28].size_cm[0]",
+    "components[28].size_cm[1]",
+    "components[28].size_cm[2]",
+    "components[2].id",
+    "components[2].kind",
+    "components[2].layer",
+    "components[2].name",
+    "components[2].parameters[0].name",
+    "components[2].parameters[0].source",
+    "components[2].parameters[0].units",
+    "components[2].parameters[0].value",
+    "components[2].parameters[1].name",
+    "components[2].parameters[1].source",
+    "components[2].parameters[1].units",
+    "components[2].parameters[1].value",
+    "components[2].parameters[2].name",
+    "components[2].parameters[2].source",
+    "components[2].parameters[2].units",
+    "components[2].parameters[2].value",
+    "components[2].parameters[3].name",
+    "components[2].parameters[3].source",
+    "components[2].parameters[3].units",
+    "components[2].parameters[3].value",
+    "components[2].serves_panel_kinds[0]",
+    "components[2].size_cm[0]",
+    "components[2].size_cm[1]",
+    "components[2].size_cm[2]",
+    "components[3].id",
+    "components[3].kind",
+    "components[3].layer",
+    "components[3].name",
+    "components[3].parameters[0].name",
+    "components[3].parameters[0].source",
+    "components[3].parameters[0].units",
+    "components[3].parameters[0].value",
+    "components[3].parameters[1].name",
+    "components[3].parameters[1].source",
+    "components[3].parameters[1].units",
+    "components[3].parameters[1].value",
+    "components[3].parameters[2].name",
+    "components[3].parameters[2].source",
+    "components[3].parameters[2].units",
+    "components[3].parameters[2].value",
+    "components[3].parameters[3].name",
+    "components[3].parameters[3].source",
+    "components[3].parameters[3].units",
+    "components[3].parameters[3].value",
+    "components[3].serves_panel_kinds[0]",
+    "components[3].size_cm[0]",
+    "components[3].size_cm[1]",
+    "components[3].size_cm[2]",
+    "components[4].id",
+    "components[4].kind",
+    "components[4].layer",
+    "components[4].name",
+    "components[4].parameters[0].name",
+    "components[4].parameters[0].source",
+    "components[4].parameters[0].units",
+    "components[4].parameters[0].value",
+    "components[4].parameters[1].name",
+    "components[4].parameters[1].source",
+    "components[4].parameters[1].units",
+    "components[4].parameters[1].value",
+    "components[4].parameters[2].name",
+    "components[4].parameters[2].source",
+    "components[4].parameters[2].units",
+    "components[4].parameters[2].value",
+    "components[4].parameters[3].name",
+    "components[4].parameters[3].source",
+    "components[4].parameters[3].units",
+    "components[4].parameters[3].value",
+    "components[4].serves_panel_kinds[0]",
+    "components[4].size_cm[0]",
+    "components[4].size_cm[1]",
+    "components[4].size_cm[2]",
+    "components[5].id",
+    "components[5].kind",
+    "components[5].layer",
+    "components[5].name",
+    "components[5].parameters[0].name",
+    "components[5].parameters[0].source",
+    "components[5].parameters[0].units",
+    "components[5].parameters[0].value",
+    "components[5].parameters[1].name",
+    "components[5].parameters[1].source",
+    "components[5].parameters[1].units",
+    "components[5].parameters[1].value",
+    "components[5].parameters[2].name",
+    "components[5].parameters[2].source",
+    "components[5].parameters[2].units",
+    "components[5].parameters[2].value",
+    "components[5].parameters[3].name",
+    "components[5].parameters[3].source",
+    "components[5].parameters[3].units",
+    "components[5].parameters[3].value",
+    "components[5].serves_panel_kinds[0]",
+    "components[5].size_cm[0]",
+    "components[5].size_cm[1]",
+    "components[5].size_cm[2]",
+    "components[6].id",
+    "components[6].kind",
+    "components[6].layer",
+    "components[6].name",
+    "components[6].parameters[0].name",
+    "components[6].parameters[0].source",
+    "components[6].parameters[0].units",
+    "components[6].parameters[0].value",
+    "components[6].parameters[1].name",
+    "components[6].parameters[1].source",
+    "components[6].parameters[1].units",
+    "components[6].parameters[1].value",
+    "components[6].parameters[2].name",
+    "components[6].parameters[2].source",
+    "components[6].parameters[2].units",
+    "components[6].parameters[2].value",
+    "components[6].parameters[3].name",
+    "components[6].parameters[3].source",
+    "components[6].parameters[3].units",
+    "components[6].parameters[3].value",
+    "components[6].serves_panel_kinds[0]",
+    "components[6].size_cm[0]",
+    "components[6].size_cm[1]",
+    "components[6].size_cm[2]",
+    "components[7].id",
+    "components[7].kind",
+    "components[7].layer",
+    "components[7].name",
+    "components[7].parameters[0].name",
+    "components[7].parameters[0].source",
+    "components[7].parameters[0].units",
+    "components[7].parameters[0].value",
+    "components[7].parameters[1].name",
+    "components[7].parameters[1].source",
+    "components[7].parameters[1].units",
+    "components[7].parameters[1].value",
+    "components[7].parameters[2].name",
+    "components[7].parameters[2].source",
+    "components[7].parameters[2].units",
+    "components[7].parameters[2].value",
+    "components[7].parameters[3].name",
+    "components[7].parameters[3].source",
+    "components[7].parameters[3].units",
+    "components[7].parameters[3].value",
+    "components[7].serves_panel_kinds[0]",
+    "components[7].size_cm[0]",
+    "components[7].size_cm[1]",
+    "components[7].size_cm[2]",
+    "components[8].id",
+    "components[8].kind",
+    "components[8].layer",
+    "components[8].name",
+    "components[8].parameters[0].name",
+    "components[8].parameters[0].source",
+    "components[8].parameters[0].units",
+    "components[8].parameters[0].value",
+    "components[8].parameters[1].name",
+    "components[8].parameters[1].source",
+    "components[8].parameters[1].units",
+    "components[8].parameters[1].value",
+    "components[8].parameters[2].name",
+    "components[8].parameters[2].source",
+    "components[8].parameters[2].units",
+    "components[8].parameters[2].value",
+    "components[8].parameters[3].name",
+    "components[8].parameters[3].source",
+    "components[8].parameters[3].units",
+    "components[8].parameters[3].value",
+    "components[8].serves_panel_kinds[0]",
+    "components[8].size_cm[0]",
+    "components[8].size_cm[1]",
+    "components[8].size_cm[2]",
+    "components[9].id",
+    "components[9].kind",
+    "components[9].layer",
+    "components[9].name",
+    "components[9].parameters[0].name",
+    "components[9].parameters[0].source",
+    "components[9].parameters[0].units",
+    "components[9].parameters[0].value",
+    "components[9].parameters[1].name",
+    "components[9].parameters[1].source",
+    "components[9].parameters[1].units",
+    "components[9].parameters[1].value",
+    "components[9].parameters[2].name",
+    "components[9].parameters[2].source",
+    "components[9].parameters[2].units",
+    "components[9].parameters[2].value",
+    "components[9].parameters[3].name",
+    "components[9].parameters[3].source",
+    "components[9].parameters[3].units",
+    "components[9].parameters[3].value",
+    "components[9].serves_panel_kinds[0]",
+    "components[9].size_cm[0]",
+    "components[9].size_cm[1]",
+    "components[9].size_cm[2]",
+    "defaults.facade_wall_thickness_cm",
+    "defaults.joint_width_cm",
+    "defaults.panel_thickness_cm",
+    "elements[0].id",
+    "elements[0].kind",
+    "elements[0].layer",
+    "elements[0].profile_ccw",
+    "elements[0].profile_cm[0][0]",
+    "elements[0].profile_cm[0][1]",
+    "elements[0].profile_cm[1][0]",
+    "elements[0].profile_cm[1][1]",
+    "elements[0].profile_cm[2][0]",
+    "elements[0].profile_cm[2][1]",
+    "elements[0].profile_cm[3][0]",
+    "elements[0].profile_cm[3][1]",
+    "elements[0].storey_index",
+    "elements[0].z_range_cm[0]",
+    "elements[0].z_range_cm[1]",
+    "elements[10].id",
+    "elements[10].kind",
+    "elements[10].layer",
+    "elements[10].profile_ccw",
+    "elements[10].profile_cm[0][0]",
+    "elements[10].profile_cm[0][1]",
+    "elements[10].profile_cm[1][0]",
+    "elements[10].profile_cm[1][1]",
+    "elements[10].profile_cm[2][0]",
+    "elements[10].profile_cm[2][1]",
+    "elements[10].profile_cm[3][0]",
+    "elements[10].profile_cm[3][1]",
+    "elements[10].storey_index",
+    "elements[10].z_range_cm[0]",
+    "elements[10].z_range_cm[1]",
+    "elements[11].id",
+    "elements[11].kind",
+    "elements[11].layer",
+    "elements[11].profile_ccw",
+    "elements[11].profile_cm[0][0]",
+    "elements[11].profile_cm[0][1]",
+    "elements[11].profile_cm[1][0]",
+    "elements[11].profile_cm[1][1]",
+    "elements[11].profile_cm[2][0]",
+    "elements[11].profile_cm[2][1]",
+    "elements[11].profile_cm[3][0]",
+    "elements[11].profile_cm[3][1]",
+    "elements[11].storey_index",
+    "elements[11].z_range_cm[0]",
+    "elements[11].z_range_cm[1]",
+    "elements[12].id",
+    "elements[12].kind",
+    "elements[12].layer",
+    "elements[12].profile_ccw",
+    "elements[12].profile_cm[0][0]",
+    "elements[12].profile_cm[0][1]",
+    "elements[12].profile_cm[1][0]",
+    "elements[12].profile_cm[1][1]",
+    "elements[12].profile_cm[2][0]",
+    "elements[12].profile_cm[2][1]",
+    "elements[12].profile_cm[3][0]",
+    "elements[12].profile_cm[3][1]",
+    "elements[12].storey_index",
+    "elements[12].z_range_cm[0]",
+    "elements[12].z_range_cm[1]",
+    "elements[13].id",
+    "elements[13].kind",
+    "elements[13].layer",
+    "elements[13].profile_ccw",
+    "elements[13].profile_cm[0][0]",
+    "elements[13].profile_cm[0][1]",
+    "elements[13].profile_cm[1][0]",
+    "elements[13].profile_cm[1][1]",
+    "elements[13].profile_cm[2][0]",
+    "elements[13].profile_cm[2][1]",
+    "elements[13].profile_cm[3][0]",
+    "elements[13].profile_cm[3][1]",
+    "elements[13].storey_index",
+    "elements[13].z_range_cm[0]",
+    "elements[13].z_range_cm[1]",
+    "elements[14].id",
+    "elements[14].kind",
+    "elements[14].layer",
+    "elements[14].profile_ccw",
+    "elements[14].profile_cm[0][0]",
+    "elements[14].profile_cm[0][1]",
+    "elements[14].profile_cm[1][0]",
+    "elements[14].profile_cm[1][1]",
+    "elements[14].profile_cm[2][0]",
+    "elements[14].profile_cm[2][1]",
+    "elements[14].profile_cm[3][0]",
+    "elements[14].profile_cm[3][1]",
+    "elements[14].storey_index",
+    "elements[14].z_range_cm[0]",
+    "elements[14].z_range_cm[1]",
+    "elements[15].id",
+    "elements[15].kind",
+    "elements[15].layer",
+    "elements[15].profile_ccw",
+    "elements[15].profile_cm[0][0]",
+    "elements[15].profile_cm[0][1]",
+    "elements[15].profile_cm[1][0]",
+    "elements[15].profile_cm[1][1]",
+    "elements[15].profile_cm[2][0]",
+    "elements[15].profile_cm[2][1]",
+    "elements[15].profile_cm[3][0]",
+    "elements[15].profile_cm[3][1]",
+    "elements[15].storey_index",
+    "elements[15].z_range_cm[0]",
+    "elements[15].z_range_cm[1]",
+    "elements[16].id",
+    "elements[16].kind",
+    "elements[16].layer",
+    "elements[16].profile_ccw",
+    "elements[16].profile_cm[0][0]",
+    "elements[16].profile_cm[0][1]",
+    "elements[16].profile_cm[1][0]",
+    "elements[16].profile_cm[1][1]",
+    "elements[16].profile_cm[2][0]",
+    "elements[16].profile_cm[2][1]",
+    "elements[16].profile_cm[3][0]",
+    "elements[16].profile_cm[3][1]",
+    "elements[16].storey_index",
+    "elements[16].z_range_cm[0]",
+    "elements[16].z_range_cm[1]",
+    "elements[17].id",
+    "elements[17].kind",
+    "elements[17].layer",
+    "elements[17].profile_ccw",
+    "elements[17].profile_cm[0][0]",
+    "elements[17].profile_cm[0][1]",
+    "elements[17].profile_cm[1][0]",
+    "elements[17].profile_cm[1][1]",
+    "elements[17].profile_cm[2][0]",
+    "elements[17].profile_cm[2][1]",
+    "elements[17].profile_cm[3][0]",
+    "elements[17].profile_cm[3][1]",
+    "elements[17].storey_index",
+    "elements[17].z_range_cm[0]",
+    "elements[17].z_range_cm[1]",
+    "elements[18].id",
+    "elements[18].kind",
+    "elements[18].layer",
+    "elements[18].profile_ccw",
+    "elements[18].profile_cm[0][0]",
+    "elements[18].profile_cm[0][1]",
+    "elements[18].profile_cm[1][0]",
+    "elements[18].profile_cm[1][1]",
+    "elements[18].profile_cm[2][0]",
+    "elements[18].profile_cm[2][1]",
+    "elements[18].profile_cm[3][0]",
+    "elements[18].profile_cm[3][1]",
+    "elements[18].storey_index",
+    "elements[18].z_range_cm[0]",
+    "elements[18].z_range_cm[1]",
+    "elements[19].id",
+    "elements[19].kind",
+    "elements[19].layer",
+    "elements[19].profile_ccw",
+    "elements[19].profile_cm[0][0]",
+    "elements[19].profile_cm[0][1]",
+    "elements[19].profile_cm[1][0]",
+    "elements[19].profile_cm[1][1]",
+    "elements[19].profile_cm[2][0]",
+    "elements[19].profile_cm[2][1]",
+    "elements[19].profile_cm[3][0]",
+    "elements[19].profile_cm[3][1]",
+    "elements[19].storey_index",
+    "elements[19].z_range_cm[0]",
+    "elements[19].z_range_cm[1]",
+    "elements[1].id",
+    "elements[1].kind",
+    "elements[1].layer",
+    "elements[1].profile_ccw",
+    "elements[1].profile_cm[0][0]",
+    "elements[1].profile_cm[0][1]",
+    "elements[1].profile_cm[1][0]",
+    "elements[1].profile_cm[1][1]",
+    "elements[1].profile_cm[2][0]",
+    "elements[1].profile_cm[2][1]",
+    "elements[1].profile_cm[3][0]",
+    "elements[1].profile_cm[3][1]",
+    "elements[1].storey_index",
+    "elements[1].z_range_cm[0]",
+    "elements[1].z_range_cm[1]",
+    "elements[20].id",
+    "elements[20].kind",
+    "elements[20].layer",
+    "elements[20].profile_ccw",
+    "elements[20].profile_cm[0][0]",
+    "elements[20].profile_cm[0][1]",
+    "elements[20].profile_cm[1][0]",
+    "elements[20].profile_cm[1][1]",
+    "elements[20].profile_cm[2][0]",
+    "elements[20].profile_cm[2][1]",
+    "elements[20].profile_cm[3][0]",
+    "elements[20].profile_cm[3][1]",
+    "elements[20].storey_index",
+    "elements[20].z_range_cm[0]",
+    "elements[20].z_range_cm[1]",
+    "elements[2].id",
+    "elements[2].kind",
+    "elements[2].layer",
+    "elements[2].profile_ccw",
+    "elements[2].profile_cm[0][0]",
+    "elements[2].profile_cm[0][1]",
+    "elements[2].profile_cm[1][0]",
+    "elements[2].profile_cm[1][1]",
+    "elements[2].profile_cm[2][0]",
+    "elements[2].profile_cm[2][1]",
+    "elements[2].profile_cm[3][0]",
+    "elements[2].profile_cm[3][1]",
+    "elements[2].storey_index",
+    "elements[2].z_range_cm[0]",
+    "elements[2].z_range_cm[1]",
+    "elements[3].id",
+    "elements[3].kind",
+    "elements[3].layer",
+    "elements[3].profile_ccw",
+    "elements[3].profile_cm[0][0]",
+    "elements[3].profile_cm[0][1]",
+    "elements[3].profile_cm[1][0]",
+    "elements[3].profile_cm[1][1]",
+    "elements[3].profile_cm[2][0]",
+    "elements[3].profile_cm[2][1]",
+    "elements[3].profile_cm[3][0]",
+    "elements[3].profile_cm[3][1]",
+    "elements[3].storey_index",
+    "elements[3].z_range_cm[0]",
+    "elements[3].z_range_cm[1]",
+    "elements[4].id",
+    "elements[4].kind",
+    "elements[4].layer",
+    "elements[4].profile_ccw",
+    "elements[4].profile_cm[0][0]",
+    "elements[4].profile_cm[0][1]",
+    "elements[4].profile_cm[1][0]",
+    "elements[4].profile_cm[1][1]",
+    "elements[4].profile_cm[2][0]",
+    "elements[4].profile_cm[2][1]",
+    "elements[4].profile_cm[3][0]",
+    "elements[4].profile_cm[3][1]",
+    "elements[4].storey_index",
+    "elements[4].z_range_cm[0]",
+    "elements[4].z_range_cm[1]",
+    "elements[5].id",
+    "elements[5].kind",
+    "elements[5].layer",
+    "elements[5].profile_ccw",
+    "elements[5].profile_cm[0][0]",
+    "elements[5].profile_cm[0][1]",
+    "elements[5].profile_cm[1][0]",
+    "elements[5].profile_cm[1][1]",
+    "elements[5].profile_cm[2][0]",
+    "elements[5].profile_cm[2][1]",
+    "elements[5].profile_cm[3][0]",
+    "elements[5].profile_cm[3][1]",
+    "elements[5].storey_index",
+    "elements[5].z_range_cm[0]",
+    "elements[5].z_range_cm[1]",
+    "elements[6].id",
+    "elements[6].kind",
+    "elements[6].layer",
+    "elements[6].profile_ccw",
+    "elements[6].profile_cm[0][0]",
+    "elements[6].profile_cm[0][1]",
+    "elements[6].profile_cm[1][0]",
+    "elements[6].profile_cm[1][1]",
+    "elements[6].profile_cm[2][0]",
+    "elements[6].profile_cm[2][1]",
+    "elements[6].profile_cm[3][0]",
+    "elements[6].profile_cm[3][1]",
+    "elements[6].storey_index",
+    "elements[6].z_range_cm[0]",
+    "elements[6].z_range_cm[1]",
+    "elements[7].id",
+    "elements[7].kind",
+    "elements[7].layer",
+    "elements[7].profile_ccw",
+    "elements[7].profile_cm[0][0]",
+    "elements[7].profile_cm[0][1]",
+    "elements[7].profile_cm[1][0]",
+    "elements[7].profile_cm[1][1]",
+    "elements[7].profile_cm[2][0]",
+    "elements[7].profile_cm[2][1]",
+    "elements[7].profile_cm[3][0]",
+    "elements[7].profile_cm[3][1]",
+    "elements[7].storey_index",
+    "elements[7].z_range_cm[0]",
+    "elements[7].z_range_cm[1]",
+    "elements[8].id",
+    "elements[8].kind",
+    "elements[8].layer",
+    "elements[8].profile_ccw",
+    "elements[8].profile_cm[0][0]",
+    "elements[8].profile_cm[0][1]",
+    "elements[8].profile_cm[1][0]",
+    "elements[8].profile_cm[1][1]",
+    "elements[8].profile_cm[2][0]",
+    "elements[8].profile_cm[2][1]",
+    "elements[8].profile_cm[3][0]",
+    "elements[8].profile_cm[3][1]",
+    "elements[8].storey_index",
+    "elements[8].z_range_cm[0]",
+    "elements[8].z_range_cm[1]",
+    "elements[9].id",
+    "elements[9].kind",
+    "elements[9].layer",
+    "elements[9].profile_ccw",
+    "elements[9].profile_cm[0][0]",
+    "elements[9].profile_cm[0][1]",
+    "elements[9].profile_cm[1][0]",
+    "elements[9].profile_cm[1][1]",
+    "elements[9].profile_cm[2][0]",
+    "elements[9].profile_cm[2][1]",
+    "elements[9].profile_cm[3][0]",
+    "elements[9].profile_cm[3][1]",
+    "elements[9].storey_index",
+    "elements[9].z_range_cm[0]",
+    "elements[9].z_range_cm[1]",
+    "facades[0].bay_count",
+    "facades[0].bay_width_cm[0]",
+    "facades[0].bay_width_cm[1]",
+    "facades[0].bay_width_cm[2]",
+    "facades[0].bay_width_cm[3]",
+    "facades[0].direction_deg",
+    "facades[0].end_corner_cm[0]",
+    "facades[0].end_corner_cm[1]",
+    "facades[0].id",
+    "facades[0].length_cm",
+    "facades[0].name",
+    "facades[0].start_corner_cm[0]",
+    "facades[0].start_corner_cm[1]",
+    "facades[1].bay_count",
+    "facades[1].bay_width_cm[0]",
+    "facades[1].bay_width_cm[1]",
+    "facades[1].bay_width_cm[2]",
+    "facades[1].bay_width_cm[3]",
+    "facades[1].direction_deg",
+    "facades[1].end_corner_cm[0]",
+    "facades[1].end_corner_cm[1]",
+    "facades[1].id",
+    "facades[1].length_cm",
+    "facades[1].name",
+    "facades[1].start_corner_cm[0]",
+    "facades[1].start_corner_cm[1]",
+    "facades[2].bay_count",
+    "facades[2].bay_width_cm[0]",
+    "facades[2].bay_width_cm[1]",
+    "facades[2].direction_deg",
+    "facades[2].end_corner_cm[0]",
+    "facades[2].end_corner_cm[1]",
+    "facades[2].id",
+    "facades[2].length_cm",
+    "facades[2].name",
+    "facades[2].start_corner_cm[0]",
+    "facades[2].start_corner_cm[1]",
+    "facades[3].bay_count",
+    "facades[3].bay_width_cm[0]",
+    "facades[3].bay_width_cm[1]",
+    "facades[3].direction_deg",
+    "facades[3].end_corner_cm[0]",
+    "facades[3].end_corner_cm[1]",
+    "facades[3].id",
+    "facades[3].length_cm",
+    "facades[3].name",
+    "facades[3].start_corner_cm[0]",
+    "facades[3].start_corner_cm[1]",
+    "levels[0].elevation_cm",
+    "levels[0].height_cm",
+    "levels[0].id",
+    "levels[0].index",
+    "levels[0].use",
+    "levels[1].elevation_cm",
+    "levels[1].height_cm",
+    "levels[1].id",
+    "levels[1].index",
+    "levels[1].use",
+    "openings[0].bay_index",
+    "openings[0].facade",
+    "openings[0].head_cm",
+    "openings[0].id",
+    "openings[0].level_index",
+    "openings[0].position_cm",
+    "openings[0].sill_cm",
+    "openings[0].type",
+    "openings[0].width_cm",
+    "openings[10].bay_index",
+    "openings[10].facade",
+    "openings[10].head_cm",
+    "openings[10].id",
+    "openings[10].level_index",
+    "openings[10].position_cm",
+    "openings[10].sill_cm",
+    "openings[10].type",
+    "openings[10].width_cm",
+    "openings[11].bay_index",
+    "openings[11].facade",
+    "openings[11].head_cm",
+    "openings[11].id",
+    "openings[11].level_index",
+    "openings[11].position_cm",
+    "openings[11].sill_cm",
+    "openings[11].type",
+    "openings[11].width_cm",
+    "openings[12].bay_index",
+    "openings[12].facade",
+    "openings[12].head_cm",
+    "openings[12].id",
+    "openings[12].level_index",
+    "openings[12].position_cm",
+    "openings[12].sill_cm",
+    "openings[12].type",
+    "openings[12].width_cm",
+    "openings[13].bay_index",
+    "openings[13].facade",
+    "openings[13].head_cm",
+    "openings[13].id",
+    "openings[13].level_index",
+    "openings[13].position_cm",
+    "openings[13].sill_cm",
+    "openings[13].type",
+    "openings[13].width_cm",
+    "openings[14].bay_index",
+    "openings[14].facade",
+    "openings[14].head_cm",
+    "openings[14].id",
+    "openings[14].level_index",
+    "openings[14].position_cm",
+    "openings[14].sill_cm",
+    "openings[14].type",
+    "openings[14].width_cm",
+    "openings[15].bay_index",
+    "openings[15].facade",
+    "openings[15].head_cm",
+    "openings[15].id",
+    "openings[15].level_index",
+    "openings[15].position_cm",
+    "openings[15].sill_cm",
+    "openings[15].type",
+    "openings[15].width_cm",
+    "openings[1].bay_index",
+    "openings[1].facade",
+    "openings[1].head_cm",
+    "openings[1].id",
+    "openings[1].level_index",
+    "openings[1].position_cm",
+    "openings[1].sill_cm",
+    "openings[1].type",
+    "openings[1].width_cm",
+    "openings[2].bay_index",
+    "openings[2].facade",
+    "openings[2].head_cm",
+    "openings[2].id",
+    "openings[2].level_index",
+    "openings[2].position_cm",
+    "openings[2].sill_cm",
+    "openings[2].type",
+    "openings[2].width_cm",
+    "openings[3].bay_index",
+    "openings[3].facade",
+    "openings[3].head_cm",
+    "openings[3].id",
+    "openings[3].level_index",
+    "openings[3].position_cm",
+    "openings[3].sill_cm",
+    "openings[3].type",
+    "openings[3].width_cm",
+    "openings[4].bay_index",
+    "openings[4].facade",
+    "openings[4].head_cm",
+    "openings[4].id",
+    "openings[4].level_index",
+    "openings[4].position_cm",
+    "openings[4].sill_cm",
+    "openings[4].type",
+    "openings[4].width_cm",
+    "openings[5].bay_index",
+    "openings[5].facade",
+    "openings[5].head_cm",
+    "openings[5].id",
+    "openings[5].level_index",
+    "openings[5].position_cm",
+    "openings[5].sill_cm",
+    "openings[5].type",
+    "openings[5].width_cm",
+    "openings[6].bay_index",
+    "openings[6].facade",
+    "openings[6].head_cm",
+    "openings[6].id",
+    "openings[6].level_index",
+    "openings[6].position_cm",
+    "openings[6].sill_cm",
+    "openings[6].type",
+    "openings[6].width_cm",
+    "openings[7].bay_index",
+    "openings[7].facade",
+    "openings[7].head_cm",
+    "openings[7].id",
+    "openings[7].level_index",
+    "openings[7].position_cm",
+    "openings[7].sill_cm",
+    "openings[7].type",
+    "openings[7].width_cm",
+    "openings[8].bay_index",
+    "openings[8].facade",
+    "openings[8].head_cm",
+    "openings[8].id",
+    "openings[8].level_index",
+    "openings[8].position_cm",
+    "openings[8].sill_cm",
+    "openings[8].type",
+    "openings[8].width_cm",
+    "openings[9].bay_index",
+    "openings[9].facade",
+    "openings[9].head_cm",
+    "openings[9].id",
+    "openings[9].level_index",
+    "openings[9].position_cm",
+    "openings[9].sill_cm",
+    "openings[9].type",
+    "openings[9].width_cm",
+    "site.footprint_area_m2",
+    "site.footprint_ccw",
+    "site.footprint_cm[0][0]",
+    "site.footprint_cm[0][1]",
+    "site.footprint_cm[1][0]",
+    "site.footprint_cm[1][1]",
+    "site.footprint_cm[2][0]",
+    "site.footprint_cm[2][1]",
+    "site.footprint_cm[3][0]",
+    "site.footprint_cm[3][1]",
+    "site.footprint_depth_cm",
+    "site.footprint_kind",
+    "site.footprint_width_cm",
+    "site.ground_level_cm",
+    "site.id",
+    "site.plot_rotation_deg",
+    "site.plot_rotation_ref_axis",
+    "site.setback_cm"
+  ],
+  "origins": {
+    "layer_map.05_FACADE": {
+      "origin": "derived",
+      "derives_from": [
+        "layer_map.05_FACADE"
+      ]
+    },
+    "layer_map.99_DEBUG": {
+      "origin": "derived",
+      "derives_from": [
+        "layer_map.99_DEBUG"
+      ]
+    },
+    "defaults.panel_joint_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults.panel_joint_cm"
+      ]
+    },
+    "defaults.instance_limit_guard": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults.instance_limit_guard"
+      ]
+    },
+    "placements[0]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[0].source_row",
+        "placements[0].component_id"
+      ]
+    },
+    "placements[1]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[1].source_row",
+        "placements[1].component_id"
+      ]
+    },
+    "placements[2]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[2].source_row",
+        "placements[2].component_id"
+      ]
+    },
+    "placements[3]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[3].source_row",
+        "placements[3].component_id"
+      ]
+    },
+    "placements[4]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[4].source_row",
+        "placements[4].component_id"
+      ]
+    },
+    "placements[5]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[5].source_row",
+        "placements[5].component_id"
+      ]
+    },
+    "placements[6]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[6].source_row",
+        "placements[6].component_id"
+      ]
+    },
+    "placements[7]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[7].source_row",
+        "placements[7].component_id"
+      ]
+    },
+    "placements[8]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[8].source_row",
+        "placements[8].component_id"
+      ]
+    },
+    "placements[9]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[9].source_row",
+        "placements[9].component_id"
+      ]
+    },
+    "placements[10]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[10].source_row",
+        "placements[10].component_id"
+      ]
+    },
+    "placements[11]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[11].source_row",
+        "placements[11].component_id"
+      ]
+    },
+    "placements[12]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[12].source_row",
+        "placements[12].component_id"
+      ]
+    },
+    "placements[13]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[13].source_row",
+        "placements[13].component_id"
+      ]
+    },
+    "placements[14]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[14].source_row",
+        "placements[14].component_id"
+      ]
+    },
+    "placements[15]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[15].source_row",
+        "placements[15].component_id"
+      ]
+    },
+    "placements[16]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[16].source_row",
+        "placements[16].component_id"
+      ]
+    },
+    "placements[17]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[17].source_row",
+        "placements[17].component_id"
+      ]
+    },
+    "placements[18]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[18].source_row",
+        "placements[18].component_id"
+      ]
+    },
+    "placements[19]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[19].source_row",
+        "placements[19].component_id"
+      ]
+    },
+    "placements[20]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[20].source_row",
+        "placements[20].component_id"
+      ]
+    },
+    "placements[21]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[21].source_row",
+        "placements[21].component_id"
+      ]
+    },
+    "placements[22]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[22].source_row",
+        "placements[22].component_id"
+      ]
+    },
+    "placements[23]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[23].source_row",
+        "placements[23].component_id"
+      ]
+    },
+    "placements[24]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[24].source_row",
+        "placements[24].component_id"
+      ]
+    },
+    "placements[25]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[25].source_row",
+        "placements[25].component_id"
+      ]
+    },
+    "placements[26]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[26].source_row",
+        "placements[26].component_id"
+      ]
+    },
+    "placements[27]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[27].source_row",
+        "placements[27].component_id"
+      ]
+    },
+    "placements[28]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[28].source_row",
+        "placements[28].component_id"
+      ]
+    },
+    "placements[29]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[29].source_row",
+        "placements[29].component_id"
+      ]
+    },
+    "placements[30]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[30].source_row",
+        "placements[30].component_id"
+      ]
+    },
+    "placements[31]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[31].source_row",
+        "placements[31].component_id"
+      ]
+    },
+    "placements[32]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[32].source_row",
+        "placements[32].component_id"
+      ]
+    },
+    "placements[33]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[33].source_row",
+        "placements[33].component_id"
+      ]
+    },
+    "placements[34]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[34].source_row",
+        "placements[34].component_id"
+      ]
+    },
+    "placements[35]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[35].source_row",
+        "placements[35].component_id"
+      ]
+    },
+    "placements[36]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[36].source_row",
+        "placements[36].component_id"
+      ]
+    },
+    "placements[37]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[37].source_row",
+        "placements[37].component_id"
+      ]
+    },
+    "placements[38]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[38].source_row",
+        "placements[38].component_id"
+      ]
+    },
+    "placements[39]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[39].source_row",
+        "placements[39].component_id"
+      ]
+    },
+    "placements[40]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[40].source_row",
+        "placements[40].component_id"
+      ]
+    },
+    "placements[41]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[41].source_row",
+        "placements[41].component_id"
+      ]
+    },
+    "placements[42]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[42].source_row",
+        "placements[42].component_id"
+      ]
+    },
+    "placements[43]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[43].source_row",
+        "placements[43].component_id"
+      ]
+    },
+    "placements[44]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[44].source_row",
+        "placements[44].component_id"
+      ]
+    },
+    "placements[45]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[45].source_row",
+        "placements[45].component_id"
+      ]
+    },
+    "placements[46]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[46].source_row",
+        "placements[46].component_id"
+      ]
+    },
+    "placements[47]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[47].source_row",
+        "placements[47].component_id"
+      ]
+    },
+    "placements[48]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[48].source_row",
+        "placements[48].component_id"
+      ]
+    },
+    "placements[49]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[49].source_row",
+        "placements[49].component_id"
+      ]
+    },
+    "placements[50]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[50].source_row",
+        "placements[50].component_id"
+      ]
+    },
+    "placements[51]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[51].source_row",
+        "placements[51].component_id"
+      ]
+    },
+    "placements[52]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[52].source_row",
+        "placements[52].component_id"
+      ]
+    },
+    "placements[53]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[53].source_row",
+        "placements[53].component_id"
+      ]
+    },
+    "placements[54]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[54].source_row",
+        "placements[54].component_id"
+      ]
+    },
+    "placements[55]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[55].source_row",
+        "placements[55].component_id"
+      ]
+    },
+    "placements[56]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[56].source_row",
+        "placements[56].component_id"
+      ]
+    },
+    "placements[57]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[57].source_row",
+        "placements[57].component_id"
+      ]
+    },
+    "placements[58]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[58].source_row",
+        "placements[58].component_id"
+      ]
+    },
+    "placements[59]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[59].source_row",
+        "placements[59].component_id"
+      ]
+    },
+    "placements[60]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[60].source_row",
+        "placements[60].component_id"
+      ]
+    },
+    "placements[61]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[61].source_row",
+        "placements[61].component_id"
+      ]
+    },
+    "placements[62]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[62].source_row",
+        "placements[62].component_id"
+      ]
+    },
+    "placements[63]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[63].source_row",
+        "placements[63].component_id"
+      ]
+    },
+    "placements[64]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[64].source_row",
+        "placements[64].component_id"
+      ]
+    },
+    "placements[65]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[65].source_row",
+        "placements[65].component_id"
+      ]
+    },
+    "placements[66]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[66].source_row",
+        "placements[66].component_id"
+      ]
+    },
+    "placements[67]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[67].source_row",
+        "placements[67].component_id"
+      ]
+    },
+    "placements[68]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[68].source_row",
+        "placements[68].component_id"
+      ]
+    },
+    "placements[69]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[69].source_row",
+        "placements[69].component_id"
+      ]
+    },
+    "placements[70]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[70].source_row",
+        "placements[70].component_id"
+      ]
+    },
+    "placements[71]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[71].source_row",
+        "placements[71].component_id"
+      ]
+    },
+    "placements[72]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[72].source_row",
+        "placements[72].component_id"
+      ]
+    },
+    "placements[73]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[73].source_row",
+        "placements[73].component_id"
+      ]
+    },
+    "placements[74]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[74].source_row",
+        "placements[74].component_id"
+      ]
+    },
+    "placements[75]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[75].source_row",
+        "placements[75].component_id"
+      ]
+    },
+    "placements[76]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[76].source_row",
+        "placements[76].component_id"
+      ]
+    },
+    "placements[77]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[77].source_row",
+        "placements[77].component_id"
+      ]
+    },
+    "placements[78]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[78].source_row",
+        "placements[78].component_id"
+      ]
+    },
+    "placements[79]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[79].source_row",
+        "placements[79].component_id"
+      ]
+    },
+    "placements[80]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[80].source_row",
+        "placements[80].component_id"
+      ]
+    },
+    "placements[81]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[81].source_row",
+        "placements[81].component_id"
+      ]
+    },
+    "placements[82]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[82].source_row",
+        "placements[82].component_id"
+      ]
+    },
+    "placements[83]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[83].source_row",
+        "placements[83].component_id"
+      ]
+    },
+    "placements[84]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[84].source_row",
+        "placements[84].component_id"
+      ]
+    },
+    "placements[85]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[85].source_row",
+        "placements[85].component_id"
+      ]
+    },
+    "placements[86]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[86].source_row",
+        "placements[86].component_id"
+      ]
+    },
+    "placements[87]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[87].source_row",
+        "placements[87].component_id"
+      ]
+    },
+    "placements[88]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[88].source_row",
+        "placements[88].component_id"
+      ]
+    },
+    "placements[89]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[89].source_row",
+        "placements[89].component_id"
+      ]
+    },
+    "placements[90]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[90].source_row",
+        "placements[90].component_id"
+      ]
+    },
+    "placements[91]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[91].source_row",
+        "placements[91].component_id"
+      ]
+    },
+    "placements[92]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[92].source_row",
+        "placements[92].component_id"
+      ]
+    },
+    "placements[93]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[93].source_row",
+        "placements[93].component_id"
+      ]
+    },
+    "placements[94]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[94].source_row",
+        "placements[94].component_id"
+      ]
+    },
+    "placements[95]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[95].source_row",
+        "placements[95].component_id"
+      ]
+    },
+    "placements[96]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[96].source_row",
+        "placements[96].component_id"
+      ]
+    },
+    "placements[97]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[97].source_row",
+        "placements[97].component_id"
+      ]
+    },
+    "placements[98]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[98].source_row",
+        "placements[98].component_id"
+      ]
+    },
+    "placements[99]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[99].source_row",
+        "placements[99].component_id"
+      ]
+    },
+    "placements[100]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[100].source_row",
+        "placements[100].component_id"
+      ]
+    },
+    "placements[101]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[101].source_row",
+        "placements[101].component_id"
+      ]
+    },
+    "placements[102]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[102].source_row",
+        "placements[102].component_id"
+      ]
+    },
+    "placements[103]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[103].source_row",
+        "placements[103].component_id"
+      ]
+    },
+    "placements[104]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[104].source_row",
+        "placements[104].component_id"
+      ]
+    },
+    "placements[105]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[105].source_row",
+        "placements[105].component_id"
+      ]
+    },
+    "placements[106]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[106].source_row",
+        "placements[106].component_id"
+      ]
+    },
+    "placements[107]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[107].source_row",
+        "placements[107].component_id"
+      ]
+    },
+    "placements[108]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[108].source_row",
+        "placements[108].component_id"
+      ]
+    },
+    "placements[109]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[109].source_row",
+        "placements[109].component_id"
+      ]
+    },
+    "placements[110]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[110].source_row",
+        "placements[110].component_id"
+      ]
+    },
+    "placements[111]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[111].source_row",
+        "placements[111].component_id"
+      ]
+    },
+    "placements[112]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[112].source_row",
+        "placements[112].component_id"
+      ]
+    },
+    "placements[113]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[113].source_row",
+        "placements[113].component_id"
+      ]
+    },
+    "placements[114]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[114].source_row",
+        "placements[114].component_id"
+      ]
+    },
+    "placements[115]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[115].source_row",
+        "placements[115].component_id"
+      ]
+    },
+    "placements[116]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[116].source_row",
+        "placements[116].component_id"
+      ]
+    },
+    "placements[117]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[117].source_row",
+        "placements[117].component_id"
+      ]
+    },
+    "placements[118]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[118].source_row",
+        "placements[118].component_id"
+      ]
+    },
+    "placements[119]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[119].source_row",
+        "placements[119].component_id"
+      ]
+    },
+    "placements[120]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[120].source_row",
+        "placements[120].component_id"
+      ]
+    },
+    "placements[121]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[121].source_row",
+        "placements[121].component_id"
+      ]
+    },
+    "placements[122]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[122].source_row",
+        "placements[122].component_id"
+      ]
+    },
+    "placements[123]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[123].source_row",
+        "placements[123].component_id"
+      ]
+    },
+    "placements[124]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[124].source_row",
+        "placements[124].component_id"
+      ]
+    },
+    "placements[125]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[125].source_row",
+        "placements[125].component_id"
+      ]
+    },
+    "placements[126]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[126].source_row",
+        "placements[126].component_id"
+      ]
+    },
+    "placements[127]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[127].source_row",
+        "placements[127].component_id"
+      ]
+    },
+    "placements[128]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[128].source_row",
+        "placements[128].component_id"
+      ]
+    },
+    "placements[129]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[129].source_row",
+        "placements[129].component_id"
+      ]
+    },
+    "placements[130]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[130].source_row",
+        "placements[130].component_id"
+      ]
+    },
+    "placements[131]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[131].source_row",
+        "placements[131].component_id"
+      ]
+    },
+    "placements[132]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[132].source_row",
+        "placements[132].component_id"
+      ]
+    },
+    "placements[133]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[133].source_row",
+        "placements[133].component_id"
+      ]
+    },
+    "placements[134]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[134].source_row",
+        "placements[134].component_id"
+      ]
+    },
+    "placements[135]": {
+      "origin": "derived",
+      "derives_from": [
+        "placements[135].source_row",
+        "placements[135].component_id"
+      ]
+    },
+    "opening_cuts[0]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[0].opening_id",
+        "opening_cuts[0].host_ref"
+      ]
+    },
+    "opening_cuts[1]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[1].opening_id",
+        "opening_cuts[1].host_ref"
+      ]
+    },
+    "opening_cuts[2]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[2].opening_id",
+        "opening_cuts[2].host_ref"
+      ]
+    },
+    "opening_cuts[3]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[3].opening_id",
+        "opening_cuts[3].host_ref"
+      ]
+    },
+    "opening_cuts[4]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[4].opening_id",
+        "opening_cuts[4].host_ref"
+      ]
+    },
+    "opening_cuts[5]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[5].opening_id",
+        "opening_cuts[5].host_ref"
+      ]
+    },
+    "opening_cuts[6]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[6].opening_id",
+        "opening_cuts[6].host_ref"
+      ]
+    },
+    "opening_cuts[7]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[7].opening_id",
+        "opening_cuts[7].host_ref"
+      ]
+    },
+    "opening_cuts[8]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[8].opening_id",
+        "opening_cuts[8].host_ref"
+      ]
+    },
+    "opening_cuts[9]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[9].opening_id",
+        "opening_cuts[9].host_ref"
+      ]
+    },
+    "opening_cuts[10]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[10].opening_id",
+        "opening_cuts[10].host_ref"
+      ]
+    },
+    "opening_cuts[11]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[11].opening_id",
+        "opening_cuts[11].host_ref"
+      ]
+    },
+    "opening_cuts[12]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[12].opening_id",
+        "opening_cuts[12].host_ref"
+      ]
+    },
+    "opening_cuts[13]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[13].opening_id",
+        "opening_cuts[13].host_ref"
+      ]
+    },
+    "opening_cuts[14]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[14].opening_id",
+        "opening_cuts[14].host_ref"
+      ]
+    },
+    "opening_cuts[15]": {
+      "origin": "derived",
+      "derives_from": [
+        "opening_cuts[15].opening_id",
+        "opening_cuts[15].host_ref"
+      ]
+    },
+    "wall_cells[0]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[0].plan_rect_cm",
+        "wall_cells[0].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[1]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[1].plan_rect_cm",
+        "wall_cells[1].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[2]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[2].plan_rect_cm",
+        "wall_cells[2].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[3]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[3].plan_rect_cm",
+        "wall_cells[3].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[4]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[4].plan_rect_cm",
+        "wall_cells[4].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[5]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[5].plan_rect_cm",
+        "wall_cells[5].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[6]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[6].plan_rect_cm",
+        "wall_cells[6].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[7]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[7].plan_rect_cm",
+        "wall_cells[7].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[8]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[8].plan_rect_cm",
+        "wall_cells[8].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[9]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[9].plan_rect_cm",
+        "wall_cells[9].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[10]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[10].plan_rect_cm",
+        "wall_cells[10].z_range_cm",
+        "massing.json elements[id=EL-014].z_range_cm"
+      ]
+    },
+    "wall_cells[11]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[11].plan_rect_cm",
+        "wall_cells[11].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[12]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[12].plan_rect_cm",
+        "wall_cells[12].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[13]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[13].plan_rect_cm",
+        "wall_cells[13].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[14]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[14].plan_rect_cm",
+        "wall_cells[14].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[15]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[15].plan_rect_cm",
+        "wall_cells[15].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[16]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[16].plan_rect_cm",
+        "wall_cells[16].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[17]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[17].plan_rect_cm",
+        "wall_cells[17].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[18]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[18].plan_rect_cm",
+        "wall_cells[18].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[19]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[19].plan_rect_cm",
+        "wall_cells[19].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[20]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[20].plan_rect_cm",
+        "wall_cells[20].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[21]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[21].plan_rect_cm",
+        "wall_cells[21].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[22]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[22].plan_rect_cm",
+        "wall_cells[22].z_range_cm",
+        "massing.json elements[id=EL-015].z_range_cm"
+      ]
+    },
+    "wall_cells[23]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[23].plan_rect_cm",
+        "wall_cells[23].z_range_cm",
+        "massing.json elements[id=EL-016].z_range_cm"
+      ]
+    },
+    "wall_cells[24]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[24].plan_rect_cm",
+        "wall_cells[24].z_range_cm",
+        "massing.json elements[id=EL-016].z_range_cm"
+      ]
+    },
+    "wall_cells[25]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[25].plan_rect_cm",
+        "wall_cells[25].z_range_cm",
+        "massing.json elements[id=EL-016].z_range_cm"
+      ]
+    },
+    "wall_cells[26]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[26].plan_rect_cm",
+        "wall_cells[26].z_range_cm",
+        "massing.json elements[id=EL-016].z_range_cm"
+      ]
+    },
+    "wall_cells[27]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[27].plan_rect_cm",
+        "wall_cells[27].z_range_cm",
+        "massing.json elements[id=EL-016].z_range_cm"
+      ]
+    },
+    "wall_cells[28]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[28].plan_rect_cm",
+        "wall_cells[28].z_range_cm",
+        "massing.json elements[id=EL-016].z_range_cm"
+      ]
+    },
+    "wall_cells[29]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[29].plan_rect_cm",
+        "wall_cells[29].z_range_cm",
+        "massing.json elements[id=EL-017].z_range_cm"
+      ]
+    },
+    "wall_cells[30]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[30].plan_rect_cm",
+        "wall_cells[30].z_range_cm",
+        "massing.json elements[id=EL-017].z_range_cm"
+      ]
+    },
+    "wall_cells[31]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[31].plan_rect_cm",
+        "wall_cells[31].z_range_cm",
+        "massing.json elements[id=EL-017].z_range_cm"
+      ]
+    },
+    "wall_cells[32]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[32].plan_rect_cm",
+        "wall_cells[32].z_range_cm",
+        "massing.json elements[id=EL-017].z_range_cm"
+      ]
+    },
+    "wall_cells[33]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[33].plan_rect_cm",
+        "wall_cells[33].z_range_cm",
+        "massing.json elements[id=EL-017].z_range_cm"
+      ]
+    },
+    "wall_cells[34]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[34].plan_rect_cm",
+        "wall_cells[34].z_range_cm",
+        "massing.json elements[id=EL-017].z_range_cm"
+      ]
+    },
+    "wall_cells[35]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[35].plan_rect_cm",
+        "wall_cells[35].z_range_cm",
+        "massing.json elements[id=EL-017].z_range_cm"
+      ]
+    },
+    "wall_cells[36]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[36].plan_rect_cm",
+        "wall_cells[36].z_range_cm",
+        "massing.json elements[id=EL-018].z_range_cm"
+      ]
+    },
+    "wall_cells[37]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[37].plan_rect_cm",
+        "wall_cells[37].z_range_cm",
+        "massing.json elements[id=EL-018].z_range_cm"
+      ]
+    },
+    "wall_cells[38]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[38].plan_rect_cm",
+        "wall_cells[38].z_range_cm",
+        "massing.json elements[id=EL-018].z_range_cm"
+      ]
+    },
+    "wall_cells[39]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[39].plan_rect_cm",
+        "wall_cells[39].z_range_cm",
+        "massing.json elements[id=EL-018].z_range_cm"
+      ]
+    },
+    "wall_cells[40]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[40].plan_rect_cm",
+        "wall_cells[40].z_range_cm",
+        "massing.json elements[id=EL-019].z_range_cm"
+      ]
+    },
+    "wall_cells[41]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[41].plan_rect_cm",
+        "wall_cells[41].z_range_cm",
+        "massing.json elements[id=EL-019].z_range_cm"
+      ]
+    },
+    "wall_cells[42]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[42].plan_rect_cm",
+        "wall_cells[42].z_range_cm",
+        "massing.json elements[id=EL-019].z_range_cm"
+      ]
+    },
+    "wall_cells[43]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[43].plan_rect_cm",
+        "wall_cells[43].z_range_cm",
+        "massing.json elements[id=EL-019].z_range_cm"
+      ]
+    },
+    "wall_cells[44]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[44].plan_rect_cm",
+        "wall_cells[44].z_range_cm",
+        "massing.json elements[id=EL-020].z_range_cm"
+      ]
+    },
+    "wall_cells[45]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[45].plan_rect_cm",
+        "wall_cells[45].z_range_cm",
+        "massing.json elements[id=EL-020].z_range_cm"
+      ]
+    },
+    "wall_cells[46]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[46].plan_rect_cm",
+        "wall_cells[46].z_range_cm",
+        "massing.json elements[id=EL-020].z_range_cm"
+      ]
+    },
+    "wall_cells[47]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[47].plan_rect_cm",
+        "wall_cells[47].z_range_cm",
+        "massing.json elements[id=EL-020].z_range_cm"
+      ]
+    },
+    "wall_cells[48]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[48].plan_rect_cm",
+        "wall_cells[48].z_range_cm",
+        "massing.json elements[id=EL-021].z_range_cm"
+      ]
+    },
+    "wall_cells[49]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[49].plan_rect_cm",
+        "wall_cells[49].z_range_cm",
+        "massing.json elements[id=EL-021].z_range_cm"
+      ]
+    },
+    "wall_cells[50]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[50].plan_rect_cm",
+        "wall_cells[50].z_range_cm",
+        "massing.json elements[id=EL-021].z_range_cm"
+      ]
+    },
+    "wall_cells[51]": {
+      "origin": "derived",
+      "derives_from": [
+        "wall_cells[51].plan_rect_cm",
+        "wall_cells[51].z_range_cm",
+        "massing.json elements[id=EL-021].z_range_cm"
+      ]
+    },
+    "scatter[0]": {
+      "origin": "derived",
+      "derives_from": [
+        "scatter[0].target_ref",
+        "scatter[0].model_refs"
+      ]
+    }
+  },
+  "defaults": {
+    "panel_joint_cm": 2.0,
+    "instance_limit_guard": 2000
+  },
+  "layer_map": {
+    "05_FACADE": [
+      "entrance_door",
+      "frame_member",
+      "glazed_panel",
+      "opaque_panel"
+    ],
+    "99_DEBUG": [
+      "scatter_source"
+    ]
+  },
+  "placements": [
+    {
+      "id": "PLC-001",
+      "component_id": "CMP-008",
+      "source_row": 1,
+      "node_name": "PLC_001",
+      "position_cm": [
+        67.5,
+        0.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-002",
+      "component_id": "CMP-018",
+      "source_row": 2,
+      "node_name": "PLC_002",
+      "position_cm": [
+        225.0,
+        0.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-003",
+      "component_id": "CMP-008",
+      "source_row": 3,
+      "node_name": "PLC_003",
+      "position_cm": [
+        382.5,
+        0.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-004",
+      "component_id": "CMP-011",
+      "source_row": 4,
+      "node_name": "PLC_004",
+      "position_cm": [
+        67.5,
+        0.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-005",
+      "component_id": "CMP-002",
+      "source_row": 5,
+      "node_name": "PLC_005",
+      "position_cm": [
+        225.0,
+        0.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-006",
+      "component_id": "CMP-011",
+      "source_row": 6,
+      "node_name": "PLC_006",
+      "position_cm": [
+        382.5,
+        0.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-007",
+      "component_id": "CMP-010",
+      "source_row": 7,
+      "node_name": "PLC_007",
+      "position_cm": [
+        67.5,
+        0.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-008",
+      "component_id": "CMP-020",
+      "source_row": 8,
+      "node_name": "PLC_008",
+      "position_cm": [
+        225.0,
+        0.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-009",
+      "component_id": "CMP-010",
+      "source_row": 9,
+      "node_name": "PLC_009",
+      "position_cm": [
+        382.5,
+        0.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-010",
+      "component_id": "CMP-007",
+      "source_row": 10,
+      "node_name": "PLC_010",
+      "position_cm": [
+        512.5,
+        0.0,
+        130.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-011",
+      "component_id": "CMP-029",
+      "source_row": 11,
+      "node_name": "PLC_011",
+      "position_cm": [
+        675.0,
+        0.0,
+        130.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-012",
+      "component_id": "CMP-007",
+      "source_row": 12,
+      "node_name": "PLC_012",
+      "position_cm": [
+        837.5,
+        0.0,
+        130.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-013",
+      "component_id": "CMP-006",
+      "source_row": 13,
+      "node_name": "PLC_013",
+      "position_cm": [
+        512.5,
+        0.0,
+        340.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-014",
+      "component_id": "CMP-021",
+      "source_row": 14,
+      "node_name": "PLC_014",
+      "position_cm": [
+        675.0,
+        0.0,
+        340.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-015",
+      "component_id": "CMP-006",
+      "source_row": 15,
+      "node_name": "PLC_015",
+      "position_cm": [
+        837.5,
+        0.0,
+        340.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-016",
+      "component_id": "CMP-008",
+      "source_row": 16,
+      "node_name": "PLC_016",
+      "position_cm": [
+        967.5,
+        0.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-017",
+      "component_id": "CMP-018",
+      "source_row": 17,
+      "node_name": "PLC_017",
+      "position_cm": [
+        1125.0,
+        0.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-018",
+      "component_id": "CMP-008",
+      "source_row": 18,
+      "node_name": "PLC_018",
+      "position_cm": [
+        1282.5,
+        0.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-019",
+      "component_id": "CMP-011",
+      "source_row": 19,
+      "node_name": "PLC_019",
+      "position_cm": [
+        967.5,
+        0.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-020",
+      "component_id": "CMP-002",
+      "source_row": 20,
+      "node_name": "PLC_020",
+      "position_cm": [
+        1125.0,
+        0.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-021",
+      "component_id": "CMP-011",
+      "source_row": 21,
+      "node_name": "PLC_021",
+      "position_cm": [
+        1282.5,
+        0.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-022",
+      "component_id": "CMP-010",
+      "source_row": 22,
+      "node_name": "PLC_022",
+      "position_cm": [
+        967.5,
+        0.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-023",
+      "component_id": "CMP-020",
+      "source_row": 23,
+      "node_name": "PLC_023",
+      "position_cm": [
+        1125.0,
+        0.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-024",
+      "component_id": "CMP-010",
+      "source_row": 24,
+      "node_name": "PLC_024",
+      "position_cm": [
+        1282.5,
+        0.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-025",
+      "component_id": "CMP-025",
+      "source_row": 25,
+      "node_name": "PLC_025",
+      "position_cm": [
+        1357.5,
+        0.0,
+        210.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-026",
+      "component_id": "CMP-004",
+      "source_row": 26,
+      "node_name": "PLC_026",
+      "position_cm": [
+        1575.0,
+        0.0,
+        200.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-027",
+      "component_id": "CMP-025",
+      "source_row": 27,
+      "node_name": "PLC_027",
+      "position_cm": [
+        1792.5,
+        0.0,
+        210.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-028",
+      "component_id": "CMP-026",
+      "source_row": 28,
+      "node_name": "PLC_028",
+      "position_cm": [
+        1575.0,
+        0.0,
+        410.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-029",
+      "component_id": "CMP-008",
+      "source_row": 29,
+      "node_name": "PLC_029",
+      "position_cm": [
+        67.5,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-030",
+      "component_id": "CMP-018",
+      "source_row": 30,
+      "node_name": "PLC_030",
+      "position_cm": [
+        225.0,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-031",
+      "component_id": "CMP-008",
+      "source_row": 31,
+      "node_name": "PLC_031",
+      "position_cm": [
+        382.5,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-032",
+      "component_id": "CMP-011",
+      "source_row": 32,
+      "node_name": "PLC_032",
+      "position_cm": [
+        67.5,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-033",
+      "component_id": "CMP-002",
+      "source_row": 33,
+      "node_name": "PLC_033",
+      "position_cm": [
+        225.0,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-034",
+      "component_id": "CMP-011",
+      "source_row": 34,
+      "node_name": "PLC_034",
+      "position_cm": [
+        382.5,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-035",
+      "component_id": "CMP-009",
+      "source_row": 35,
+      "node_name": "PLC_035",
+      "position_cm": [
+        67.5,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-036",
+      "component_id": "CMP-019",
+      "source_row": 36,
+      "node_name": "PLC_036",
+      "position_cm": [
+        225.0,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-037",
+      "component_id": "CMP-009",
+      "source_row": 37,
+      "node_name": "PLC_037",
+      "position_cm": [
+        382.5,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-038",
+      "component_id": "CMP-008",
+      "source_row": 38,
+      "node_name": "PLC_038",
+      "position_cm": [
+        517.5,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-039",
+      "component_id": "CMP-018",
+      "source_row": 39,
+      "node_name": "PLC_039",
+      "position_cm": [
+        675.0,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-040",
+      "component_id": "CMP-008",
+      "source_row": 40,
+      "node_name": "PLC_040",
+      "position_cm": [
+        832.5,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-041",
+      "component_id": "CMP-011",
+      "source_row": 41,
+      "node_name": "PLC_041",
+      "position_cm": [
+        517.5,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-042",
+      "component_id": "CMP-002",
+      "source_row": 42,
+      "node_name": "PLC_042",
+      "position_cm": [
+        675.0,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-043",
+      "component_id": "CMP-011",
+      "source_row": 43,
+      "node_name": "PLC_043",
+      "position_cm": [
+        832.5,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-044",
+      "component_id": "CMP-009",
+      "source_row": 44,
+      "node_name": "PLC_044",
+      "position_cm": [
+        517.5,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-045",
+      "component_id": "CMP-019",
+      "source_row": 45,
+      "node_name": "PLC_045",
+      "position_cm": [
+        675.0,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-046",
+      "component_id": "CMP-009",
+      "source_row": 46,
+      "node_name": "PLC_046",
+      "position_cm": [
+        832.5,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-047",
+      "component_id": "CMP-008",
+      "source_row": 47,
+      "node_name": "PLC_047",
+      "position_cm": [
+        967.5,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-048",
+      "component_id": "CMP-018",
+      "source_row": 48,
+      "node_name": "PLC_048",
+      "position_cm": [
+        1125.0,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-049",
+      "component_id": "CMP-008",
+      "source_row": 49,
+      "node_name": "PLC_049",
+      "position_cm": [
+        1282.5,
+        0.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-050",
+      "component_id": "CMP-011",
+      "source_row": 50,
+      "node_name": "PLC_050",
+      "position_cm": [
+        967.5,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-051",
+      "component_id": "CMP-002",
+      "source_row": 51,
+      "node_name": "PLC_051",
+      "position_cm": [
+        1125.0,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-052",
+      "component_id": "CMP-011",
+      "source_row": 52,
+      "node_name": "PLC_052",
+      "position_cm": [
+        1282.5,
+        0.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-053",
+      "component_id": "CMP-009",
+      "source_row": 53,
+      "node_name": "PLC_053",
+      "position_cm": [
+        967.5,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-054",
+      "component_id": "CMP-019",
+      "source_row": 54,
+      "node_name": "PLC_054",
+      "position_cm": [
+        1125.0,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-055",
+      "component_id": "CMP-009",
+      "source_row": 55,
+      "node_name": "PLC_055",
+      "position_cm": [
+        1282.5,
+        0.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-056",
+      "component_id": "CMP-024",
+      "source_row": 56,
+      "node_name": "PLC_056",
+      "position_cm": [
+        1357.5,
+        0.0,
+        620.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-057",
+      "component_id": "CMP-003",
+      "source_row": 57,
+      "node_name": "PLC_057",
+      "position_cm": [
+        1575.0,
+        0.0,
+        590.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-058",
+      "component_id": "CMP-024",
+      "source_row": 58,
+      "node_name": "PLC_058",
+      "position_cm": [
+        1792.5,
+        0.0,
+        620.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-059",
+      "component_id": "CMP-027",
+      "source_row": 59,
+      "node_name": "PLC_059",
+      "position_cm": [
+        1575.0,
+        0.0,
+        790.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-060",
+      "component_id": "CMP-023",
+      "source_row": 60,
+      "node_name": "PLC_060",
+      "position_cm": [
+        225.0,
+        900.0,
+        210.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-061",
+      "component_id": "CMP-017",
+      "source_row": 61,
+      "node_name": "PLC_061",
+      "position_cm": [
+        535.0,
+        900.0,
+        110.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-062",
+      "component_id": "CMP-028",
+      "source_row": 62,
+      "node_name": "PLC_062",
+      "position_cm": [
+        675.0,
+        900.0,
+        110.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-063",
+      "component_id": "CMP-017",
+      "source_row": 63,
+      "node_name": "PLC_063",
+      "position_cm": [
+        815.0,
+        900.0,
+        110.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-064",
+      "component_id": "CMP-016",
+      "source_row": 64,
+      "node_name": "PLC_064",
+      "position_cm": [
+        535.0,
+        900.0,
+        320.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-065",
+      "component_id": "CMP-005",
+      "source_row": 65,
+      "node_name": "PLC_065",
+      "position_cm": [
+        675.0,
+        900.0,
+        320.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-066",
+      "component_id": "CMP-016",
+      "source_row": 66,
+      "node_name": "PLC_066",
+      "position_cm": [
+        815.0,
+        900.0,
+        320.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-067",
+      "component_id": "CMP-023",
+      "source_row": 67,
+      "node_name": "PLC_067",
+      "position_cm": [
+        1125.0,
+        900.0,
+        210.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-068",
+      "component_id": "CMP-012",
+      "source_row": 68,
+      "node_name": "PLC_068",
+      "position_cm": [
+        1425.0,
+        900.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-069",
+      "component_id": "CMP-012",
+      "source_row": 69,
+      "node_name": "PLC_069",
+      "position_cm": [
+        1575.0,
+        900.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-070",
+      "component_id": "CMP-012",
+      "source_row": 70,
+      "node_name": "PLC_070",
+      "position_cm": [
+        1725.0,
+        900.0,
+        45.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-071",
+      "component_id": "CMP-015",
+      "source_row": 71,
+      "node_name": "PLC_071",
+      "position_cm": [
+        1425.0,
+        900.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-072",
+      "component_id": "CMP-001",
+      "source_row": 72,
+      "node_name": "PLC_072",
+      "position_cm": [
+        1575.0,
+        900.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-073",
+      "component_id": "CMP-015",
+      "source_row": 73,
+      "node_name": "PLC_073",
+      "position_cm": [
+        1725.0,
+        900.0,
+        180.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-074",
+      "component_id": "CMP-014",
+      "source_row": 74,
+      "node_name": "PLC_074",
+      "position_cm": [
+        1425.0,
+        900.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-075",
+      "component_id": "CMP-014",
+      "source_row": 75,
+      "node_name": "PLC_075",
+      "position_cm": [
+        1575.0,
+        900.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-076",
+      "component_id": "CMP-014",
+      "source_row": 76,
+      "node_name": "PLC_076",
+      "position_cm": [
+        1725.0,
+        900.0,
+        345.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-077",
+      "component_id": "CMP-022",
+      "source_row": 77,
+      "node_name": "PLC_077",
+      "position_cm": [
+        225.0,
+        900.0,
+        620.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-078",
+      "component_id": "CMP-012",
+      "source_row": 78,
+      "node_name": "PLC_078",
+      "position_cm": [
+        525.0,
+        900.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-079",
+      "component_id": "CMP-012",
+      "source_row": 79,
+      "node_name": "PLC_079",
+      "position_cm": [
+        675.0,
+        900.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-080",
+      "component_id": "CMP-012",
+      "source_row": 80,
+      "node_name": "PLC_080",
+      "position_cm": [
+        825.0,
+        900.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-081",
+      "component_id": "CMP-015",
+      "source_row": 81,
+      "node_name": "PLC_081",
+      "position_cm": [
+        525.0,
+        900.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-082",
+      "component_id": "CMP-001",
+      "source_row": 82,
+      "node_name": "PLC_082",
+      "position_cm": [
+        675.0,
+        900.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-083",
+      "component_id": "CMP-015",
+      "source_row": 83,
+      "node_name": "PLC_083",
+      "position_cm": [
+        825.0,
+        900.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-084",
+      "component_id": "CMP-013",
+      "source_row": 84,
+      "node_name": "PLC_084",
+      "position_cm": [
+        525.0,
+        900.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-085",
+      "component_id": "CMP-013",
+      "source_row": 85,
+      "node_name": "PLC_085",
+      "position_cm": [
+        675.0,
+        900.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-086",
+      "component_id": "CMP-013",
+      "source_row": 86,
+      "node_name": "PLC_086",
+      "position_cm": [
+        825.0,
+        900.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-087",
+      "component_id": "CMP-022",
+      "source_row": 87,
+      "node_name": "PLC_087",
+      "position_cm": [
+        1125.0,
+        900.0,
+        620.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-088",
+      "component_id": "CMP-012",
+      "source_row": 88,
+      "node_name": "PLC_088",
+      "position_cm": [
+        1425.0,
+        900.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-089",
+      "component_id": "CMP-012",
+      "source_row": 89,
+      "node_name": "PLC_089",
+      "position_cm": [
+        1575.0,
+        900.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-090",
+      "component_id": "CMP-012",
+      "source_row": 90,
+      "node_name": "PLC_090",
+      "position_cm": [
+        1725.0,
+        900.0,
+        465.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-091",
+      "component_id": "CMP-015",
+      "source_row": 91,
+      "node_name": "PLC_091",
+      "position_cm": [
+        1425.0,
+        900.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-092",
+      "component_id": "CMP-001",
+      "source_row": 92,
+      "node_name": "PLC_092",
+      "position_cm": [
+        1575.0,
+        900.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-093",
+      "component_id": "CMP-015",
+      "source_row": 93,
+      "node_name": "PLC_093",
+      "position_cm": [
+        1725.0,
+        900.0,
+        600.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-094",
+      "component_id": "CMP-013",
+      "source_row": 94,
+      "node_name": "PLC_094",
+      "position_cm": [
+        1425.0,
+        900.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-095",
+      "component_id": "CMP-013",
+      "source_row": 95,
+      "node_name": "PLC_095",
+      "position_cm": [
+        1575.0,
+        900.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-096",
+      "component_id": "CMP-013",
+      "source_row": 96,
+      "node_name": "PLC_096",
+      "position_cm": [
+        1725.0,
+        900.0,
+        755.0
+      ],
+      "rot_z_deg": 0.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-097",
+      "component_id": "CMP-023",
+      "source_row": 97,
+      "node_name": "PLC_097",
+      "position_cm": [
+        1800.0,
+        225.0,
+        210.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-098",
+      "component_id": "CMP-012",
+      "source_row": 98,
+      "node_name": "PLC_098",
+      "position_cm": [
+        1800.0,
+        525.0,
+        45.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-099",
+      "component_id": "CMP-012",
+      "source_row": 99,
+      "node_name": "PLC_099",
+      "position_cm": [
+        1800.0,
+        675.0,
+        45.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-100",
+      "component_id": "CMP-012",
+      "source_row": 100,
+      "node_name": "PLC_100",
+      "position_cm": [
+        1800.0,
+        825.0,
+        45.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-101",
+      "component_id": "CMP-015",
+      "source_row": 101,
+      "node_name": "PLC_101",
+      "position_cm": [
+        1800.0,
+        525.0,
+        180.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-102",
+      "component_id": "CMP-001",
+      "source_row": 102,
+      "node_name": "PLC_102",
+      "position_cm": [
+        1800.0,
+        675.0,
+        180.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-103",
+      "component_id": "CMP-015",
+      "source_row": 103,
+      "node_name": "PLC_103",
+      "position_cm": [
+        1800.0,
+        825.0,
+        180.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-104",
+      "component_id": "CMP-014",
+      "source_row": 104,
+      "node_name": "PLC_104",
+      "position_cm": [
+        1800.0,
+        525.0,
+        345.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-105",
+      "component_id": "CMP-014",
+      "source_row": 105,
+      "node_name": "PLC_105",
+      "position_cm": [
+        1800.0,
+        675.0,
+        345.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-106",
+      "component_id": "CMP-014",
+      "source_row": 106,
+      "node_name": "PLC_106",
+      "position_cm": [
+        1800.0,
+        825.0,
+        345.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-107",
+      "component_id": "CMP-022",
+      "source_row": 107,
+      "node_name": "PLC_107",
+      "position_cm": [
+        1800.0,
+        225.0,
+        620.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-108",
+      "component_id": "CMP-012",
+      "source_row": 108,
+      "node_name": "PLC_108",
+      "position_cm": [
+        1800.0,
+        525.0,
+        465.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-109",
+      "component_id": "CMP-012",
+      "source_row": 109,
+      "node_name": "PLC_109",
+      "position_cm": [
+        1800.0,
+        675.0,
+        465.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-110",
+      "component_id": "CMP-012",
+      "source_row": 110,
+      "node_name": "PLC_110",
+      "position_cm": [
+        1800.0,
+        825.0,
+        465.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-111",
+      "component_id": "CMP-015",
+      "source_row": 111,
+      "node_name": "PLC_111",
+      "position_cm": [
+        1800.0,
+        525.0,
+        600.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-112",
+      "component_id": "CMP-001",
+      "source_row": 112,
+      "node_name": "PLC_112",
+      "position_cm": [
+        1800.0,
+        675.0,
+        600.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-113",
+      "component_id": "CMP-015",
+      "source_row": 113,
+      "node_name": "PLC_113",
+      "position_cm": [
+        1800.0,
+        825.0,
+        600.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-114",
+      "component_id": "CMP-013",
+      "source_row": 114,
+      "node_name": "PLC_114",
+      "position_cm": [
+        1800.0,
+        525.0,
+        755.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-115",
+      "component_id": "CMP-013",
+      "source_row": 115,
+      "node_name": "PLC_115",
+      "position_cm": [
+        1800.0,
+        675.0,
+        755.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-116",
+      "component_id": "CMP-013",
+      "source_row": 116,
+      "node_name": "PLC_116",
+      "position_cm": [
+        1800.0,
+        825.0,
+        755.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-117",
+      "component_id": "CMP-023",
+      "source_row": 117,
+      "node_name": "PLC_117",
+      "position_cm": [
+        0.0,
+        225.0,
+        210.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-118",
+      "component_id": "CMP-012",
+      "source_row": 118,
+      "node_name": "PLC_118",
+      "position_cm": [
+        0.0,
+        525.0,
+        45.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-119",
+      "component_id": "CMP-012",
+      "source_row": 119,
+      "node_name": "PLC_119",
+      "position_cm": [
+        0.0,
+        675.0,
+        45.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-120",
+      "component_id": "CMP-012",
+      "source_row": 120,
+      "node_name": "PLC_120",
+      "position_cm": [
+        0.0,
+        825.0,
+        45.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-121",
+      "component_id": "CMP-015",
+      "source_row": 121,
+      "node_name": "PLC_121",
+      "position_cm": [
+        0.0,
+        525.0,
+        180.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-122",
+      "component_id": "CMP-001",
+      "source_row": 122,
+      "node_name": "PLC_122",
+      "position_cm": [
+        0.0,
+        675.0,
+        180.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-123",
+      "component_id": "CMP-015",
+      "source_row": 123,
+      "node_name": "PLC_123",
+      "position_cm": [
+        0.0,
+        825.0,
+        180.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-124",
+      "component_id": "CMP-014",
+      "source_row": 124,
+      "node_name": "PLC_124",
+      "position_cm": [
+        0.0,
+        525.0,
+        345.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-125",
+      "component_id": "CMP-014",
+      "source_row": 125,
+      "node_name": "PLC_125",
+      "position_cm": [
+        0.0,
+        675.0,
+        345.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-126",
+      "component_id": "CMP-014",
+      "source_row": 126,
+      "node_name": "PLC_126",
+      "position_cm": [
+        0.0,
+        825.0,
+        345.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-127",
+      "component_id": "CMP-022",
+      "source_row": 127,
+      "node_name": "PLC_127",
+      "position_cm": [
+        0.0,
+        225.0,
+        620.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-128",
+      "component_id": "CMP-012",
+      "source_row": 128,
+      "node_name": "PLC_128",
+      "position_cm": [
+        0.0,
+        525.0,
+        465.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-129",
+      "component_id": "CMP-012",
+      "source_row": 129,
+      "node_name": "PLC_129",
+      "position_cm": [
+        0.0,
+        675.0,
+        465.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-130",
+      "component_id": "CMP-012",
+      "source_row": 130,
+      "node_name": "PLC_130",
+      "position_cm": [
+        0.0,
+        825.0,
+        465.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-131",
+      "component_id": "CMP-015",
+      "source_row": 131,
+      "node_name": "PLC_131",
+      "position_cm": [
+        0.0,
+        525.0,
+        600.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-132",
+      "component_id": "CMP-001",
+      "source_row": 132,
+      "node_name": "PLC_132",
+      "position_cm": [
+        0.0,
+        675.0,
+        600.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-133",
+      "component_id": "CMP-015",
+      "source_row": 133,
+      "node_name": "PLC_133",
+      "position_cm": [
+        0.0,
+        825.0,
+        600.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-134",
+      "component_id": "CMP-013",
+      "source_row": 134,
+      "node_name": "PLC_134",
+      "position_cm": [
+        0.0,
+        525.0,
+        755.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-135",
+      "component_id": "CMP-013",
+      "source_row": 135,
+      "node_name": "PLC_135",
+      "position_cm": [
+        0.0,
+        675.0,
+        755.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PLC-136",
+      "component_id": "CMP-013",
+      "source_row": 136,
+      "node_name": "PLC_136",
+      "position_cm": [
+        0.0,
+        825.0,
+        755.0
+      ],
+      "rot_z_deg": 90.0,
+      "instance": true,
+      "layer": "05_FACADE"
+    }
+  ],
+  "opening_cuts": [
+    {
+      "id": "CUT-001",
+      "opening_id": "OP-G-01",
+      "node_name": "CUT_001",
+      "host_ref": "EL-014",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 0,
+      "u_range_cm": [
+        135.0,
+        315.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-002",
+      "opening_id": "OP-G-02",
+      "node_name": "CUT_002",
+      "host_ref": "EL-014",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 1,
+      "u_range_cm": [
+        575.0,
+        775.0
+      ],
+      "v_range_cm": [
+        0.0,
+        260.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-003",
+      "opening_id": "OP-G-03",
+      "node_name": "CUT_003",
+      "host_ref": "EL-014",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 2,
+      "u_range_cm": [
+        1035.0,
+        1215.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-004",
+      "opening_id": "OP-G-04",
+      "node_name": "CUT_004",
+      "host_ref": "EL-014",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 3,
+      "u_range_cm": [
+        1365.0,
+        1785.0
+      ],
+      "v_range_cm": [
+        0.0,
+        400.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-005",
+      "opening_id": "OP-G-05",
+      "node_name": "CUT_005",
+      "host_ref": "EL-018",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": 1,
+      "u_range_cm": [
+        600.0,
+        750.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-006",
+      "opening_id": "OP-G-06",
+      "node_name": "CUT_006",
+      "host_ref": "EL-016",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": 1,
+      "u_range_cm": [
+        620.0,
+        730.0
+      ],
+      "v_range_cm": [
+        0.0,
+        220.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-007",
+      "opening_id": "OP-G-07",
+      "node_name": "CUT_007",
+      "host_ref": "EL-016",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": 3,
+      "u_range_cm": [
+        1500.0,
+        1650.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-008",
+      "opening_id": "OP-G-08",
+      "node_name": "CUT_008",
+      "host_ref": "EL-020",
+      "facade": "F-W",
+      "level_index": 0,
+      "bay_index": 1,
+      "u_range_cm": [
+        600.0,
+        750.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-009",
+      "opening_id": "OP-1-01",
+      "node_name": "CUT_009",
+      "host_ref": "EL-015",
+      "facade": "F-S",
+      "level_index": 1,
+      "bay_index": 0,
+      "u_range_cm": [
+        135.0,
+        315.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-010",
+      "opening_id": "OP-1-02",
+      "node_name": "CUT_010",
+      "host_ref": "EL-015",
+      "facade": "F-S",
+      "level_index": 1,
+      "bay_index": 1,
+      "u_range_cm": [
+        585.0,
+        765.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-011",
+      "opening_id": "OP-1-03",
+      "node_name": "CUT_011",
+      "host_ref": "EL-015",
+      "facade": "F-S",
+      "level_index": 1,
+      "bay_index": 2,
+      "u_range_cm": [
+        1035.0,
+        1215.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-012",
+      "opening_id": "OP-1-04",
+      "node_name": "CUT_012",
+      "host_ref": "EL-015",
+      "facade": "F-S",
+      "level_index": 1,
+      "bay_index": 3,
+      "u_range_cm": [
+        1365.0,
+        1785.0
+      ],
+      "v_range_cm": [
+        0.0,
+        340.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-013",
+      "opening_id": "OP-1-05",
+      "node_name": "CUT_013",
+      "host_ref": "EL-017",
+      "facade": "F-N",
+      "level_index": 1,
+      "bay_index": 1,
+      "u_range_cm": [
+        600.0,
+        750.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-014",
+      "opening_id": "OP-1-06",
+      "node_name": "CUT_014",
+      "host_ref": "EL-017",
+      "facade": "F-N",
+      "level_index": 1,
+      "bay_index": 3,
+      "u_range_cm": [
+        1500.0,
+        1650.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-015",
+      "opening_id": "OP-1-07",
+      "node_name": "CUT_015",
+      "host_ref": "EL-019",
+      "facade": "F-E",
+      "level_index": 1,
+      "bay_index": 1,
+      "u_range_cm": [
+        600.0,
+        750.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    },
+    {
+      "id": "CUT-016",
+      "opening_id": "OP-1-08",
+      "node_name": "CUT_016",
+      "host_ref": "EL-021",
+      "facade": "F-W",
+      "level_index": 1,
+      "bay_index": 1,
+      "u_range_cm": [
+        600.0,
+        750.0
+      ],
+      "v_range_cm": [
+        90.0,
+        270.0
+      ],
+      "depth_cm": 22.0,
+      "kind": "difference"
+    }
+  ],
+  "wall_cells": [
+    {
+      "id": "WAL-EL-014-C01",
+      "node_name": "WAL_EL_014_C01",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        0.0,
+        0.0,
+        135.0,
+        20.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 1134000.0
+    },
+    {
+      "id": "WAL-EL-014-C02",
+      "node_name": "WAL_EL_014_C02",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        135.0,
+        0.0,
+        315.0,
+        20.0
+      ],
+      "z_range_cm": [
+        0.0,
+        90.0
+      ],
+      "volume_cm3": 324000.0
+    },
+    {
+      "id": "WAL-EL-014-C03",
+      "node_name": "WAL_EL_014_C03",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        135.0,
+        0.0,
+        315.0,
+        20.0
+      ],
+      "z_range_cm": [
+        270.0,
+        420.0
+      ],
+      "volume_cm3": 540000.0
+    },
+    {
+      "id": "WAL-EL-014-C04",
+      "node_name": "WAL_EL_014_C04",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        315.0,
+        0.0,
+        575.0,
+        20.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 2184000.0
+    },
+    {
+      "id": "WAL-EL-014-C05",
+      "node_name": "WAL_EL_014_C05",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        575.0,
+        0.0,
+        775.0,
+        20.0
+      ],
+      "z_range_cm": [
+        260.0,
+        420.0
+      ],
+      "volume_cm3": 640000.0
+    },
+    {
+      "id": "WAL-EL-014-C06",
+      "node_name": "WAL_EL_014_C06",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        775.0,
+        0.0,
+        1035.0,
+        20.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 2184000.0
+    },
+    {
+      "id": "WAL-EL-014-C07",
+      "node_name": "WAL_EL_014_C07",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        1035.0,
+        0.0,
+        1215.0,
+        20.0
+      ],
+      "z_range_cm": [
+        0.0,
+        90.0
+      ],
+      "volume_cm3": 324000.0
+    },
+    {
+      "id": "WAL-EL-014-C08",
+      "node_name": "WAL_EL_014_C08",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        1035.0,
+        0.0,
+        1215.0,
+        20.0
+      ],
+      "z_range_cm": [
+        270.0,
+        420.0
+      ],
+      "volume_cm3": 540000.0
+    },
+    {
+      "id": "WAL-EL-014-C09",
+      "node_name": "WAL_EL_014_C09",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        1215.0,
+        0.0,
+        1365.0,
+        20.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 1260000.0
+    },
+    {
+      "id": "WAL-EL-014-C10",
+      "node_name": "WAL_EL_014_C10",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        1365.0,
+        0.0,
+        1785.0,
+        20.0
+      ],
+      "z_range_cm": [
+        400.0,
+        420.0
+      ],
+      "volume_cm3": 168000.0
+    },
+    {
+      "id": "WAL-EL-014-C11",
+      "node_name": "WAL_EL_014_C11",
+      "host_ref": "EL-014",
+      "plan_rect_cm": [
+        1785.0,
+        0.0,
+        1800.0,
+        20.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 126000.0
+    },
+    {
+      "id": "WAL-EL-015-C01",
+      "node_name": "WAL_EL_015_C01",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        0.0,
+        0.0,
+        135.0,
+        20.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 1080000.0
+    },
+    {
+      "id": "WAL-EL-015-C02",
+      "node_name": "WAL_EL_015_C02",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        135.0,
+        0.0,
+        315.0,
+        20.0
+      ],
+      "z_range_cm": [
+        420.0,
+        510.0
+      ],
+      "volume_cm3": 324000.0
+    },
+    {
+      "id": "WAL-EL-015-C03",
+      "node_name": "WAL_EL_015_C03",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        135.0,
+        0.0,
+        315.0,
+        20.0
+      ],
+      "z_range_cm": [
+        690.0,
+        820.0
+      ],
+      "volume_cm3": 468000.0
+    },
+    {
+      "id": "WAL-EL-015-C04",
+      "node_name": "WAL_EL_015_C04",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        315.0,
+        0.0,
+        585.0,
+        20.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 2160000.0
+    },
+    {
+      "id": "WAL-EL-015-C05",
+      "node_name": "WAL_EL_015_C05",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        585.0,
+        0.0,
+        765.0,
+        20.0
+      ],
+      "z_range_cm": [
+        420.0,
+        510.0
+      ],
+      "volume_cm3": 324000.0
+    },
+    {
+      "id": "WAL-EL-015-C06",
+      "node_name": "WAL_EL_015_C06",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        585.0,
+        0.0,
+        765.0,
+        20.0
+      ],
+      "z_range_cm": [
+        690.0,
+        820.0
+      ],
+      "volume_cm3": 468000.0
+    },
+    {
+      "id": "WAL-EL-015-C07",
+      "node_name": "WAL_EL_015_C07",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        765.0,
+        0.0,
+        1035.0,
+        20.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 2160000.0
+    },
+    {
+      "id": "WAL-EL-015-C08",
+      "node_name": "WAL_EL_015_C08",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        1035.0,
+        0.0,
+        1215.0,
+        20.0
+      ],
+      "z_range_cm": [
+        420.0,
+        510.0
+      ],
+      "volume_cm3": 324000.0
+    },
+    {
+      "id": "WAL-EL-015-C09",
+      "node_name": "WAL_EL_015_C09",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        1035.0,
+        0.0,
+        1215.0,
+        20.0
+      ],
+      "z_range_cm": [
+        690.0,
+        820.0
+      ],
+      "volume_cm3": 468000.0
+    },
+    {
+      "id": "WAL-EL-015-C10",
+      "node_name": "WAL_EL_015_C10",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        1215.0,
+        0.0,
+        1365.0,
+        20.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 1200000.0
+    },
+    {
+      "id": "WAL-EL-015-C11",
+      "node_name": "WAL_EL_015_C11",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        1365.0,
+        0.0,
+        1785.0,
+        20.0
+      ],
+      "z_range_cm": [
+        760.0,
+        820.0
+      ],
+      "volume_cm3": 504000.0
+    },
+    {
+      "id": "WAL-EL-015-C12",
+      "node_name": "WAL_EL_015_C12",
+      "host_ref": "EL-015",
+      "plan_rect_cm": [
+        1785.0,
+        0.0,
+        1800.0,
+        20.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 120000.0
+    },
+    {
+      "id": "WAL-EL-016-C01",
+      "node_name": "WAL_EL_016_C01",
+      "host_ref": "EL-016",
+      "plan_rect_cm": [
+        0.0,
+        880.0,
+        620.0,
+        900.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 5208000.0
+    },
+    {
+      "id": "WAL-EL-016-C02",
+      "node_name": "WAL_EL_016_C02",
+      "host_ref": "EL-016",
+      "plan_rect_cm": [
+        620.0,
+        880.0,
+        730.0,
+        900.0
+      ],
+      "z_range_cm": [
+        220.0,
+        420.0
+      ],
+      "volume_cm3": 440000.0
+    },
+    {
+      "id": "WAL-EL-016-C03",
+      "node_name": "WAL_EL_016_C03",
+      "host_ref": "EL-016",
+      "plan_rect_cm": [
+        730.0,
+        880.0,
+        1500.0,
+        900.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 6468000.0
+    },
+    {
+      "id": "WAL-EL-016-C04",
+      "node_name": "WAL_EL_016_C04",
+      "host_ref": "EL-016",
+      "plan_rect_cm": [
+        1500.0,
+        880.0,
+        1650.0,
+        900.0
+      ],
+      "z_range_cm": [
+        0.0,
+        90.0
+      ],
+      "volume_cm3": 270000.0
+    },
+    {
+      "id": "WAL-EL-016-C05",
+      "node_name": "WAL_EL_016_C05",
+      "host_ref": "EL-016",
+      "plan_rect_cm": [
+        1500.0,
+        880.0,
+        1650.0,
+        900.0
+      ],
+      "z_range_cm": [
+        270.0,
+        420.0
+      ],
+      "volume_cm3": 450000.0
+    },
+    {
+      "id": "WAL-EL-016-C06",
+      "node_name": "WAL_EL_016_C06",
+      "host_ref": "EL-016",
+      "plan_rect_cm": [
+        1650.0,
+        880.0,
+        1800.0,
+        900.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 1260000.0
+    },
+    {
+      "id": "WAL-EL-017-C01",
+      "node_name": "WAL_EL_017_C01",
+      "host_ref": "EL-017",
+      "plan_rect_cm": [
+        0.0,
+        880.0,
+        600.0,
+        900.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 4800000.0
+    },
+    {
+      "id": "WAL-EL-017-C02",
+      "node_name": "WAL_EL_017_C02",
+      "host_ref": "EL-017",
+      "plan_rect_cm": [
+        600.0,
+        880.0,
+        750.0,
+        900.0
+      ],
+      "z_range_cm": [
+        420.0,
+        510.0
+      ],
+      "volume_cm3": 270000.0
+    },
+    {
+      "id": "WAL-EL-017-C03",
+      "node_name": "WAL_EL_017_C03",
+      "host_ref": "EL-017",
+      "plan_rect_cm": [
+        600.0,
+        880.0,
+        750.0,
+        900.0
+      ],
+      "z_range_cm": [
+        690.0,
+        820.0
+      ],
+      "volume_cm3": 390000.0
+    },
+    {
+      "id": "WAL-EL-017-C04",
+      "node_name": "WAL_EL_017_C04",
+      "host_ref": "EL-017",
+      "plan_rect_cm": [
+        750.0,
+        880.0,
+        1500.0,
+        900.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 6000000.0
+    },
+    {
+      "id": "WAL-EL-017-C05",
+      "node_name": "WAL_EL_017_C05",
+      "host_ref": "EL-017",
+      "plan_rect_cm": [
+        1500.0,
+        880.0,
+        1650.0,
+        900.0
+      ],
+      "z_range_cm": [
+        420.0,
+        510.0
+      ],
+      "volume_cm3": 270000.0
+    },
+    {
+      "id": "WAL-EL-017-C06",
+      "node_name": "WAL_EL_017_C06",
+      "host_ref": "EL-017",
+      "plan_rect_cm": [
+        1500.0,
+        880.0,
+        1650.0,
+        900.0
+      ],
+      "z_range_cm": [
+        690.0,
+        820.0
+      ],
+      "volume_cm3": 390000.0
+    },
+    {
+      "id": "WAL-EL-017-C07",
+      "node_name": "WAL_EL_017_C07",
+      "host_ref": "EL-017",
+      "plan_rect_cm": [
+        1650.0,
+        880.0,
+        1800.0,
+        900.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 1200000.0
+    },
+    {
+      "id": "WAL-EL-018-C01",
+      "node_name": "WAL_EL_018_C01",
+      "host_ref": "EL-018",
+      "plan_rect_cm": [
+        1780.0,
+        0.0,
+        1800.0,
+        600.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 5040000.0
+    },
+    {
+      "id": "WAL-EL-018-C02",
+      "node_name": "WAL_EL_018_C02",
+      "host_ref": "EL-018",
+      "plan_rect_cm": [
+        1780.0,
+        600.0,
+        1800.0,
+        750.0
+      ],
+      "z_range_cm": [
+        0.0,
+        90.0
+      ],
+      "volume_cm3": 270000.0
+    },
+    {
+      "id": "WAL-EL-018-C03",
+      "node_name": "WAL_EL_018_C03",
+      "host_ref": "EL-018",
+      "plan_rect_cm": [
+        1780.0,
+        600.0,
+        1800.0,
+        750.0
+      ],
+      "z_range_cm": [
+        270.0,
+        420.0
+      ],
+      "volume_cm3": 450000.0
+    },
+    {
+      "id": "WAL-EL-018-C04",
+      "node_name": "WAL_EL_018_C04",
+      "host_ref": "EL-018",
+      "plan_rect_cm": [
+        1780.0,
+        750.0,
+        1800.0,
+        900.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 1260000.0
+    },
+    {
+      "id": "WAL-EL-019-C01",
+      "node_name": "WAL_EL_019_C01",
+      "host_ref": "EL-019",
+      "plan_rect_cm": [
+        1780.0,
+        0.0,
+        1800.0,
+        600.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 4800000.0
+    },
+    {
+      "id": "WAL-EL-019-C02",
+      "node_name": "WAL_EL_019_C02",
+      "host_ref": "EL-019",
+      "plan_rect_cm": [
+        1780.0,
+        600.0,
+        1800.0,
+        750.0
+      ],
+      "z_range_cm": [
+        420.0,
+        510.0
+      ],
+      "volume_cm3": 270000.0
+    },
+    {
+      "id": "WAL-EL-019-C03",
+      "node_name": "WAL_EL_019_C03",
+      "host_ref": "EL-019",
+      "plan_rect_cm": [
+        1780.0,
+        600.0,
+        1800.0,
+        750.0
+      ],
+      "z_range_cm": [
+        690.0,
+        820.0
+      ],
+      "volume_cm3": 390000.0
+    },
+    {
+      "id": "WAL-EL-019-C04",
+      "node_name": "WAL_EL_019_C04",
+      "host_ref": "EL-019",
+      "plan_rect_cm": [
+        1780.0,
+        750.0,
+        1800.0,
+        900.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 1200000.0
+    },
+    {
+      "id": "WAL-EL-020-C01",
+      "node_name": "WAL_EL_020_C01",
+      "host_ref": "EL-020",
+      "plan_rect_cm": [
+        0.0,
+        0.0,
+        20.0,
+        600.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 5040000.0
+    },
+    {
+      "id": "WAL-EL-020-C02",
+      "node_name": "WAL_EL_020_C02",
+      "host_ref": "EL-020",
+      "plan_rect_cm": [
+        0.0,
+        600.0,
+        20.0,
+        750.0
+      ],
+      "z_range_cm": [
+        0.0,
+        90.0
+      ],
+      "volume_cm3": 270000.0
+    },
+    {
+      "id": "WAL-EL-020-C03",
+      "node_name": "WAL_EL_020_C03",
+      "host_ref": "EL-020",
+      "plan_rect_cm": [
+        0.0,
+        600.0,
+        20.0,
+        750.0
+      ],
+      "z_range_cm": [
+        270.0,
+        420.0
+      ],
+      "volume_cm3": 450000.0
+    },
+    {
+      "id": "WAL-EL-020-C04",
+      "node_name": "WAL_EL_020_C04",
+      "host_ref": "EL-020",
+      "plan_rect_cm": [
+        0.0,
+        750.0,
+        20.0,
+        900.0
+      ],
+      "z_range_cm": [
+        0.0,
+        420.0
+      ],
+      "volume_cm3": 1260000.0
+    },
+    {
+      "id": "WAL-EL-021-C01",
+      "node_name": "WAL_EL_021_C01",
+      "host_ref": "EL-021",
+      "plan_rect_cm": [
+        0.0,
+        0.0,
+        20.0,
+        600.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 4800000.0
+    },
+    {
+      "id": "WAL-EL-021-C02",
+      "node_name": "WAL_EL_021_C02",
+      "host_ref": "EL-021",
+      "plan_rect_cm": [
+        0.0,
+        600.0,
+        20.0,
+        750.0
+      ],
+      "z_range_cm": [
+        420.0,
+        510.0
+      ],
+      "volume_cm3": 270000.0
+    },
+    {
+      "id": "WAL-EL-021-C03",
+      "node_name": "WAL_EL_021_C03",
+      "host_ref": "EL-021",
+      "plan_rect_cm": [
+        0.0,
+        600.0,
+        20.0,
+        750.0
+      ],
+      "z_range_cm": [
+        690.0,
+        820.0
+      ],
+      "volume_cm3": 390000.0
+    },
+    {
+      "id": "WAL-EL-021-C04",
+      "node_name": "WAL_EL_021_C04",
+      "host_ref": "EL-021",
+      "plan_rect_cm": [
+        0.0,
+        750.0,
+        20.0,
+        900.0
+      ],
+      "z_range_cm": [
+        420.0,
+        820.0
+      ],
+      "volume_cm3": 1200000.0
+    }
+  ],
+  "scatter": [
+    {
+      "id": "SCT-001",
+      "node_name": "SCT_001",
+      "target_ref": "EL-009",
+      "model_refs": [
+        "EL-003"
+      ],
+      "seed": 26010,
+      "instance_count_limit": 60,
+      "distribution_density_pattern": 0.02,
+      "scale_from": 0.85,
+      "scale_to": 1.15,
+      "rotation_from_deg": -180.0,
+      "rotation_to_deg": 180.0,
+      "collision_avoid": true,
+      "layer": "99_DEBUG"
+    }
+  ]
+}

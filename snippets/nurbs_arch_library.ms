@@ -101,7 +101,7 @@ struct MCP_NURBS_Arch_Lib (
     ),
 
     -- 6. Build a complete U-Loft shell (with optional thickness offset) from an array of Point3 arrays
-    fn createULoftShell sectionPointsList name:"Arch_NURBS_ULoft" thickness:0.0 closedSections:false hideCurves:true = (
+    fn createULoftShell sectionPointsList name:"Arch_NURBS_ULoft" thickness:0.0 closedSections:false hideCurves:true hasShell:undefined mergeTol:0.15 = (
         local nset = NURBSSet()
         local crvIndices = #()
         for i = 1 to sectionPointsList.count do (
@@ -114,18 +114,24 @@ struct MCP_NURBS_Arch_Lib (
         appendObject nset uLoft
         local surfIdx = nset.numObjects
 
-        if (abs thickness) > 0.001 do (
+        local doOffset = false
+        if hasShell != undefined then (
+            if hasShell == true do doOffset = true
+        ) else (
+            if ((abs thickness) >= 0.001) do doOffset = true
+        )
+        if doOffset do (
             local offSurf = NURBSOffsetSurface name:(name + "_OffsetSurf") parent:surfIdx distance:thickness renderable:true generateUVs1:true matID:2
             appendObject nset offSurf
         )
-        nset.merge = 0.15
+        nset.merge = mergeTol
         local node = NURBSNode nset name:name
-        this.applyArchTessellation node hideCurves:hideCurves
+        this.applyArchTessellation node hideCurves:hideCurves mergeTol:mergeTol
         node
     ),
 
     -- 7. Build a UV-Loft (Gordon network) surface from intersecting U and V Point3 arrays
-    fn createUVLoftNetwork uCurvesPts vCurvesPts name:"Arch_NURBS_UVLoft" hideCurves:true = (
+    fn createUVLoftNetwork uCurvesPts vCurvesPts name:"Arch_NURBS_UVLoft" hideCurves:true mergeTol:0.15 = (
         local nset = NURBSSet()
         local uIndices = #()
         local vIndices = #()
@@ -143,9 +149,9 @@ struct MCP_NURBS_Arch_Lib (
         for uIdx in uIndices do appendUCurve uvSurf uIdx
         for vIdx in vIndices do appendVCurve uvSurf vIdx
         appendObject nset uvSurf
-        nset.merge = 0.15
+        nset.merge = mergeTol
         local node = NURBSNode nset name:name
-        this.applyArchTessellation node hideCurves:hideCurves
+        this.applyArchTessellation node hideCurves:hideCurves mergeTol:mergeTol
         node
     ),
 
@@ -284,7 +290,7 @@ struct MCP_NURBS_Arch_Lib (
         appendObject nset ps
         nset.merge = mergeTol
         local node = NURBSNode nset name:name
-        this.applyArchTessellation node hideCurves:hideCurves
+        this.applyArchTessellation node hideCurves:hideCurves mergeTol:mergeTol
         node
     ),
 
@@ -312,7 +318,7 @@ struct MCP_NURBS_Arch_Lib (
         appendObject nset cs
         nset.merge = mergeTol
         local node = NURBSNode nset name:name
-        this.applyArchTessellation node hideCurves:hideCurves
+        this.applyArchTessellation node hideCurves:hideCurves mergeTol:mergeTol
         node
     )
 )

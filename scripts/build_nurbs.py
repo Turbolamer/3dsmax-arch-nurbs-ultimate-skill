@@ -174,10 +174,21 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 from pathlib import Path
 from typing import Any, Sequence
+
+try:
+    from scripts.scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
+except ImportError:
+    from scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
+
+try:
+    from scripts.curve_gen import validate_generator
+except ImportError:
+    from curve_gen import validate_generator
 
 SUPPORTED_SCHEMA_MAJOR = 1
 SCHEMA_VERSION = "1.0"
@@ -305,7 +316,14 @@ TENSION_MAX = 1.0
 EDGE_MIN = 1
 EDGE_MAX = 4
 
-SECTION_KEY_ORDER: tuple[str, ...] = ("id", "points_cm", "name")
+SECTION_KEY_ORDER: tuple[str, ...] = (
+    "id",
+    "points_cm",
+    "name",
+    "form_reference_ref",
+    "station_cm",
+    "generator",
+)
 SURFACE_KEY_ORDER: tuple[str, ...] = (
     "id",
     "name",
@@ -565,7 +583,7 @@ def expected_census(surface: dict[str, Any]) -> int:
     kind = surface.get("kind")
     if kind == "u_loft":
         thickness = as_float(surface.get("thickness_cm", 0.0)) or 0.0
-        return 2 if abs(thickness) > MIN_SHELL_THICKNESS_CM else 1
+        return 2 if abs(thickness) >= MIN_SHELL_THICKNESS_CM else 1
     if kind in ("uv_loft", "point_grid", "cv_grid", "rail_sweep", "two_rail_sweep", "blend"):
         return 1
     if kind == "trim":
@@ -697,10 +715,21 @@ def normalise(document: dict[str, Any]) -> dict[str, Any]:
     out: dict[str, Any] = {}
     for key, value in document.items():
         if key == "sections" and isinstance(value, list):
-            out[key] = [
-                _ordered(_round_tree(item), SECTION_KEY_ORDER) if isinstance(item, dict) else item
-                for item in value
-            ]
+            sections = []
+            for item in value:
+                if not isinstance(item, dict):
+                    sections.append(item)
+                    continue
+                if "generator" in item:
+                    valid, reason = validate_generator(item["generator"])
+                    if not valid:
+                        sec_id = item.get("id", "<unknown>")
+                        raise Refusal(
+                            f"refusing to build: section {sec_id} generator metadata is invalid -- {reason}"
+                        )
+                # Keep points_cm intact (D8=A: never substitute generator for discrete points)
+                sections.append(_ordered(_round_tree(item), SECTION_KEY_ORDER))
+            out[key] = sections
         elif key == "surfaces" and isinstance(value, list):
             surfaces = []
             for item in value:
@@ -765,12 +794,16 @@ def load_spec(specs_dir: Path, allow_draft: bool) -> dict[str, Any]:
         status = status
 
     version = document.get("schema_version")
-    match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?$", str(version))
-    if match is None or int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR:
+    if str(version) not in ("1.0", "1.1"):
         raise Refusal(
             f"refusing to build: {path} declares schema_version {version!r}; this builder "
-            f"implements major {SUPPORTED_SCHEMA_MAJOR} and must stop rather than guess "
-            "(07 G-3)."
+            "implements schema_version '1.0' or '1.1' (07 G-3)."
+        )
+
+    units = document.get("units")
+    if not isinstance(units, dict) or units.get("length") != "cm" or units.get("angle") != "deg":
+        raise Refusal(
+            f"refusing to build: {path} units {units!r} are not cm/deg (07 section 2, G-5)."
         )
 
     project = document.get("project")
@@ -1839,7 +1872,7 @@ def self_check(
 def section_literal(points: Any) -> str:
     rows = []
     for point in points:
-        rows.append("[" + ",".join(num(value) for value in point) + "]")
+        rows.append(scene_point_expr(point))
     return "#(" + ",".join(rows) + ")"
 
 
@@ -1852,7 +1885,7 @@ def tessellation_line(variable: str, settings: dict[str, Any]) -> str:
     return (
         f"MCP_NURBS_Arch.applyArchTessellation {variable} "
         f"hideCurves:{'true' if settings['hide_curves'] else 'false'} "
-        f"mergeTol:{num(approximation['merge_tol_cm'])} "
+        f"mergeTol:{scene_length_expr(approximation['merge_tol_cm'])} "
         f"uSteps:{inum(approximation['view_steps_u'])} "
         f"vSteps:{inum(approximation['view_steps_v'])} "
         f"edgePct:{num(approximation['render_edge_pct'])} "
@@ -2028,7 +2061,7 @@ def dependent_surface_lines(
             lines.append(f"appendObject {set_variable} {variable}_rel{index}")
     if kind != "trim":
         lines.append(f"appendObject {set_variable} {variable}_rel")
-    lines.append(f"{set_variable}.merge = {num(settings['merge_tol_cm'])}")
+    lines.append(f"{set_variable}.merge = {scene_length_expr(settings['merge_tol_cm'])}")
     lines.append(f'local {variable} = NURBSNode {set_variable} name:"{variable}"')
     lines.append(
         f"MCP_NURBS_Arch.applyArchTessellation {variable} "
@@ -2112,8 +2145,12 @@ def render_ms(document: dict[str, Any], path_to_library: str) -> str:
     dependent_surfaces = [surface for surface in surfaces if surface.get("kind") in DEPENDENT_KINDS]
     parent_node_variables = {binding[len("id_"):] for binding in parent_id_variables.values()}
 
-    body: list[str] = [
-        f'if MCP_NURBS_Arch == undefined do ( fileIn "{path_to_library}" )',
+    body: list[str] = []
+    preamble = emit_unit_preamble(stage="nurbs", factor_var="__f_unit")
+    for line in preamble.splitlines():
+        body.append(line[4:] if line.startswith("    ") else line)
+    body.append(f'if MCP_NURBS_Arch == undefined do ( fileIn "{path_to_library}" )')
+    body.extend([
         "fn mcpNurbsSurfIndex node label = (",
         "    local rset = getNURBSSet node #relational",
         "    local found = 0",
@@ -2124,7 +2161,7 @@ def render_ms(document: dict[str, Any], path_to_library: str) -> str:
         '    if found == 0 do throw ("build_nurbs: " + label + " carries no NURBSSurface sub-object; a surface index cannot be guessed")',
         "    found",
         ")",
-    ]
+    ])
     if dependent_surfaces:
         body += census_helper_lines()
     if parent_id_variables:
@@ -2141,11 +2178,15 @@ def render_ms(document: dict[str, Any], path_to_library: str) -> str:
         name_literal = f'name:"{variable}"'
         if kind == "u_loft":
             rows = [section_variables[str(ref)] for ref in surface.get("section_ids") or []]
+            thick_cm = surface.get("thickness_cm", 0.0)
+            has_shell = "true" if (thick_cm != 0.0 and abs(thick_cm) >= MIN_SHELL_THICKNESS_CM) else "false"
             body.append(
                 f"local {variable} = MCP_NURBS_Arch.createULoftShell {row_list(rows)} "
-                f"{name_literal} thickness:{num(surface.get('thickness_cm', 0.0))} "
+                f"{name_literal} thickness:{scene_length_expr(thick_cm)} "
+                f"hasShell:{has_shell} "
                 f"closedSections:{'true' if surface.get('closed_sections') else 'false'} "
-                f"hideCurves:{'true' if settings['hide_curves'] else 'false'}"
+                f"hideCurves:{'true' if settings['hide_curves'] else 'false'} "
+                f"mergeTol:{scene_length_expr(settings['merge_tol_cm'])}"
             )
         elif kind == "uv_loft":
             u_rows = [section_variables[str(ref)] for ref in surface.get("u_section_ids") or []]
@@ -2153,7 +2194,8 @@ def render_ms(document: dict[str, Any], path_to_library: str) -> str:
             body.append(
                 f"local {variable} = MCP_NURBS_Arch.createUVLoftNetwork {row_list(u_rows)} "
                 f"{row_list(v_rows)} {name_literal} "
-                f"hideCurves:{'true' if settings['hide_curves'] else 'false'}"
+                f"hideCurves:{'true' if settings['hide_curves'] else 'false'} "
+                f"mergeTol:{scene_length_expr(settings['merge_tol_cm'])}"
             )
         elif kind == "point_grid":
             rows = [section_variables[str(ref)] for ref in surface.get("section_ids") or []]
@@ -2161,7 +2203,7 @@ def render_ms(document: dict[str, Any], path_to_library: str) -> str:
                 f"local {variable} = MCP_NURBS_Arch.makePointSurfaceGrid {row_list(rows)} "
                 f"{name_literal} matID:{inum(settings['mat_id'])} "
                 f"hideCurves:{'true' if settings['hide_curves'] else 'false'} "
-                f"mergeTol:{num(settings['merge_tol_cm'])}"
+                f"mergeTol:{scene_length_expr(settings['merge_tol_cm'])}"
             )
         elif kind == "cv_grid":
             rows = [section_variables[str(ref)] for ref in surface.get("section_ids") or []]
@@ -2175,7 +2217,7 @@ def render_ms(document: dict[str, Any], path_to_library: str) -> str:
                 f"vOrder:{inum(surface.get('v_order', 3))} {weight_argument}"
                 f"matID:{inum(settings['mat_id'])} "
                 f"hideCurves:{'true' if settings['hide_curves'] else 'false'} "
-                f"mergeTol:{num(settings['merge_tol_cm'])}"
+                f"mergeTol:{scene_length_expr(settings['merge_tol_cm'])}"
             )
         elif kind in DEPENDENT_KINDS:
             body += dependent_surface_lines(surface, variable, settings, section_variables, parent_id_variables)
@@ -2186,7 +2228,7 @@ def render_ms(document: dict[str, Any], path_to_library: str) -> str:
             )
         if kind in ("u_loft", "uv_loft"):
             body.append(f"local set_{variable} = getNURBSSet {variable} #relational")
-            body.append(f"set_{variable}.merge = {num(settings['merge_tol_cm'])}")
+            body.append(f"set_{variable}.merge = {scene_length_expr(settings['merge_tol_cm'])}")
         body.append(tessellation_line(variable, settings))
         if kind in DEPENDENT_KINDS:
             body.append(census_line(variable, expected_census(surface)))
@@ -2223,7 +2265,7 @@ def render_ms(document: dict[str, Any], path_to_library: str) -> str:
             body.append(
                 f"local {variable} = MCP_NURBS_Arch.createDiagridOnSurface {surface_variable} "
                 f"{index_variable} {u_divisions} {v_divisions} "
-                f"thickness:{num(derivative_settings(derivative)['thickness_cm'])} "
+                f"thickness:{scene_length_expr(derivative_settings(derivative)['thickness_cm'])} "
                 f"subSteps:{inum(derivative_settings(derivative)['sub_steps'])} name:\"{variable}\""
             )
         body.append(f'{variable}.name = "{variable}"')
@@ -2243,6 +2285,10 @@ def verify_script(document: dict[str, Any], script: str, path_to_library: str) -
     A spec value with no node is a hole nobody would notice until the scene was
     read back, so the script is checked against the document rather than trusted.
     """
+    if "units.SystemScale" not in script or "__f_unit" not in script:
+        raise Refusal(
+            f"refusing to write {OUT_MS_NAME}: missing unit verification preamble or __f_unit factor."
+        )
     function = build_fn_name(document["project"])
     surfaces = document.get("surfaces") or []
     derivatives = document.get("derivatives") or []
@@ -2590,8 +2636,28 @@ def write_bytes(path: Path, text: str) -> None:
         raise Refusal(f"refusing to write {path}: the payload contains CR (07 G-7).")
     if not data.endswith(b"\n") or data.endswith(b"\n\n"):
         raise Refusal(f"refusing to write {path}: it must end with exactly one LF (07 G-7).")
+    if path.is_file():
+        existing_bytes = path.read_bytes()
+        if existing_bytes != data:
+            raise Refusal(
+                f"refusing to overwrite {path}: differing existing content on disk (A-WRITE / M34). "
+                "Resolve difference or remove file before rebuilding."
+            )
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
+    tmp_p = path.parent / f"{path.name}.tmp.{os.getpid()}"
+    try:
+        with open(tmp_p, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_p, path)
+    finally:
+        if tmp_p.exists():
+            try:
+                tmp_p.unlink()
+            except OSError:
+                pass
 
 
 def read_optional(specs_dir: Path, name: str) -> dict[str, Any] | None:
@@ -2720,6 +2786,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         verify_script(checked, script, path_to_library)
         json_path = out_dir / OUT_JSON_NAME
         ms_path = out_dir / OUT_MS_NAME
+        for target_path, payload in ((json_path, text), (ms_path, script)):
+            target_bytes = payload.encode("utf-8")
+            if target_path.is_file() and target_path.read_bytes() != target_bytes:
+                raise Refusal(
+                    f"refusing to overwrite {target_path}: differing existing content on disk (A-WRITE / M34). "
+                    "Resolve difference or remove file before rebuilding."
+                )
         write_bytes(json_path, text)
         write_bytes(ms_path, script)
     except Refusal as exc:
