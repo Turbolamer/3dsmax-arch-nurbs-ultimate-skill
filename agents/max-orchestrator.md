@@ -158,7 +158,7 @@ particles for physics, `3dsmax-mcp_clone_objects` instance mode for RailClone-st
 | Absent | Evidence | Consequence |
 |---|---|---|
 | The whole `mcg_*` family and `curve_model` | live toolset inspection, P4b-r | Max Creation Graph is **undrivable** from this bridge. The **MCG half** of `references/procedural-graphs.md` is moot; **its Data Channel half is live** (six real `*_dc_*` tools), so that file is split, not fenced |
-| Layer **assignment** — any route | **nine** routes executed, P3 + P6 | `layer` is read-only from MAXScript; `manage_layers`' whole vocabulary is `{list, create, delete}`; `set_object_property` emits the same read-only assignment. **Layer is data, permanently.** See §5.3 |
+| Layer **assignment** via `node.layer` / `manage_layers` | **nine** direct setter routes failed, P3 + P6 | `layer` property is read-only and `manage_layers` lacks object assignment. However, **`ILayerProperties.addNode` (`lyr.addNode <node>`) is verified working**! Builders leave layer assignment decoupled (`G-79`), with scripted sorting available post-build — see §5.3 |
 
 ---
 
@@ -427,14 +427,14 @@ it is strictly a read-only verification gate executed across an offline/live 3-s
 | `EL_001`…`EL_021` + `SP_GROUND_PAD` | **22 `Box`** | massing: 8 `facade_wall` · 4 `column` · 4 `parapet` · 2 `slab` · 2 `core_wall` · 1 `roof_deck` · 1 site pad | `massing.ms` (S2) |
 | `GRP_001`…`GRP_005` | **5 `Dummy`** | grouping parents | `massing.ms` (S2) |
 | `PLC_001`…`PLC_136` | **136** | facade panel instances | `assembly.ms` (S5) |
-| `PROTO_CMP_001`…`PROTO_CMP_029` | **29** | **one prototype per distinct component block** | `assembly.ms` (S5) |
+| `PROTO_CMP_001`…`PROTO_CMP_029` | **29** | **one prototype per distinct component block** (material source for `sync_proto_materials.ms`) | `assembly.ms` (S5) |
 | `WAL_EL_nnn_Cnn` | **52** | solid wall cells — the pierced walls, 11 + 12 + 7 + 6 + 4 + 4 + 4 + 4 over 8 hosts | `assembly.ms` (S5) |
 | | **244** | **and `0` modifiers anywhere in the scene** | |
 
 Also in the file as **declarations with no node**: `assembly.json.opening_cuts[]` (16 rows). Nothing is
 cut, so no `CUT_` node exists. `assembly.json.scatter[]` (1 row) is also a declaration only — §5.5.
 
-### 5.2 Material handles — and the one claim about them that is **false**
+### 5.2 Material handles — UI inheritance trap and the `sync_proto_materials.ms` workflow
 
 **Read this before telling the user anything about materials.** The obvious inference from the instance
 route is wrong, and it was wrong in this pack until it was measured on 2026-10-05.
@@ -448,24 +448,30 @@ n.pos      = [x_cm, y_cm, z_cm]
 n.rotation = quat rot_z_deg [0,0,1]
 ```
 
-That gives **shared geometry**. It does **not** give **shared materials**:
+That gives **shared geometry**. It does **not** give **shared materials automatically**:
 
 | Measured 2026-10-05, on the built scene and again on a fresh 3-node test | Result |
 |---|---|
 | `instance.baseObject == prototype.baseObject` | `true` — the sharing is real |
-| material set on the **prototype** → read on each instance | **`0` of 10 inherit**; all read `undefined` |
+| material set on the **prototype** → read on each instance | **`0` of 10 inherit automatically**; all read `undefined` |
 | material set on **each instance** | **10 of 10** set — per-node and independent |
 | material set on an **instance** → read on the prototype | prototype unaffected — **no back-propagation** |
 | `instance.baseObject.material = m` | **THREW** `Unknown property: "material" in Box` |
 | negative control: the other 28 prototypes | **0** leaked — the probe discriminates |
 
-**So the material pass is per-node: 136 `PLC_` + 29 `PROTO_` + 52 `WAL_` + 27 massing, or whatever
-subset the user wants.** The 29 prototypes are still useful — as *named references* for sizing and for
-`Component > Assign Material` by-component pick-lists — but **not** as one-click family handles.
+`baseObject` sharing is a **memory optimisation, not an automatic inheritance mechanism.** Never conclude "change it once on the source in the UI and the copies follow" from "they share a mesh"; that inference is exactly what went wrong here.
 
-`baseObject` sharing is a **memory optimisation, not an inheritance mechanism.** Never conclude "change
-it once on the source and the copies follow" from "they share a mesh"; that inference is exactly what
-went wrong here.
+**The `snippets/sync_proto_materials.ms` synchronization workflow:**
+The user does **not** need to manually click through and assign materials to 136 instances one by one. Instead:
+1. Assign materials in 3ds Max Material Editor to the 29 `PROTO_*` prototypes (or target subset).
+2. Execute `fileIn "snippets/sync_proto_materials.ms"` or the fast 3-line loop:
+```maxscript
+for proto in objects where matchPattern proto.name pattern:"PROTO_*" and proto.material != undefined do (
+    for o in objects where o != proto and o.baseObject == proto.baseObject do o.material = proto.material
+)
+```
+3. In **~5 ms**, this synchronizes the assigned materials from all prototypes to their respective `PLC_*` instances sharing `baseObject`.
+4. It operates with **0 modifiers**, retaining strict `G-81` compliance and geometric integrity.
 
 **Selecting a family, by hand:** a component id appears in `components_registry.json.families[].component_ids`
 and on every CSV row for that component in the `component_ref` column of `world_table.csv`, so the
@@ -526,15 +532,19 @@ hand-off step and `G-81`'s zero-modifier rule governs builder output.
 `Unwrap_UVW` constructs and attaches but is **unusable through this bridge** — it changes nothing
 and every one of its methods throws when invoked. Unwrapping is a manual, in-the-UI operation.
 
-### 5.3 Layers — data the user applies, not code the pipeline runs
+### 5.3 Layers — specification data and automated sorting via `lyr.addNode`
 
-**Layer assignment is impossible from this bridge.** Nine routes were executed and all failed:
-`node.layer = …` in three forms (all `Property is read-only: layer`), `LayerManager`'s missing setter,
-`node.setLayer`, `node.setProperty #layer`, `3dsmax-mcp_manage_layers` object assignment (40+ candidate
-action names, all `Unknown layer action`), and `3dsmax-mcp_set_object_property` with `property=layer`
-(a positive control on the same tool with `property=pos` succeeded, so the tool works and `layer` is the
-blocker). **This is final, not an open question.** `manage_layers`' whole vocabulary is
-`{list, create, delete}`.
+**Layer assignment status:** Direct assignment via `node.layer = …` is read-only in MAXScript (`Property is read-only: layer`), and `3dsmax-mcp_manage_layers` object assignment actions do not exist (its vocabulary is `{list, create, delete}`). However, **`ILayerProperties.addNode` (`lyr.addNode <node>`) is verified working without errors!**
+
+Specifically, the tested pattern:
+
+```maxscript
+local lyr = LayerManager.getLayerFromName name
+if lyr == undefined do lyr = LayerManager.newLayerFromName name
+lyr.addNode nd
+```
+
+successfully assigns the node to the layer!
 
 **Where the data is:**
 
@@ -546,14 +556,26 @@ blocker). **This is final, not an open question.** `manage_layers`' whole vocabu
 | `massing.json` · `grouping[].layer` | | `90_SCENE` |
 
 The **closed eight-name vocabulary** (`references/07-spec-grammar.md` §8.1.4): `00_SITE`, `01_SLABS`,
-`02_STRUCTURE`, `03_CORE`, `04_ROOF`, `05_FACADE`, `90_SCENE`, `99_DEBUG`. **`assembly.ms` contains no
-layer statement at all** (`G-79`) — grepping it for `node.layer` or `LayerManager` returns 0 matches, and
-that is a **build FAIL** if not.
+`02_STRUCTURE`, `03_CORE`, `04_ROOF`, `05_FACADE`, `90_SCENE`, `99_DEBUG`.
 
-**The user's action:** `3dsmax-mcp_manage_layers create` for the eight names (or the Layer dialog), then
-select nodes by name prefix and assign. Suggested mapping by prefix: `EL_`/`SP_` → `massing.json`'s
-per-element `layer`; `PLC_` → `05_FACADE`; `WAL_` → the `facade_wall` host's own layer
-(`05_FACADE`); `GRP_` → `90_SCENE`; `SCT_` → `99_DEBUG`.
+**Decoupled builder rule (`G-79`):** `assembly.ms` contains no layer statement at all (`G-79`) — grepping it for `node.layer` or `LayerManager` returns 0 matches to keep geometry generation cleanly decoupled.
+
+**Automated layer sorting workflow:** With `lyr.addNode` verified, users or scripts can sort the scene nodes into canonical layers in one quick loop:
+
+```maxscript
+fn assignNodeToLayer nd lyrName = (
+    local lyr = LayerManager.getLayerFromName lyrName
+    if lyr == undefined do lyr = LayerManager.newLayerFromName lyrName
+    lyr.addNode nd
+)
+
+for o in objects do (
+    if matchPattern o.name pattern:"PLC_*" or matchPattern o.name pattern:"WAL_*" do assignNodeToLayer o "05_FACADE"
+    if matchPattern o.name pattern:"GRP_*" do assignNodeToLayer o "90_SCENE"
+    if matchPattern o.name pattern:"SP_*" do assignNodeToLayer o "00_SITE"
+)
+```
+Alternatively, users can assign layers manually in the Layer dialog.
 
 ### 5.4 Rendering with Corona
 

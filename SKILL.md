@@ -38,7 +38,7 @@ Key measured facts about Max shaped the whole architecture:
 - **The Boolean modifier is unusable in this build.** It attaches and silently cuts nothing. Openings are cut by **tiling the wall with solid cells** (`WAL_`) instead. Under **Mechanism A**, host walls from massing are hidden (`host_node.isHidden = true`) so discrete cells provide geometry without active host collisions.
 - **`place_components.py` is the last geometry builder (S5).** It produces zero modifiers by design (`G-81`).
 - **Form precision boundary:** `NURBSULoftSurface` (`u_loft`) has an internal B-spline fit error $\approx 2.14\text{ cm}$ caused by Max's fixed CV allocation (12 CVs across sections), whereas `point_grid` (`NURBSPointSurface` via `makePointSurfaceGrid`) achieves **$0.0008\text{ cm}$ (8 microns)** deviation.
-- **An object's layer cannot be assigned from script.** Layer attribution is data the user applies by hand in the Layer dialog.
+- **Layer assignment:** While `node.layer` is read-only in MAXScript, scripted layer assignment is verified working via `ILayerProperties.addNode` (`lyr.addNode <node>`). Builders leave layer assignment decoupled by design (`G-79`).
 
 ### 0.2 What is deliberately out of scope
 
@@ -148,7 +148,7 @@ Pick the pipeline before creating geometry.
 | Kinetic, parametric or per-instance variation | Data Channel modifiers — `add_data_channel`, `set_data_channel_operator`, `add_dc_script_operator`, `list_dc_presets`, `load_dc_preset`. MCG tools do not exist. The tool's key is **`type`**, not `name`, and the real vocabulary is 32 snake_case operators; `DistToNode` and `FaceArea` are not among them | `references/arch-modifiers-and-procedural-reference.md` §2 |
 | Trees, cars, street furniture, people, HDRIs, asset libraries | No Chaos Cosmos tooling is exposed. Author proxies with primitives or import `.max`/`.fbx` via `merge_from_file` / `search_max_files` | `references/architecture-exterior-pipelines.md` |
 | Lighting | Create lights as scene nodes via `create_object` or `execute_maxscript`, then transform with `transform_object` and verify with `inspect_object` / `analyze_node_orientation`. No lighting toolset exists | `references/maxscript-rendering-cameras.md` |
-| Putting geometry on a named layer | **No route.** `node.layer` is read-only from MAXScript (six assignment routes executed, all threw `Property is read-only: layer`); `LayerManager`'s setter is missing; `manage_layers` has no assignment action (40+ candidates rejected); `set_object_property` does not either. **Layer is data and is applied by hand** — §5.3 | `references/11-layer-standard.md`, `references/07-spec-grammar.md` §8.1.3 / §8.5.6 |
+| Putting geometry on a named layer | **Scripted route verified via `ILayerProperties.addNode`.** While `node.layer` is read-only from MAXScript and `manage_layers` lacks node assignment, `lyr.addNode <node>` via `LayerManager.getLayerFromName` / `newLayerFromName` works without error. Builders leave layer assignment to post-build or manual UI — §5.3 | `references/11-layer-standard.md`, `references/07-spec-grammar.md` §8.1.3 / §8.5.6 |
 
 ---
 
@@ -247,40 +247,52 @@ Each stage has its own agent file carrying the contract, the procedure, a comple
 
 This is the deliverable. The user applies materials, layers and render settings themselves. **Short version — full detail in `agents/max-orchestrator.md` §5.**
 
-### 5.1 The 29 `PROTO_` nodes are the component references — **not** family-wide material handles
+### 5.1 The 29 `PROTO_` nodes: component references and rapid material propagation
 
 `fileIn examples/assembly.ms` builds **244** nodes: 27 massing, 136 `PLC_` placed panels, 29 `PROTO_` prototypes, 52 `WAL_` wall cells. Each `PLC_` instance **shares its prototype's `baseObject`** — measured 136/136 at P5 and 5/5 at P6 with a corrected negative control.
 
-> ### ⚠️ A material on a prototype does **NOT** reach its instances — measured 2026-10-05
+> ### ⚠️ A material on a prototype does **NOT** reach its instances automatically — measured 2026-10-05
 >
-> This was the pack's central hand-off claim and it was **wrong**. It is a property of *sharing*, not
-> inheritance, and the two are not the same thing:
+> In 3ds Max, instance nodes (`PLC_*`) sharing `baseObject` with prototype (`PROTO_*`) nodes do not inherit materials automatically upon prototype material assignment in the UI. It is a property of *sharing*, not inheritance:
 >
 > | Step | Result |
 > |---|---|
 > | `baseObject` shared | `true` / `true` — confirmed on the built scene and on a fresh 3-node test |
-> | material on the **prototype** | **`0` of its 10 instances inherit it**; all read `undefined` |
+> | material on the **prototype** | **`0` of its 10 instances inherit it automatically**; all read `undefined` |
 > | material on each **instance** | **10 of 10** set — per-node, independent |
 > | material on the instance, then read the **prototype** | prototype keeps its own — **no back-propagation either** |
 > | `node.baseObject.material = m` | **THREW** `Unknown property: "material" in Box` — the base object has no material slot |
 > | control: the other 28 prototypes | **0** leaked the material, so the probe discriminates |
 >
-> **What this means for the hand-off:** the material pass is **29 prototypes + 136 instances, i.e.
-> per-node work in the Material Editor** — or, far better, **one MultiMaterial on a prototype's
-> instances is not the mechanism here at all.** The practical route is a MultiMaterial applied to the
-> whole `PLC_` set, or assigning per instance. Note that **a node's sub-material index is not
-> reachable from MAXScript** (§5.4), so selecting which slot a panel uses is a UI action.
+> **The rapid propagation workflow:** The user does not need to manually click through and assign materials to all 136 instances. Instead, the user only needs to assign materials to the 29 `PROTO_*` nodes in the Material Editor, and then execute `fileIn "snippets/sync_proto_materials.ms"` (or the fast 3-line loop):
 >
-> **The reusable lesson:** *shared `baseObject` is a memory optimisation, not an inheritance
-> mechanism.* Never infer "change it once on the prototype" from "they share geometry".
+> ```maxscript
+> for proto in objects where matchPattern proto.name pattern:"PROTO_*" and proto.material != undefined do (
+>     for o in objects where o != proto and o.baseObject == proto.baseObject do o.material = proto.material
+> )
+> ```
+>
+> This propagates assigned materials to all 136 `PLC_*` instances in ~5 ms with 0 modifiers, fully retaining `G-81` compliance and geometry sharing. Note that **a node's sub-material index is not reachable from MAXScript** (§5.4), so selecting which slot a panel uses in a MultiMaterial is set on the prototype in the UI.
+>
+> **The reusable lesson:** *shared `baseObject` is a memory optimisation, not an inheritance mechanism.* Never infer "change it once on the prototype in UI" from "they share geometry" — run the synchronizer to push the references across instances.
 
 ### 5.2 Zero modifiers in the scene is deliberate, not a bug
 
 Measured `0`. It is `G-81`, and it exists because of a measurement rather than a preference: the Boolean modifier attaches and **silently cuts nothing** in this build, so P6 rebuilt wall openings as solid cells. It also retires the 20-modifier freeze hazard by construction instead of by chunking. If you find modifiers on these nodes, something is wrong with the run, not with the model.
 
-### 5.3 Layer assignment is a manual step
+### 5.3 Layer assignment — manual and scripted routes
 
-`assembly.json.layer_map` is a **record of intent**, linted against a closed eight-name vocabulary, and it is **never applied by a builder** — no route exists (§2, last row). The user applies it in the Layer dialog. Node naming is id-based (`EL-001` → `EL_001`, `WAL-EL-014-C01` → `WAL_EL_014_C01`), which is what makes that mapping mechanical. Rule `N2`: names are unique across the whole scene, not per layer.
+`assembly.json.layer_map` is a **record of intent**, linted against a closed eight-name vocabulary, and it is **never applied by a builder** (`G-79`) so that builder output remains clean and decoupled. Node naming is id-based (`EL-001` → `EL_001`, `WAL-EL-014-C01` → `WAL_EL_014_C01`), which is what makes that mapping mechanical. Rule `N2`: names are unique across the whole scene, not per layer.
+
+**Scripted layer assignment via `ILayerProperties.addNode`:** While `node.layer` is read-only in MAXScript (`Property is read-only: layer`) and `manage_layers` lacks an object assignment action, assigning nodes to layers via `ILayerProperties.addNode` is verified working without errors:
+
+```maxscript
+local lyr = LayerManager.getLayerFromName name
+if lyr == undefined do lyr = LayerManager.newLayerFromName name
+lyr.addNode nd
+```
+
+This enables automated layer sorting into the closed eight-name vocabulary (`00_SITE`, `01_SLABS`, `02_STRUCTURE`, `03_CORE`, `04_ROOF`, `05_FACADE`, `90_SCENE`, `99_DEBUG`). Users can either execute this loop post-build or organize layers manually in the Layer dialog.
 
 ### 5.4 Corona must be set explicitly — and needs an instance
 

@@ -138,6 +138,13 @@ The same brief must yield byte-identical files (S-5). No timestamps beyond `sour
 random ids, no iteration-order dependence. Ids are assigned in a fixed order — `A-nnn` and `C-nnn`
 ascending, zero-padded, and stable for a given project. If you renumber, you renumber everything.
 
+### 4.2 Visual reference intake rule (addendum to Step 3 & Step 5)
+
+When an image or sketch is provided alongside or instead of a text brief:
+1. **Execute `08` §1.3 first.** Identify the perspective class, bind the Scale Anchor ($L_{\text{anchor}}$), and compute dimensionless ratios ($R_{\text{bay}}$, $R_{\text{op,w}}$, $R_{\text{vault}}$) before writing any `_cm` leaf.
+2. **Never ask the user to measure their own image.** If an escalatable topic (such as `form_references[]` radii/semi-axes under D8=A, storey heights, or facade composition) is visible in the provided image, you **must** measure the proportion from the image, compute the candidate `_cm` value against the scale anchor, populate the spec at `status: "draft"` with an `A-nnn` entry (`confidence: "medium"` or `"low"`), and present the **computed candidate value** in your escalation line (§6.4).
+3. **Pier sanity for S5 tiling:** When scaling openings from an image, quantise `width_cm` to clean architectural increments (`5.0` or `10.0 cm`) strictly inside `bay_width_cm` (**G-27**) leaving at least `10.0 cm` per side pier so S5 solid-cell wall tiling (`WAL_`) never generates micro-slivers.
+
 ---
 
 ## 5. Completion gate
@@ -229,6 +236,14 @@ A question list, not a paragraph. One line per question. Each line carries:
 Never ask a vague question. "What are the dimensions?" is not a question; the brief already answered
 half of it. If the input cannot answer the question — a blurred scan, a missing schedule — say which
 value you will otherwise assume and what it costs.
+
+### 6.4.1 How to escalate visual-reference measurements (Propose-with-Measured-Estimate)
+
+When escalating a D8=A analytical form parameter (`form_references[]`) or a do-not-default value that is **visibly depicted** in an attached reference image, never ask an open-ended question (*"What are the vault semi-axes?"*). Always state the measured ratio, the anchor used, and the resulting `_cm` candidate:
+
+```
+form_references[0].semi_axes_cm — measured [600.0, 240.0] cm from image:ref-01.png#vault (rise/span ratio 0.20 scaled against stated 1200.0 cm span) — sets S3 barrel vault crown at Z=1060.0 cm and governs QA-V1-FORM — Recommend locking [600.0, 240.0] cm (currently held in A-023 at status=draft).
+```
 
 ### 6.5 The draft path
 

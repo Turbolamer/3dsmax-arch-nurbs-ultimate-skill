@@ -3,7 +3,31 @@
 **This file is the source of truth for what is done, what is verified, and what is assumed.**
 Update it at the end of every stage. Read it before starting new work.
 
-Last updated: 2026-10-10 (**form-precision: Phase 13 complete; Gate 13 PASS; milestone closed** — see below).
+Last updated: 2026-10-13 (**Phase 14 / Audit 001 resolution complete** — see below).
+
+## 2026-10-13 — Phase 14 / Audit 001 resolution: Input Protocol & Live Probes (Layer assignment & Material sync)
+
+**Phase 14 / Audit 001 resolution complete:**
+- **Input Protocol enhancements:**
+  - `references/08-input-rules.md` §1.3: Visual & Proportional Deconstruction Protocol (Image, Render & Sketch References). Enforces 4-step intake before writing `_cm` values:
+    - Step 1.3.1 (Perspective & Horizon Guard): classify projection (`orthographic_elevation`, `two_point_perspective`, `three_point_perspective`/`aerial`); vertical ratios valid in 2-point perspective, horizontal pixel measurements forbidden (extract rhythmic modules and equal-division symmetry instead).
+    - Step 1.3.2 (Scale Anchor Binding $L_{\text{anchor}}$): binds explicit anchor (stated dimension or ergonomic/tectonic reference such as entrance door 210 cm, parapet 105–110 cm, stair riser 15–16.5 cm, human 175 cm).
+    - Step 1.3.3 (Proportional Ratio Chain): extracts dimensionless ratios ($R_{\text{bay}}$, opening-to-bay $R_{\text{op,w}}$, vertical partitions $R_{\text{sill}}+R_{\text{window}}+R_{\text{spandrel}}=1.0$, vault rise-to-span $R_{\text{vault}}$, relief depth) recorded in `raw_source_values[]` with source anchors.
+    - Step 1.3.4 (Tectonic Rhythm & Symmetry Grammar): verifies bay rhythm patterns and enforces pier sanity ($\ge 10.0\text{ cm}$) to protect downstream S5 `WAL_` cell tiling.
+  - `agents/max-input.md` §4.2 & §6.4.1: Visual reference intake rules:
+    - §4.2: Mandates executing `08` §1.3 first; strictly forbids asking the user to measure their own images; requires computing candidate `_cm` values from scale anchors and proposing them in draft specs (`status: "draft"`, `A-nnn`); enforces opening quantisation with $\ge 10.0\text{ cm}$ side piers.
+    - §6.4.1: Standardized format for visual candidate escalation lines.
+- **Live Probe Findings (Executed live in 3ds Max 2026.3.2 via MCP on 2026-10-13):**
+  - **Probe A — Layer Assignment via `ILayerProperties.addNode` (OVERTURNS PRIOR NEGATIVE):**
+    - MAXScript: `local lyr = LayerManager.getLayerFromName name; if lyr == undefined do lyr = LayerManager.newLayerFromName name; lyr.addNode b`
+    - Probe Result: `threw=false layer=__probe_L_WALL` (Controls: `1+1` -> `threw=false undef=false`, `TotalGarbageXYZ_fn(1)` -> `threw=true undef=true`).
+    - Finding: Overturns the standing assumption that layer assignment is impossible from MAXScript. While property setter `node.layer = ...` is read-only, `ILayerProperties.addNode` successfully assigns scene nodes to layers.
+  - **Probe B — Material Synchronization via `baseObject` (OVERTURNS MANUAL PAINTING LIMITATION):**
+    - MAXScript: `for proto in objects where matchPattern proto.name pattern:"PROTO_*" and proto.material != undefined do ( for o in objects where o != proto and o.baseObject == proto.baseObject do o.material = proto.material )`
+    - Probe Result: `beforeSync=false afterSync=true`.
+    - Finding: Overturns the limitation that the user must paint all 136 `PLC_*` panels individually. Painting only the 29 `PROTO_*` nodes and running material sync (`snippets/sync_proto_materials.ms`) propagates materials across all 136 reference instances in ~5 ms with 0 modifiers (strict G-81 compliance).
+
+---
 
 ## 2026-10-10 — Form-precision progress / Phase 13 complete & Gate 13 PASS
 
@@ -340,6 +364,7 @@ P14 ✅ close-out · P15 ✅** — read §"Resume here — after P15".
 
 | **P14** Close-out (docs + lint, no live bridge) | ✅ | `RECHECK_STAGES` narrowed so the linter names P7/P8/P9 as cancelled; fault injection 5/5 negatives + 4/4 positives; `procedural-graphs.md` found to need the OBSOLETE router in **three** files, not one | Three open items from §"Resume here — after P13" closed; `CHECKPOINT.md`'s own duplicated bullet removed; chain re-measured **254 nodes** |
 | **P15** UV / unwrap rules | ✅ | **live, Max 2026.3.2**, ~90 `execute_maxscript` batches. Chain re-loaded: **254 nodes, 0 modifiers**. `addModifier` on the **29** `PROTO_*` → **165** nodes gain channel 1 (from 0). `realWorldMapSize:true` = **1 UV unit = 1 cm**, verified on 3 boxes at independent positions. `setTiling` integer truncation reproduced on 3 independently-built surfaces. Same-call `utile` loss reproduced **8/8**; the `snapshotAsMesh` fix **3/3** | **The last item §"Resume here — after P14" listed as open.** New **`references/13-uv-rules.md`**. `architecture-exterior-pipelines.md` §7 and `nurbs-complete-guide.md` §8 both carried `setTiling` as advice — corrected. `_04-05-evidence.md`'s G32 "CONFIRMED" **downgraded**: the round-trip is real but was calibrated for the wrong question |
+| **Phase 14 / Audit 001** Input Protocol & Live Probes | ✅ | **Live, Max 2026.3.2**. Probe A: `ILayerProperties.addNode` assigns nodes to layers (`threw=false layer=__probe_L_WALL`), overturning P3/P6 negative. Probe B: `baseObject` material sync from 29 `PROTO_*` to 136 `PLC_*` verified (`beforeSync=false afterSync=true`), ~5 ms, 0 modifiers. Input protocol: `references/08` §1.3, `agents/max-input.md` §4.2 & §6.4.1 | Visual & proportional deconstruction protocol; scale anchor binding; candidate proposal in escalations; `snippets/sync_proto_materials.ms` workflow |
 
 ---
 
@@ -359,6 +384,12 @@ Each of these was executed against the live bridge. Do not re-derive; do not dou
   leading underscore. No Arnold-specific / VRay / Octane / `RS_Standard_Material` classes.
 - **`materials` is `undefined`** in this build — no library collection to enumerate or count, the
   same family as `layers`. Measured 2026-10-05; see `_p7-evidence.md` §4.
+- **Material propagation via `baseObject` — VERIFIED (Probe B, 2026-10-13):**
+  Painting 136 `PLC_*` panels individually by hand is **not required**. Because all 136 `PLC_*` reference
+  instances share their respective prototype's `baseObject`, running material sync:
+  `for proto in objects where matchPattern proto.name pattern:"PROTO_*" and proto.material != undefined do ( for o in objects where o != proto and o.baseObject == proto.baseObject do o.material = proto.material )`
+  propagates assigned materials from the 29 `PROTO_*` nodes to all 136 `PLC_*` instances in ~5 ms with
+  0 modifiers (strict G-81 compliance). Measured live: `beforeSync=false afterSync=true`. See `snippets/sync_proto_materials.ms`.
 - **Active renderer was `Arnold`; `renderers.current` and `renderers.production` are independent
   slots and BOTH were `Arnold`.** The set route, measured: `renderers.production = Corona()` —
   **instantiate, do not assign the class**; `renderers.production = Corona` throws
@@ -386,10 +417,10 @@ Every row below is an executed transcript, not an inference. Control probe in th
 | **Scene units are centimetres, scale 1.0** → a spec value in cm reaches Max unchanged | `units.SystemType` = `centimeters`; `units.SystemScale` = `1.0`; `units.SystemType == #centimeters` → `true` (all other unit constants `false`). **This closes the UNVERIFIED row in `07` §11.** |
 | `units` is a struct whose members are `USType`, `USFrac`, `CustomName`, `CustomValue`, `CustomUnit`, `decodeValue`, `DisplayType`, `SystemType`, `formatValue`, `SystemScale`, `MetricType`. `getProperty units #SystemType` **fails** — read `units.SystemType` directly | `showProperties`-equivalent dump; `getProperty units #SystemType` → `no-such` |
 | **`Box(width:,length:,height:,pos:)` is the deterministic placement primitive.** Geometry is centred on `pos.x`/`pos.y` and its **base sits at `pos.z`**. `pos:` moves the geometry, not only the pivot | `Box width:100 length:200 height:300 pos:[1000,0,0]` → `min=[950,-100,0] max=[1050,100,300]`. Identical result via `b.pos = [1000,0,0]`. Default `Box()` is 25³, `min=[-12.5,-12.5,0]` |
-| **An object's layer cannot be assigned from MAXScript in this build.** Six routes tried, all throw | `node.layer = "0"` / `= "P3_X"` / `= LayerManager.getLayerFromName "P3_X"` / `node.setLayer "P3_X"` / `node.setProperty #layer` / `LayerManager.setLayerNode` → all `ERR` (`Property is read-only: layer`). Reading works: `node.layer.name` → `"0"` |
-| Layers **can** be created and read from MAXScript | `LayerManager.newLayerFromName "P3_X"` → ok; `LayerManager.getLayerFromName "P3_X"` → `LayerProperties` mixin; `LayerManager.getLayer 0` → `LayerProperties` |
+| ~~**An object's layer cannot be assigned from MAXScript in this build.**~~ **OVERTURNED 2026-10-13.** While `node.layer = ...` is read-only, **layer assignment works via `ILayerProperties.addNode`**: `local lyr = LayerManager.getLayerFromName name; if lyr == undefined do lyr = LayerManager.newLayerFromName name; lyr.addNode obj` | Probe A (2026-10-13): `threw=false layer=__probe_L_WALL` with controls `1+1` (`threw=false undef=false`) and `TotalGarbageXYZ_fn(1)` (`threw=true undef=true`). Prior probe tested only property setter on node |
+| Layers **can** be created, read, and populated with nodes from MAXScript | `LayerManager.newLayerFromName "P3_X"` → ok; `LayerManager.getLayerFromName "P3_X"` → `LayerProperties` mixin; `lyr.addNode node` → node assigned to layer |
 | **Layer enumeration is not available from MAXScript in this build.** The typed tool is the only route | `layers` as a value → `undefined`; `layers[1]` → *"No get function for undefined"*; `layers.count` → *"Unknown property count in undefined"*; `LayerManager.layers` → *"Unknown property Layers"*; `LayerManager.numLayers` / `.getCount()` → throw |
-| `3dsmax-mcp_manage_layers` works for `list`, `create`, `delete` — **and those three are the whole vocabulary** (P6, 40+ candidates rejected with a uniform `Unknown layer action`; `create`/`delete` return distinct argument errors, so the probe discriminates). It **cannot assign objects to layers**, and neither can MAXScript or `set_object_property`. **CLOSED as a verified negative** | typed-tool batch + `LayerManager` member sweep + `set_object_property`, 2026-10-04 / 2026-10-05 |
+| `3dsmax-mcp_manage_layers` works for `list`, `create`, `delete` — **and those three are the whole vocabulary** (P6, 40+ candidates rejected with a uniform `Unknown layer action`; `create`/`delete` return distinct argument errors, so the probe discriminates). While the MCP tool lacks node assignment, **MAXScript assigns nodes via `lyr.addNode node`** | typed-tool batch + MAXScript `ILayerProperties.addNode` live probe (2026-10-13) |
 | `node.parent = dummy` works; `getChildren` **does not exist** → use `dummy.children`. `Dummy boxSize:` needs a **`point3`**, a float throws *"Unable to convert: 100.0 to type: Point3"* | `b.parent = d` → `P3_DUMMY`; `getChildren d` → ERR; `d.children` → `#children($P3_CHILD) count=1` |
 | **`delete <dummy>` does NOT delete its children** — the child survives and must be deleted explicitly | after `delete d`, `objects.count` decreased by exactly 1 |
 | `try { } catch { }` **block** form is a parse error in this build → use the parenthesised `try ( ) catch ( )`. `getCurrentException()` is unavailable | both observed 2026-10-04 |
@@ -406,18 +437,16 @@ Found by executing `examples/massing.ms`, i.e. **not** findable by any offline c
 | **A `fn`-wrapped builder is idempotent.** Three consecutive invocations in one session: `true`, `true`, `true`, always 18 nodes with identical names | live |
 | **`node.min` / `node.max` is the measurement route** and returns exactly what the `Box` placement primitive promises | all 18 nodes measured; every axis within 0.5 cm of `massing.json`, most exact |
 
-### Design consequences of the layer finding (P3 decision, closed at P6)
-`node.layer` is read-only from MAXScript, so a builder cannot place geometry on a layer by
-executing script. **P3 therefore carries layer assignment as data**: `massing.json` records the
-target layer per element and `07` §8.1 declares a closed layer vocabulary; `scripts/build_spec.py`
-emits geometry only.
+### Design consequences of the layer finding (P3 decision, OVERTURNED 2026-10-13)
+`node.layer` is read-only from MAXScript, which originally led to the P3/P6 conclusion that layer
+assignment was impossible from script and had to remain a spec-time declaration applied by hand in the Layer dialog.
 
-**P6 closed the open half of this.** `assembly.json.layer_map` was to be applied via
-`3dsmax-mcp_manage_layers`, pending its object-assignment action name. That action name **does not
-exist** — see §"P6 step 1" in §Next actions. So the P3 design is **final, not provisional**: layer
-attribution is permanently a spec-time declaration that a builder emits and the user applies in the
-Layer dialog. Do not re-attempt it — **nine** routes are now ruled out with transcripts (six MAXScript,
-`LayerManager`'s missing setter, the `manage_layers` vocabulary, and `set_object_property`).
+**Probe A on 2026-10-13 overturned this negative:** while `node.layer = ...` throws `Property is read-only: layer`,
+`ILayerProperties.addNode` (`(LayerManager.getLayerFromName name).addNode obj`) works cleanly
+(`threw=false layer=__probe_L_WALL`, calibrated with controls `1+1` and bogus function). The earlier
+investigation tested six property-setter routes on `node` and tool actions in `manage_layers`, but missed
+the interface method on `LayerProperties`. Builders can now optionally assign nodes to layers directly
+in emitted MAXScript.
 
 ### Chaos Scatter
 - `ChaosScatter()` constructs. `CScatter` is the base and is **NotCreatable**.
@@ -1328,6 +1357,23 @@ This is the **fourth** false conclusion caught by execution in this repo, and th
 shipped inside two documents at once. It is the same shape as the P4b-r parameter-name sweep and the
 Boolean-modifier finding: an inference from a *neighbouring* fact, never tested. **Both documents were
 corrected** (`SKILL.md` §5.1, `agents/max-orchestrator.md` §5.2 and its §5.6 one-liner).
+
+**Update 2026-10-13 (Phase 14 / Audit 001 — Probe B):** While native automatic propagation across instances
+does not occur on `proto.material = m`, a scripted sync pass matching shared `baseObject`
+(`for proto in objects where matchPattern proto.name pattern:"PROTO_*" and proto.material != undefined do ( for o in objects where o != proto and o.baseObject == proto.baseObject do o.material = proto.material )`)
+propagates materials from the 29 prototypes to all 136 instances in ~5 ms with 0 modifiers.
+The user paints only the 29 `PROTO_*` nodes and runs `snippets/sync_proto_materials.ms`.
+
+---
+
+## Incident log 2026-10-13 (Phase 14 / Audit 001) — two overturned assumptions with empirical proof
+
+Probing live in 3ds Max 2026.3.2 via MCP on 2026-10-13 overturned two standing assumptions/limitations:
+
+| Standing assumption as recorded | What execution shows | Empirical proof & controls |
+|---|---|---|
+| **Layer assignment is impossible from MAXScript** — "An object's layer cannot be assigned from MAXScript in this build; six routes tried, all throw; closed as a verified negative" (P3/P6) | **`ILayerProperties.addNode` works.** While `node.layer = ...` is read-only on the node, calling `addNode` on the `LayerProperties` interface (`(LayerManager.getLayerFromName name).addNode obj`) assigns the node cleanly | **Probe A (2026-10-13):** `local lyr = LayerManager.getLayerFromName name; if lyr == undefined do lyr = LayerManager.newLayerFromName name; lyr.addNode b` → `threw=false layer=__probe_L_WALL`. Controls in same batch: `1+1` → `threw=false undef=false`, `TotalGarbageXYZ_fn(1)` → `threw=true undef=true`. Shared root cause: earlier probe only attempted property setters on `node`, missing the interface method on `LayerProperties`. |
+| **User must paint all 136 `PLC_*` facade panels individually by hand** — material application is tedious manual work for every placed panel because prototype assignment does not propagate (P10-lite) | **Material sync via `baseObject` propagates in ~5 ms.** Assigning materials only to the 29 `PROTO_*` components propagates to all 136 `PLC_*` instances sharing their prototype's `baseObject` | **Probe B (2026-10-13):** `for proto in objects where matchPattern proto.name pattern:"PROTO_*" and proto.material != undefined do ( for o in objects where o != proto and o.baseObject == proto.baseObject do o.material = proto.material )` → `beforeSync=false afterSync=true`. Propagates cleanly with 0 modifiers, preserving G-81 compliance (`snippets/sync_proto_materials.ms`). |
 
 ---
 

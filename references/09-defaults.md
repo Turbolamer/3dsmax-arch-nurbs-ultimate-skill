@@ -285,6 +285,39 @@ ask — not so it can answer.** `10` §6 E2 and E8 apply.
 > `A-nnn` ledger id is unchanged and still applies.
 | D-CL-10 | *reference only* — minimum vertical separation between two facade openings to keep a legible band | 30 | 20–60 | cm | rendering | `A-nnn` |
 
+### 3.12 Analytical forms and NURBS discretization (`form_references[]` & `nurbs.json`, Schema 1.1)
+
+Used when the input depicts or requests a curved vault, arch or canopy without stating discrete
+sampling counts, or when S1 prepares a draft `form_references[]` candidate from a visual reference
+for user confirmation (§5 item 12). True radii, semi-axes and spans remain on the do-not-default
+list (§5) and must be either given or escalated as a measured estimate.
+
+| Row | Key | Default | Range | Unit | Basis | Ledger id |
+|---|---|---|---|---|---|---|
+| D-NF-01 | `form_references[].construction_count` (`arc`, `ellipse_arc`) and `sections[].generator.count` | 25 | 9–65 (G-84/G-86 hard bound: 2–500) | count | geometry — 25 points keeps chordal discretization error well within `0.001 cm` (`G-85`) without bloating `NURBSPoint` sub-object count | `A-nnn` |
+| D-NF-02 | *reference only* — station section count along a `semi_elliptical_barrel` or `point_grid` vault | 5 | 3–13 | count | geometry — 5 longitudinal stations (`s0`, quarter, mid, three-quarter, `s1`) locks an exact `point_grid` (~8 microns deviation vs `u_loft`'s ~2.14 cm fit error) | `A-nnn` |
+| D-NF-03 | `nurbs.json` `surfaces[].merge_tol_cm` | 0.15 | 0.01–1.0 | cm | rendering — prevents seam cracks between adjacent NURBS surfaces (`07` §8.2.2) | `A-nnn` |
+| D-NF-04 | `nurbs.json` `surfaces[].mat_id` | 1 | 1–16 | count | convention — sub-material index on the committed surface (`07` §8.2.2) | `A-nnn` |
+| D-NF-05 | `nurbs.json` `surfaces[].blend` `tension1` / `tension2` | 0.0 | 0.0–1.0 (G-55) | ratio | geometry — `0.0` is the straight transition between edges; `> 0` bulges outward past both parents (`07` §8.2.7) | `A-nnn` |
+| D-NF-06 | `nurbs.json` `derivatives[].thickness_cm` (`space_frame`) | 10.0 | 2.0–40.0 (G-48) | cm | convention — diagrid / space-frame member thickness (`07` §8.2.5) | `A-nnn` |
+| D-NF-07 | `nurbs.json` `derivatives[].sub_steps` (`space_frame`) | 4 | 1–16 (G-48) | count | geometry — intermediate knots per diagrid member (`07` §8.2.5) | `A-nnn` |
+| D-NF-08 | `qa.json` `tolerances.form.surface_deviation_cm` (`form_precision_v1`) | 0.5 | 0.01–5.0 (G-89) | cm | grammar — physical form tolerance between evaluated 3ds Max surface and analytical reference (`07` §3.3, §8.7) | `A-nnn` |
+
+### 3.13 Visual-reference proportional anchors (`source.kind == "image"`)
+
+Used **only** when extracting estimates from an undimensioned photograph, render or sketch per
+`08-input-rules.md` §1.3. Every use creates an `A-nnn` entry naming both the `D-VR-xx` row and
+the `image:<file>#<region>` anchor.
+
+| Row | Key / Tectonic ratio | Default | Range | Unit | Basis | Ledger id |
+|---|---|---|---|---|---|---|
+| D-VR-01 | *reference only* — ergonomic scale anchor: single door height / width | 210 / 90 | 200–220 / 80–100 | cm | convention — primary fallback scale anchor ($L_{\text{anchor}}$) when an image has no companion text dimension (`confidence: "low"`) | `A-nnn` |
+| D-VR-02 | *reference only* — ergonomic scale anchor: standing human figure | 175 | 165–185 | cm | convention — secondary fallback scale anchor ($L_{\text{anchor}}$) (`confidence: "low"`) | `A-nnn` |
+| D-VR-03 | `openings[].width_cm` as a ratio of `bay_width_cm` — punched window ($R_{\text{op,w}}$) | 0.40 | 0.25–0.75 | ratio | convention — e.g. `0.40 × 450 = 180 cm`; guarantees `G-27` (`width_cm < bay_width_cm`) and leaves wide masonry piers | `A-nnn` |
+| D-VR-04 | `openings[].width_cm` in a `curtain_wall` bay — pier deduction each side | `bay - 30` | `bay - 50` … `bay - 20` | cm | geometry — keeps each side pier $\le 2 \times \text{D-OP-12}$ (`30 cm`) so `07` §8.3.5 rule 8.3 classifies the flanks as full-height `mullion` panels rather than `blank` wall returns | `A-nnn` |
+| D-VR-05 | *reference only* — minimum solid pier width `(bay_width_cm - width_cm) / 2` for punched openings | 30 | 10–150 | cm | geometry — prevents S5 `place_components.py` from tiling degenerate sliver `WAL_` wall cells narrower than `10 cm` | `A-nnn` |
+| D-VR-06 | *reference only* — dimensional quantisation step for image-scaled lengths | 5.0 | 1.0–10.0 | cm | convention — round raw proportional measurements to clean `5.0 cm` or `10.0 cm` modular increments before checking `G-24` / `G-25` sums | — |
+
 **Regional variation, stated plainly.** D-GU-01…D-GU-06 (guard and handrail heights),
 D-CR-05 / D-CR-07 / D-CR-08 / D-CR-11 / D-CR-12 (stair, egress, accessible), D-ST-06 / D-ST-09 / D-ST-10
 / D-ST-11 / D-ST-15 (kerb, accessible route, ramp, steps) and the insulation layer in D-RF-02 are
@@ -353,7 +386,7 @@ a hard `escalate` per `10` §6.
 |---|---|
 | This pipeline's spec unit is the **centimetre** (`07` §2), and the pipeline authors geometry in centimetres. | design decision, `07` §2 |
 | The probed scene runs `units.SystemType == #centimeters` with `units.SystemScale == 1.0`, so a spec value in cm reaches Max **unchanged**. | ✅ **verified by live execution** — `units.SystemType` → `centimeters`, `units.SystemScale` → `1.0`, and `units.SystemType == #centimeters` is `true` while `#meters`, `#millimeters`, `#inches`, `#feet`, `#decimeters` are all `false` |
-| 3ds Max's unit *display* setting changes how numbers are **labelled**, not the geometry. | ⚠️ still **unverified** for this installation — the probe read `SystemType`/`SystemScale`, not the display units |
+| 3ds Max's unit *display* setting changes how numbers are **labelled**, not the geometry. | ✅ **verified at Phase 03** — UI display metadata only; `scripts/scene_units.py` converts at the boundary via $c = k \cdot s$ |
 | Therefore the spec states cm, and any script that ever writes geometry in another unit **must convert at the boundary**. | the rule this pipeline follows regardless |
 
 **Reading the unit back.** `getProperty units #SystemType` **fails** in Max 2026 — read the members
@@ -369,8 +402,8 @@ geometry is built:
 If they disagree, **convert at the script boundary** — never by editing the spec. The spec is cm by
 contract; the scene is whatever the user's file already is. Changing a user's existing `Units Setup`
 silently is a modification they did not ask for. The P3 build confirms the agreement case end-to-end:
-`build_spec.py` emits `Box(width:1800, …)` and the node measures 1800 cm, with **no conversion anywhere in
-the builder**.
+`build_spec.py` emits `Box(width:1800, …)` and the node measures 1800 cm. For scenes with different units,
+`scripts/scene_units.py` performs adaptive conversion at the boundary via $c = k \cdot s$.
 
 ---
 

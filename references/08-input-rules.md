@@ -66,6 +66,42 @@ and an image disagree about the same wall, and neither is dimensioned, that is a
 and a question at worst. **Never average two sources.** Averaging destroys both the conflict log and the
 module discipline, and it produces a value no source supports.
 
+### 1.3 Visual & Proportional Deconstruction Protocol (Image, Render & Sketch References)
+
+When the input includes an image, render, photograph or architectural sketch (`source.kind: "image"`), jumping directly from pixels to centimetre values in `dimensions.json` is forbidden. Visual inputs must pass through a deterministic **4-step proportional deconstruction** before Step 2 unit normalisation:
+
+#### Step 1.3.1 — Perspective & Horizon Guard
+Classify the visual source before taking any ratio:
+- **`orthographic_elevation`**: direct 2D pixel/ruler ratios along both X and Y axes are valid.
+- **`two_point_perspective`** (verticals parallel, horizontals converging): **vertical ratios along the same vertical line are valid**; horizontal bay widths foreshorten toward the vanishing points and must **never** be measured as raw pixel widths. Extract horizontal structure by counting rhythmic modules (`bay_count`) and equal-division symmetry, not by measuring foreshortened pixels.
+- **`three_point_perspective` / `aerial`**: both vertical and horizontal ratios foreshorten. Rely on module counting, structural grid alignment, and local ratios within a single coplanar bay.
+
+#### Step 1.3.2 — Scale Anchor Binding (`L_anchor`)
+Every image deconstruction requires at least one explicit **Scale Anchor** ($L_{\text{anchor}}$) before any dimension is computed. Rank of anchor preference:
+1. **Stated project dimension** in a companion brief or title block (e.g. total span `12000 mm` = `1200.0 cm`, footprint width `1800.0 cm`, or ground-to-first height `420.0 cm`) — yields `confidence: "high"` or `"medium"`.
+2. **Standard ergonomic / tectonic reference** visible in the image when the brief is completely silent on scale:
+   - Single leaf entrance/service door height: `210.0 cm` (or `220.0 cm` commercial); width: `90.0 cm`–`100.0 cm`.
+   - Guardrail / balustrade / roof parapet height: `105.0 cm`–`110.0 cm`.
+   - Standard stair riser: `15.0 cm`–`16.5 cm`.
+   - Standing human figure scale: `175.0 cm`.
+   - Yields `confidence: "low"` and requires an explicit `A-nnn` anchor entry in `assumptions.json`.
+
+#### Step 1.3.3 — Proportional Ratio Chain (Dimensionless Extraction)
+Before authoring `_cm` leaves, extract the building's tectonic proportions relative to the local bay or storey module. Record raw ratios or primary scaled measurements in `raw_source_values[]` (Schema 1.1) with `source_reference` pointing to `image:<file>#<region>`:
+
+| Tectonic feature | Ratio definition | Invariant it protects |
+|---|---|---|
+| **Bay aspect ratio** | $R_{\text{bay}} = W_{\text{bay}} / H_{\text{level}}$ | Locks `structure.x_bay_cm` and `facades[].bay_width_cm` so `Σ bay_width_cm == length_cm` (**G-24**, **G-25**) |
+| **Opening-to-bay width ratio** | $R_{\text{op,w}} = W_{\text{opening}} / W_{\text{bay}} \in (0.0, 1.0)$ | Guarantees strict inequality `width_cm < bay_width_cm` (**G-27**) and preserves solid pier widths for S5 `WAL_` cell tiling |
+| **Vertical bay partition** | $R_{\text{sill}} + R_{\text{window}} + R_{\text{spandrel}} = 1.0$ | Guarantees `head_cm <= levels[level].height_cm` and `head_cm - sill_cm > 0` (**G-26**) |
+| **Arch / vault rise-to-span ratio** | $R_{\text{vault}} = b / (2a) = \text{rise} / \text{span}$ | Derives semi-minor axis $b = R_{\text{vault}} \cdot (2a)$ from semi-major axis $a = \text{span}/2$ in `form_references[]` (**G-86**) |
+| **Relief & tectonic depth** | Classified as `flush` (`0 cm`), `recessed_opening` (`15–30 cm` reveal), or `projecting_frame` | Prevents flat facade assumptions and informs S4b `components_registry.json` parameters (`frame_depth_cm`, `glass_offset_cm`) |
+
+#### Step 1.3.4 — Tectonic Rhythm & Symmetry Grammar
+Write the elevation's bay rhythm as an explicit pattern before expanding `openings[]`:
+- Identify symmetry (`[A, B, B, A]`), repeating bays (`[A, A, A, B]`, as in `pavilion-01` where bay 4 is the full-height glazed stair bay), or blank structural core bays (`[Blank_Core, A]`, as in `pavilion-01` east elevation `A-016`).
+- Verify that every opening's pier remainder `(bay_width_cm - width_cm) / 2` is $\ge 10.0\text{ cm}$ so S5 `place_components.py` does not emit degenerate sliver `WAL_` wall cells.
+
 ---
 
 ## 2. Source hierarchy

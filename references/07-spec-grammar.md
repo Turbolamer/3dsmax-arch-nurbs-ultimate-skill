@@ -986,11 +986,14 @@ rising 60–90 cm, sampled off the same 8 × 6 and 4 × 2 divisions:
 Those four numbers are the whole argument, and they are measurements, not theory: an interpolating
 surface **overshoots** the points you gave it, and a controlled surface **undershoots** them. QA must
 therefore compare **evaluated** geometry against the lattice, never the lattice against itself.
-> **CORRECTED (verified 2026-10-06):** this sentence previously ended *"(this is what **P8 asserts**)"*.
-> **P8 was cancelled by user decision on 2026-10-05** — there is no automated QA stage and no
-> `qa.json` gate. **Nothing asserts this automatically.** It remains a *rule this file states*: any
-> check against a lattice is a human or agent read-back of `evalPos` against the expected bounds,
-> not a pipeline gate. The four measured numbers above are the evidence; the obligation is manual.
+> **QA verification note (reconciled with L-QA / Schema 1.1):** Under `schema_version: "1.1"`,
+> automated surface form verification is governed by `qa.json` (`profile: "form_precision_v1"`,
+> check family `QA-V1-FORM` in §8.7 / §9.10) executed via `scripts/qa_check.py`, which evaluates
+> committed `evalPos` world coordinates against `dimensions.json:form_references[]`. Crucially,
+> `NURBSULoftSurface` (`u_loft`) carries an internal 12-CV B-spline fit deviation of ~2.14 cm,
+> whereas `NURBSPointSurface` (`point_grid`) interpolates to ~0.0008 cm (8 microns). Any surface
+> targeted by `form_precision_v1` must therefore use `point_grid` (or match the profile's
+> declared `surface_deviation_cm` tolerance).
 
 **Domain is a per-kind fact, not a constant.** The table above gives the two grid domains; both sweep
 kinds were measured at `[0,1]` on their committed surfaces, `u=[0,1] v=[0,1]`, exactly like `cv_grid`.
@@ -1990,12 +1993,11 @@ tries to apply it is a build **FAIL** (G-79), not a silent no-op.
 
 No `materials`, no `cameras`, no `lights`, no `export` keys in this schema. A row naming
 any of them is a FAIL — which G-1 already delivers, because §4 does not declare those keys.
-> **CORRECTED (verified 2026-10-06):** this paragraph previously read *"Those are P7, P8 and P9"*, which
-> presented three pending stages. **All three were cancelled by user decision on 2026-10-05.**
-> `materials.json`, `qa.json` and `export.json` exist only as **reserved stubs** and are **not planned
-> work**; there is no `qa_check.py`, no `capture_views.py` and no `export_max.py` anywhere in the
-> scripts directory. **The stage boundary is still enforced** — G-1 rejects those keys — but it is
-> enforced because the pipeline does not do those things, not because a later stage will.
+> **Note on downstream stages (reconciled with L-QA):** **P7 (`materials.json`) and P9
+> (`export.json`) were cancelled by user decision on 2026-10-05** and remain reserved stubs with
+> no builders. In contrast, **P8 (`qa.json`) is active and defined under Schema 1.1** (§8.7,
+> `G-87`…`G-90`, `scripts/qa_check.py`), and keeps its configuration strictly in `qa.json`, never
+> inside `assembly.json`.
 
 Every value here is a length in `cm`, an angle in `deg`, or a unitless ratio
 (`scale_from` / `scale_to`). No class name, modifier, plugin or MCP tool appears anywhere in
