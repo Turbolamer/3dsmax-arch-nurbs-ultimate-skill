@@ -26,9 +26,10 @@
 
 ### 1.1 What S2 owns, and who owns what S2 defers
 
-S2 builds exactly six `kind`s plus the site pad and the group dummies: `plinth`, `slab` (one per
-storey), `column` (one per grid intersection per storey), `core_wall` (one per storey in
-`core.spans_level_indices`), `roof_deck`, `parapet`; plus `site_pad` ground pad / paving / kerb and
+S2 builds the massing element kinds plus site pad and group dummies: `plinth`, `slab` (one per
+storey, using that storey's effective footprint), `column` (grid intersections strictly inside each
+storey's effective footprint), `core_wall` (one per storey in `core.spans_level_indices`), `roof_deck`
+and `parapet` (following the top storey's effective footprint), `facade_wall` (for active `(facade, level)` pairs in `spans_level_indices`), and optional `pilaster` (layer `05_FACADE`); plus `site_pad` ground pad / paving / kerb and
 one `Dummy` per `grouping[]`. Layers are fixed by `kind` (§6.3); `kerb` is `null` because
 `dimensions.json` has no kerb key; the ground slab is a `slab`, not `site_pad` (`11` §1.2); and stair
 and lift shafts are **not** massing elements at S2.
@@ -40,7 +41,7 @@ and lift shafts are **not** massing elements at S2.
 | Materials, renderer choice, UVs | **nobody — S6 was cancelled 2026-10-05** | **Applied by hand by the user**; the hand-off is `agents/max-orchestrator.md` §5. `materials.json` is a **reserved stub**, not a deliverable and not a gate |
 | NURBS surfaces, lofts, sweeps, blends, curved roofs, stairs, ramps, lifts | **S3** | `nurbs.json`, `recipes/*.json` |
 | Beams, bracing, trusses, foundations | **S3/S5, after an engineer** | No `kind` produces them at S2 (`11` O-4) |
-| Layer **application** to objects | **nobody — permanently** | Layer is **data** (`07` §8.1.3) and cannot be applied from this bridge by **any** of the **nine** ruled-out routes. **The user applies it in the Layer dialog**; `agents/max-assembly.md` §6.3 owns the wording |
+| Layer **application** to objects | **nobody — permanently** *(current policy, not an impossibility — see the correction)* | Layer is **data** (`07` §8.1.3) and cannot be applied from this bridge by **any** of the **nine** ruled-out routes. **The user applies it in the Layer dialog**; `agents/max-assembly.md` §6.3 owns the wording. **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the nine rejected routes remain rejected, exactly as measured — but **"permanently" is refuted**. Those nine are the **property-setter** routes and the typed tool's action vocabulary; a different route exists and works: **`ILayerProperties.addNode`** (`(LayerManager.getLayerFromName name).addNode node`, verified in Phase 14, `CHECKPOINT.md`). Read-only `node.layer` and a working layer-interface method are two different facts. **Whether this skill's builders should apply layers is a separate policy decision** (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) — it is not settled by this correction |
 | Scatter, planting, cameras, lights, export | **S5 for the scatter declaration; nobody for the rest** | **CORRECTED (2026-10-06):** this cell used to read `assembly.json.scatters`, `qa.json.captures`, `export.json`. **`scatters` is the wrong key** — the schema key is **`scatter`**, singular, and it is a **declaration** the user applies by hand. `qa.json` and `export.json` belong to the **cancelled** S7/S8 and are reserved stubs only |
 
 ### 1.2 The one-MCP rule
@@ -52,7 +53,7 @@ and lift shafts are **not** massing elements at S2.
 | `3dsmax-mcp_execute_maxscript` running `massing.ms`, or a short read-back of `node.min` / `node.max` / `node.width` | Any exploratory probe of your own — a class-existence question, a trial-and-error call |
 | `3dsmax-mcp_get_scene_info` to confirm the scene holds nothing else | Every tool in `01` §1.2 — the forestPack / `tyflow_*` / RailClone group, and the Rhino-server names (`get_objects`, `analyze_objects`, `measure_objects`, `boolean_*`, `loft`, `sweep1`, `pipe`, every `gh_*`) |
 | `3dsmax-mcp_delete_objects` on what you created | **`geometry_qa`, `contact_check`, `scene_qa` do not exist.** A check naming one is a defect |
-| `3dsmax-mcp_manage_layers` actions `list` and `create` — the eight names in `07` §8.1.4, nothing else | **`3dsmax-mcp_manage_layers` **object assignment** — the action name is not "unknown", it **does not exist**: the vocabulary is **exactly `{list, create, delete}`**, 40+ candidates rejected, and eight further routes are ruled out (**nine total**). **The user applies layers in the Layer dialog** (`agents/max-assembly.md` §6.3) |
+| `3dsmax-mcp_manage_layers` actions `list` and `create` — the eight names in `07` §8.1.4, nothing else | **`3dsmax-mcp_manage_layers` **object assignment** — the action name is not "unknown", it **does not exist**: the vocabulary is **exactly `{list, create, delete}`**, 40+ candidates rejected, and eight further routes are ruled out (**nine total**). **The user applies layers in the Layer dialog** (`agents/max-assembly.md` §6.3). **Scope (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** this is a claim about the **typed tool's action vocabulary only** — it does **not** mean layer assignment is impossible from MAXScript, because `ILayerProperties.addNode` works |
 
 Executing an already-verified emitted script is **not** a probe (`01` §6). A fact not in
 `CHECKPOINT.md` §"Verified facts" is escalated for an orchestrator probe — never opened by S2.
@@ -123,7 +124,7 @@ Ordered and deterministic. Each step has a pass condition.
 |---|---|---|---|
 | 1 | **Verify the input is locked** | Read the six envelope keys of all three files. Apply §2.2 in full | All three `locked`, `project` agrees, `units.length == "cm"` |
 | 2 | **Re-check every P3 assumption** | List every `assumptions.json` entry with `recheck_stage: "P3"`. Each is a **low-confidence proxy** for something a licensed professional owns — column section, core wall thickness, slab thickness | Every one named in your report. **None silently upgraded** — if one would change the geometry, that is an escalation (§10) |
-| 3 | **Read `dimensions.json` into the massing model** | Read §2.1 once, in order. Take `tolerances` verbatim — a builder may not widen them. Storeys from `levels[]` + `floor_plates[]`; columns from `structure.column_x_cm` × `column_y_cm` × `column_section_cm`; core walls from `core.footprint_cm` inset by `core.wall_thickness_cm` over `core.spans_level_indices`; roof from `roof.deck_level_cm` / `deck_thickness_cm` / `parapet_*`; site from `site.footprint_cm` / `ground_level_cm` / `setback_cm`; groups per `07` §8.1.1 | Every value used is at a `07` §5 key path. **Every element's `origin` is `derived`** (`G-36`) — S1 already resolved `given` / `assumed` / `conflict` |
+| 3 | **Read `dimensions.json` into the massing model** | Read §2.1 once, in order. Take `tolerances` verbatim — a builder may not widen them. Effective footprints from `floor_plates[i].footprint_cm` (or `site.footprint_cm` when absent). Storeys from `levels[]` + `floor_plates[]`; columns pruned to intersections strictly inside each storey's effective footprint; core walls from `core.footprint_cm` inset by `core.wall_thickness_cm` over `core.spans_level_indices`; roof deck and parapet from top storey (`levels[-1]`) effective footprint; facade walls for `(facade, level)` pairs in `facades[].spans_level_indices`; pilasters when declared; site from `site.footprint_cm` / `ground_level_cm` / `setback_cm`; groups per `07` §8.1.1 | Every value used is at a `07` §5 key path. **Every element's `origin` is `derived`** (`G-36`) — S1 already resolved `given` / `assumed` / `conflict` |
 | 4 | **Classify each candidate against §6** | Every element must be a prism in Z on an axis-aligned rectangle | Every refusal recorded with the element's id and reason, and escalated (§10) |
 | 5 | **Emit `massing.json` and `massing.ms`** | Run the builder (§5). **You do not hand-write either file.** Then read `massing.json` back from disk and verify it independently — recompute at least one `z_range_cm`, one `profile_cm`, one `parent_pivot_cm`, and the `G-40` group partition by hand | The file matches your hand computation at `tolerances.linear_cm`, and the element-id set matches what you derived |
 | 6 | **Validate** | `python scripts/validate_specs.py --dir <specs_dir> --build` | Exit **0**. `G-34`…`G-40` all **PASS** — see §8 row 2 |
@@ -155,7 +156,7 @@ The CLI contract is fixed in `01` §8 — do not vary it, and do not add a secon
 | Exit **0** | The lock gate passed **and** `G-34`…`G-40` pass |
 | Exit **non-zero** | A refusal naming the reason — the file path and the `status` found, or the `G-` id that fired |
 | Determinism | Byte-identical output for byte-identical input |
-| Layer code | **None.** `massing.ms` is geometry only. Adding layer code is a defect, not an improvement — it cannot work (`07` §8.1.3) |
+| Layer code | **None.** `massing.ms` is geometry only. Adding layer code is a defect, not an improvement — it cannot work (`07` §8.1.3). **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "cannot work" is scoped to the **property-setter** routes; the layer interface method `ILayerProperties.addNode` *does* work, so the no-layer-code rule is a **policy** (`G-79`), not an impossibility. Whether the policy stays is settled separately (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) |
 
 `--build` forces the lock gate to a **FAIL** instead of the lint **WARN** it is without the flag
 (`CHECKPOINT.md` §P2) — always run it with `--build`. If a flag errors, run `--help` and use only what
@@ -180,11 +181,13 @@ both finite. `profile_ccw` is declared and `true`, so `G-35` has something to as
 
 | `kind` | What `G-38` fixes | Tolerance |
 |---|---|---|
-| `slab` | `z_range_cm == [level.elevation_cm − floor_plates[i].thickness_cm, level.elevation_cm]` — **the slab sits under its level** | `linear_cm` |
-| `column` | `z_range_cm == [level.elevation_cm − slab thickness, level.elevation_cm + level.height_cm]` — **the column spans the storey** | `linear_cm` |
+| `slab` | `z_range_cm == [level.elevation_cm − floor_plates[i].thickness_cm, level.elevation_cm]` — sits under its level, with profile matching the storey's effective footprint (`floor_plates[i].footprint_cm` if present, else `site.footprint_cm`) | `linear_cm` |
+| `column` | `z_range_cm == [level.elevation_cm − slab thickness, level.elevation_cm + level.height_cm]` — spans the storey, generated only for grid intersections strictly inside the storey's effective footprint | `linear_cm` |
 | `core_wall` | `profile_cm == core.footprint_cm` **inset by `core.wall_thickness_cm`** | `linear_cm` |
-| `roof_deck` | `z_range_cm == [roof.deck_level_cm, roof.deck_level_cm + roof.deck_thickness_cm]` — **at the deck level** | `linear_cm` |
-| `parapet` | `z_range_cm == [roof.deck_level_cm + roof.deck_thickness_cm, … + roof.parapet_height_cm]` — **on top of the deck** | `linear_cm` |
+| `roof_deck` | `z_range_cm == [roof.deck_level_cm, roof.deck_level_cm + roof.deck_thickness_cm]` — at the deck level, following top storey (`levels[-1]`) effective footprint | `linear_cm` |
+| `parapet` | `z_range_cm == [roof.deck_level_cm + roof.deck_thickness_cm, … + roof.parapet_height_cm]` — on top of the deck, following top storey (`levels[-1]`) effective footprint | `linear_cm` |
+| `facade_wall` | `z_range_cm == [level.elevation_cm, level.elevation_cm + level.height_cm]` — full storey height, exactly one per `(facade.id, level_index)` pair where `level_index` is in `facade.spans_level_indices` | `linear_cm` |
+| `pilaster` | optional vertical Z-prisms along bay boundaries / piers, on layer `05_FACADE` | `linear_cm` |
 
 Also from `G-38`: every `storey_index` is `null` or an index in `storeys[]`, and **every level in
 `core.spans_level_indices` must have a `core_wall`**.
@@ -199,7 +202,7 @@ Also from `G-38`: every `storey_index` is `null` or an index in `storeys[]`, and
 
 `layer` is fixed per kind (`07` §8.1.2 — a table, not a preference, because `assembly.json.layer_map`
 resolves against it): `plinth` → `00_SITE` · `slab` → `01_SLABS` · `column` → `02_STRUCTURE` ·
-`core_wall` → `03_CORE` · `roof_deck` and `parapet` → `04_ROOF`. `site_pad.layer` is always `00_SITE`;
+`core_wall` → `03_CORE` · `roof_deck` and `parapet` → `04_ROOF` · `facade_wall` and `pilaster` → `05_FACADE`. `site_pad.layer` is always `00_SITE`;
 every `grouping[].layer` is `90_SCENE` — *"the dummy, never the payload"*. Enforced by **G-39**. The
 only verified placement primitive is `Box(width:, length:, height:, pos:)` — axis-aligned — so **a
 non-rectangular profile cannot be emitted**:
@@ -208,7 +211,7 @@ non-rectangular profile cannot be emitted**:
 |---|---|
 | A profile that is not a rectangle — L, T, U, chamfered, notched, any > 4 vertices | **Out of scope at S2.** The builder refuses it **by name**; escalate (§10). Never approximate it with a bounding rectangle: a wrong massing that validates is worse than a refusal |
 | A rectangle **rotated** from world axes (`site.plot_rotation_deg ≠ 0`) | **Out of scope at S2.** `Box` has no rotation in the verified call shape, and rotating after creation is **UNVERIFIED**. Escalate |
-| A footprint that changes with height — stepped, tapered, setback per storey | **Out of scope.** One `site.footprint_cm`, and `G-29` assumes a prismatic building. Escalate |
+| A footprint that changes with height — stepped, tapered, setback per storey | **Under Schema 1.0:** out of scope (prismatic building assumed). **Under Schema 1.1:** natively supported via stepped floor plates (`floor_plates[].footprint_cm`) and tier-scoped facades (`facades[].spans_level_indices`). Slabs follow effective footprints, columns are pruned to effective footprints, and top tier deck/parapets follow `levels[-1]` |
 | A `plinth` | `dimensions.json` has **no plinth key.** Emit one only if the spec supplies the dimension; otherwise omit it and say so. An S2-invented plinth is an invented dimension |
 | `site_pad.kerb` · a `grouping[].kind` of `facade` · a `core_wall` that does not span its whole storey | `kerb` is `null`, `facade` is reserved for S4–S5, neither creates geometry (`07` §8.1.1, `11` §1.6). `G-38` fixes the core wall's **profile**, not its Z: build it on the storey volume and record it in `origins` as derived from `levels[i]`; a partial-height core wall is a `07` §8.1.1 schema question — escalate |
 
@@ -231,10 +234,12 @@ Only these facts are verified. Everything else is UNVERIFIED and needs an orches
 | The script creates each element with `Box(width:, length:, height:, pos:)`. Geometry is **centred on `pos.xy`**, its **base sits at `pos.z`**, and `pos:` moves the geometry, not only the pivot | ✅ verified — `Box width:100 length:200 height:300 pos:[1000,0,0]` → `min=[950,-100,0] max=[1050,100,300]` | `pos:` = `[profile centre x, profile centre y, z_range_cm[0]]`; `width`/`length` = the profile's X/Y extent; `height` = `z_range_cm[1] − z_range_cm[0]` |
 | A node is **named after its spec id**: `EL-001` → `EL_001`, `GRP-001` → `GRP_001`. Replace every `-` with `_`; nothing else changes | design decision, `11` §3.1, rules N1–N5 | Names are identifier-safe (`-` is also subtraction, so `EL-001` in an expression reads as `EL - 001`), unique, stable across rebuilds, derived deterministically. `grouping[].name` resolves to the group id; a descriptive label is an **S5 / hand-off** concern (**CORRECTED 2026-10-06:** this cell used to say "S5/S6"; **S6 was cancelled on 2026-10-05**) |
 | Grouping uses `Dummy` + `node.parent = dummy`. `Dummy boxSize:` needs a **`point3`** — a float throws. `getChildren` **does not exist**; use the `dummy.children` property | ✅ verified 2026-10-04 | `parent_pivot_cm` is the dummy's pivot: the group's bbox centre in XY and its **minimum** Z, tol 0.5 (`11` D3) |
-| **An object's layer cannot be assigned from MAXScript at all.** Six routes executed, all throw `Property is read-only: layer`. Layer *creation* and *reading* do work | ✅ verified 2026-10-04, six transcripts | **Layer stays data.** Nodes created at S2 sit wherever Max puts new geometry and that is expected — **not a defect, never "fixed" in the emitted script** |
+| **An object's layer cannot be assigned from MAXScript at all.** Six routes executed, all throw `Property is read-only: layer`. Layer *creation* and *reading* do work | ✅ verified 2026-10-04, six transcripts — **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "at all" is **refuted**. The six **property-setter** routes still fail as measured, but the layer interface method **`ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node` assigns the node (verified in Phase 14, `CHECKPOINT.md`). Read-only `node.layer` ≠ no scripted assignment | **Layer stays data.** Nodes created at S2 sit wherever Max puts new geometry and that is expected — **not a defect, never "fixed" in the emitted script**. The builder emits no layer code by **policy** (`G-79`); the policy itself is settled separately (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) |
 
 **UNVERIFIED — do not build on these without an orchestrator probe:** rotating a node after creation;
-any layer-assignment route outside the six rejected; per-layer colour or render flags (`11` O-7);
+any layer-assignment route outside the six rejected (**CORRECTED 2026-10-27,
+`Audit/EVIDENCE_2026-10-27.md` §E-7:** one such route is now verified — `ILayerProperties.addNode`);
+per-layer colour or render flags (`11` O-7);
 `massing.ms` on a scene that is not empty.
 
 **How to run it.** `3dsmax-mcp_execute_maxscript` with `fileIn "<absolute path>"` — the default route.
@@ -249,15 +254,15 @@ Check every row. **The validator covers the mechanical subset only**; rows 3, 6 
 
 | # | Gate | Checked by |
 |---|---|---|
-| 1 | `python scripts/validate_specs.py --dir <specs_dir> --build` exits **0**, with `G-34`…`G-40` **all PASS** | the transcript of the final run |
+| 1 | `python scripts/validate_specs.py --dir <specs_dir> --build` exits **0**, with `G-34`…`G-40` (and `G-91` when stepped massing is present) **all PASS** | the transcript of the final run |
 | 2 | **A SKIP on any of `G-34`…`G-40` is not a pass.** A check that cannot be evaluated reports SKIP with its reason, never a silent PASS (`07` §9.6). A SKIP means the build is unproven — escalate it | you, reading the `--json` output |
 | 3 | **Every element's node exists**, named per `11` §3.1 | you — `3dsmax-mcp_get_scene_info` |
 | 4 | Every `origins` entry is `derived` with a non-empty `derives_from` resolving in `dimensions.json` or this file; every `origin_inputs` path resolves; `tolerances` equals `dimensions.json`'s, unwidened | **G-36**, **G-31** |
 | 5 | Every element is in **exactly one** group, each `parent_pivot_cm` equals that group's bbox centre in XY and minimum Z, and every `layer` matches the `kind` → layer table, `site_pad.layer == "00_SITE"`, `grouping[].layer == "90_SCENE"` | **G-40**, **G-39**, `11` H11 |
-| 6 | **Every element's measured bounding box matches `massing.json` within `tolerances.linear_cm`** | you — the measurement route below |
+| 6 | **Every element's measured bounding box matches `massing.json` within `tolerances.linear_cm`** (slabs match effective footprints, columns pruned on upper setback storeys, top tier deck/parapet follow `levels[-1]`) | you — the measurement route below |
 | 7 | **The scene contains nothing else** — no auto-named `Box01`, no orphan from a failed run, no probe, nothing on `99_DEBUG` that is not a named probe | you — `get_scene_info`, `11` H5/H6 |
 | 8 | The script ran **without error**. An error that produced no node is a FAIL, not a partial pass | the call's return value |
-| 9 | The eight layer names in `07` §8.1.4 exist, character for character | `3dsmax-mcp_manage_layers` `list` — **existence only.** **CORRECTED (2026-10-06):** this cell used to read "Assignment is S5's problem and the action name is unknown". **It is nobody's problem and the action name will never be found** — the vocabulary is exactly `{list, create, delete}`, and nine routes are ruled out in total. **The user applies layers in the Layer dialog** (`agents/max-assembly.md` §6.3) |
+| 9 | The eight layer names in `07` §8.1.4 exist, character for character | `3dsmax-mcp_manage_layers` `list` — **existence only.** **CORRECTED (2026-10-06):** this cell used to read "Assignment is S5's problem and the action name is unknown". **It is nobody's problem and the action name will never be found** — the vocabulary is exactly `{list, create, delete}`, and nine routes are ruled out in total. **The user applies layers in the Layer dialog** (`agents/max-assembly.md` §6.3). **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the nine rejected routes are the **property-setter** routes and the typed tool's action vocabulary — **not** layer assignment in general. **`ILayerProperties.addNode` works** (`(LayerManager.getLayerFromName name).addNode node`, verified in Phase 14, `CHECKPOINT.md`). Read-only `node.layer` and a working layer-interface method are two different facts. **Whether this skill's builders apply layers is a separate policy decision** (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4); this gate still checks **names only** |
 | 10 | Nothing was filled silently from `09`'s do-not-default list, and every P3-flagged `A-nnn` from §4 step 2 is named | you |
 | 11 | A second run over the same locked spec produces the same node-name set | `11` H10 — two runs, compared. The determinism check, not an assumption |
 
@@ -265,7 +270,11 @@ Check every row. **The validator covers the mechanical subset only**; rows 3, 6 
 and do not ask a tool whether the geometry "looks right". Read `node.min` / `node.max`, or equivalently
 `node.width` / `node.length` / `node.height`; they agree because `Box` geometry is centred in X/Y and
 based at `pos.z`. Compare X/Y against the `profile_cm` ring's extent and Z against `z_range_cm`, with
-`abs(measured − expected) ≤ tolerances.linear_cm` — **0.5 cm, half a millimetre**. A larger mismatch is
+`abs(measured − expected) ≤ tolerances.linear_cm` — **0.5 cm = 5 mm**, not half a millimetre
+(**CORRECTED 2026-10-27**, `Audit/EVIDENCE_2026-10-27.md` §E-8; this cell previously read "half a
+millimetre"). This is a **technological tolerance** — it catches a real error. **Float epsilon is a
+separate, much smaller number**: the measured float artefact `inner_max.y = 0.0001` is recorded as
+`|y| < 1e-3` (§E-5). The two are not interchangeable. A larger mismatch is
 a real inconsistency in the spec or the builder: report both figures and stop, and do not nudge the node
 or widen the tolerance. For a group, read the dummy's `pos` against `parent_pivot_cm`.
 
@@ -296,7 +305,7 @@ S2 escalates far more than it decides. The builder computes; it does not design.
 | Which `07` §8.1 key an element's data belongs at; element id assignment and ordering | If a value does not fit a key, escalate — never invent one (`07` §12). Ids ascend, zero-padded, fixed order (§4) |
 | Group composition | As long as every element is in **exactly one** group (**G-40**) |
 | Which optional `07` §8.1 keys to populate | Omit rather than guess. An honest `null` beats an invented value |
-| Storey bookkeeping from `levels[]`; creating the eight layers with `manage_layers` `create` | Arithmetic, never a judgement call. Creation is verified; **assignment is not, and is not yours** |
+| Storey bookkeeping from `levels[]`; creating the eight layers with `manage_layers` `create` | Arithmetic, never a judgement call. Creation is verified; **assignment via `manage_layers` does not exist, and is not yours** — **CORRECTED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "assignment is not possible" would be refuted, because `ILayerProperties.addNode` **does** work from MAXScript. What stays true is that *this stage* does not assign layers |
 
 ### 10.1 You must stop and ask
 
@@ -337,7 +346,7 @@ non-existent or unsatisfiable without a transcript showing the attempt and the e
 | Reinterpreting a key — reading `roof.deck_thickness_cm` downward because `07` §5.9 says so, against `G-38` | Build to the invariant the validator implements, report the discrepancy in one line (§6.2), move on |
 | Inventing a default dimension — a plinth height, a kerb, a slab thickness, a column size | Escalate (§10.1). `09`'s do-not-default list is not a permission slip at S2 |
 | Building geometry by hand in the viewport instead of from the spec | Run the builder. A `Box` drawn interactively has an auto-name, no `origins` entry and no audit trail |
-| Adding layer code to the emitted script because the nodes land on the wrong layer | It cannot work — **nine routes ruled out**, final (`agents/max-assembly.md` §6.3). Layer is data; **no stage applies it** (**CORRECTED 2026-10-06:** this cell used to read "six routes executed, all threw. Layer is data; S5 applies it (§7)" — **S5 does not apply it either**) and **the user applies it in the Layer dialog** |
+| Adding layer code to the emitted script because the nodes land on the wrong layer | It cannot work — **nine routes ruled out**, final (`agents/max-assembly.md` §6.3). Layer is data; **no stage applies it** (**CORRECTED 2026-10-06:** this cell used to read "six routes executed, all threw. Layer is data; S5 applies it (§7)" — **S5 does not apply it either**) and **the user applies it in the Layer dialog**. **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "cannot work … final" is scoped to the **property-setter** routes; **`ILayerProperties.addNode` works**. The no-layer-code rule is therefore a **policy** (`G-79`), not an impossibility, and the policy is settled separately (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) |
 | Treating a **SKIP** as a **PASS** on any of `G-34`…`G-40` | A SKIP means the build is unproven. Escalate it and report it separately |
 | Naming nodes interactively, or accepting Max auto-names (`Box01`, `Dummy001`) | The name is the spec id with `-` → `_`. An auto-name records creation order, not design |
 | Approximating a non-rectangular profile with its bounding rectangle, or marking an element's `origin` as `given` / `assumed` / `conflict` | Refuse by name and escalate (§6.3). **Every S2 origin is `derived`** — S1 resolved the other three (`G-36`) |

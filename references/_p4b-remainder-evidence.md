@@ -8,6 +8,27 @@ Environment: `references/maxscript-splines-shapes.md` and
 `references/arch-modifiers-and-procedural-reference.md` are the two files to correct.
 Nothing below is inferred unless it says INFERENCE.
 
+> **ДОПОЛНЕНО 2026-10-27.** This file is an executed transcript and is **not rewritten
+> retrospectively** — everything below stays as it was measured on 2026-10-04. Two claims
+> are annotated as superseded because a **separate measurement on 2026-10-27** contradicts
+> them; source for both: `Audit/EVIDENCE_2026-10-27.md`.
+>
+> 1. **§7.2 — `Extrude` and `addModifier` (E-1).** The verdict "throws for `Extrude`" was
+>    measured on a **`Box`** — polygonal geometry. On a **`SplineShape`** the same modifier
+>    **attaches**: `addModifier <splineShape> (Extrude amount:100 capStart:false
+>    capEnd:false)` → `threw=false`, `mods=1`, `classOf=Extrude`; on a `Box` the same call
+>    still gives `threw=true`, `mods=0`. "Does not attach" is therefore a property of the
+>    **target geometry**, not of the modifier.
+> 2. **§8.2, the `Shell` row — `segs` (E-2).** `Shell` has **`segments`**, not `segs`:
+>    `getProperty <shellModifier> "segments"` → `threw=false`, `undef=false` (it exists);
+>    `getProperty <shellModifier> "segs"` → **throws**. The 2026-10-04 verdict "`segs` →
+>    `NO`, 3 of 6 wrong" was a **false negative** — the segments control always existed,
+>    only the probed name was wrong.
+>
+> The `SUPERSEDED (2026-10-27)` markers added below were added on 2026-10-27 and are **not**
+> part of the original transcript. The `overrideEdgeMatID` / `edgeMatID` verdicts of
+> 2026-10-04 were **not** re-tested on 2026-10-27 and are left untouched.
+
 ---
 
 ## 0. The two methodological findings that made this cheap
@@ -46,7 +67,7 @@ test many candidate names in a loop with a real negative control.
 
 | Construct | Result |
 |---|---|
-| `getCurrentException()` inside a `catch` | itself throws; makes a catchable error escape as a script abort |
+| `getCurrentException()` inside a `catch` | itself throws; makes a catchable error escape as a script abort — **SUPERSEDED (2026-10-27): this verdict is FALSE.** `getCurrentException()` **works** inside a `catch` — it returned a real message for 6 of 6 throw kinds, and on 2026-10-27 it was used freely inside `catch` blocks in live probes with a non-throw control proving the catch was not entered. The rule was already withdrawn as false on 2026-10-05 (`AGENTS.md` §"Probe method", `CHECKPOINT.md` §"Incident log 2026-10-05"); the 2026-10-27 re-measurement is E-6/E-8 of `Audit/EVIDENCE_2026-10-27.md`. The row above is the **2026-10-04 transcript**, left verbatim; do not read it as a rule |
 | `global fn name args = (...)` | parse error |
 | `local function name args = (...)` | parse error. Use `local fn name args = (...)` |
 | `modPanel.setCommandPanelCurrentMode #modify` | throws — no UI panel available |
@@ -294,6 +315,26 @@ The file says *"always use the exact MAXScript class name … below"* for
 even though all six construct fine standalone. `modPanel.addModToSelection` is not a way
 around it — it returns OK and adds nothing (§0.4).
 
+> **ДОПОЛНЕНО 2026-10-27 (E-1) — the `Extrude` line above is SUPERSEDED IN PART.** The target
+> in that sweep was a `Box`, i.e. **polygonal geometry**. On a **shape** (`SplineShape`) the
+> modifier attaches:
+>
+> ```
+> addModifier <splineShape> (Extrude amount:100 capStart:false capEnd:false)
+> -- threw=false, mods=1, classOf=Extrude, capStart=false, capEnd=false
+>
+> addModifier <box> (Extrude amount:100 capStart:false capEnd:false)
+> -- threw=true, mods=0
+> ```
+>
+> **"`Extrude` does not attach" is a property of the concrete geometry, not of the modifier** —
+> so the sweep result above does not generalise to shapes. Consequence: a `.ms` emitter can
+> be self-sufficient, because the builder writes the stack into the script itself and the
+> typed-tool `add_modifier` is not needed. The `Sweep` / `Lathe` / `Surface` /
+> `CrossSection` / `Bevel_Profile` lines of the sweep are **not** affected by this
+> measurement.
+> (measured 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-1)
+
 **The typed MCP tool `3dsmax-mcp_add_modifier` DOES work for them.** Executed on a `Box001`:
 
 | `modifier` argument | tool result |
@@ -341,6 +382,22 @@ negative in the same call**. `NO` = the name does not exist.
 | `Lathe` | `direction` (`0`=X, `1`=Y, `2`=Z) | **`direction` → `NO`.** The real property is **`axis`**, and it is a **`matrix3`**, not an integer enum: `matrix3 [1,0,0] [0,-1.62921e-07,-1] [0,1,-1.62921e-07] [0,0,0]`. `degrees=360.0 segs=16 flipNormals` all exist |
 | `RetopologyComponent` | `numFaces`, `engineType`, `autoEdge` | **`engineType=0` exists. `numFaces` and `autoEdge` → `NO`.** 8 further candidates all `NO` (`targetQuadCount quadCount faces edgeLength autoEdges symmetry engine retopologyType`) |
 | `Sweep` | "`PivotAlignment` (`0..8`)" | `PivotAlignment` exists but reads **`-1`**, not `0..8` |
+
+> **ДОПОЛНЕНО 2026-10-27 (E-2) — the `Shell` row above is SUPERSEDED IN PART.** `Shell` has
+> **`segments`**, not `segs`:
+>
+> ```
+> getProperty <shellModifier> "segments"   -- threw=false, undef=false  → EXISTS
+> getProperty <shellModifier> "segs"       -- THROWS                   → does not exist
+> ```
+>
+> Also re-read on 2026-10-27 and still present: `innerAmount`, `outerAmount`,
+> `straightenCorners`. **The 2026-10-04 verdict "`segs` → `NO`, 3 of 6 wrong" was a false
+> negative**: absence of a **mis-named** property was read as absence of the segments
+> control. The control itself exists and is named `segments` (default `1`; the official
+> Autodesk 2026 API carries the same name). The `overrideEdgeMatID` / `edgeMatID` verdicts
+> were **not re-tested on 2026-10-27** and stand as measured on 2026-10-04.
+> (measured 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-2 and §E-5)
 
 ### 8.3 NOT FOUND — record as UNVERIFIED, do not invent
 

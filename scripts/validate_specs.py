@@ -274,6 +274,7 @@ MASSING_KIND_LAYER: dict[str, str] = {
     "roof_deck": "04_ROOF",
     "parapet": "04_ROOF",
     "facade_wall": "05_FACADE",
+    "pilaster": "05_FACADE",
 }
 
 #: 07 section 8.1.1 element kinds. The vocabulary and the layer map are the same
@@ -870,6 +871,7 @@ RULE_TITLES: dict[str, str] = {
     "G-88": "QA coverage joins: targets, checks and inferred mandatory families",
     "G-89": "QA tolerances and schedule: separate arithmetic, form, numerical and limits",
     "G-90": "QA dependencies and provenance: discriminated JSON and CSV bindings",
+    "G-91": "stepped plate containment and co-presence",
 }
 
 #: Rules that read more than one file. Reported grouped by severity, never by file.
@@ -943,6 +945,8 @@ RANGE_RULES: tuple[RangeRule, ...] = (
     ("floor_plates[].thickness_cm", 15.0, 45.0, True, True, "cm"),
     ("floor_plates[].gross_area_m2", 0.0, None, False, True, "m2"),
     ("floor_plates[].net_usable_area_m2", 0.0, None, False, True, "m2"),
+    ("floor_plates[].footprint_width_cm", 0.0, None, False, True, "cm"),
+    ("floor_plates[].footprint_depth_cm", 0.0, None, False, True, "cm"),
     ("roof.deck_level_cm", 0.0, None, False, True, "cm"),
     ("roof.deck_thickness_cm", 15.0, 45.0, True, True, "cm"),
     ("roof.slope_deg", 0.0, 15.0, True, True, "deg"),
@@ -1260,6 +1264,60 @@ def expand_footprint_ring(value: Any, kind: str) -> Optional[list[list[float]]]:
     xlo, xhi = min(x1, x2), max(x1, x2)
     ylo, yhi = min(y1, y2), max(y1, y2)
     return [[xlo, ylo], [xhi, ylo], [xhi, yhi], [xlo, yhi]]
+
+
+def effective_plate_footprint(dim_doc: dict[str, Any], level_index: int) -> list[list[float]]:
+    """Return effective floor plate footprint ring for level_index.
+
+    Returns dim_doc["floor_plates"][level_index]["footprint_cm"] (expanded if
+    needed via expand_footprint_ring) if present, else
+    expand_footprint_ring(dim_doc["site"]["footprint_cm"], dim_doc["site"].get("footprint_kind", "")).
+    """
+    if not isinstance(dim_doc, dict):
+        return []
+    plates = dim_doc.get("floor_plates")
+    plate = None
+    if isinstance(plates, list):
+        if 0 <= level_index < len(plates) and isinstance(plates[level_index], dict) and plates[level_index].get("level_index") == level_index:
+            plate = plates[level_index]
+        else:
+            for p in plates:
+                if isinstance(p, dict) and p.get("level_index") == level_index:
+                    plate = p
+                    break
+            if plate is None and 0 <= level_index < len(plates) and isinstance(plates[level_index], dict):
+                plate = plates[level_index]
+    if plate and "footprint_cm" in plate:
+        kind = plate.get("footprint_kind", "")
+        res = expand_footprint_ring(plate["footprint_cm"], kind if isinstance(kind, str) else "")
+        if res is not None:
+            return res
+    site = dim_doc.get("site") or {}
+    kind = site.get("footprint_kind", "")
+    res = expand_footprint_ring(site.get("footprint_cm"), kind if isinstance(kind, str) else "")
+    return res if res is not None else []
+
+
+def effective_facade_levels(dim_doc: dict[str, Any], facade_obj: dict[str, Any]) -> list[int]:
+    """Return active level indices spanned by facade_obj.
+
+    Returns facade_obj["spans_level_indices"] if present, else
+    [lvl["index"] for lvl in dim_doc.get("levels", [])].
+    """
+    if isinstance(facade_obj, dict) and "spans_level_indices" in facade_obj:
+        spans = facade_obj.get("spans_level_indices")
+        if isinstance(spans, list):
+            return [idx for idx in spans if isinstance(idx, int)]
+    if not isinstance(dim_doc, dict):
+        return []
+    levels = dim_doc.get("levels", [])
+    if isinstance(levels, list):
+        return [
+            lvl["index"]
+            for lvl in levels
+            if isinstance(lvl, dict) and "index" in lvl and isinstance(lvl["index"], int)
+        ]
+    return []
 
 
 def _orient(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
@@ -2408,8 +2466,46 @@ def _f_core_area(doc: Any, path: str, linear: float, area: float, angle: float) 
 
 
 def _f_plate_gross(doc: Any, path: str, linear: float, area: float, angle: float) -> Any:
+    tokens = split_path(path)
+    if len(tokens) >= 3 and isinstance(tokens[1], int):
+        idx = tokens[1]
+        plates = doc.get("floor_plates")
+        if isinstance(plates, list) and 0 <= idx < len(plates):
+            plate = plates[idx]
+            if isinstance(plate, dict) and "footprint_cm" in plate:
+                fp_ring = effective_plate_footprint(doc, idx)
+                if fp_ring and len(fp_ring) >= 3:
+                    return polygon_area_m2(fp_ring)
     site = doc.get("site") or {}
     return as_number(site.get("footprint_area_m2"))
+
+
+def _f_plate_width(doc: Any, path: str, linear: float, area: float, angle: float) -> Any:
+    tokens = split_path(path)
+    if len(tokens) >= 3 and isinstance(tokens[1], int):
+        idx = tokens[1]
+        plates = doc.get("floor_plates")
+        if isinstance(plates, list) and 0 <= idx < len(plates):
+            plate = plates[idx]
+            if isinstance(plate, dict) and "footprint_cm" in plate:
+                ring = expand_footprint_ring(plate.get("footprint_cm"), plate.get("footprint_kind", ""))
+                if ring:
+                    return max(p[0] for p in ring) - min(p[0] for p in ring)
+    return None
+
+
+def _f_plate_depth(doc: Any, path: str, linear: float, area: float, angle: float) -> Any:
+    tokens = split_path(path)
+    if len(tokens) >= 3 and isinstance(tokens[1], int):
+        idx = tokens[1]
+        plates = doc.get("floor_plates")
+        if isinstance(plates, list) and 0 <= idx < len(plates):
+            plate = plates[idx]
+            if isinstance(plate, dict) and "footprint_cm" in plate:
+                ring = expand_footprint_ring(plate.get("footprint_cm"), plate.get("footprint_kind", ""))
+                if ring:
+                    return max(p[1] for p in ring) - min(p[1] for p in ring)
+    return None
 
 
 def _f_deck_level(doc: Any, path: str, linear: float, area: float, angle: float) -> Any:
@@ -2421,9 +2517,12 @@ def _grid_bays_for(doc: Any, facade: dict) -> Optional[list[float]]:
     """07 section 5.10: N/S facades take x_bay_cm, E/W take y_bay_cm."""
     structure = doc.get("structure") or {}
     name = facade.get("name")
-    if name in ("north", "south"):
+    if not isinstance(name, str):
+        return None
+    base_name = name.split("_", 1)[0]
+    if base_name in ("north", "south"):
         return _numbers(structure.get("x_bay_cm"))
-    if name in ("east", "west"):
+    if base_name in ("east", "west"):
         return _numbers(structure.get("y_bay_cm"))
     return None
 
@@ -2545,6 +2644,18 @@ DERIVED_FORMULAS: tuple[DerivedFormula, ...] = (
         "07 section 5.8: site.footprint_area_m2 (prismatic building)",
         _f_plate_gross,
         _tol_area,
+    ),
+    DerivedFormula(
+        "floor_plates[].footprint_width_cm",
+        "07 section 5.8: X extent of floor_plates[].footprint_cm",
+        _f_plate_width,
+        _tol_linear,
+    ),
+    DerivedFormula(
+        "floor_plates[].footprint_depth_cm",
+        "07 section 5.8: Y extent of floor_plates[].footprint_cm",
+        _f_plate_depth,
+        _tol_linear,
     ),
     DerivedFormula(
         "roof.deck_level_cm",
@@ -3428,7 +3539,7 @@ def check_geometry(record: LoadedFile, session: Session, report: Report) -> None
         return
     if record.spec.state != "defined":
         report.skip(
-            "G-16..G-30",
+            "G-16..G-30, G-91",
             record.label,
             f"{record.spec.name} is reserved by 07 section 4 (owner {record.spec.owner}); "
             "its body has no schema yet, so no geometric rule applies",
@@ -3456,6 +3567,7 @@ def check_geometry(record: LoadedFile, session: Session, report: Report) -> None
     _g28_openings_unique(record, report)
     _g29_areas(record, report, area, tol_area)
     _g30_roof(record, report, linear, tol_linear)
+    _g91_stepped_containment(record, report, linear, tol_linear)
     # angle_deg is declared (G-33) but 07 section 9.3 states no angle equality rule,
     # so nothing below consumes it. It is not applied to a length or an area.
 
@@ -3689,6 +3801,40 @@ def _g21_polygons(record: LoadedFile, session: Session, report: Report, linear: 
             problems += _polygon_check(
                 location, "core.footprint_cm", ring, core.get("footprint_ccw"), tol, report
             )
+    plates = record.doc.get("floor_plates")
+    if isinstance(plates, list):
+        for index, plate in enumerate(plates):
+            if not isinstance(plate, dict):
+                continue
+            if "footprint_cm" in plate:
+                kind = plate.get("footprint_kind")
+                ring = expand_footprint_ring(
+                    plate.get("footprint_cm"), kind if isinstance(kind, str) else ""
+                )
+                where_plate = f"floor_plates[{index}].footprint_cm"
+                if not ring:
+                    report.skip(
+                        "G-21",
+                        f"{location}::{where_plate}",
+                        "floor_plates[].footprint_cm missing or empty; no polygon to test",
+                    )
+                else:
+                    problems += _polygon_check(
+                        location,
+                        where_plate,
+                        ring,
+                        plate.get("footprint_ccw"),
+                        tol,
+                        report,
+                    )
+                    if plate.get("footprint_ccw") is not None:
+                        report.ok(
+                            "G-21",
+                            f"{location}::{where_plate}",
+                            f"{len(ring)} distinct vertices, simple ring, winding matches "
+                            "footprint_ccw",
+                            tol,
+                        )
 
 
 def _site_ring(doc: Any) -> Optional[list[list[float]]]:
@@ -3880,23 +4026,56 @@ def _g25_facades_close(record: LoadedFile, report: Report, linear: float, tol: s
         report.skip("G-25", location, "facades or site.footprint_cm missing")
         return
     problems = 0
+    is_v11 = (doc.get("schema_version") == "1.1")
+    id_pattern = r"^F-[NSEW](-[A-Z0-9]+)?$" if is_v11 else r"^F-[NSEW]$"
+    name_pattern = (
+        r"^(north|south|east|west)(_[a-z0-9_]+)?$"
+        if is_v11
+        else r"^(north|south|east|west)$"
+    )
+    id_re = re.compile(id_pattern)
+    name_re = re.compile(name_pattern)
+
     for index, facade in enumerate(facades):
         where = f"{location}::facades[{index}]"
+        ident = facade.get("id")
+        if not isinstance(ident, str) or not id_re.match(ident):
+            report.fail("G-25", f"{where}.id", f"id {ident!r} does not match {id_pattern}")
+            problems += 1
+        name = facade.get("name")
+        if not isinstance(name, str) or not name_re.match(name):
+            report.fail("G-25", f"{where}.name", f"name {name!r} does not match {name_pattern}")
+            problems += 1
         start, end = facade.get("start_corner_cm"), facade.get("end_corner_cm")
         if not is_point(start) or not is_point(end):
             report.fail("G-25", where, "start_corner_cm / end_corner_cm missing or malformed")
             problems += 1
             continue
-        for label, corner in (("start_corner_cm", start), ("end_corner_cm", end)):
-            if not _on_ring(corner, site_ring, linear):
-                report.fail(
-                    "G-25",
-                    f"{where}.{label}",
-                    f"{fmt_number(corner[0])},{fmt_number(corner[1])} is not a "
-                    "site.footprint_cm vertex",
-                    tol,
-                )
-                problems += 1
+        if "spans_level_indices" in facade:
+            active_levels = effective_facade_levels(doc, facade)
+            for lvl_idx in active_levels:
+                lvl_fp = effective_plate_footprint(doc, lvl_idx)
+                for label, corner in (("start_corner_cm", start), ("end_corner_cm", end)):
+                    if not _on_ring(corner, lvl_fp, linear):
+                        report.fail(
+                            "G-25",
+                            f"{where}.{label}",
+                            f"{fmt_number(corner[0])},{fmt_number(corner[1])} is not an "
+                            f"effective footprint vertex for level {lvl_idx}",
+                            tol,
+                        )
+                        problems += 1
+        else:
+            for label, corner in (("start_corner_cm", start), ("end_corner_cm", end)):
+                if not _on_ring(corner, site_ring, linear):
+                    report.fail(
+                        "G-25",
+                        f"{where}.{label}",
+                        f"{fmt_number(corner[0])},{fmt_number(corner[1])} is not a "
+                        "site.footprint_cm vertex",
+                        tol,
+                    )
+                    problems += 1
         span = distance(start, end)
         declared_length = as_number(facade.get("length_cm"))
         if declared_length is None or not close(declared_length, span, linear):
@@ -4148,6 +4327,7 @@ def _g28_openings_unique(record: LoadedFile, report: Report) -> None:
                 f"facade {opening.get('facade')!r} does not exist in facades[].id",
             )
             problems += 1
+        facade = facades.get(str(opening.get("facade")))
         if opening.get("level_index") not in level_indices:
             report.fail(
                 "G-28",
@@ -4155,8 +4335,17 @@ def _g28_openings_unique(record: LoadedFile, report: Report) -> None:
                 f"level_index {opening.get('level_index')!r} does not exist in levels[]",
             )
             problems += 1
+        elif facade is not None:
+            active_levels = effective_facade_levels(doc, facade)
+            if opening.get("level_index") not in active_levels:
+                report.fail(
+                    "G-28",
+                    f"{where}.level_index",
+                    f"level_index {opening.get('level_index')!r} is not in facade "
+                    f"{opening.get('facade')!r} spans_level_indices {active_levels}",
+                )
+                problems += 1
         bay_index = opening.get("bay_index")
-        facade = facades.get(str(opening.get("facade")))
         if facade is not None and is_int(bay_index):
             if not 0 <= bay_index < len(facade.get("bay_width_cm") or []):
                 report.fail(
@@ -4212,12 +4401,19 @@ def _g29_areas(record: LoadedFile, report: Report, area: float, tol: str) -> Non
             report.skip("G-29", f"{location}::floor_plates[{index}]", "gross_area_m2 missing")
             continue
         total += gross
-        if not close(gross, footprint_area, area):
+        expected_plate_area = footprint_area
+        if "footprint_cm" in plate:
+            fp_ring = effective_plate_footprint(doc, index)
+            if fp_ring and len(fp_ring) >= 3:
+                expected_plate_area = polygon_area_m2(fp_ring)
+        if not close(gross, expected_plate_area, area):
+            reason = "footprint polygon area" if "footprint_cm" in plate else "site.footprint_area_m2"
+            suffix = "" if "footprint_cm" in plate else " (prismatic building)"
             report.fail(
                 "G-29",
                 f"{location}::floor_plates[{index}].gross_area_m2",
-                f"gross {fmt_number(gross)} m2 != site.footprint_area_m2 "
-                f"{fmt_number(footprint_area)} m2 (prismatic building)",
+                f"gross {fmt_number(gross)} m2 != {reason} "
+                f"{fmt_number(expected_plate_area)} m2{suffix}",
                 tol,
             )
             problems += 1
@@ -4328,6 +4524,110 @@ def _g30_roof(record: LoadedFile, report: Report, linear: float, tol: str) -> No
                 problems += 1
     if problems == 0:
         report.ok("G-30", location, f"roof deck agrees with total height; core spans resolve", tol)
+
+
+STEPPED_PLATE_KEYS = frozenset({
+    "footprint_kind",
+    "footprint_cm",
+    "footprint_ccw",
+    "footprint_width_cm",
+    "footprint_depth_cm",
+})
+
+
+def _g91_stepped_containment(
+    record: LoadedFile, report: Report, linear: float, tol: str
+) -> None:
+    location = record.label
+    doc = record.doc
+    if not isinstance(doc, dict):
+        return
+    plates = doc.get("floor_plates")
+    facades = doc.get("facades")
+    if not isinstance(plates, list):
+        plates = []
+    if not isinstance(facades, list):
+        facades = []
+
+    has_stepped_plates = any(
+        isinstance(p, dict) and "footprint_cm" in p
+        for p in plates
+    )
+    has_stepped_facades = any(
+        isinstance(f, dict) and "spans_level_indices" in f
+        for f in facades
+    )
+    if not has_stepped_plates and not has_stepped_facades:
+        report.skip(
+            "G-91",
+            location,
+            "No stepped floor_plates[].footprint_cm or facades[].spans_level_indices declared",
+        )
+        return
+
+    problems = 0
+    schema_version = doc.get("schema_version")
+
+    for i, plate in enumerate(plates):
+        if not isinstance(plate, dict):
+            continue
+        present_keys = STEPPED_PLATE_KEYS.intersection(plate.keys())
+        if present_keys:
+            if schema_version != "1.1":
+                report.fail(
+                    "G-91",
+                    f"{location}::floor_plates[{i}]",
+                    f"stepped floor plate requires schema_version '1.1' (found {schema_version!r})",
+                )
+                problems += 1
+            missing = STEPPED_PLATE_KEYS - present_keys
+            if missing:
+                report.fail(
+                    "G-91",
+                    f"{location}::floor_plates[{i}]",
+                    f"floor_plates[{i}] declares {sorted(present_keys)} but is missing required keys: {sorted(missing)}",
+                )
+                problems += 1
+
+            if "footprint_cm" in plate:
+                ring = expand_footprint_ring(plate.get("footprint_cm"), plate.get("footprint_kind", ""))
+                if ring:
+                    lower_fp = (
+                        effective_plate_footprint(doc, i - 1)
+                        if i > 0
+                        else expand_footprint_ring(
+                            (doc.get("site") or {}).get("footprint_cm"),
+                            (doc.get("site") or {}).get("footprint_kind", ""),
+                        )
+                    )
+                    if lower_fp:
+                        for v_idx, vertex in enumerate(ring):
+                            if not point_in_ring(vertex, lower_fp, linear, strict=False):
+                                target = f"level {i - 1} effective footprint" if i > 0 else "site.footprint_cm"
+                                report.fail(
+                                    "G-91",
+                                    f"{location}::floor_plates[{i}].footprint_cm[{v_idx}]",
+                                    f"vertex [{fmt_number(vertex[0])}, {fmt_number(vertex[1])}] lies outside "
+                                    f"{target} (monotonic setback containment)",
+                                    tol,
+                                )
+                                problems += 1
+
+    if has_stepped_facades and schema_version != "1.1":
+        report.fail(
+            "G-91",
+            location,
+            f"facades[].spans_level_indices requires schema_version '1.1' (found {schema_version!r})",
+        )
+        problems += 1
+
+    if problems == 0:
+        report.ok(
+            "G-91",
+            location,
+            f"stepped plate containment and co-presence valid ({len(plates)} plate(s))",
+            tol,
+        )
 
 
 # --------------------------------------------------------------------------- #
@@ -5344,12 +5644,26 @@ def _g38_dimension_agreement(
             reconciled += 1
             problems += _g38_core_wall(element, dims, where, linear, tol, report)
             continue
+        top_level_index = len(levels) - 1
         if kind == "roof_deck":
             reconciled += 1
             problems += _g38_from_key(
                 element, roof, "deck_level_cm", "deck_thickness_cm", where, linear, tol,
                 report, below=True,
             )
+            if top_level_index >= 0:
+                expected_roof_fp = effective_plate_footprint(dims, top_level_index)
+                actual_ring = _massing_ring(element.get("profile_cm"))
+                if actual_ring and expected_roof_fp:
+                    diff = _ring_difference(actual_ring, expected_roof_fp, linear)
+                    if diff is not None:
+                        report.fail(
+                            "G-38",
+                            f"{where}.profile_cm",
+                            f"roof_deck profile_cm does not match top level footprint (level {top_level_index}): {diff}",
+                            tol,
+                        )
+                        problems += 1
             continue
         if kind == "parapet":
             reconciled += 1
@@ -5357,9 +5671,22 @@ def _g38_dimension_agreement(
                 element, roof, "deck_level_cm", "parapet_height_cm", where, linear, tol,
                 report, below=False,
             )
+            if top_level_index >= 0:
+                expected_roof_fp = effective_plate_footprint(dims, top_level_index)
+                actual_ring = _massing_ring(element.get("profile_cm"))
+                if actual_ring and expected_roof_fp:
+                    for v_idx, v in enumerate(actual_ring):
+                        if not point_in_ring(v, expected_roof_fp, linear, strict=False):
+                            report.fail(
+                                "G-38",
+                                f"{where}.profile_cm[{v_idx}]",
+                                f"parapet vertex {fmt_number(v[0])},{fmt_number(v[1])} lies outside top level footprint (level {top_level_index})",
+                                tol,
+                            )
+                            problems += 1
             continue
-        if kind == "plinth":
-            continue  # 07 section 9.6 states no dimensional rule for a plinth
+        if kind in ("plinth", "pilaster"):
+            continue  # 07 section 9.6 states no dimensional rule for a plinth / pilaster
         if kind == "facade_wall":
             reconciled += 1
             problems += _g38_facade_wall(element, dims, where, linear, tol, report)
@@ -5410,6 +5737,32 @@ def _g38_dimension_agreement(
             )
         reconciled += 1
         problems += _expect_z(element, expected, why, linear, where, tol, report)
+        if kind == "slab":
+            expected_fp = effective_plate_footprint(dims, storey_index)
+            actual_ring = _massing_ring(element.get("profile_cm"))
+            if actual_ring and expected_fp:
+                diff = _ring_difference(actual_ring, expected_fp, linear)
+                if diff is not None:
+                    report.fail(
+                        "G-38",
+                        f"{where}.profile_cm",
+                        f"slab profile_cm does not match effective footprint of storey {storey_index}: {diff}",
+                        tol,
+                    )
+                    problems += 1
+        elif kind == "column":
+            expected_fp = effective_plate_footprint(dims, storey_index)
+            actual_ring = _massing_ring(element.get("profile_cm"))
+            if actual_ring and expected_fp:
+                for v_idx, v in enumerate(actual_ring):
+                    if not point_in_ring(v, expected_fp, linear, strict=True):
+                        report.fail(
+                            "G-38",
+                            f"{where}.profile_cm[{v_idx}]",
+                            f"column vertex {fmt_number(v[0])},{fmt_number(v[1])} in storey {storey_index} does not lie strictly inside effective plate footprint",
+                            tol,
+                        )
+                        problems += 1
 
     # 07 section 9.6: because a parapet tops out at deck_level + parapet_height,
     # the model's top must equal building.overall_height_cm.
@@ -5582,17 +5935,31 @@ def _g38_facade_wall_coverage(
     )
     elements = _elements_of(doc)
     failures = 0
+    active_pair_count = 0
     for facade in facades:
         if not isinstance(facade, dict):
             continue
+        active_levels = effective_facade_levels(dims, facade)
+        lvl0 = active_levels[0] if active_levels else 0
+        lvl_fp = effective_plate_footprint(dims, lvl0)
+        if lvl_fp:
+            toward = (
+                (min(p[0] for p in lvl_fp) + max(p[0] for p in lvl_fp)) / 2.0,
+                (min(p[1] for p in lvl_fp) + max(p[1] for p in lvl_fp)) / 2.0,
+            )
+        else:
+            toward = (
+                (min(p[0] for p in outline) + max(p[0] for p in outline)) / 2.0,
+                (min(p[1] for p in outline) + max(p[1] for p in outline)) / 2.0,
+            )
         band = _facade_wall_band(facade, thickness, toward)
         if band is None:
             return None, (
                 f"facade {facade.get('id')!r} has no usable start/end corner; the inward band "
                 "cannot be recomputed"
             ), 0
-        for level in levels:
-            index = level.get("index")
+        for index in active_levels:
+            active_pair_count += 1
             matches = [
                 str(element.get("id"))
                 for element in elements
@@ -5613,7 +5980,20 @@ def _g38_facade_wall_coverage(
                     tol,
                 )
                 failures += 1
-    return len(facades) * len(levels), "", failures
+    wall_elements = [
+        e for e in elements
+        if isinstance(e, dict) and e.get("kind") == "facade_wall"
+    ]
+    if len(wall_elements) != active_pair_count:
+        report.fail(
+            "G-38",
+            f"{location}::elements",
+            f"found {len(wall_elements)} facade_wall element(s), expected {active_pair_count} "
+            f"for active (facade, level) pairs",
+            tol,
+        )
+        failures += 1
+    return active_pair_count, "", failures
 
 
 def _facade_wall_band(

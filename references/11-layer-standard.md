@@ -13,6 +13,15 @@
 > 2026-10-05**: there is no QA loop and no `qa.json`. **The user applies layers in the Layer dialog.**
 > See `references/07-spec-grammar.md` §8.1.3 / §8.5.6 and `agents/max-assembly.md` §6.3.
 >
+> **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the claim above that layer
+> assignment is unavailable is **refuted as stated**. Two different facts were merged: (a) reading
+> `node.layer` is read-only — the *property setter* fails; (b) the **layer interface method
+> `ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node` assigns
+> the node (verified in Phase 14, `CHECKPOINT.md`). "No stage applies a layer" remains the **current
+> policy** of this skill (`G-79`); whether that policy stays is a **separate decision**
+> (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4). The refuted claim is not replaced by an
+> "always apply layers automatically" claim.
+>
 > **Authority split.** `references/07-spec-grammar.md` **§8.1.4 owns the layer names** and §8.1.2 owns
 > the `kind` → layer mapping. **This file owns their meaning, their prohibitions and the naming
 > rules.** It introduces no name of its own. A new layer requires changing `07` §8.1.4 first; a change
@@ -234,7 +243,18 @@ failed.**
 > two string forms. Both statements agree that those six were executed and all failed. `CHECKPOINT.md`
 > is the transcript of record; do not re-attempt any of these — or of the three P6 routes added above.
 
-**Do not re-attempt MAXScript layer assignment.** The finding is closed with transcripts.
+> **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the finding above is **refuted as
+> stated**. It was true only for the nine **property-setter / typed-tool** routes it enumerates — and
+> those remain rejected, exactly as measured. What it does **not** cover is the layer **interface
+> method**: **`ILayerProperties.addNode` works** —
+> `(LayerManager.getLayerFromName name).addNode node` assigns the node (verified in Phase 14,
+> `CHECKPOINT.md`; `Audit/EVIDENCE_2026-10-27.md` §E-7). Read-only `node.layer` and a working
+> layer-interface method are two separate facts and must be reported as two.
+
+**Do not re-attempt the nine routes listed here** (L1–L6 plus the three P6 routes added above); the
+finding is closed with transcripts. **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):
+"MAXScript layer assignment" as a whole is **not** closed as impossible — `ILayerProperties.addNode`
+works and is listed in §5.2.
 
 ### 5.2 What does work
 
@@ -243,6 +263,7 @@ failed.**
 | Create a layer | `LayerManager.newLayerFromName "NAME"` | ✅ verified 2026-10-04 |
 | Read a layer | `LayerManager.getLayerFromName`, `LayerManager.getLayer 0` → `LayerProperties` | ✅ verified 2026-10-04 |
 | Read an object's layer | `node.layer.name` | ✅ verified 2026-10-04 |
+| **Assign a node to a layer** | `ILayerProperties.addNode` — `(LayerManager.getLayerFromName "NAME").addNode node` | ✅ verified 2026-10-13 (Phase 14, `CHECKPOINT.md`); `Audit/EVIDENCE_2026-10-27.md` §E-7 — **the property setter `node.layer = …` stays read-only**; this is the interface method, a different route |
 | Enumerate layers | `3dsmax-mcp_manage_layers` `list` only. From MAXScript: `layers`, `layers[1]`, `layers.count`, `LayerManager.layers`, `LayerManager.numLayers`, `LayerManager.getCount()` — **all fail** | ✅ verified — enumeration is not available from script |
 
 ### 5.3 `3dsmax-mcp_manage_layers` status
@@ -252,13 +273,17 @@ failed.**
 | `list` | ✅ verified 2026-10-04 |
 | `create` | ✅ verified 2026-10-04 |
 | `delete` | ✅ verified 2026-10-04 |
-| **object assignment** | 🔴 **IMPOSSIBLE — the action name does not exist, and never will.** Six names rejected, each returning *"Unknown layer action: X"*: `move`, `assign`, `add`, `addobjects`, `moveobjects`, `setlayer`; 40+ candidates rejected in total across P3 and P6. `manage_layers`' whole vocabulary is `{list, create, delete}`. |
+| **object assignment** | 🔴 **IMPOSSIBLE — the action name does not exist, and never will.** Six names rejected, each returning *"Unknown layer action: X"*: `move`, `assign`, `add`, `addobjects`, `moveobjects`, `setlayer`; 40+ candidates rejected in total across P3 and P6. `manage_layers`' whole vocabulary is `{list, create, delete}`. **Scope (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** this is a statement about the **typed tool's action vocabulary only**. It does **not** mean layer assignment is impossible from MAXScript — `ILayerProperties.addNode` works (§5.2). |
 
 ### 5.4 The standing rule
 
 1. **Layer is data at P3.** `massing.json` records the target layer per element and per group.
 2. **`scripts/build_spec.py` emits geometry only.** It must contain no layer code. Adding layer code to
    a MAXScript builder is a defect, not an improvement — the code cannot work (L1–L6).
+   > **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "cannot work" is scoped to the
+   > **L1–L6 property-setter routes**. The layer interface method `ILayerProperties.addNode` *does*
+   > work (§5.2), so the no-layer-code rule is a **policy** (`G-79`), not an impossibility. Whether
+   > the policy stays is settled separately (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4).
 3. **Application is the user's action, in the Layer dialog.** No stage applies a layer.
    > **CORRECTED (verified 2026-10-06):** this item previously read *"Application is a **P6 item**, via
    > `assembly.json.layer_map`, and only after the correct `manage_layers` action name is found. That find
@@ -266,6 +291,12 @@ failed.**
    > is exactly `{list, create, delete}`, and the action name is not unknown, it does not exist. `layer_map`
    > is a **record of intent** only, and a builder that tries to apply it is a build **FAIL** (`G-79`).
    > **The user applies layers in the Layer dialog, permanently.**
+   > **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "permanently" is refuted —
+   > `ILayerProperties.addNode` assigns nodes from MAXScript (§5.2). The sentences above remain true
+   > **as the current policy of this skill** (no stage applies a layer; `G-79` fails a builder that
+   > acts on `layer_map`); the *capability* question is settled separately
+   > (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4). The refuted claim is not replaced by an
+   > "always apply layers automatically" claim.
 4. **No layer name may be created ad hoc in a builder.** Layers come from §1; creation goes through
    `LayerManager.newLayerFromName` or `manage_layers create`, so the same eight names exist everywhere.
 
@@ -301,7 +332,7 @@ Run before declaring any stage done. Each row is checkable, and "looks right" is
 | # | Item | Owner | Blocking |
 |---|---|---|---|
 | O-1 | `07` §8.1.4 prose says *"Nine names"*; the table has **eight** rows. Correct the prose in `07`, or add a ninth row there deliberately with a `kind` mapping. **Not settled here** — this file adds nothing | P3 / `07` owner | nothing at P3; blocks any claim that the vocabulary has nine entries |
-| O-2 | ~~The `3dsmax-mcp_manage_layers` action name that assigns objects to a layer.~~ **CLOSED as impossible (2026-10-06).** **CORRECTED (verified 2026-10-06):** this row previously read *"Six names rejected (§5.3). Find it before P6 writes `layer_map`"* with owner P6 — i.e. an open task. It is not a task and never was: **nine routes were executed and all failed**, `manage_layers`' entire vocabulary is `{list, create, delete}`, and `node.layer` is read-only from MAXScript. **There is no action name to find.** Layer stays data; the user applies it in the Layer dialog | **closed** — the user | nothing blocks; `layer_map` is a record of intent and `G-79` fails any builder that acts on it |
+| O-2 | ~~The `3dsmax-mcp_manage_layers` action name that assigns objects to a layer.~~ **CLOSED as impossible (2026-10-06).** **CORRECTED (verified 2026-10-06):** this row previously read *"Six names rejected (§5.3). Find it before P6 writes `layer_map`"* with owner P6 — i.e. an open task. It is not a task and never was: **nine routes were executed and all failed**, `manage_layers`' entire vocabulary is `{list, create, delete}`, and `node.layer` is read-only from MAXScript. **There is no action name to find.** Layer stays data; the user applies it in the Layer dialog | **closed** — the user | nothing blocks; `layer_map` is a record of intent and `G-79` fails any builder that acts on it **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "closed as impossible" holds for the **typed tool's action name** and the **property setter** only. Scripted assignment through the layer interface — `ILayerProperties.addNode` — **works** (verified in Phase 14, `CHECKPOINT.md`; §5.2). Whether this skill's builders should apply layers is a **separate decision** (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4); until it is made, the current policy stands (no stage applies a layer; `G-79`) |
 | O-3 | Whether `04_ROOF` keeps a core slab's slab-like geometry, or whether that resolves to `03_CORE`. `07` §8.1.4 names "core slabs" under `03_CORE` while §8.1.2 maps only `core_wall` there. Settle in the spec, not in the scene | P3 → P4 | low; needs a decision before a core slab exists |
 | O-4 | Beams and bracing are in the `02_STRUCTURE` vocabulary but no `kind` produces them at P3. Either they arrive at P4/P6 or the vocabulary text narrows | P3 / `07` owner | low |
 | O-5 | Whether `05_FACADE` ever takes a massing `kind`. Currently none does, and §1.6 forbids adding one to suit a builder | P5 | low; nothing depends on it yet |
@@ -315,7 +346,7 @@ Run before declaring any stage done. Each row is checkable, and "looks right" is
 - It does **not** declare a `kind` list — `07` §8.1.1 owns it.
 - It does **not** declare tolerances, units or defaults — `07` §3.3 and `09-defaults.md` own them.
 - It does **not** declare dimensions — `08`/`09` own those.
-- It does **not** claim that any 3ds Max tool other than `3dsmax-mcp_manage_layers`, `LayerManager.newLayerFromName`, `node.layer.name` and the parenting calls in §4.1 exists. Every other API named in this file is marked with its status and probe date, and an unprobed one is labelled UNVERIFIED rather than described.
+- It does **not** claim that any 3ds Max tool other than `3dsmax-mcp_manage_layers`, `LayerManager.newLayerFromName`, `node.layer.name`, the layer interface method `ILayerProperties.addNode` (§5.2, verified 2026-10-13) and the parenting calls in §4.1 exists. Every other API named in this file is marked with its status and probe date, and an unprobed one is labelled UNVERIFIED rather than described.
 - It does **not** resolve conflicts between sources — `10-conflict-resolution.md` §6 owns that. A layer
   disagreement between two sources is a `conflicts_resolved.json` entry with a ladder rule, never a
   layer chosen in the scene.

@@ -64,7 +64,10 @@ these rules and must not "improve" on them:
   `sub_steps`, `u_order` and `v_order` drive `for` ranges, array strides and
   `polyop` indices, so they are never emitted as `8.0`.
 * **`try ( ) catch ( )` is the only tolerated form**; `try { } catch { }` is a
-  parse error and `getCurrentException()` does not exist.
+  parse error. (`getCurrentException()` **does** exist and works inside a
+  `catch` -- the old "does not exist" note was withdrawn 2026-10-05 as false
+  and re-confirmed 2026-10-27. The flag form is still preferred here because
+  only a boolean verdict is needed, not because the call is forbidden.)
 * **`("x" + i as string)` throws**, hence `("x" + (i as string))` -- used by the
   library, not re-invented here.
 * **Node names use `_`, never `-`**, because a hyphen reads as subtraction once
@@ -2531,11 +2534,12 @@ def verify_script(document: dict[str, Any], script: str, path_to_library: str) -
             f"refusing to write {OUT_MS_NAME}: it contains a backslash; the library path must "
             "be emitted with forward slashes."
         )
-    if "getCurrentException" in script or "catch {" in script or "try {" in script:
+    if "catch {" in script or "try {" in script:
         raise Refusal(
-            f"refusing to write {OUT_MS_NAME}: it uses try/catch in a form MAXScript rejects "
-            "(try ( ) catch ( ) is the only parenthesised form, and getCurrentException does "
-            "not exist)."
+            f"refusing to write {OUT_MS_NAME}: it uses the brace form of try/catch, which "
+            "MAXScript rejects as a parse error (try ( ) catch ( ) is the only parenthesised "
+            "form). The separate former check on getCurrentException was removed on "
+            "2026-10-28: that call works inside a catch and was never absent."
         )
     emitted = set()
     for pattern in (r'\.name\s*=\s*"([^"]*)"', r"\bname\s*:\s*\"([^\"]*)\"", r'getNodeByName "([^"]*)"'):

@@ -13,7 +13,7 @@
 > **Defined at P5:** `facade_grids.json` (§8.3) and `components_registry.json` (§8.4, with
 > invariants `G-57`…`G-70` in §9.8).
 > **Defined at P6:** `assembly.json` (§8.5, with invariants `G-71`…`G-83` in §9.9; Mechanism A host deactivation and G-82 volume identity).
-> **Defined under Schema 1.1 (P8 / L-QA):** `qa.json` (§8.7, with invariants `G-87`…`G-90` in §9.10; `G-84`…`G-86` for form references and generators).
+> **Defined under Schema 1.1 (P8 / L-QA / Stepped Massing):** `qa.json` (§8.7, with invariants `G-87`…`G-90` in §9.10; `G-84`…`G-86` for form references and generators; `G-91` for stepped massing setbacks and tier-scoped facades).
 > **Reserved stubs (cancelled 2026-10-05):** `materials.json` (P7), `export.json` (P9).
 >
 > **This document needs no 3ds Max.** Everything here is a data contract. It makes claims about
@@ -120,7 +120,7 @@ Every file in `specs/pipeline/` opens with exactly these keys, in this order, be
 **`schema_version` supported versions and compatibility:**
 The pipeline explicitly supports two schema versions:
 - **`"1.0"`**: Historical baseline geometry pipeline without generator sections or analytical form references.
-- **`"1.1"`**: Form references and precision targets (`form_references`, `precision_targets` in `dimensions.json`), generator sections and station sampling in `nurbs.json`, and defined automated QA check plan configuration in `qa.json`.
+- **`"1.1"`**: Form references and precision targets (`form_references`, `precision_targets` in `dimensions.json`), generator sections and station sampling in `nurbs.json`, defined automated QA check plan configuration in `qa.json`, and stepped massing setback extensions (`floor_plates[].footprint_*`, `facades[].spans_level_indices`, `elements[].kind: "pilaster"`).
 
 Both `"1.0"` and `"1.1"` are explicitly supported versions. Version `"1.1"` passes cleanly without warnings
 (including under `--warnings-as-errors`). Unknown versions fail under `--build`. Patch spellings (such as
@@ -183,10 +183,10 @@ defined now.
 
 | File | Owner | Purpose | Status | Top-level keys |
 |---|---|---|---|---|
-| `dimensions.json` | **P2a** | The locked dimensional contract: site, envelope, structure, core, plates, roof, facade grid, openings. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origins` `building` `site` `structure` `levels` `core` `floor_plates` `roof` `facades` `openings` |
+| `dimensions.json` | **P2a** | The locked dimensional contract: site, envelope, structure, core, plates (optional stepped footprints in 1.1), roof, facade grid (optional level spans in 1.1), openings. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origins` `building` `site` `structure` `levels` `core` `floor_plates` `roof` `facades` `openings` |
 | `conflicts_resolved.json` | **P2a** | Every contradiction found in the input, with the chosen resolution, the loser, the precedence rule invoked and the affected stages. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `precedence_rules` `conflicts` |
 | `assumptions.json` | **P2a** | Every value the pipeline had to invent because the input was silent. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `assumptions` `cross_references` |
-| `massing.json` | P3, extended **P6** | Slabs, columns, core walls, facade wall bands, roof deck, parapet and plinth as placeable Z-prisms, in world coordinates. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `defaults` `storeys` `elements` `site_pad` `grouping` |
+| `massing.json` | P3, extended **P6** | Slabs, columns, core walls, facade wall bands, roof deck, parapet, pilasters, and plinth as placeable Z-prisms, in world coordinates. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `defaults` `storeys` `elements` `site_pad` `grouping` |
 | `nurbs.json` | **P4**, extended **P4b** | NURBS shells and their lattices: U-lofts, UV-loft networks, interpolating point grids, CV-cage grids, one- and two-rail sweeps, blends between surface edges and profiles projected onto a surface, plus the quad-panel and space-frame derivatives read off them. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `sections` `surfaces` `derivatives` |
 | `facade_grids.json` | **P5** | Per-facade bay and opening axes, and the panelised partition those axes generate: one rectangle per grid cell, kinded, each naming the opening it realises and carrying the world centre P6 places it at. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `facades` `axes` `panels` `panel_types` |
 | `components_registry.json` | **P5** | The parametric blocks that grid needs: one entry per distinct `(kind, width, height)` class of panel with an ordered parameter list, plus the family index P6 resolves a panel against. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `defaults` `component_types` `components` `families` |
@@ -399,13 +399,25 @@ One entry per level, `level_index` in the same order as `levels[]`.
 | `level_index` | integer | yes | — | exists in `levels[]` | which storey | — |
 | `id` | string | yes | — | — | stable id, `FP-nn` | — |
 | `thickness_cm` | number | yes | cm | 15 … 45 | structural plate thickness | — |
-| `gross_area_m2` | number | yes | m² | > 0 | **derived** = `site.footprint_area_m2` (prismatic building) | — |
+| `gross_area_m2` | number | yes | m² | > 0 | **derived** = `site.footprint_area_m2` (prismatic) or polygon area of `footprint_cm` in m² (Schema 1.1) | — |
 | `net_usable_area_m2` | number | opt | m² | 0 < x ≤ gross − core share | usable area after partitions | — |
 | `usage` | string | opt | — | — | **omit when equal to the parent level's `use`** | parent's `use` |
+| `footprint_kind` | string | opt (1.1) | — | `polygon` \| `rectangle` | present iff `footprint_cm` is present | — |
+| `footprint_cm` | array of `[x, y]` | opt (1.1) | cm | ≥ 3 vertices, simple CCW ring inside/on lower level footprint | stepped floor plate outline in world XY | inherits `site.footprint_cm` |
+| `footprint_ccw` | bool | opt (1.1) | — | `true` | required iff `footprint_cm` is present | — |
+| `footprint_width_cm` | number | opt (1.1) | cm | > 0 | **derived** X extent of `footprint_cm` (required iff `footprint_cm` present) | — |
+| `footprint_depth_cm` | number | opt (1.1) | cm | > 0 | **derived** Y extent of `footprint_cm` (required iff `footprint_cm` present) | — |
 
 `net_usable_area_m2` and gross-minus-core are two different numbers on purpose. Gross-minus-core
 ignores internal partitions; usable area is what a client can actually put a desk in. When both are
 present, G-28 requires `net_usable_area_m2 ≤ gross − core share`, never equality.
+
+**Schema 1.1 Stepped Massing Extensions (`footprint_*`):**
+In Schema 1.1, a floor plate may declare its own stepped outline via `footprint_cm`.
+- **Co-presence constraint:** If any of `footprint_kind`, `footprint_cm`, `footprint_ccw`, `footprint_width_cm`, `footprint_depth_cm` is present on a plate, **ALL FIVE must appear together** and `schema_version` must be `"1.1"` (`G-91`).
+- **Inheritance default:** When `footprint_cm` is omitted, the floor plate inherits `site.footprint_cm` and `site.footprint_area_m2` (the standard prismatic building rule).
+- **Monotonic setback containment:** Every vertex of `floor_plates[i].footprint_cm` must lie inside or on the effective footprint of `floor_plates[i-1]` (or `site.footprint_cm` for level 0) within `tolerances.linear_cm` (`G-91`). Vertices must lie on structural grid lines or symmetric sub-modules.
+- **Derived area and extents:** When `footprint_cm` is present, `gross_area_m2` equals the polygon area of `footprint_cm` in m² (tol 0.05 m², `G-29`), and `footprint_width_cm` and `footprint_depth_cm` equal the derived X and Y extents of `footprint_cm` (`G-32`).
 
 ### 5.9 `roof`
 
@@ -432,14 +444,15 @@ coordinates**, and `position_cm` in an opening is measured along that direction 
 
 | Key | Type | Req | Units | Range | Meaning | Default |
 |---|---|---|---|---|---|---|
-| `id` | string | yes | — | — | stable id, `F-[NSEW]` | — |
-| `name` | string | yes | — | `north` \| `south` \| `east` \| `west` | which elevation | — |
+| `id` | string | yes | — | `^F-[NSEW]$` (1.0) or `^F-[NSEW](-[A-Z0-9]+)?$` (1.1) | stable id | — |
+| `name` | string | yes | — | `north` \| `south` \| `east` \| `west` (1.0), or `^(north\|south\|east\|west)(_[a-z0-9_]+)?$` (1.1) | which elevation | — |
 | `direction_deg` | number | yes | deg | 0 … 360 | compass bearing the facade **faces** | — |
-| `start_corner_cm` | `[x, y]` | yes | cm | must be a `site.footprint_cm` vertex | origin of the facade's 0 cm | — |
-| `end_corner_cm` | `[x, y]` | yes | cm | must be a `site.footprint_cm` vertex | far end | — |
+| `start_corner_cm` | `[x, y]` | yes | cm | must be a footprint vertex (see G-25) | origin of the facade's 0 cm | — |
+| `end_corner_cm` | `[x, y]` | yes | cm | must be a footprint vertex (see G-25) | far end | — |
 | `length_cm` | number | yes | cm | > 0 | **derived** = distance between the corners | — |
 | `bay_count` | integer | yes | — | 1 … 60 | **derived** = `len(bay_width_cm)` | — |
 | `bay_width_cm` | array of number | yes | cm | each 300 … 1200, **Σ == `length_cm`** | **derived** from the structural grid | — |
+| `spans_level_indices` | array of int | opt (1.1) | — | non-empty, strictly ascending, each in `levels[].index` | storeys this facade elevation spans (for podium / shaft / setback tiers) | all `levels[].index` |
 
 The order of `bay_width_cm` runs from `start_corner_cm` toward `end_corner_cm`. In the example the
 east facade's `start_corner_cm` is `[1800, 0]` — its south corner — so bay 0 is the southern bay and
@@ -450,6 +463,12 @@ For a rectangular footprint, `bay_width_cm` is derived from `structure.x_bay_cm`
 elevations and `structure.y_bay_cm` on east/west. A non-orthogonal footprint means `bay_width_cm`
 becomes `given` — which is exactly the case that would justify a conflict entry under
 MODULE-ALIGNMENT.
+
+**Schema 1.1 Tier-Scoped Facade Elevations (`spans_level_indices`):**
+In stepped massing under Schema 1.1, a building elevation may be composed of multiple distinct facade runs across different height tiers (e.g. podium, shaft, setback crown):
+- `spans_level_indices` defines which storeys the facade elevation spans. If omitted, the facade spans all storeys in `levels[]` (the existing prismatic rule).
+- When `spans_level_indices` is present, `start_corner_cm` and `end_corner_cm` must be vertices of the effective footprint of every level in `spans_level_indices` (`G-25`).
+- Elevation names may be tier-qualified under Schema 1.1: `name` matches `^(north|south|east|west)(_[a-z0-9_]+)?$` (e.g. `north_podium`, `north_shaft`, `north_crown1`), and `id` matches `^F-[NSEW](-[A-Z0-9]+)?$` (e.g. `F-N-POD`, `F-N-SHF`, `F-N-CR1`). Under Schema 1.0, names remain strictly `north|south|east|west` and ids `F-[NSEW]`.
 
 ### 5.11 `openings[]`
 
@@ -728,7 +747,7 @@ whoever first needs a genuine void.
 | Key | Type | Req | Units | Constraint | Meaning | Default |
 |---|---|---|---|---|---|---|
 | `id` | string | yes | — | `^EL-\d{3}$`, unique, ascending | element id | — |
-| `kind` | string | yes | — | `plinth` \| `slab` \| `column` \| `core_wall` \| `roof_deck` \| `parapet` \| `facade_wall` | what it is | — |
+| `kind` | string | yes | — | `plinth` \| `slab` \| `column` \| `core_wall` \| `roof_deck` \| `parapet` \| `facade_wall` \| `pilaster` | what it is | — |
 | `storey_index` | int or `null` | yes | — | `null`, or an index present in `storeys[]`; **never `null` for a `facade_wall`** | owning storey; `null` for site-wide and roof elements | — |
 | `profile_cm` | array | yes | cm | ≥ 3 `[x, y]` vertices in **world** coordinates; no duplicate vertices; simple (non-self-intersecting) ring; CCW | horizontal outline | — |
 | `profile_ccw` | bool | yes | — | `true` | declared winding, so G-21 has something to assert against | — |
@@ -791,6 +810,7 @@ A stage may not put a column on `05_FACADE`. The mapping is a table, not a prefe
 | `roof_deck` | `04_ROOF` |
 | `parapet` | `04_ROOF` |
 | `facade_wall` | `05_FACADE` |
+| `pilaster` | `05_FACADE` |
 
 #### 8.1.3 Why `layer` is data at P3
 
@@ -816,7 +836,7 @@ introduce a tenth without changing this table first.
 | `02_STRUCTURE` | columns, beams, bracing |
 | `03_CORE` | core walls, core slabs, stair and lift shafts |
 | `04_ROOF` | roof deck, parapet, coping, upstands |
-| `05_FACADE` | panels, glazing, mullions, transoms, spandrels, reveals, doors, and the modelled `facade_wall` band P6 cuts its openings in |
+| `05_FACADE` | panels, glazing, mullions, transoms, spandrels, reveals, doors, pilasters, and the modelled `facade_wall` band P6 cuts its openings in |
 | `90_SCENE` | cameras, lights, dummies, helpers |
 | `99_DEBUG` | QA probes, scatter sources, reference and wireframe geometry |
 
@@ -2170,16 +2190,17 @@ function over the parsed JSON, it does not belong here.
 | **G-18** | Level chaining | For `i ≥ 1`: `levels[i].elevation_cm == levels[i-1].elevation_cm + levels[i-1].height_cm`, **tolerance `tolerances.linear_cm` (0.5 cm)**. The tolerance covers float representation only — it is not permission to leave a storey height slightly wrong. |
 | **G-19** | Total height equals the top of the chain | `building.total_height_cm == levels[-1].elevation_cm + levels[-1].height_cm`, tol 0.5 cm. |
 | **G-20** | Overall height includes the parapet | `building.overall_height_cm == building.total_height_cm + roof.parapet_height_cm`, tol 0.5 cm. |
-| **G-21** | Polygons are simple and winding is declared | Each `footprint_cm` / `core.footprint_cm` has ≥ 3 vertices, no duplicate vertices, no self-intersection, and its winding matches the sibling `*_ccw` flag. |
+| **G-21** | Polygons are simple and winding is declared | Each `site.footprint_cm`, `core.footprint_cm`, and `floor_plates[].footprint_cm` (whenever present) has ≥ 3 vertices, no duplicate vertices, no self-intersection, and its winding matches the sibling `*_ccw` flag. |
 | **G-22** | Core is inside the building | Every `core.footprint_cm` vertex is inside **or on** the `site.footprint_cm` ring (point-in-polygon, boundary counts as inside), tol 0.5 cm. |
 | **G-23** | Core sits on the structural grid | Every core vertex's X matches a cumulative `x_bay_cm` grid line and its Y matches a cumulative `y_bay_cm` line, tol 0.5 cm. A core may not cut a bay in half. |
 | **G-24** | Grid spans the footprint | `Σ x_bay_cm == site.footprint_width_cm` and `Σ y_bay_cm == site.footprint_depth_cm`, tol 0.5 cm; every bay > 0; every `column_*` coordinate lies strictly inside the footprint. |
-| **G-25** | Facades close | Each facade's `start_corner_cm` and `end_corner_cm` are footprint vertices; `length_cm` equals the distance between them; `bay_count == len(bay_width_cm)`; `Σ bay_width_cm == length_cm`, tol 0.5 cm; every bay > 0. |
+| **G-25** | Facades close | If `facades[i].spans_level_indices` is absent, `start_corner_cm` and `end_corner_cm` must be vertices of `site.footprint_cm`; if present (Schema 1.1), `start_corner_cm` and `end_corner_cm` must be vertices of the effective footprint of every level in `spans_level_indices`. `length_cm` equals the distance between the corners; `bay_count == len(bay_width_cm)`; `Σ bay_width_cm == length_cm`, tol 0.5 cm; every bay > 0. |
 | **G-26** | Openings are physically sane | `width_cm > 0`; `head_cm − sill_cm > 0`; `sill_cm ≥ 0`; **`head_cm ≤ levels[level_index].height_cm`**; `position_cm ≥ 0`. |
 | **G-27** | Openings fit their host bay | `width_cm < bay_width_cm[level's bay]` **strictly**; and `bay_start ≤ position_cm − width_cm/2` and `position_cm + width_cm/2 ≤ bay_end`, tol 0.5 cm, where `bay_start` / `bay_end` are the cumulative bay offsets on that facade. |
-| **G-28** | Openings do not collide or duplicate | `openings[].id` unique within the file; no two openings share the same `(facade, level_index, bay_index)`; every `facade` exists in `facades[].id`; every `level_index` exists in `levels[]`; every `bay_index < facades[].bay_count`; every `type` is in the §5.11 vocabulary. |
-| **G-29** | Area arithmetic is consistent | `floor_plates[i].gross_area_m2 == site.footprint_area_m2` (prismatic building), tol 0.05 m²; `building.gross_floor_area_m2 == Σ floor_plates[].gross_area_m2`, tol 0.05 m²; `building.net_floor_area_m2 == gross − Σ_{i in core.spans_level_indices} core.footprint_area_m2`, tol 0.05 m²; `0 < net_usable_area_m2 ≤ gross − core share`. |
-| **G-30** | Roof is consistent | `roof.deck_level_cm == building.total_height_cm`, tol 0.5 cm; every level in `core.spans_level_indices` exists in `levels[]`. |
+| **G-28** | Openings do not collide or duplicate | `openings[].id` unique within the file; no two openings share the same `(facade, level_index, bay_index)`; every `facade` exists in `facades[].id`; every `level_index` exists in `levels[]` and must be contained in the target facade's `spans_level_indices` (when present in Schema 1.1); every `bay_index < facades[].bay_count`; every `type` is in the §5.11 vocabulary. |
+| **G-29** | Area arithmetic is consistent | If `floor_plates[i].footprint_cm` is absent, `gross_area_m2 == site.footprint_area_m2` (prismatic building), tol 0.05 m²; if present (Schema 1.1), `gross_area_m2` equals the polygon area of `floor_plates[i].footprint_cm` in m² (tol 0.05 m²). `building.gross_floor_area_m2 == Σ floor_plates[].gross_area_m2`, tol 0.05 m²; `building.net_floor_area_m2 == gross − Σ_{i in core.spans_level_indices} core.footprint_area_m2`, tol 0.05 m²; `0 < net_usable_area_m2 ≤ gross − core share`. |
+| **G-30** | Roof is consistent | `roof.deck_level_cm == building.total_height_cm`, tol 0.5 cm; roof `deck` and `parapet` elements in S2 follow the effective footprint of the top storey (`levels[-1]`); every level in `core.spans_level_indices` exists in `levels[]`. |
+| **G-91** | Stepped plate containment & co-presence (Schema 1.1) | If any of `footprint_kind`, `footprint_cm`, `footprint_ccw`, `footprint_width_cm`, `footprint_depth_cm` is present on a `floor_plates[i]` entry, all five must be present (`schema_version` must be `"1.1"`). Every vertex of `floor_plates[i].footprint_cm` must lie inside or on the effective footprint of `floor_plates[i-1]` (or `site.footprint_cm` for `i == 0`) within `tolerances.linear_cm` (monotonic setback containment). Reports honest SKIP when no `floor_plates[]` entry declares `footprint_cm` and no `facades[]` declares `spans_level_indices`. |
 
 ### 9.4 Cross-file
 
@@ -2211,7 +2232,7 @@ machinery as `G-9`…`G-33`; they add no new tolerance values.
 | **G-35** | Element solidity | `profile_cm` has ≥ 3 vertices, no duplicate vertices, no repeated final vertex, is a simple ring, and its winding matches the sibling `profile_ccw`. `z_range_cm[1] > z_range_cm[0]`, both finite. `kind` is in the §8.1.1 vocabulary |
 | **G-36** | Massing provenance | `origins` covers this file's value tree exactly once, using §5.2's exclusions (G-9 machinery). Every `origin` is `derived` — an element that is `given`, `assumed` or `conflict` is a defect, because `dimensions.json` already resolved all three — with a non-empty `derives_from` whose paths resolve in `dimensions.json` or in this file. `origin_inputs` paths all resolve in `dimensions.json`. **The derived-only clause is scoped to the value tree:** an entry under the `defaults` block may be `assumed` and must carry an `origin_ref` (09 `D-FW-01`, `A-025`), because nothing in `dimensions.json` dimensions a facade build-up — the same documented exception G-64 makes for `components_registry.json`'s `A-023` / `A-024`. Every geometry leaf is still `derived`, so the clause cannot be stretched to cover invented massing |
 | **G-37** | Storey chain | `storeys[i].index == levels[i].index`, `level_ref` is that level's `id`, `elevation_cm` / `height_cm` equal the level's within `linear_cm`, and `z_range_cm == [elevation_cm, elevation_cm + height_cm]` within `linear_cm`. `slab_ref` names a `slab` element whose `storey_index == i`; every id in `column_refs` / `core_refs` exists and has `storey_index == i` |
-| **G-38** | Element-to-dimension agreement | For each element: a `slab`'s `z_range_cm` equals `[level.elevation_cm − floor_plates[i].thickness_cm, level.elevation_cm]`; a `column`'s equals `[level.elevation_cm − slab thickness, level.elevation_cm + level.height_cm]`; a `core_wall`'s `profile_cm` equals `core.footprint_cm` **inset by `core.wall_thickness_cm`**; a `roof_deck`'s equals `[roof.deck_level_cm − roof.deck_thickness_cm, roof.deck_level_cm]` (the deck is the **top** of the build-up and its thickness hangs below it — §5.9); a `parapet`'s equals `[roof.deck_level_cm, roof.deck_level_cm + roof.parapet_height_cm]`, so the model's top equals `building.overall_height_cm` within `linear_cm`. All within `linear_cm`. Every `storey_index` is `null` or an index in `storeys[]`, and a level named by `core.spans_level_indices` has a `core_wall`. **A `facade_wall`'s `z_range_cm` equals `[level.elevation_cm, level.elevation_cm + level.height_cm]`** (full storey height, tol `linear_cm`), **and every `(facades[i].id, levels[j].index)` pair has exactly one `facade_wall`** whose band spans that facade's `length_cm` and whose `storey_index` is `j` — the band is recomputed from the run's two corners, the run's inward side and `defaults.facade_wall_thickness_cm`, so a wall is matched to its facade by geometry rather than by a key that would let the file agree with itself. **A missing wall is a FAIL, not a gap**: an opening cut whose `host_ref` resolves to nothing is a silent hole |
+| **G-38** | Element-to-dimension agreement | For each element: a `slab` uses the effective footprint of its storey (`floor_plates[i].footprint_cm` if present, else `site.footprint_cm`), with `z_range_cm` equal to `[level.elevation_cm − floor_plates[i].thickness_cm, level.elevation_cm]`; a `column`'s equals `[level.elevation_cm − slab thickness, level.elevation_cm + level.height_cm]`, with columns in storey `i` generated only for `(column_x_cm, column_y_cm)` grid intersections strictly inside storey `i`'s effective footprint; a `core_wall`'s `profile_cm` equals `core.footprint_cm` **inset by `core.wall_thickness_cm`**; `roof_deck` and `parapet` elements follow the effective footprint of the top storey (`levels[-1]`), with `roof_deck`'s `z_range_cm` equal to `[roof.deck_level_cm − roof.deck_thickness_cm, roof.deck_level_cm]` (the deck is the **top** of the build-up and its thickness hangs below it — §5.9) and `parapet`'s equal to `[roof.deck_level_cm, roof.deck_level_cm + roof.parapet_height_cm]`, so the model's top equals `building.overall_height_cm` within `linear_cm`. All within `linear_cm`. Every `storey_index` is `null` or an index in `storeys[]`, and a level named by `core.spans_level_indices` has a `core_wall`. **A `facade_wall`'s `z_range_cm` equals `[level.elevation_cm, level.elevation_cm + level.height_cm]`** (full storey height, tol `linear_cm`), **and every `(facades[i].id, level_index)` pair where `level_index` is in `facades[i].spans_level_indices`** (defaulting to all levels when absent) **has exactly one `facade_wall`** whose band spans that facade's `length_cm` and whose `storey_index` is `level_index` — the band is recomputed from the run's two corners, the run's inward side and `defaults.facade_wall_thickness_cm`, so a wall is matched to its facade by geometry rather than by a key that would let the file agree with itself. `pilaster` elements are allowed in `elements[].kind` on layer `05_FACADE`. **A missing wall is a FAIL, not a gap**: an opening cut whose `host_ref` resolves to nothing is a silent hole |
 | **G-39** | Layer vocabulary | Every `layer` value is in §8.1.4, and every element's layer equals the fixed mapping for its `kind` (§8.1.2). `site_pad.layer == "00_SITE"` and every `grouping[].layer == "90_SCENE"` |
 | **G-40** | Grouping completeness | Every `elements[].id` appears in **exactly one** `grouping[].element_ids`, and every id inside a group exists. `parent_pivot_cm` equals the group's element bbox centre in XY and its minimum Z, within `linear_cm` |
 

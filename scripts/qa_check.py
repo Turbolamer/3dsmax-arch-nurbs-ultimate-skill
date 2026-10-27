@@ -1538,6 +1538,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         help="Emit mode: path to calibration certificate JSON")
 
     # Assess mode arguments
+    parser.add_argument("--assess", dest="assess_mode", action="store_true",
+                        help="Assess mode (documented alias, added 2026-10-28); requires --request, --results and --out")
     parser.add_argument("--request", dest="request_file", type=str, default=None,
                         help="Assess mode: path to qa-request.json")
     parser.add_argument("--results", dest="results_file", type=str, default=None,
@@ -1549,7 +1551,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # 1. Mode mutual exclusivity checks
     is_emit = args.emit_dir is not None
-    is_assess = (args.request_file is not None or args.results_file is not None or args.out_dir is not None)
+    is_assess = (
+        args.assess_mode
+        or args.request_file is not None
+        or args.results_file is not None
+        or args.out_dir is not None
+    )
 
     if is_emit and is_assess:
         sys.stderr.write("USAGE ERROR: Emit mode (--emit) is strictly mutually exclusive with assess mode flags (--request, --results, --out).\n")

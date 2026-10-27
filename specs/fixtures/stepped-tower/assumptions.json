@@ -1,0 +1,348 @@
+{
+  "schema_version": "1.1",
+  "spec": "assumptions",
+  "project": "stepped-tower",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "Audit/AGENT_BRIEF_stepped_massing.md Task 6",
+    "recorded_at": "2026-10-14T00:00:00Z"
+  },
+  "status": "locked",
+  "assumptions": [
+    {
+      "id": "A-001",
+      "field_path": "site.plot_rotation_deg",
+      "value": 0.0,
+      "reason": "Default orthogonal orientation.",
+      "confidence": "high",
+      "invalidated_by": "Survey data with specified rotation.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P4",
+        "P5"
+      ]
+    },
+    {
+      "id": "A-002",
+      "field_path": "site.setback_cm",
+      "value": 300.0,
+      "reason": "Standard site pad perimeter margin.",
+      "confidence": "medium",
+      "invalidated_by": "Plot boundary restrictions.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-003",
+      "field_path": "structure.column_section_cm",
+      "value": [
+        40.0,
+        40.0
+      ],
+      "reason": "Standard structural column cross-section.",
+      "confidence": "medium",
+      "invalidated_by": "Structural sizing report.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-004",
+      "field_path": "core.type",
+      "value": "lift_stair_wc",
+      "reason": "Combined circulation core.",
+      "confidence": "high",
+      "invalidated_by": "Service brief revision.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-005",
+      "field_path": "core.footprint_cm",
+      "value": [
+        [
+          1200.0,
+          800.0
+        ],
+        [
+          1600.0,
+          800.0
+        ],
+        [
+          1600.0,
+          1600.0
+        ],
+        [
+          1200.0,
+          1600.0
+        ]
+      ],
+      "reason": "Central core location.",
+      "confidence": "high",
+      "invalidated_by": "Core layout change.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-006",
+      "field_path": "core.wall_thickness_cm",
+      "value": 25.0,
+      "reason": "Reinforced concrete core wall thickness.",
+      "confidence": "high",
+      "invalidated_by": "Structural engineering calculation.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-007",
+      "field_path": "levels[0].use",
+      "value": "podium_retail",
+      "reason": "Ground podium use classification.",
+      "confidence": "high",
+      "invalidated_by": "Programmatic brief update.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-008",
+      "field_path": "levels[1].use",
+      "value": "podium_office",
+      "reason": "Level 1 podium use classification.",
+      "confidence": "high",
+      "invalidated_by": "Programmatic brief update.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-009",
+      "field_path": "levels[2].use",
+      "value": "shaft_office",
+      "reason": "Level 2 shaft use classification.",
+      "confidence": "high",
+      "invalidated_by": "Programmatic brief update.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-010",
+      "field_path": "levels[3].use",
+      "value": "shaft_office",
+      "reason": "Level 3 shaft use classification.",
+      "confidence": "high",
+      "invalidated_by": "Programmatic brief update.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-011",
+      "field_path": "levels[4].use",
+      "value": "crown_executive",
+      "reason": "Level 4 crown use classification.",
+      "confidence": "high",
+      "invalidated_by": "Programmatic brief update.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-012",
+      "field_path": "levels[5].use",
+      "value": "crown_executive",
+      "reason": "Level 5 crown use classification.",
+      "confidence": "high",
+      "invalidated_by": "Programmatic brief update.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-013",
+      "field_path": "floor_plates[0].net_usable_area_m2",
+      "value": 640.0,
+      "reason": "Net area for podium level 0 deducting core share.",
+      "confidence": "high",
+      "invalidated_by": "Floor plan partitioning.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-014",
+      "field_path": "floor_plates[1].net_usable_area_m2",
+      "value": 640.0,
+      "reason": "Net area for podium level 1 deducting core share.",
+      "confidence": "high",
+      "invalidated_by": "Floor plan partitioning.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-015",
+      "field_path": "floor_plates[2].net_usable_area_m2",
+      "value": 448.0,
+      "reason": "Net area for shaft level 2 deducting core share.",
+      "confidence": "high",
+      "invalidated_by": "Floor plan partitioning.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-016",
+      "field_path": "floor_plates[3].net_usable_area_m2",
+      "value": 448.0,
+      "reason": "Net area for shaft level 3 deducting core share.",
+      "confidence": "high",
+      "invalidated_by": "Floor plan partitioning.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-017",
+      "field_path": "floor_plates[4].net_usable_area_m2",
+      "value": 224.0,
+      "reason": "Net area for crown level 4 deducting core share.",
+      "confidence": "high",
+      "invalidated_by": "Floor plan partitioning.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-018",
+      "field_path": "floor_plates[5].net_usable_area_m2",
+      "value": 224.0,
+      "reason": "Net area for crown level 5 deducting core share.",
+      "confidence": "high",
+      "invalidated_by": "Floor plan partitioning.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-019",
+      "field_path": "roof.slope_deg",
+      "value": 2.0,
+      "reason": "Minimum slope for flat roof drainage.",
+      "confidence": "high",
+      "invalidated_by": "Drainage engineer specification.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-020",
+      "field_path": "roof.parapet_thickness_cm",
+      "value": 30.0,
+      "reason": "Standard roof parapet thickness.",
+      "confidence": "high",
+      "invalidated_by": "Parapet structural design.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-021",
+      "field_path": "roof.coping_overhang_cm",
+      "value": 3.0,
+      "reason": "Standard roof coping drip overhang.",
+      "confidence": "high",
+      "invalidated_by": "Flashing and coping detailing.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-022",
+      "field_path": "roof.drainage",
+      "value": "internal_downpipe",
+      "reason": "Internal roof drainage system.",
+      "confidence": "high",
+      "invalidated_by": "Plumbing brief.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-023",
+      "field_path": "components_registry.json:defaults.panel_thickness_cm",
+      "value": 3.0,
+      "reason": "Default cladding panel thickness.",
+      "confidence": "high",
+      "invalidated_by": "Facade supplier specification.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-024",
+      "field_path": "components_registry.json:defaults.joint_width_cm",
+      "value": 2.0,
+      "reason": "Default facade joint width.",
+      "confidence": "high",
+      "invalidated_by": "Mullion detailing.",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "id": "A-025",
+      "field_path": "massing.json:defaults.facade_wall_thickness_cm",
+      "value": 20.0,
+      "reason": "Default facade wall band thickness.",
+      "confidence": "high",
+      "invalidated_by": "Wall section detail.",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3",
+        "P6"
+      ]
+    }
+  ],
+  "cross_references": {
+    "note": "Values that were NOT invented are listed here for completeness so a reader of dimensions.json does not have to open conflicts_resolved.json to find out why a value looks chosen. Nothing in this block is an assumption and no id here matches an A- id. Conflict-sourced values are owned by conflicts_resolved.json; derived values are recomputed by the validator under G-32 and are owned by no ledger.",
+    "conflict_sourced_paths": []
+  }
+}

@@ -491,8 +491,12 @@ totalLen = curveLength $MySpline 1  -- curve index 1
   spline 1 = 3 knots + spline 2 = 2 knots throws; both at 3 knots OK).
 - Never concatenate a string with a number: `"x" + someValue` throws. Write
   `(someValue as string)` — this bites most often in `try/catch` and reporting code (2026-10-04).
-- `getCurrentException()` inside a `catch` throws *itself*, turning a catchable error into a
-  script abort. Do not call it in error-handling code (2026-10-04).
+- `getCurrentException()` inside a `catch` **works**. The note here previously claimed it throws
+  *itself*, turning a catchable error into a script abort — that was **withdrawn 2026-10-05 as
+  false** (6 of 6 throw kinds returned a real message, with a non-throw control) and was
+  re-confirmed 2026-10-27 (`Audit/EVIDENCE_2026-10-27.md`). Do not avoid the call on the
+  strength of the old note. Use the flag form `local threw = false` / `catch ( threw = true )`
+  only when a boolean verdict is all you need.
 - In/out vectors are absolute handle positions, NOT relative direction vectors.
 - Coordinates are in the current MAXScript working coordinate system (world by default), not object-local.
 - `convertToSplineShape` is required before using knot/spline methods on primitive shapes.

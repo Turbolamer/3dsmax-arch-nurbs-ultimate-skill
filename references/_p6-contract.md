@@ -20,7 +20,7 @@ project `pavilion-01`.
 | `07` §11 + §12: **no spec file may name a MAXScript class, modifier, plugin or MCP tool** | `assembly.json` carries geometric and role names only. A cut is `kind: "difference"`, not `BooleanModifier`. A scatter is `kind: "scattered"`, not `ChaosScatter`. The *builder* owns the class names. |
 | `07` §2 + G-8: centimetres, degrees, every length key ends `_cm` | `position_cm`, `u_range_cm`, `v_range_cm`, `depth_cm`, `wall_thickness_cm`, `scale_from`/`scale_to` are unitless ratios. `rot_z_deg` is an angle. |
 | G-32 | Every generated placement and cut is `derived` with a `derives_from` naming a real path in `world_table.csv` / `dimensions.json`. |
-| **P6 decision: `layer` stays data, permanently** | See §1.3. `layer_map` is declared and linted, and **no builder emits layer code**. |
+| **P6 decision: `layer` stays data, permanently** | See §1.3. `layer_map` is declared and linted, and **no builder emits layer code**. **Scope (2026-10-27):** the *capability* question was reopened — `ILayerProperties.addNode` works (`Audit/EVIDENCE_2026-10-27.md` §E-7) — but **this policy decision is deferred** (§I.4 of `Audit/AGENT_PLAN_poly_surface_shell.md`); the decision itself stands. |
 
 ---
 
@@ -29,10 +29,25 @@ project `pavilion-01`.
 Both were live probes run by the orchestrator in the main thread on 2026-10-05. Agents **must not**
 re-run either; the transcripts are in `CHECKPOINT.md`.
 
-### 1.1 Layer assignment — a verified negative, nine routes ruled out
+### 1.1 Layer assignment — nine routes ruled out; the blanket negative since superseded
 
-There is **no way to assign an object to a layer from this bridge.** Not from MAXScript, not from
-`3dsmax-mcp_manage_layers`, not from `3dsmax-mcp_set_object_property`.
+**SUPERSEDED (2026-10-27) — the blanket negative is refuted.** This section used to open with:
+*"There is **no way to assign an object to a layer from this bridge.** Not from MAXScript, not from
+`3dsmax-mcp_manage_layers`, not from `3dsmax-mcp_set_object_property`."* That sentence is **refuted**:
+**`ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node`
+(verified in Phase 14, `CHECKPOINT.md` lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md` §E-7). The
+historical sentence is kept as the record of what was believed; it is not rewritten.
+
+What the nine routes below still prove — and all nine still hold — is narrower: **the two bridge
+tools have no layer-assignment route** (`manage_layers`' action vocabulary is exactly
+`{list, create, delete}`; `set_object_property` with `property=layer` emits the same read-only
+assignment and dies, with a `property=pos` **positive control** succeeding in the same batch), and
+**reading `node.layer` is read-only** — the setter throws `Property is read-only: layer`. They are a
+routing survey, not a proof of impossibility.
+
+**The auto-application policy is deferred** (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) and is not
+decided here. Until it is decided, §0 and `G-79` stand unchanged: `layer_map` stays **data** and the
+emitted MAXScript contains no layer-assignment statement.
 
 - `LayerManager` in this build exposes **only** `newLayerFromName`, `getLayerFromName`, `getLayer`.
   It has **no setter of any kind** (verified with a bogus-name control in the same batch, which threw).
@@ -47,10 +62,11 @@ There is **no way to assign an object to a layer from this bridge.** Not from MA
   same read-only error. A **positive control** on the same tool (`property=pos`) succeeded, so the tool
   works and `layer` is the blocker.
 
-**Consequence, and it is final:** `assembly.json` declares `layer_map` as **data**, linted against the
-closed vocabulary of `07` §8.1.4, and the emitted MAXScript **must not contain a layer-assignment
-statement**. A builder that tries to apply layers is a build FAIL, not a silent no-op. Layer
-application is a human action in the Layer dialog.
+**Consequence for the builder — and it is final until §I.4 decides otherwise:** `assembly.json`
+declares `layer_map` as **data**, linted against the closed vocabulary of `07` §8.1.4, and the emitted
+MAXScript **must not contain a layer-assignment statement**. A builder that tries to apply layers is a
+build FAIL, not a silent no-op. Layer application is a human action in the Layer dialog **today** —
+that is the **current policy**, not a proven impossibility.
 
 ### 1.2 The modifier-stack hazard — MEASURED, and a timeout is its only symptom
 

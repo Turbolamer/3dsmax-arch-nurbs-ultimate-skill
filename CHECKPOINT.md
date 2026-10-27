@@ -3,7 +3,145 @@
 **This file is the source of truth for what is done, what is verified, and what is assumed.**
 Update it at the end of every stage. Read it before starting new work.
 
-Last updated: 2026-10-13 (**Phase 14 / Audit 001 resolution complete** — see below).
+Last updated: 2026-10-28 (**Phase 16 / P0+P1 — `poly_surface_shell_v1` route opened** — see below).
+
+## 2026-10-28 — Phase 16: `poly_surface_shell_v1` — P0 (refuted claims corrected) + P1 (live spike F01)
+
+**Scope of this phase (user-approved):** P0 + P1 only. P2…P6 are queued separately and are
+**not** started. Planning document: `Audit/AGENT_PLAN_poly_surface_shell.md` (plan, §I holds the
+closed decisions). Single source of truth for the facts below: **`Audit/EVIDENCE_2026-10-27.md`**
+(E-1…E-16) — it is DATA, do not re-derive or rewrite it.
+
+**Measured environment:** 3ds Max **2026.3.2**, transport `namedpipe`, protocol 2, `mainThread`.
+Scene units `SystemType = "millimeters"`, `SystemScale = 1.0`, `units.decodeValue "1cm"` → **10.0**
+(400 cm = 4000 units). The scene was **empty** at the start of the session and **`objects.count == 0`**
+after every probe batch — temporary nodes were deleted in the same call that stopped using them
+(E-15). No user scene was touched.
+
+### P0 — refuted claims withdrawn (documentation only; no behaviour changed)
+
+| # | Claim that was **FALSE** | Correction | Where |
+|---|---|---|---|
+| 1 | `getCurrentException()` inside a `catch` "throws itself" / "does not exist" | **It works** — 6 of 6 throw kinds returned a real message, with a non-throw control proving the catch was not entered; re-confirmed 2026-10-27 inside live `catch` blocks | `SKILL.md:458`, `agents/max-orchestrator.md:809,844`, `agents/max-assembly.md` (AP-21), `references/14-chaos-scatter.md:311`, `references/maxscript-splines-shapes.md:494`, `references/_p4b-remainder-evidence.md:70`, `scripts/build_nurbs.py:66-67` |
+| 2 | `matrix3` "does not exist" | **It exists** — `matrix3 [1,0,0] [0,1,0] [0,0,1] [0,0,0]` → `classOf` `Matrix3`. It takes **4 args**; the old verdict came from calling it with 9 numbers → *arity* error misread as absence | `agents/max-orchestrator.md:812`, `references/14-chaos-scatter.md` (traps table), `agents/max-assembly.md` (header) |
+| 3 | `findString` "does not exist" | **It works** — `findString "hello world" "o w"` → **5** (1-based); `"zz"` → `undefined`; `12345` → throws | `agents/max-orchestrator.md:812`, `references/14-chaos-scatter.md` (traps table) |
+| 4 | "There is **no way** to assign an object to a layer from this bridge — nine routes ruled out, final, not an open question" | **REFUTED** — `ILayerProperties.addNode` **works**: `(LayerManager.getLayerFromName name).addNode node` (Phase 14 probe; E-7). What survives: **reading** `node.layer` is read-only, and the two bridge tools have no assignment route | `agents/max-assembly.md` §6.3, `agents/max-facade.md` §1.1, `agents/max-massing.md` §1.1/§4/§5, `references/11-layer-standard.md`, `agents/max-components.md` §1.1, `agents/max-nurbs.md` §1.1, `references/_p6-contract.md` §1.1 |
+| 5 | "`tolerances.linear_cm: 0.5` is half a millimetre" | **0.5 cm = 5 mm**. It is a **technological tolerance**; the float epsilon is a separate and much smaller number (`|y| < 1e-3`, E-5) | `agents/max-input.md:298`, `agents/max-massing.md:273`, `references/08-input-rules.md:266`, `references/improvement-log.md:179,203` |
+| 6 | "`Extrude` (and 5 more modifiers) do not attach" | It is a property of the **target geometry**, not of the modifier: on a **`SplineShape`** `Extrude` attaches (`threw=false`, `mods=1`); on a **`Box`** it still throws (E-1) | `references/arch-modifiers-and-procedural-reference.md`, `references/_p4b-remainder-evidence.md` §7.2 |
+| 7 | "`Shell` has no segments control (`segs` → NO)" | **False negative** — the property is **`segments`**; `getProperty <shell> "segs"` throws, `"segments"` exists (E-2) | `references/arch-modifiers-and-procedural-reference.md` (Shell row), `references/_p4b-remainder-evidence.md` §8.2 |
+
+**Still genuinely absent — do not re-open:** `setCopyMode`, `rotationZ` / `rotationX` / `rotationY`,
+`angle`. Substitutes: `copy` + `baseObject =`; `quat <deg> [0,0,1]`; `substring s 1 n`.
+
+**History was not rewritten.** Every correction above is a dated `SUPERSEDED` / `RETRACTED` /
+`CORRECTED` marker **next to** the surviving historical sentence, per the standing rule in
+`AGENTS.md`. The original wording stays readable as the record of what was believed and when it was
+withdrawn.
+
+**`scripts/build_nurbs.py` lint change:** the linter's rejection of `getCurrentException` was
+**removed** (it was rejecting correct scripts). The brace form `try { } catch { }` remains the only
+rejected shape. The file's own docstring no longer says the call "does not exist".
+
+**`scripts/qa_check.py`:** an `--assess` alias was added for the S7 QA gate's second mode
+(`--in … --request … --results … --out …`). It is **additive and non-breaking**: the original
+flag triplet still works, `--assess` without the triplet exits 2, `--assess` together with `--emit`
+exits 2 (mutually exclusive). All four modes verified.
+
+### P1 — live spike F01: the wall-surface route is **MEASURED**, not derived
+
+Fixture F01 (`Audit/AGENT_PLAN_poly_surface_shell.md` §G.1): a 400 × 300 cm wall on stations
+u = [0, 50, 150, 230, 330, 400] cm and Z = [0, 90, 210, 300] cm, with faces **2, 7, 9** removed
+as openings.
+
+**Route A — `polyop.createPolygon` over a station grid — works.** The contour is built directly
+from points (`polyop.createVert` × 24), the grid is built cell by cell (`polyop.createPolygon`
+× 15), the openings are removed (`polyop.deleteFaces w #{2,7,9} delIsoVerts:false`), the thickness
+is applied (`Shell innerAmount:0.0 outerAmount:300.0`). **`Extrude` is not required at any step.**
+It stays an *alternative* way to obtain a contour for curvilinear cases.
+
+| Stage | V | E | F | boundary | interior | boundary components | χ | area |
+|---|---|---|---|---|---|---|---|---|
+| base grid 5×3 | 24 | 38 | 15 | 16 | 22 | 1 | 1 | 1.2e7 mm² |
+| after `deleteFaces #{2,7,9}` | 24 | 36 | 12 | 24 | 12 | **2** | **0** | **8.7e6 mm² = 87 000 cm²** |
+
+The area matches the closed-form prediction exactly: `400×300 − 100×210 − 100×120 = 87 000 cm²`.
+
+| After `Shell` | measured |
+|---|---|
+| modifiers | `mods=1`, `classOf=Shell`, `inner=0.0`, `outer=300.0`, `segments=1` |
+| bbox | `min=[0,-300,0]`, `max=[4000,0,3000]` — thickness grows **outward**, along the face normal `[0,-1,0]` |
+| polygons / vertices / triangles | **48 / 48 / 96** (12 interior + 12 exterior + 24 rim) |
+| volume | **2.61e+09 mm³ = 2.61 m³** = `87 000 cm² × 30 cm` exactly |
+
+**Face layout confirmed:** the centre of face 9 is `[2800, 0, 1500]` — exactly the window
+(`u = 230…330`, `Z = 90…210`), so face numbering is **row-major**. The normal of face 1 is
+`[0,-1,0]`.
+
+**Negative controls — both fire (E-14):** a wall with the openings *not* removed measures
+**3.6e+09 mm³** (vs 2.61e+09), so volume does distinguish "openings present". But a **reversed
+winding** produces normal `[0,1,0]` and a bbox growing to **+Y** at the **same** volume 2.61e+09 mm³.
+⇒ **Volume does not distinguish direction.** The outward/inward check must be a **separate,
+independent gate** (normal and/or bbox) and cannot be replaced by a volume check.
+
+**New MAXScript traps measured 2026-10-27 (E-13):**
+
+| Trap | Measured | Do this |
+|---|---|---|
+| `snapshot <node>` on an Editable Poly + Shell | base object is **`Editable_mesh`**; `polyop.*` throws "EPoly operation on non-Editable Poly: Editable Mesh" | `convertTo (getNodeByName "<name>") Editable_Poly`, **then** `polyop.getNumFaces` → **48** |
+| `collapseStack <node>` | base object becomes **`Editable_mesh`** | `getNumFaces` → **96** — that is **triangles, not polygons** |
+| `polyop.getFacesUsingEdge` / `polyop.getVertsUsingEdge` | return a **BitArray**, not a Point3 | count set bits: `for i = 1 to q.count do ( if q[i] then c += 1 )` |
+| `Editable_Mesh()` + `convertTo … Editable_Poly` | **invalidates the node reference** | re-fetch by name: `getNodeByName "<name>"` |
+| `polyop.createVert` / `polyop.createPolygon` | return the new index (1-based, creation order) | indices are predictable, but **read the return value** |
+
+`references/maxscript-mesh-poly-ops.md` was extended with a dated traps section covering all seven.
+
+### Open / deliberately deferred (not failures)
+
+- **Layer auto-application policy — DEFERRED.** The capability claim is refuted (above); **whether
+  this skill's builders should apply layers automatically is an open policy decision** and is not
+  settled in either direction (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4).
+- **P2…P6 not started.** `walls.json` (the new domain spec file), `build_wall_surface.py` (the
+  S4w stage) and the `poly_surface_shell_v1` QA profile are **planned, not present**.
+- **The "S5 is the last geometry builder" invariant** still holds today — but it will need rewording
+  when S4w exists (`agents/max-orchestrator.md:61,378`, `references/01-pipeline-workflow.md:58`,
+  `SKILL.md`).
+- **Nothing has been committed.** The whole working tree is uncommitted as of this entry.
+
+## 2026-10-14 — Phase 15: Stepped Massing, Setback Tiers & Tectonic Pilasters (Schema 1.1 Extension)
+
+**Phase 15 complete (`Audit/AGENT_BRIEF_stepped_massing.md`):**
+- **Grammar & Schema Specifications (`references/07-spec-grammar.md`):**
+  - §5.8: Added Schema 1.1 optional keys to `floor_plates[]`: `footprint_kind`, `footprint_cm`, `footprint_ccw`, `footprint_width_cm`, `footprint_depth_cm`.
+  - §5.10: Added `spans_level_indices` to `facades[]`; tier-qualified elevation names `^(north|south|east|west)(_[a-z0-9_]+)?$` and IDs `^F-[NSEW](-[A-Z0-9]+)?$`.
+  - §8.1.1 & §8.1.2: Added `"pilaster"` element solid vocabulary mapped to layer `"05_FACADE"`.
+  - §9.3 & §9.6 Invariants: updated G-21, G-25, G-28, G-29, G-30, G-38; implemented G-91 (stepped plate containment & 5-key co-presence under Schema 1.1).
+- **Agent Contracts Synced (`agents/`):**
+  - `agents/max-input.md`: documented Schema 1.1 stepped massing intake, G-91 pre-flight checks, and tier-qualified facade naming.
+  - `agents/max-massing.md`: updated S2 massing contract for effective plate footprints, upper setback column pruning, scoped `facade_wall` generation, top tier roof/parapet placement, and pilasters.
+  - `agents/max-facade.md`: updated S4 facade contract for `spans_level_indices` and tier-scoped elevations.
+- **Validation Engine (`scripts/validate_specs.py`):**
+  - Added helpers `effective_plate_footprint` and `effective_facade_levels`.
+  - Updated G-21, G-25, G-28, G-29, G-32, G-38, registered G-91.
+  - Verified 100% backward compatibility: `examples/` (138 PASS / 0 FAIL / 0 WARN / 23 SKIP), `form-precision` (153 PASS / 0 FAIL / 0 WARN / 16 SKIP).
+- **Pipeline Builders (`scripts/build_spec.py`, `scripts/facade_tables.py`, `scripts/place_components.py`, `scripts/qa_check.py`):**
+  - `build_spec.py`: supports per-storey effective footprints, setback column pruning, scoped `facade_wall` generation, and top tier roof deck/parapet.
+  - `facade_tables.py`: scopes `facades[].levels[]` and G-57 self-checks to `effective_facade_levels`.
+  - `place_components.py`: per-facade inward direction and robust level index lookup for tier-scoped facades.
+  - `qa_check.py`: confirmed dynamic evaluation of active wall hosts in `QA-V1-WALLS` and G-82.
+- **Stepped Tower Fixture (`specs/fixtures/stepped-tower/`):**
+  - 3-tier stepped massing model (Podium 2800×2400 cm -> Shaft 2400×2000 cm -> Crown 1600×1600 cm), 6 levels, 12 tier-scoped facades, central core, 7 openings.
+  - S2, S4, S5 builders run to completion.
+  - `validate_specs.py --dir specs/fixtures/stepped-tower --warnings-as-errors`: **PASS 145 / FAIL 0 / WARN 0 / SKIP 22**. G-91 PASS.
+- **Live 3ds Max 2026 Verification (`specs/fixtures/stepped-tower/` via MCP):**
+  - Executed `specs/fixtures/stepped-tower/massing.ms`: built 155 scene nodes (149 massing elements + 5 groups + ground pad) with native units scale factor `__f_unit = 10.0` (for `millimeters` system unit). Measured podium slab ($2800 \times 2400 \times 30\text{ cm}$), tier 1 shaft setback slab ($2400 \times 2000 \times 30\text{ cm}$), tier 2 crown setback slab ($1600 \times 1600 \times 30\text{ cm}$), and crown roof deck ($1600 \times 1600 \times 30\text{ cm}$) matching exact footprint bounds.
+  - Executed `specs/fixtures/stepped-tower/assembly.ms`: built 374 total scene objects (11 prototypes, 181 component placements, 27 wall cells, 7 hidden host walls via Mechanism A `host_node.isHidden = true`).
+  - Strict G-81 Zero-Modifier compliance: `maxModifiersOnAnyObject = 0` across all 374 objects.
+  - Idempotence verified: second `fileIn` yielded exactly 374 objects without drift or orphan nodes.
+  - Post-test scene teardown: cleanly deleted all nodes, verified `objects.count = 0`.
+- **Skill Archive Built & Installed:**
+  - `python scripts/install_skill.py` executed: built `3dsmax-arch-nurbs-ultimate.skill` (112 files) and installed to `~/.claude/skills` and `~/.agents/skills`.
+
+---
 
 ## 2026-10-13 — Phase 14 / Audit 001 resolution: Input Protocol & Live Probes (Layer assignment & Material sync)
 
@@ -423,7 +561,7 @@ Every row below is an executed transcript, not an inference. Control probe in th
 | `3dsmax-mcp_manage_layers` works for `list`, `create`, `delete` — **and those three are the whole vocabulary** (P6, 40+ candidates rejected with a uniform `Unknown layer action`; `create`/`delete` return distinct argument errors, so the probe discriminates). While the MCP tool lacks node assignment, **MAXScript assigns nodes via `lyr.addNode node`** | typed-tool batch + MAXScript `ILayerProperties.addNode` live probe (2026-10-13) |
 | `node.parent = dummy` works; `getChildren` **does not exist** → use `dummy.children`. `Dummy boxSize:` needs a **`point3`**, a float throws *"Unable to convert: 100.0 to type: Point3"* | `b.parent = d` → `P3_DUMMY`; `getChildren d` → ERR; `d.children` → `#children($P3_CHILD) count=1` |
 | **`delete <dummy>` does NOT delete its children** — the child survives and must be deleted explicitly | after `delete d`, `objects.count` decreased by exactly 1 |
-| `try { } catch { }` **block** form is a parse error in this build → use the parenthesised `try ( ) catch ( )`. `getCurrentException()` is unavailable | both observed 2026-10-04 |
+| `try { } catch { }` **block** form is a parse error in this build → use the parenthesised `try ( ) catch ( )`. ~~`getCurrentException()` is unavailable~~ **WITHDRAWN 2026-10-05 — it works** (6/6 throw kinds, with a non-throw control), re-confirmed 2026-10-27 | both observed 2026-10-04; the exception half withdrawn 2026-10-05 |
 | A failed/aborted probe **leaves its objects in the scene** — 8 orphans accumulated across aborted probes and had to be swept. Always delete test nodes in the same call | `objects.count` 8 → 0 after an explicit sweep |
 
 ### Emitted-MAXScript rules — VERIFIED (P3, 2026-10-04)
@@ -1179,6 +1317,11 @@ Four things P5 changed outside its own files, all found by execution:
   so nobody "fixes" it.
 - **`rotate`'s absence is UNPROVEN.** Its only test used `matrix3`, which is itself absent, so the
   failure is uninformative. `quat` works and is the route; nothing depends on `rotate`.
+  ⚠️ **CORRECTED (2026-10-28):** the clause *"which is itself absent"* is **false** — `matrix3`
+  **exists** (4 args; the 9-number call was an *arity* error misread as absence). The entry above is
+  the 2026-10-04 wording and is left as the record; the retraction of `matrix3` is in §"Incident log
+  2026-10-05 (P10-lite)". **`rotate` itself is still unproven** — nothing in this session re-tested
+  it, so the entry's *conclusion* stands; only its stated reason is corrected.
 - The P6 items in §"Next actions" are unchanged: `manage_layers`' object-assignment action name is
   still unknown, and the Chaos Scatter crash attribution is still inference.
 

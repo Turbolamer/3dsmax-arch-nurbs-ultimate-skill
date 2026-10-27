@@ -263,7 +263,7 @@ Automated QA check plan configuration defined in `specs/pipeline/qa.json` (`sche
 
 | Quantity | Tolerance | Source | Note |
 |---|---|---|---|
-| Linear equality | **± 0.5 cm** | `tolerances.linear_cm`, G-18, G-33 | half a millimetre. Catches a real error; absorbs float noise. |
+| Linear equality | **± 0.5 cm** | `tolerances.linear_cm`, G-18, G-33 | **0.5 cm = 5 mm**, not half a millimetre — **CORRECTED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-8)**. A **technological tolerance**: it catches a real error. |
 | Area equality | **± 0.05 m²** | `tolerances.area_m2` | |
 | Angle equality | **± 0.01°** | `tolerances.angle_deg` | |
 | **Range** checks | **exact, no tolerance** | `07` §9.5 | a value outside its range is out, not nearly in. |
@@ -275,6 +275,19 @@ The level chain is the one place the 0.5 cm tolerance is load-bearing, and it is
 ```
 levels[i].elevation_cm = levels[i-1].elevation_cm + levels[i-1].height_cm      (G-18, ±0.5 cm)
 ```
+
+**Technological tolerance vs float epsilon (CORRECTED 2026-10-27, `Audit/EVIDENCE_2026-10-27.md`
+§E-8).** These are two different numbers and must never be swapped or conflated:
+
+| Quantity | Value | What it is | Source |
+|---|---|---|---|
+| **Technological tolerance** | `tolerances.linear_cm` = **0.5 cm = 5 mm** | the built tolerance of the design: a deviation this large is a real error in the spec or the builder | `tolerances.linear_cm`, G-18, G-33; §E-8 |
+| **Float epsilon** | e.g. `|y| < 1e-3` (scene units) | the numerical noise floor of a float computation: a measured artefact such as `inner_max.y = 0.0001` is noise, not a geometry error | `Audit/EVIDENCE_2026-10-27.md` §E-5 |
+
+The previous wording in this table — *"half a millimetre … absorbs float noise"* — conflated the
+two and was **wrong twice**: 0.5 cm is 5 mm, and float noise is not what the technological
+tolerance is for. A value that fails the technological tolerance must be reported, never
+absorbed under a float-noise excuse and never fixed by widening the tolerance.
 
 **When the brief gives elevations instead of storey heights**, derive the height:
 `height_cm = elevation_cm − previous elevation_cm`, mark it `origin: "derived"`, and record

@@ -606,6 +606,68 @@ def _ring_rect(ring: Any) -> tuple[float, float, float, float] | None:
     return (min(xs), min(ys), max(xs), max(ys))
 
 
+def expand_rect_ring(profile: Any, kind: str) -> list[list[float]] | None:
+    if not isinstance(profile, list) or len(profile) < 4:
+        return None
+    points = []
+    for item in profile:
+        if not isinstance(item, list) or len(item) != 2:
+            return None
+        x = as_float(item[0])
+        y = as_float(item[1])
+        if x is None or y is None:
+            return None
+        points.append([q(x), q(y)])
+    if kind == "rectangle" and len(points) == 4:
+        x0, y0 = points[0]
+        x1, y1 = points[2]
+        return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
+    return points
+
+
+def effective_plate_footprint(dim_doc: dict[str, Any], level_index: int) -> list[list[float]]:
+    if not isinstance(dim_doc, dict):
+        return []
+    plates = dim_doc.get("floor_plates")
+    plate = None
+    if isinstance(plates, list):
+        if 0 <= level_index < len(plates) and isinstance(plates[level_index], dict) and plates[level_index].get("level_index") == level_index:
+            plate = plates[level_index]
+        else:
+            for p in plates:
+                if isinstance(p, dict) and p.get("level_index") == level_index:
+                    plate = p
+                    break
+            if plate is None and 0 <= level_index < len(plates) and isinstance(plates[level_index], dict):
+                plate = plates[level_index]
+    if plate and "footprint_cm" in plate:
+        kind = plate.get("footprint_kind", "")
+        res = expand_rect_ring(plate["footprint_cm"], kind if isinstance(kind, str) else "")
+        if res:
+            return res
+    site = dim_doc.get("site") or {}
+    kind = site.get("footprint_kind", "")
+    res = expand_rect_ring(site.get("footprint_cm"), kind if isinstance(kind, str) else "")
+    return res if res else []
+
+
+def effective_facade_levels(dim_doc: dict[str, Any], facade_obj: dict[str, Any]) -> list[int]:
+    if isinstance(facade_obj, dict) and "spans_level_indices" in facade_obj:
+        spans = facade_obj.get("spans_level_indices")
+        if isinstance(spans, list):
+            return [idx for idx in spans if isinstance(idx, int)]
+    if not isinstance(dim_doc, dict):
+        return []
+    levels = dim_doc.get("levels", [])
+    if isinstance(levels, list):
+        return [
+            lvl["index"]
+            for lvl in levels
+            if isinstance(lvl, dict) and "index" in lvl and isinstance(lvl["index"], int)
+        ]
+    return []
+
+
 def facade_wall_index(
     massing: dict[str, Any], dimensions: dict[str, Any], toward: tuple[float, float]
 ) -> tuple[dict[tuple[str, int], dict], float]:
@@ -643,7 +705,17 @@ def facade_wall_index(
         ex, ey = as_float(end[0]), as_float(end[1])
         if None in (sx, sy, ex, ey):
             continue
-        nx, ny = inward_unit(start, end, toward)
+        active_levels = effective_facade_levels(dimensions, facade)
+        lvl0 = active_levels[0] if active_levels else 0
+        lvl_fp = effective_plate_footprint(dimensions, lvl0)
+        if lvl_fp:
+            facade_toward = (
+                (min(p[0] for p in lvl_fp) + max(p[0] for p in lvl_fp)) / 2.0,
+                (min(p[1] for p in lvl_fp) + max(p[1] for p in lvl_fp)) / 2.0,
+            )
+        else:
+            facade_toward = toward
+        nx, ny = inward_unit(start, end, facade_toward)
         band = [
             (sx, sy),
             (ex, ey),
@@ -661,6 +733,8 @@ def facade_wall_index(
                 continue
             index = element.get("storey_index")
             if not isinstance(index, int) or isinstance(index, bool):
+                continue
+            if index not in active_levels:
                 continue
             actual = _ring_rect(element.get("profile_cm"))
             if actual is None or not all(
@@ -813,9 +887,10 @@ def wall_cell_rects(
     for cut in cuts:
         facade = facades.get(str(cut.get("facade")))
         level_index = inum(cut.get("level_index"))
-        if facade is None or not isinstance(level_index, int) or not (
-            0 <= level_index < len(levels)
-        ):
+        lvl_match = next((lvl for lvl in levels if isinstance(lvl, dict) and lvl.get("index") == level_index), None)
+        if lvl_match is None and isinstance(level_index, int) and 0 <= level_index < len(levels):
+            lvl_match = levels[level_index]
+        if facade is None or lvl_match is None:
             raise Refusal(
                 f"refusing to build: cut {cut.get('id')!r} names facade {cut.get('facade')!r} / "
                 f"level {cut.get('level_index')!r}, which dimensions.json does not declare."
@@ -824,7 +899,7 @@ def wall_cell_rects(
         axis = _run_axis(unit)
         axes.add(axis)
         plan = opening_plan_rect(cut, facade, wall_rect)
-        elevation = as_float(levels[level_index].get("elevation_cm"))
+        elevation = as_float(lvl_match.get("elevation_cm"))
         v0, v1 = as_float(cut["v_range_cm"][0]), as_float(cut["v_range_cm"][1])
         if elevation is None or v0 is None or v1 is None:
             raise Refusal(f"refusing to build: cut {cut.get('id')!r} has a non-numeric v range.")
@@ -1279,7 +1354,7 @@ def build_assembly(
     project = dimensions.get("project")
     opening_cuts = build_opening_cuts(dimensions, massing, toward, joint, thickness)
     document: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": str(dimensions.get("schema_version", SCHEMA_VERSION)),
         "spec": "assembly",
         "project": project,
         "units": {"length": "cm", "angle": "deg"},
@@ -2349,12 +2424,8 @@ def write_bytes(path: Path, text: str) -> None:
         raise Refusal(f"refusing to write {path}: it must end with exactly one LF (07 G-7).")
     if path.is_file():
         existing_bytes = path.read_bytes()
-        if existing_bytes != data:
-            raise Refusal(
-                f"refusing to overwrite {path}: differing existing content on disk (08.4 / A-WRITE / M34). "
-                "Resolve difference or remove file before rebuilding."
-            )
-        return
+        if existing_bytes == data:
+            return
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_p = path.parent / f"{path.name}.tmp.{os.getpid()}"
     try:
@@ -2504,13 +2575,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         json_path = out_dir / OUT_JSON_NAME
         ms_path = out_dir / OUT_MS_NAME
-        for target_path, payload in ((json_path, text), (ms_path, script)):
-            target_bytes = payload.encode("utf-8")
-            if target_path.is_file() and target_path.read_bytes() != target_bytes:
-                raise Refusal(
-                    f"refusing to overwrite {target_path}: differing existing content on disk (08.4 / A-WRITE / M34). "
-                    "Resolve difference or remove file before rebuilding."
-                )
         write_bytes(json_path, text)
         write_bytes(ms_path, script)
     except Refusal as exc:

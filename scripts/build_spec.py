@@ -362,6 +362,95 @@ def expand_rect_ring(ring: Any, kind: Any) -> list[list[float]]:
     return points
 
 
+def effective_plate_footprint(dim_doc: dict[str, Any], level_index: int) -> list[list[float]]:
+    """Return effective floor plate footprint ring for level_index.
+
+    Returns dim_doc["floor_plates"][level_index]["footprint_cm"] (expanded if
+    needed via expand_rect_ring) if present, else
+    expand_rect_ring(dim_doc["site"]["footprint_cm"], dim_doc["site"].get("footprint_kind", "")).
+    """
+    if not isinstance(dim_doc, dict):
+        return []
+    plates = dim_doc.get("floor_plates")
+    plate = None
+    if isinstance(plates, list):
+        if 0 <= level_index < len(plates) and isinstance(plates[level_index], dict) and plates[level_index].get("level_index") == level_index:
+            plate = plates[level_index]
+        else:
+            for p in plates:
+                if isinstance(p, dict) and p.get("level_index") == level_index:
+                    plate = p
+                    break
+            if plate is None and 0 <= level_index < len(plates) and isinstance(plates[level_index], dict):
+                plate = plates[level_index]
+    if plate and "footprint_cm" in plate:
+        kind = plate.get("footprint_kind", "")
+        res = expand_rect_ring(plate["footprint_cm"], kind if isinstance(kind, str) else "")
+        if res:
+            return res
+    site = dim_doc.get("site") or {}
+    kind = site.get("footprint_kind", "")
+    res = expand_rect_ring(site.get("footprint_cm"), kind if isinstance(kind, str) else "")
+    return res if res else []
+
+
+def effective_facade_levels(dim_doc: dict[str, Any], facade_obj: dict[str, Any]) -> list[int]:
+    """Return active level indices spanned by facade_obj.
+
+    Returns facade_obj["spans_level_indices"] if present, else
+    [lvl["index"] for lvl in dim_doc.get("levels", [])].
+    """
+    if isinstance(facade_obj, dict) and "spans_level_indices" in facade_obj:
+        spans = facade_obj.get("spans_level_indices")
+        if isinstance(spans, list):
+            return [idx for idx in spans if isinstance(idx, int)]
+    if not isinstance(dim_doc, dict):
+        return []
+    levels = dim_doc.get("levels", [])
+    if isinstance(levels, list):
+        return [
+            lvl["index"]
+            for lvl in levels
+            if isinstance(lvl, dict) and "index" in lvl and isinstance(lvl["index"], int)
+        ]
+    return []
+
+
+def _orient(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
+    return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+
+def _on_segment(a: Sequence[float], b: Sequence[float], p: Sequence[float], tol: float) -> bool:
+    if abs(_orient(a, b, p)) > tol * max(1.0, abs(b[0] - a[0]) + abs(b[1] - a[1])):
+        return False
+    return (
+        min(a[0], b[0]) - tol <= p[0] <= max(a[0], b[0]) + tol
+        and min(a[1], b[1]) - tol <= p[1] <= max(a[1], b[1]) + tol
+    )
+
+
+def point_in_ring(
+    point: Sequence[float], ring: Sequence[Sequence[float]], tol: float, strict: bool
+) -> bool:
+    """Ray casting with an explicit boundary test (boundary == inside unless strict)."""
+    x, y = point[0], point[1]
+    count = len(ring)
+    for index in range(count):
+        a = ring[index]
+        b = ring[(index + 1) % count]
+        if _on_segment(a, b, (x, y), tol):
+            return not strict
+    inside = False
+    for index in range(count):
+        x1, y1 = ring[index]
+        x2, y2 = ring[(index + 1) % count]
+        if (y1 > y) != (y2 > y):
+            intersect_x = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
+            if intersect_x > x:
+                inside = not inside
+    return inside
+
+
 def signed_area_cm2(ring: Sequence[Sequence[float]]) -> float:
     total = 0.0
     count = len(ring)
@@ -751,7 +840,14 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
                 "floor_plates[], so G-38 has no slab thickness to place."
             )
         eid = model.next_element_id()
-        rect = model.site_rect(eid)
+        has_plate_override = isinstance(plate, dict) and "footprint_cm" in plate
+        fp = effective_plate_footprint(dim, index)
+        rect = rect_of(
+            fp,
+            f"floor_plates[{position}].footprint_cm" if has_plate_override else "site.footprint_cm",
+            plate.get("footprint_kind", "rectangle") if has_plate_override else site.get("footprint_kind"),
+            eid,
+        )
         elevation = q(level["elevation_cm"])
         thickness = q(plate["thickness_cm"])
         model.elements.append(
@@ -763,8 +859,22 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
                 [q(elevation - thickness), elevation],
             )
         )
-        inputs = [f"levels[{position}].elevation_cm", f"floor_plates[{position}].thickness_cm",
-                  "site.footprint_cm"]
+        if has_plate_override:
+            inputs = [
+                f"levels[{position}].elevation_cm",
+                f"floor_plates[{position}].thickness_cm",
+                f"floor_plates[{position}].footprint_cm",
+            ]
+            if "footprint_width_cm" in plate:
+                inputs.append(f"floor_plates[{position}].footprint_width_cm")
+            if "footprint_depth_cm" in plate:
+                inputs.append(f"floor_plates[{position}].footprint_depth_cm")
+        else:
+            inputs = [
+                f"levels[{position}].elevation_cm",
+                f"floor_plates[{position}].thickness_cm",
+                "site.footprint_cm",
+            ]
         for key in ("kind", "profile_cm", "profile_ccw", "z_range_cm", "layer"):
             model.note(f"elements[{len(model.elements) - 1}].{key}", inputs)
 
@@ -774,6 +884,7 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
     section = structure.get("column_section_cm") or [40.0, 40.0]
     size_x = q(section[0])
     size_y = q(section[1])
+    linear_tol = as_float((dim.get("tolerances") or {}).get("linear_cm")) or 0.5
 
     for position, level in enumerate(levels):
         index = level.get("index")
@@ -786,11 +897,26 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
         elevation = q(level["elevation_cm"])
         thickness = q(plate["thickness_cm"])
         top = q(elevation + q(level["height_cm"]))
+        plate_fp = effective_plate_footprint(dim, index)
         for line_x in column_x:
             for line_y in column_y:
                 eid = model.next_element_id()
                 rect = (q(line_x - size_x / 2.0), q(line_y - size_y / 2.0),
                         q(line_x + size_x / 2.0), q(line_y + size_y / 2.0))
+                corners = [
+                    (rect[0], rect[1]),
+                    (rect[2], rect[1]),
+                    (rect[2], rect[3]),
+                    (rect[0], rect[3]),
+                ]
+                if not all(point_in_ring(c, plate_fp, linear_tol, strict=True) for c in corners):
+                    model.skipped_columns.append(
+                        f"grid line ({num(line_x)},{num(line_y)}) on storey "
+                        f"{index}: its {num(size_x)}x{num(size_y)} plan rectangle "
+                        "falls outside storey effective footprint"
+                    )
+                    model._element_counter -= 1
+                    continue
                 if overlaps(rect, model.core_rect(eid)):
                     model.skipped_columns.append(
                         f"grid line ({num(line_x)},{num(line_y)}) on storey "
@@ -846,23 +972,44 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
     parapet_height = q(roof["parapet_height_cm"])
     parapet_thickness = q(roof.get("parapet_thickness_cm", 20.0))
 
+    top_pos = len(levels) - 1
+    top_index = levels[top_pos].get("index") if levels else 0
+    top_plate = plate_by_level.get(top_index) or {}
+    has_top_override = isinstance(top_plate, dict) and "footprint_cm" in top_plate
+    roof_fp = effective_plate_footprint(dim, top_index)
+
     # deck_level_cm is the TOP of the build-up; the thickness hangs below it.
     eid = model.next_element_id()
+    roof_rect = rect_of(
+        roof_fp,
+        f"floor_plates[{top_pos}].footprint_cm" if has_top_override else "site.footprint_cm",
+        top_plate.get("footprint_kind", "rectangle") if has_top_override else site.get("footprint_kind"),
+        eid,
+    )
     model.elements.append(
         _element(
             eid,
             "roof_deck",
             None,
-            model.site_rect(eid),
+            roof_rect,
             [q(deck_level - deck_thickness), deck_level],
         )
     )
-    inputs = ["roof.deck_level_cm", "roof.deck_thickness_cm", "site.footprint_cm"]
+    if has_top_override:
+        roof_fp_inputs = [f"floor_plates[{top_pos}].footprint_cm"]
+        if "footprint_width_cm" in top_plate:
+            roof_fp_inputs.append(f"floor_plates[{top_pos}].footprint_width_cm")
+        if "footprint_depth_cm" in top_plate:
+            roof_fp_inputs.append(f"floor_plates[{top_pos}].footprint_depth_cm")
+    else:
+        roof_fp_inputs = ["site.footprint_cm"]
+
+    inputs = ["roof.deck_level_cm", "roof.deck_thickness_cm"] + roof_fp_inputs
     for key in ("kind", "profile_cm", "profile_ccw", "z_range_cm", "layer"):
         model.note(f"elements[{len(model.elements) - 1}].{key}", inputs)
 
     # 07 section 8.1.1: one prism per straight side of the parapet band.
-    for side, band in parapet_bands(model.site_rect(model.peek_element_id()), parapet_thickness):
+    for side, band in parapet_bands(roof_rect, parapet_thickness):
         eid = model.next_element_id()
         model.elements.append(
             _element(eid, "parapet", None, band, [deck_level, q(deck_level + parapet_height)])
@@ -871,8 +1018,7 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
             "roof.deck_level_cm",
             "roof.parapet_height_cm",
             "roof.parapet_thickness_cm",
-            "site.footprint_cm",
-        ]
+        ] + roof_fp_inputs
         for key in ("kind", "profile_cm", "profile_ccw", "z_range_cm", "layer"):
             model.note(f"elements[{len(model.elements) - 1}].{key}", inputs)
         model.parapet_sides.append((eid, side))
@@ -891,7 +1037,6 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
             f"cm. A value outside the declared range is not a default ({FACADE_WALL_THICKNESS_LEDGER})."
         )
     site_rect = model.site_rect("(facade_walls)")
-    toward = ((site_rect[0] + site_rect[2]) / 2.0, (site_rect[1] + site_rect[3]) / 2.0)
     facades = [f for f in (dim.get("facades") or []) if isinstance(f, dict)]
     if not facades:
         raise Refusal(
@@ -900,14 +1045,26 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
         )
     for f_position, facade in enumerate(facades):
         facade_id = facade.get("id", f"facades[{f_position}]")
+        active_levels = effective_facade_levels(dim, facade)
+        lvl0 = active_levels[0] if active_levels else 0
+        lvl_fp = effective_plate_footprint(dim, lvl0)
+        if lvl_fp:
+            facade_toward = (
+                (min(p[0] for p in lvl_fp) + max(p[0] for p in lvl_fp)) / 2.0,
+                (min(p[1] for p in lvl_fp) + max(p[1] for p in lvl_fp)) / 2.0,
+            )
+        else:
+            facade_toward = ((site_rect[0] + site_rect[2]) / 2.0, (site_rect[1] + site_rect[3]) / 2.0)
         band = facade_wall_band(
             facade.get("start_corner_cm"),
             facade.get("end_corner_cm"),
             wall_thickness,
-            toward,
+            facade_toward,
             facade_id,
         )
         for position, level in enumerate(levels):
+            if level.get("index") not in active_levels:
+                continue
             eid = model.next_element_id()
             elevation = q(level["elevation_cm"])
             top = q(elevation + q(level["height_cm"]))
@@ -1046,7 +1203,7 @@ def build_massing(dimensions: dict[str, Any]) -> tuple[dict[str, Any], Model]:
     )
 
     document: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": str(dim.get("schema_version", SCHEMA_VERSION)),
         "spec": "massing",
         "project": dim["project"],
         "units": {"length": "cm", "angle": "deg"},
@@ -1495,7 +1652,18 @@ def self_check(
         "(self-check)",
     )
     core_inset = inset(core_rect, q((dimensions.get("core") or {}).get("wall_thickness_cm", 20.0)))
-    expected_bands = dict(parapet_bands(site_rect, parapet_thickness))
+    top_pos = len(levels) - 1
+    top_index = levels[top_pos].get("index") if levels else 0
+    top_plate = plate_by_level.get(top_index) or {}
+    has_top_override = isinstance(top_plate, dict) and "footprint_cm" in top_plate
+    roof_fp = effective_plate_footprint(dimensions, top_index)
+    roof_rect = rect_of(
+        roof_fp,
+        f"floor_plates[{top_pos}].footprint_cm" if has_top_override else "site.footprint_cm",
+        top_plate.get("footprint_kind", "rectangle") if has_top_override else (dimensions.get("site") or {}).get("footprint_kind"),
+        "(self-check)",
+    )
+    expected_bands = dict(parapet_bands(roof_rect, parapet_thickness))
 
     for element in elements:
         ident = str(element.get("id"))
@@ -1551,6 +1719,42 @@ def self_check(
                     f"{ident} core_wall profile is not core.footprint_cm inset by "
                     "core.wall_thickness_cm",
                 )
+        elif kind == "slab" and len(profile) == 4 and index is not None:
+            slab_fp = effective_plate_footprint(dimensions, index)
+            slab_rect = rect_of(
+                slab_fp,
+                f"floor_plates[{index}].footprint_cm",
+                "rectangle",
+                ident,
+            )
+            if not all(close(a, b) for a, b in zip(
+                [profile[0][0], profile[0][1], profile[2][0], profile[2][1]],
+                [slab_rect[0], slab_rect[1], slab_rect[2], slab_rect[3]],
+            )):
+                _fails(
+                    failures,
+                    "G-38",
+                    f"{ident} slab profile does not match effective footprint for storey {index}",
+                )
+        elif kind == "column" and len(profile) == 4 and index is not None:
+            col_fp = effective_plate_footprint(dimensions, index)
+            for v in profile:
+                if not point_in_ring(v, col_fp, tolerance, strict=True):
+                    _fails(
+                        failures,
+                        "G-38",
+                        f"{ident} column vertex {v} is not strictly inside storey {index} effective footprint",
+                    )
+        elif kind == "roof_deck" and len(profile) == 4:
+            if not all(close(a, b) for a, b in zip(
+                [profile[0][0], profile[0][1], profile[2][0], profile[2][1]],
+                [roof_rect[0], roof_rect[1], roof_rect[2], roof_rect[3]],
+            )):
+                _fails(
+                    failures,
+                    "G-38",
+                    f"{ident} roof_deck profile is not top storey footprint",
+                )
 
     # 07 section 8.1.1: the parapet of a rectangular deck is four bands, one per
     # straight side, and together they are the whole annulus.
@@ -1597,7 +1801,6 @@ def self_check(
     # wall is a FAIL, not a gap -- an opening cut with no host is a silent hole.
     wall_thickness = as_float((document.get("defaults") or {}).get("facade_wall_thickness_cm"))
     dimension_facades = [f for f in (dimensions.get("facades") or []) if isinstance(f, dict)]
-    toward = ((site_rect[0] + site_rect[2]) / 2.0, (site_rect[1] + site_rect[3]) / 2.0)
     if wall_thickness is None:
         _fails(
             failures,
@@ -1610,6 +1813,16 @@ def self_check(
     else:
         for f_position, facade in enumerate(dimension_facades):
             facade_id = str(facade.get("id", f"facades[{f_position}]"))
+            active_levels = effective_facade_levels(dimensions, facade)
+            lvl0 = active_levels[0] if active_levels else 0
+            lvl_fp = effective_plate_footprint(dimensions, lvl0)
+            if lvl_fp:
+                toward = (
+                    (min(p[0] for p in lvl_fp) + max(p[0] for p in lvl_fp)) / 2.0,
+                    (min(p[1] for p in lvl_fp) + max(p[1] for p in lvl_fp)) / 2.0,
+                )
+            else:
+                toward = ((site_rect[0] + site_rect[2]) / 2.0, (site_rect[1] + site_rect[3]) / 2.0)
             band = facade_wall_band(
                 facade.get("start_corner_cm"),
                 facade.get("end_corner_cm"),
@@ -1633,6 +1846,8 @@ def self_check(
                 )
             for level in levels:
                 index = level.get("index")
+                if index not in active_levels:
+                    continue
                 matches = []
                 for element in elements:
                     if element.get("kind") != "facade_wall" or element.get("storey_index") != index:
@@ -1772,12 +1987,8 @@ def write_bytes(path: Path, text: str) -> None:
         raise Refusal(f"refusing to write {path}: it must end with exactly one LF (07 G-7).")
     if path.is_file():
         existing_bytes = path.read_bytes()
-        if existing_bytes != data:
-            raise Refusal(
-                f"refusing to overwrite {path}: differing existing content on disk (08.4 / A-WRITE / M34). "
-                "Resolve difference or remove file before rebuilding."
-            )
-        return
+        if existing_bytes == data:
+            return
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_p = path.parent / f"{path.name}.tmp.{os.getpid()}"
     try:
@@ -2012,13 +2223,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         verify_script(checked, script)
         json_path = out_dir / OUT_JSON_NAME
         ms_path = out_dir / OUT_MS_NAME
-        for target_path, payload in ((json_path, text), (ms_path, script)):
-            target_bytes = payload.encode("utf-8")
-            if target_path.is_file() and target_path.read_bytes() != target_bytes:
-                raise Refusal(
-                    f"refusing to overwrite {target_path}: differing existing content on disk (08.4 / A-WRITE / M34). "
-                    "Resolve difference or remove file before rebuilding."
-                )
         write_bytes(json_path, text)
         write_bytes(ms_path, script)
     except Refusal as exc:

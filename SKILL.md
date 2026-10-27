@@ -110,7 +110,7 @@ Three of these carry a **verified capability limit**, not a bug:
 | Tool | Limit, as measured |
 | :--- | :--- |
 | `manage_layers` | The whole vocabulary is `list`, `create`, `delete`. 40+ candidate action names were rejected with a uniform `Unknown layer action`. **It cannot assign an object to a layer** |
-| `add_modifier` | Of the 23 modifier classes that construct, **6 cannot be attached via MAXScript `addModifier`**: `Extrude` `Sweep` `Lathe` `Surface` `CrossSection` `Bevel_Profile`. This typed tool is the working route for 5 of them; `Bevel_Profile` fails through every route. `Boolean` attaches and is useless — §2 |
+| `add_modifier` | Of the 23 modifier classes that construct, **6 cannot be attached via MAXScript `addModifier` to polygonal geometry**: `Extrude` `Sweep` `Lathe` `Surface` `CrossSection` `Bevel_Profile`. **That is a property of the host geometry, not of the modifier** — measured 2026-10-27: on a `SplineShape` the same `Extrude` attaches cleanly (`threw=false`, `mods=1`, `classOf=Extrude`, `capStart=false`, `capEnd=false`), while on a `Box` it throws (`threw=true`, `mods=0`). So an emitted `.ms` **can** carry an `Extrude` stack on a shape without the typed tool. This typed tool remains the working route for the geometry-bound cases; `Bevel_Profile` fails through every route. `Boolean` attaches and is useless — §2 · `Audit/EVIDENCE_2026-10-27.md` §E-1 |
 | `set_sub_material` | A node's sub-material index is not reachable from MAXScript at all (`materialID`, `subMaterialID`, `matID`, `materialId` all throw, with a control). Whole-material assignment is the only scripted route |
 
 ### 1.5 Core operational principles
@@ -131,7 +131,7 @@ Pick the pipeline before creating geometry.
 | Architectural Component | Correct pipeline | Read first |
 | :--- | :--- | :--- |
 | 2D footprints, site contours, profiles | Shape objects — `Rectangle`, `Line`, `NGon`, `Circle`, `Arc`, `Helix`, `Donut`, `Star`, `PipeObject`, `Text` — via `create_object` or `execute_maxscript` | `references/maxscript-splines-shapes.md` |
-| Cornices, parapet copings, window frames, curbs, gutters, reveals | Shape profile plus the `Extrude` or `Sweep` modifier. Both throw on MAXScript `addModifier` — use `add_modifier` | `references/arch-modifiers-and-procedural-reference.md` |
+| Cornices, parapet copings, window frames, curbs, gutters, reveals | Shape profile plus the `Extrude` or `Sweep` modifier. **`Extrude` attaches to a shape through MAXScript `addModifier`** — measured 2026-10-27 (`threw=false`, `mods=1`), so an emitted script may carry the stack itself; `Sweep` still throws on polygonal geometry and needs `add_modifier` | `references/arch-modifiers-and-procedural-reference.md` |
 | Columns, balusters, piers, tapered members, chimneys | `create_object` primitives, or shape profile plus `Lathe` (typed-tool route only), or Box plus taper/scale | `references/arch-modifiers-and-procedural-reference.md` |
 | **Walls with punched window and door openings** | **Not a Boolean.** Build the wall as **solid cells** tiling wall-minus-openings: decompose along the run axis, cut at every opening's `u` boundary, then at the `v` boundaries covering each column. Every boundary comes from some opening edge, so the subdivision has no gap and no overlap | `agents/max-assembly.md`, `references/07-spec-grammar.md` §8.5.8 |
 | Floor slabs, decks, prismatic massing | `create_object` primitives from a locked `massing.json`, emitted by `build_spec.py`. A `Box` is centred on `pos.x`/`pos.y` with its **base at `pos.z`** | `references/07-spec-grammar.md` §8.1, `agents/max-massing.md` |
@@ -449,11 +449,13 @@ Measured with a calibrated sweep in which `copy`, `Box`, `filterString`, `openFi
 | 2 · 5 · 10 | clean — every rung `threw=false`, `modifiers.count` tracked the rung, ~30 ms each |
 | **20** | **`execute_maxscript` timed out, then `get_scene_snapshot` timed out, then the bridge stopped answering. Max had to be killed and the machine rebooted.** |
 
-Two of the attachable-looking classes (`Extrude`, `Bevel`) throw on `addModifier`, so the ladder used `Shell` `Chamfer` `Lattice` `Edit_Poly` `Uvwmap` `TurboSmooth` `Noisemodifier` `Bend` `Twist` `Taper`. **No ChaosScatter object existed in the scene during the hang**, which *strengthens* rather than weakens the link: the callback fires from the geometry-stack change itself, so Chaos Scatter's presence is not required for the hazard.
+Two of the attachable-looking classes (`Extrude`, `Bevel`) throw on `addModifier` **when the host is a `Box`** — the ladder above ran on a `Box`, which is why it used `Shell` `Chamfer` `Lattice` `Edit_Poly` `Uvwmap` `TurboSmooth` `Noisemodifier` `Bend` `Twist` `Taper`. (On a shape, `Extrude` attaches — measured 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-1; the ladder result is a statement about that host geometry, not about `Extrude`.) **No ChaosScatter object existed in the scene during the hang**, which *strengthens* rather than weakens the link: the callback fires from the geometry-stack change itself, so Chaos Scatter's presence is not required for the hazard.
 
 **Standing rule:** build stacks incrementally, **≤ 5 modifiers per `execute_maxscript` call**, and treat **> 10 on a single node as forbidden** without asking the user first. **Do not re-run the 20-rung probe** — it has been measured and the answer cost a reboot. The shipped assembly sidesteps the whole hazard by emitting **zero** modifiers.
 
-Also measured and not to be retried: `getCurrentException()` inside a `catch` (it throws itself) · `global fn` and a bare top-level `fn` both fail through `execute_maxscript`, so inline the code · `modPanel.setCommandPanelCurrentMode` (throws) · `modPanel.addModToSelection` (returns OK, adds nothing) · `max zoomext` (parse error).
+Also measured and not to be retried: `global fn` and a bare top-level `fn` both fail through `execute_maxscript`, so inline the code · `modPanel.setCommandPanelCurrentMode` (throws) · `modPanel.addModToSelection` (returns OK, adds nothing) · `max zoomext` (parse error).
+
+> **CORRECTED (2026-10-05, re-confirmed 2026-10-27):** this list previously also read *"`getCurrentException()` inside a `catch` (it throws itself)"*. **That was false and the rule is withdrawn.** `getCurrentException()` works inside a `catch` — it returned a real message for 6 of 6 throw kinds, and on 2026-10-27 it was used freely inside `catch` blocks in live probes with a non-throw control proving the catch was not entered (`Audit/EVIDENCE_2026-10-27.md`).
 
 ### 7.5 Bridge transport — the error text names the wrong transport
 

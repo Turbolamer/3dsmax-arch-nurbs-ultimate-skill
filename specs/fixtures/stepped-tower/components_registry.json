@@ -1,0 +1,1791 @@
+{
+  "schema_version": "1.1",
+  "spec": "components_registry",
+  "project": "stepped-tower",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "facade_grids.json -- the P5 panel grid this registry resolves, itself computed from dimensions.json by scripts/facade_tables.py. The join runs registry -> grid, so no panel names a component and G-31 stays a single pass",
+    "recorded_at": "2026-10-14T00:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [
+    "tolerances.linear_cm"
+  ],
+  "origins": {
+    "defaults.panel_thickness_cm": {
+      "origin": "assumed",
+      "origin_ref": "A-023"
+    },
+    "defaults.joint_width_cm": {
+      "origin": "assumed",
+      "origin_ref": "A-024"
+    },
+    "component_types[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].kind"
+      ]
+    },
+    "component_types[0].glazed": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[0].kind"
+      ]
+    },
+    "component_types[0].frame_member": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[0].kind"
+      ]
+    },
+    "component_types[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].kind"
+      ]
+    },
+    "component_types[1].glazed": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[1].kind"
+      ]
+    },
+    "component_types[1].frame_member": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[1].kind"
+      ]
+    },
+    "component_types[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].kind"
+      ]
+    },
+    "component_types[2].glazed": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[2].kind"
+      ]
+    },
+    "component_types[2].frame_member": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[2].kind"
+      ]
+    },
+    "components[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[0].kind"
+      ]
+    },
+    "components[0].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[0].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].size_cm"
+      ]
+    },
+    "components[0].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].size_cm"
+      ]
+    },
+    "components[0].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].size_cm"
+      ]
+    },
+    "components[0].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].size_cm"
+      ]
+    },
+    "components[0].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].size_cm"
+      ]
+    },
+    "components[0].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].size_cm"
+      ]
+    },
+    "components[0].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[0].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[0].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[0].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[0].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[0].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[0].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].kind"
+      ]
+    },
+    "components[0].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].parameters"
+      ]
+    },
+    "components[0].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[1].kind"
+      ]
+    },
+    "components[1].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[1].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].size_cm"
+      ]
+    },
+    "components[1].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].size_cm"
+      ]
+    },
+    "components[1].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].size_cm"
+      ]
+    },
+    "components[1].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].size_cm"
+      ]
+    },
+    "components[1].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].size_cm"
+      ]
+    },
+    "components[1].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].size_cm"
+      ]
+    },
+    "components[1].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[1].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[1].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[1].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[1].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[1].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[1].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].kind"
+      ]
+    },
+    "components[1].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[1].parameters"
+      ]
+    },
+    "components[1].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[2].kind"
+      ]
+    },
+    "components[2].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[2].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].size_cm"
+      ]
+    },
+    "components[2].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].size_cm"
+      ]
+    },
+    "components[2].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].size_cm"
+      ]
+    },
+    "components[2].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].size_cm"
+      ]
+    },
+    "components[2].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].size_cm"
+      ]
+    },
+    "components[2].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].size_cm"
+      ]
+    },
+    "components[2].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[2].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[2].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[2].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[2].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[2].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[2].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].kind"
+      ]
+    },
+    "components[2].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[2].parameters"
+      ]
+    },
+    "components[2].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[3].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[3].kind"
+      ]
+    },
+    "components[3].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[3].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].size_cm"
+      ]
+    },
+    "components[3].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].size_cm"
+      ]
+    },
+    "components[3].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].size_cm"
+      ]
+    },
+    "components[3].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].size_cm"
+      ]
+    },
+    "components[3].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].size_cm"
+      ]
+    },
+    "components[3].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].size_cm"
+      ]
+    },
+    "components[3].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[3].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[3].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[3].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[3].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[3].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[3].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].kind"
+      ]
+    },
+    "components[3].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[3].parameters"
+      ]
+    },
+    "components[3].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[4].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[4].kind"
+      ]
+    },
+    "components[4].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[4].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].size_cm"
+      ]
+    },
+    "components[4].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].size_cm"
+      ]
+    },
+    "components[4].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].size_cm"
+      ]
+    },
+    "components[4].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].size_cm"
+      ]
+    },
+    "components[4].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].size_cm"
+      ]
+    },
+    "components[4].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].size_cm"
+      ]
+    },
+    "components[4].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[4].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[4].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[4].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[4].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[4].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[4].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].kind"
+      ]
+    },
+    "components[4].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[4].parameters"
+      ]
+    },
+    "components[4].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[5].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[5].kind"
+      ]
+    },
+    "components[5].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[5].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].size_cm"
+      ]
+    },
+    "components[5].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].size_cm"
+      ]
+    },
+    "components[5].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].size_cm"
+      ]
+    },
+    "components[5].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].size_cm"
+      ]
+    },
+    "components[5].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].size_cm"
+      ]
+    },
+    "components[5].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].size_cm"
+      ]
+    },
+    "components[5].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[5].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[5].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[5].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[5].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[5].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[5].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].kind"
+      ]
+    },
+    "components[5].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[5].parameters"
+      ]
+    },
+    "components[5].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[6].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[6].kind"
+      ]
+    },
+    "components[6].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[6].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].size_cm"
+      ]
+    },
+    "components[6].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].size_cm"
+      ]
+    },
+    "components[6].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].size_cm"
+      ]
+    },
+    "components[6].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].size_cm"
+      ]
+    },
+    "components[6].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].size_cm"
+      ]
+    },
+    "components[6].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].size_cm"
+      ]
+    },
+    "components[6].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[6].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[6].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[6].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[6].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[6].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[6].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].kind"
+      ]
+    },
+    "components[6].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[6].parameters"
+      ]
+    },
+    "components[6].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[7].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[7].kind"
+      ]
+    },
+    "components[7].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[7].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].size_cm"
+      ]
+    },
+    "components[7].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].size_cm"
+      ]
+    },
+    "components[7].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].size_cm"
+      ]
+    },
+    "components[7].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].size_cm"
+      ]
+    },
+    "components[7].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].size_cm"
+      ]
+    },
+    "components[7].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].size_cm"
+      ]
+    },
+    "components[7].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[7].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[7].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[7].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[7].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[7].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[7].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].kind"
+      ]
+    },
+    "components[7].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[7].parameters"
+      ]
+    },
+    "components[7].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[8].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[8].kind"
+      ]
+    },
+    "components[8].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[8].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].size_cm"
+      ]
+    },
+    "components[8].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].size_cm"
+      ]
+    },
+    "components[8].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].size_cm"
+      ]
+    },
+    "components[8].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].size_cm"
+      ]
+    },
+    "components[8].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].size_cm"
+      ]
+    },
+    "components[8].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].size_cm"
+      ]
+    },
+    "components[8].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[8].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[8].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[8].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[8].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[8].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[8].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].kind"
+      ]
+    },
+    "components[8].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[8].parameters"
+      ]
+    },
+    "components[8].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[9].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[9].kind"
+      ]
+    },
+    "components[9].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[9].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].size_cm"
+      ]
+    },
+    "components[9].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].size_cm"
+      ]
+    },
+    "components[9].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].size_cm"
+      ]
+    },
+    "components[9].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].size_cm"
+      ]
+    },
+    "components[9].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].size_cm"
+      ]
+    },
+    "components[9].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].size_cm"
+      ]
+    },
+    "components[9].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[9].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[9].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[9].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[9].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[9].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[9].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].kind"
+      ]
+    },
+    "components[9].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[9].parameters"
+      ]
+    },
+    "components[9].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "components[10].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "component_types[10].kind"
+      ]
+    },
+    "components[10].size_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].parameters",
+        "defaults.panel_thickness_cm"
+      ]
+    },
+    "components[10].parameters[0].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].size_cm"
+      ]
+    },
+    "components[10].parameters[0].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].size_cm"
+      ]
+    },
+    "components[10].parameters[0].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].size_cm"
+      ]
+    },
+    "components[10].parameters[1].source": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].size_cm"
+      ]
+    },
+    "components[10].parameters[1].value": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].size_cm"
+      ]
+    },
+    "components[10].parameters[1].units": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].size_cm"
+      ]
+    },
+    "components[10].parameters[2].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[10].parameters[2].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[10].parameters[2].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[10].parameters[3].source": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[10].parameters[3].value": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[10].parameters[3].units": {
+      "origin": "derived",
+      "derives_from": [
+        "defaults"
+      ]
+    },
+    "components[10].serves_panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].kind"
+      ]
+    },
+    "components[10].variants": {
+      "origin": "derived",
+      "derives_from": [
+        "components[10].parameters"
+      ]
+    },
+    "components[10].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ]
+    },
+    "families[0].panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].serves_panel_kinds"
+      ]
+    },
+    "families[0].component_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "components"
+      ]
+    },
+    "families[0].substitution": {
+      "origin": "derived",
+      "derives_from": [
+        "tolerances.linear_cm"
+      ]
+    },
+    "families[1].panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].serves_panel_kinds"
+      ]
+    },
+    "families[1].component_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "components"
+      ]
+    },
+    "families[1].substitution": {
+      "origin": "derived",
+      "derives_from": [
+        "tolerances.linear_cm"
+      ]
+    },
+    "families[2].panel_kinds": {
+      "origin": "derived",
+      "derives_from": [
+        "components[0].serves_panel_kinds"
+      ]
+    },
+    "families[2].component_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "components"
+      ]
+    },
+    "families[2].substitution": {
+      "origin": "derived",
+      "derives_from": [
+        "tolerances.linear_cm"
+      ]
+    }
+  },
+  "defaults": {
+    "panel_thickness_cm": 3.0,
+    "joint_width_cm": 2.0
+  },
+  "component_types": [
+    {
+      "kind": "glazed_panel",
+      "glazed": true,
+      "frame_member": false
+    },
+    {
+      "kind": "opaque_panel",
+      "glazed": false,
+      "frame_member": false
+    },
+    {
+      "kind": "entrance_door",
+      "glazed": true,
+      "frame_member": false
+    }
+  ],
+  "components": [
+    {
+      "id": "CMP-001",
+      "name": "CMP_001",
+      "kind": "glazed_panel",
+      "size_cm": [
+        180.0,
+        180.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 180.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 180.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "punched_window"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-002",
+      "name": "CMP_002",
+      "kind": "opaque_panel",
+      "size_cm": [
+        100.0,
+        140.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 100.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 140.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "blank"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-003",
+      "name": "CMP_003",
+      "kind": "opaque_panel",
+      "size_cm": [
+        100.0,
+        260.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 100.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 260.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "blank"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-004",
+      "name": "CMP_004",
+      "kind": "opaque_panel",
+      "size_cm": [
+        110.0,
+        90.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 110.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 90.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "blank"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-005",
+      "name": "CMP_005",
+      "kind": "opaque_panel",
+      "size_cm": [
+        110.0,
+        130.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 110.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 130.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "blank"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-006",
+      "name": "CMP_006",
+      "kind": "opaque_panel",
+      "size_cm": [
+        110.0,
+        180.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 110.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 180.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "blank"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-007",
+      "name": "CMP_007",
+      "kind": "opaque_panel",
+      "size_cm": [
+        180.0,
+        90.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 180.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 90.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "spandrel"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-008",
+      "name": "CMP_008",
+      "kind": "opaque_panel",
+      "size_cm": [
+        180.0,
+        130.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 180.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 130.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "blank"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-009",
+      "name": "CMP_009",
+      "kind": "opaque_panel",
+      "size_cm": [
+        200.0,
+        140.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 200.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 140.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "blank"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-010",
+      "name": "CMP_010",
+      "kind": "opaque_panel",
+      "size_cm": [
+        400.0,
+        400.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 400.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 400.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "blank"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "CMP-011",
+      "name": "CMP_011",
+      "kind": "entrance_door",
+      "size_cm": [
+        200.0,
+        260.0,
+        3.0
+      ],
+      "parameters": [
+        {
+          "name": "width_cm",
+          "source": "size_cm",
+          "value": 200.0,
+          "units": "cm"
+        },
+        {
+          "name": "height_cm",
+          "source": "size_cm",
+          "value": 260.0,
+          "units": "cm"
+        },
+        {
+          "name": "thickness_cm",
+          "source": "defaults",
+          "value": 3.0,
+          "units": "cm"
+        },
+        {
+          "name": "joint_width_cm",
+          "source": "defaults",
+          "value": 2.0,
+          "units": "cm"
+        }
+      ],
+      "serves_panel_kinds": [
+        "punched_window"
+      ],
+      "variants": [],
+      "layer": "05_FACADE"
+    }
+  ],
+  "families": [
+    {
+      "id": "FAM-001",
+      "name": "FAM_001",
+      "panel_kinds": [
+        "punched_window"
+      ],
+      "component_ids": [
+        "CMP-001",
+        "CMP-011"
+      ],
+      "substitution": "size_matched"
+    },
+    {
+      "id": "FAM-002",
+      "name": "FAM_002",
+      "panel_kinds": [
+        "spandrel"
+      ],
+      "component_ids": [
+        "CMP-007"
+      ],
+      "substitution": "size_matched"
+    },
+    {
+      "id": "FAM-003",
+      "name": "FAM_003",
+      "panel_kinds": [
+        "blank"
+      ],
+      "component_ids": [
+        "CMP-002",
+        "CMP-003",
+        "CMP-004",
+        "CMP-005",
+        "CMP-006",
+        "CMP-008",
+        "CMP-009",
+        "CMP-010"
+      ],
+      "substitution": "size_matched"
+    }
+  ]
+}

@@ -421,6 +421,37 @@ hitResult = intersectRay $obj r  -- returns ray (pos + dir as normal) or undefin
 if hitResult != undefined do sphere pos:hitResult.pos radius:0.5
 ```
 
+## Traps (measured 2026-10-27)
+
+Every row below was measured in 3ds Max **2026.3.2** on **2026-10-27**; the source is
+`Audit/EVIDENCE_2026-10-27.md` §E-6. They are not covered by the sections above — read the
+table before writing a mesh/poly script.
+
+| Trap | What to do | Why |
+|---|---|---|
+| `at` | **reserved word** — never use it as an identifier | parse error |
+| `append` | it is a **function, not an array method** — write `append row x` | `row.append x` → «Unknown property: append» |
+| `polyop.getEdgesUsingFace` | it returns a **BitArray** — index it, do not read it as an index list | indexing yields a boolean, so count by walking the array: `for e = 1 to ne do if eu[e] do …` |
+| `polyop.getFacesUsingEdge` | it returns a **BitArray** too — count the set bits to get the sharing faces | `for i = 1 to q.count do ( if q[i] then c += 1 )` |
+| `polyop.getVertsUsingEdge` | it returns a **BitArray** — the vertex indices are the **positions of the set bits** | same walk; do not treat the result as a Point3 or an index list |
+| `polyop.getEdgesUsingEdge` | **check `classOf` before calling** | «EPoly operation on non-Editable Poly: Editable Mesh» when the object is not an Editable Poly; and **never hardcode** the name `Object001` — `Editable_Mesh()` auto-names nodes `Object001/002/…` |
+| `convertTo` | it **invalidates the reference** — `delete ep` on the old reference does not delete the node | delete by name instead: `delete (getNodeByName "PROBE_WALL")` |
+| `polyop.createEdge` | on an object converted from `Editable_Mesh` it creates **0** edges | `edges_after_create=0`; the edges appear by themselves when `createPolygon` runs |
+| `snapshotAsMesh` | it returns a **`FaceSelection`/`VertexSelection`**, not `.indices` | read it with `getFace mw f` / `getVert mw i` |
+
+```maxscript
+-- BitArray result: count the edges of a face by walking the bit array
+eu = polyop.getEdgesUsingFace $obj #{1}
+ne = polyop.getNumEdges $obj
+n = 0
+for e = 1 to ne do if eu[e] do n += 1
+
+-- convertTo invalidates the reference — delete by name, not by the stale handle
+delete (getNodeByName "PROBE_WALL")
+
+-- Editable_Mesh() auto-names nodes Object001, Object002, ... — never hardcode the name
+```
+
 ## Boolean Operations (Editable_Mesh)
 
 ```maxscript

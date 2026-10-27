@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.1",
+  "spec": "conflicts_resolved",
+  "project": "stepped-tower",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "user_brief",
+    "reference": "Audit/AGENT_BRIEF_stepped_massing.md Task 6",
+    "recorded_at": "2026-10-14T00:00:00Z"
+  },
+  "status": "locked",
+  "precedence_rules": {
+    "note": "Standard precedence ladder R1..R6",
+    "evaluation_order": "strict ladder, lowest id first",
+    "rules": [
+      {
+        "id": "R1",
+        "name": "CODE-SUPREMACY",
+        "statement": "Code requirements outrank user statements."
+      },
+      {
+        "id": "R2",
+        "name": "SPECIFICITY",
+        "statement": "More specific statements outrank general ones."
+      },
+      {
+        "id": "R3",
+        "name": "QUANTITY-OVER-SUMMARY",
+        "statement": "Detailed parts outrank summaries."
+      },
+      {
+        "id": "R4",
+        "name": "BUILDABILITY",
+        "statement": "Buildable values outrank unbuildable ones."
+      },
+      {
+        "id": "R5",
+        "name": "MODULE-ALIGNMENT",
+        "statement": "Values preserving grid alignment outrank ones breaking it."
+      },
+      {
+        "id": "R6",
+        "name": "LATER-STATEMENT",
+        "statement": "Later statement wins in absence of higher rule."
+      }
+    ],
+    "non_conflict_fallback": {
+      "id": "R7",
+      "name": "DEFAULT-FILL",
+      "statement": "Defaults fill gaps but do not decide conflicts."
+    }
+  },
+  "conflicts": []
+}

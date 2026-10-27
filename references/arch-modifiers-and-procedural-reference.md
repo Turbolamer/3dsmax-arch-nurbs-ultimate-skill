@@ -39,6 +39,30 @@
 > `addModifier`, for `Extrude` / `Sweep` / `Lathe` / `surface` / `CrossSection` / `Conform`.
 > `Bevel_Profile` is unusable through either route in this build.
 >
+> **SUPERSEDED IN PART (2026-10-27)** — for `Extrude` only, and only when the target is a
+> shape. See the correction below; the rule stands as measured for the other classes.
+>
+> ### 2026-10-27 — the `addModifier` verdict is a property of the **target geometry**
+>
+> The table above reports `Extrude` as **THROWS** on `addModifier`. That verdict was measured
+> on a **`Box`** — polygonal geometry. Measured on a **`SplineShape`**, the same modifier
+> **attaches**:
+>
+> ```
+> addModifier <splineShape> (Extrude amount:100 capStart:false capEnd:false)
+> -- threw=false, mods=1, classOf=Extrude, capStart=false, capEnd=false
+>
+> addModifier <box> (Extrude amount:100 capStart:false capEnd:false)
+> -- threw=true, mods=0
+> ```
+>
+> **So "`Extrude` does not attach" is a property of the geometry it is attached to, not a
+> property of the modifier.** The 2026-10-04 table and the "Rule as measured" paragraph above
+> are therefore superseded in part for `Extrude`. A `.ms` emitter can also be self-sufficient:
+> the builder writes the modifier stack into the script itself, and the typed
+> `add_modifier` tool is not needed for a shape-hosted `Extrude`.
+> (measured 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-1)
+>
 > ### How to read the table
 >
 > Use the exact class name and parameter names in the table below. Per-cell markers:
@@ -57,10 +81,10 @@ the class name and parameter names in the table below:
 
 | Architectural Purpose | MAXScript Modifier Class | Key Parameters (`params`) & Notes |
 | :--- | :--- | :--- |
-| **Extrude 2D Footprint to Slab / Wall** | `Extrude` | `amount` (float), `segs` (int, default `1`), `capStart` (bool), `capEnd` (bool), `capType` (`0`=Morph, `1`=Grid — use `1` for clean subdivision!), `mapCoords` (bool), `matIDs` (bool) |
+| **Extrude 2D Footprint to Slab / Wall** | `Extrude` | `amount` (float), `segs` (int, default `1`), `capStart` (bool), `capEnd` (bool), `capType` (`0`=Morph, `1`=Grid — use `1` for clean subdivision!), `mapCoords` (bool), `matIDs` (bool). **2026-10-27:** `Extrude` **does** attach to a **shape** (`SplineShape`) via `addModifier`, and still throws on polygonal geometry (`Box`) — the "does not attach" verdict in the blockquote above is about the geometry, not the modifier (measured 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-1). Note: `segs` here is the **`Extrude`** parameter, verified 2026-10-04 — it is unaffected by the `Shell.segs` → `segments` correction below. |
 | **Sweep Profile Along Path** (Cornices, Gutters, Curbs, Mullions) | `Sweep` | **2026-10-04:** all of `current_built_in_shape`, `CustomShape`, `SmoothPath`, `SmoothSection`, `Banking`, `GenMatIDs` exist — **unchanged, verified correct**. One correction: `PivotAlignment` ~~(`0..8`)~~ **reads `-1`, not `0..8`** — the integer range in the original cell was never measured. The `current_built_in_shape` enum mapping (`0`=Angle … `9`=Wide Flange) is likewise **UNVERIFIED** — the property exists but its per-value meaning was not read back. `Sweep` also **throws** on `addModifier`; use `3dsmax-mcp_add_modifier`. |
 | **Custom Profile Bevel** (Classical Moldings) | `Bevel_Profile` | **2026-10-04 — UNUSABLE in this build.** `Bevel_Profile` constructs standalone, but `addModifier` **throws** for it and `3dsmax-mcp_add_modifier` **fails**: `Unable to convert: Bevel_Profile to type: Modifier`. This cell previously recommended `curve_model(output:{kind:"sweep"})` as a script-free fallback — **that recommendation is withdrawn**: `curve_model` **is not in the connected MCP toolset** (direct inspection of the live tool list). No working route was found. Do not plan work that depends on this class. |
-| **Wall / Roof Shell Thickness** | `Shell` | `innerAmount` (float), `outerAmount` (float), `straightenCorners` (bool — **critical** for architectural walls so mitered corners stay uniform thickness!). **2026-10-04 — 3 of 6 original parameters do not exist:** ~~`segs` (int)~~ → **`NO`**, ~~`overrideEdgeMatID` (bool)~~ → **`NO`**, ~~`edgeMatID` (int)~~ → **`NO`**. Measured defaults for the surviving three: `innerAmount=0.0`, `outerAmount=1.0`, `straightenCorners=false`. No substitute names established for the three lost parameters. |
+| **Wall / Roof Shell Thickness** | `Shell` | `innerAmount` (float), `outerAmount` (float), `straightenCorners` (bool — **critical** for architectural walls so mitered corners stay uniform thickness!), **`segments`** (int — the real name). **2026-10-04, corrected 2026-10-27 — the `segs` verdict was a FALSE NEGATIVE:** ~~`segs` (int)~~ → **`NO` — SUPERSEDED (2026-10-27): the property exists, under the name `segments`** (`getProperty <shellModifier> "segments"` → `threw=false`, `undef=false`; `"segs"` throws). The segments control was always there — only the name in the 2026-10-04 probe was wrong. **2026-10-04, not re-tested on 2026-10-27 — 2 of the 6 original parameter names do not exist:** ~~`overrideEdgeMatID` (bool)~~ → **`NO`**, ~~`edgeMatID` (int)~~ → **`NO`**. Measured defaults for the surviving parameters: `innerAmount=0.0`, `outerAmount=1.0`, `straightenCorners=false` (2026-10-04), `segments=1` (2026-10-27). No substitute names established for the two parameters still marked `NO` (measured 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-2 and §E-5). |
 | **Architectural Edge Bevel / Micro-Chamfer** | `ChamferMod` → **real class name `Chamfer`** | **2026-10-04 — class-name correction:** `ChamferMod` constructs, but `classOf` reports **`Chamfer`**. `amount` (float, e.g. `0.3–1.0 cm`), `segments` (int), `tension` (float — **default is `1.0`**, i.e. flat; `0.5` is not the default), `limitEffect` (bool), `minAngle` (float, e.g. `25.0` so curved surfaces aren't chamfered) all exist; measured `amount=1.0 segments=1 tension=1.0 limitEffect=false minAngle=20.0`. ~~`mitering` (`0`=Quad, `1`=Tri, `2`=Uniform, `3`=Radial, `4`=Patch — use `0` Quad!)~~ → **`NO` — does not exist.** Since that cell recommended `0` (Quad) as the architectural default, **that recommendation is withdrawn**; no substitute was established. Separately, the original example value `25.0` for `minAngle` is a deliberate override — the measured **default is `20.0`**, which the original cell did not state. |
 | **Surface of Revolution** (Domes, Columns, Balusters) | `Lathe` | `degrees` (float, `360.0`), `weldCore` (bool, `true`), `flipNormals` (bool), `segs` (int, `32–64`) — these exist. **2026-10-04 — the axis parameter is wrong in two ways:** ~~`direction` (`0`=X, `1`=Y, `2`=Z)~~ → **`NO` — does not exist.** The real property is **`axis`**, and it is a **`matrix3`, not an integer enum** — measured `matrix3 [1,0,0] [0,-1.62921e-07,-1] [0,1,-1.62921e-07] [0,0,0]`. Any code that passed `direction:` to `params` was silently ineffective or erroring. `Lathe` also **throws** on `addModifier`; use `3dsmax-mcp_add_modifier`. |
 | **Diagonal Strut / Mullion Frame from Cage** | `Lattice` | `Strut_Radius` (float, measured `2.0`), `Strut_Segments` (int, measured `1`), `Strut_Sides` (int, measured `4` — the "4 for rectangular mullions" note is confirmed) — these three exist. **2026-10-04 — 3 of 6 original parameters do not exist,** and they are exactly the load-bearing ones: ~~`Joint_Type` (`0`=Tetra, `1`=Octa, `2`=Icosa)~~ → **`NO`**, ~~`Both` (`0`=Joints only, `1`=Struts only, `2`=Both — use `1` for mullions!)~~ → **`NO`**, ~~`Ignore_Hidden_Edges` (bool, `true`)~~ → **`NO`**. **The mullion recipe in this row is therefore UNVERIFIED.** The original cell told the reader to set `Both` to `1` for mullions; **that step cannot be performed** and no replacement name was established. Build the frame from the three `Strut_*` properties only, and verify the result visually. |

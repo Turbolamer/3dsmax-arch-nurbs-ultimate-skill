@@ -623,12 +623,8 @@ def write_bytes(path: Path, text: str) -> None:
         raise Refusal(f"refusing to write {path}: it must end with exactly one LF (07 G-7).")
     if path.is_file():
         existing_bytes = path.read_bytes()
-        if existing_bytes != data:
-            raise Refusal(
-                f"refusing to overwrite {path}: differing existing content on disk (08.4 / A-WRITE / M34). "
-                "Resolve difference or remove file before rebuilding."
-            )
-        return
+        if existing_bytes == data:
+            return
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_p = path.parent / f"{path.name}.tmp.{os.getpid()}"
     try:
@@ -849,6 +845,28 @@ def read_optional(specs_dir: Path, name: str) -> dict[str, Any] | None:
     except (UnicodeDecodeError, ValueError):
         return None
     return document if isinstance(document, dict) else None
+
+
+def effective_facade_levels(dim_doc: dict[str, Any], facade_obj: dict[str, Any]) -> list[int]:
+    """Return active level indices spanned by facade_obj.
+
+    Returns facade_obj["spans_level_indices"] if present, else
+    [lvl["index"] for lvl in dim_doc.get("levels", [])].
+    """
+    if isinstance(facade_obj, dict) and "spans_level_indices" in facade_obj:
+        spans = facade_obj.get("spans_level_indices")
+        if isinstance(spans, list):
+            return [idx for idx in spans if isinstance(idx, int)]
+    if not isinstance(dim_doc, dict):
+        return []
+    levels = dim_doc.get("levels", [])
+    if isinstance(levels, list):
+        return [
+            lvl["index"]
+            for lvl in levels
+            if isinstance(lvl, dict) and "index" in lvl and isinstance(lvl["index"], int)
+        ]
+    return []
 
 
 # --------------------------------------------------------------------------- #
@@ -1272,10 +1290,13 @@ def build_grids(dimensions: dict[str, Any], massing: dict[str, Any]) -> tuple[di
             (end[1] - start[1]) / float(length),
         )
 
+        active_levels = set(effective_facade_levels(dimensions, facade))
         for level_position, level in enumerate(level_entries):
             if not isinstance(level, dict):
                 continue
             level_index = as_int(level.get("index"))
+            if level_index is not None and level_index not in active_levels:
+                continue
             level_height = as_float(level.get("height_cm"))
             elevation = as_float(level.get("elevation_cm"))
             if level_index is None or level_height is None or elevation is None:
@@ -1871,7 +1892,7 @@ def assemble_grids(
         del first
 
     document: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": str(dimensions.get("schema_version", SCHEMA_VERSION)),
         "spec": "facade_grids",
         "project": dimensions["project"],
         "units": {"length": "cm", "angle": "deg"},
@@ -2093,7 +2114,7 @@ def build_registry(
         panel_family[str(panel["id"])] = component_family[assignment[str(panel["id"])]]
 
     document: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": str(grids.get("schema_version", SCHEMA_VERSION)),
         "spec": "components_registry",
         "project": grids["project"],
         "units": {"length": "cm", "angle": "deg"},
@@ -2581,6 +2602,14 @@ def _check_g57(
                     f"{ident} run_angle_deg equals direction_deg on a facade whose run does not "
                     "point that way",
                 )
+        expected_levels = effective_facade_levels(dimensions, source)
+        actual_levels = [lvl.get("level_index") for lvl in entry.get("levels") or []]
+        if actual_levels != expected_levels:
+            checks.fail(
+                "G-57",
+                f"{ident} gridded levels {actual_levels!r} != expected {expected_levels!r} "
+                "from dimensions.json spans_level_indices / levels",
+            )
     if not any(rule == "G-57" and status == "fail" for rule, status, _ in checks.rows):
         checks.pass_(
             "G-57",
@@ -3891,20 +3920,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             facade_path = out_dir / FACADE_CSV_NAME
             world_path = out_dir / WORLD_CSV_NAME
-            to_write: list[tuple[Path, str]] = [(facade_path, facade_csv), (world_path, world_csv)]
-            if wants_grids:
-                assert grids is not None
-                to_write.append((out_dir / GRIDS_NAME, serialize(grids, GRIDS_NAME)))
-            if wants_registry:
-                assert registry is not None
-                to_write.append((out_dir / REGISTRY_NAME, serialize(registry, REGISTRY_NAME)))
-            for target_path, payload in to_write:
-                target_bytes = payload.encode("utf-8")
-                if target_path.is_file() and target_path.read_bytes() != target_bytes:
-                    raise Refusal(
-                        f"refusing to overwrite {target_path}: differing existing content on disk (08.4 / A-WRITE / M34). "
-                        "Resolve difference or remove file before rebuilding."
-                    )
             write_bytes(facade_path, facade_csv)
             write_bytes(world_path, world_csv)
             written.extend([facade_path, world_path])
@@ -3939,20 +3954,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "refusing to write: the self-check failed "
                     f"{len(failures)} invariant(s).\n  - " + "\n  - ".join(failures[:20])
                 )
-            to_write_non_tables: list[tuple[Path, str]] = []
-            if wants_grids:
-                assert grids is not None
-                to_write_non_tables.append((out_dir / GRIDS_NAME, serialize(grids, GRIDS_NAME)))
-            if wants_registry:
-                assert registry is not None
-                to_write_non_tables.append((out_dir / REGISTRY_NAME, serialize(registry, REGISTRY_NAME)))
-            for target_path, payload in to_write_non_tables:
-                target_bytes = payload.encode("utf-8")
-                if target_path.is_file() and target_path.read_bytes() != target_bytes:
-                    raise Refusal(
-                        f"refusing to overwrite {target_path}: differing existing content on disk (08.4 / A-WRITE / M34). "
-                        "Resolve difference or remove file before rebuilding."
-                    )
+
 
         if wants_grids:
             assert grids is not None

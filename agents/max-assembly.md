@@ -18,14 +18,35 @@
 > **S5 inherits four measured P5 findings and three measured P6 findings, and every one of them is a
 > rule in this file, not a preference:** the instance route is `copy` + `baseObject` assignment
 > (`setCopyMode` is absent), a Z rotation is `quat <deg> [0,0,1]` (`rotationZ` / `rotationX` /
-> `rotationY` / `matrix3` / `angle` are absent), `node.pos` on a `Box` puts the **base** at `pos.z`,
-> `for o in objects do delete o` silently skips entries, **layer assignment is impossible from
-> this bridge** — nine routes ruled out, final, not an open question — and **the Boolean modifier
+> `rotationY` / `angle` are absent), `node.pos` on a `Box` puts the **base** at `pos.z`,
+> `for o in objects do delete o` silently skips entries, **the two bridge tools carry no
+> layer-assignment route and `node.layer` is read-only** — the old clause *"layer assignment was
+> measured impossible from this bridge — nine routes ruled out"* is superseded by the CORRECTED note
+> below; `ILayerProperties.addNode` works — and **the Boolean modifier
 > cannot cut anything in this build**: `Boolean()` throws, `BooleanMod()` carries Voxel Map's
 > paramblock, and the bridge's own `add_modifier` attaches a Boolean whose operand is never set
 > (`07` §8.5.8.1, measured 2026-10-05). **So this stage emits zero modifiers and builds each
 > `facade_wall` out of solid cells** (`wall_cells[]`), which is also why the stack hazard below has a
 > ceiling of **zero** rather than a number.
+>
+> **CORRECTED (2026-10-27) — the layer clause of the paragraph above.** "Layer assignment is
+> impossible from this bridge — nine routes ruled out, final, not an open question" is
+> **SUPERSEDED**: **`ILayerProperties.addNode` works** (verified in Phase 14, `CHECKPOINT.md`
+> lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md` §E-7). What survives is narrower and still
+> measured: **reading** `node.layer` is read-only, and the two bridge tools have no
+> layer-assignment verb. The nine measured routes were a routing survey, not a proof of
+> impossibility. **Whether S5 may apply layers is a separate policy question, deferred** to
+> `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4 — this file does not decide it, and until it is
+> decided the stage rule is unchanged: **no layer statement** in the emitted script (`G-79`,
+> §6.3).
+>
+> **CORRECTED (2026-10-27) — the `matrix3` item of the opening paragraph.** That paragraph listed
+> `matrix3` among the absent names; it **exists** and takes **4 args** (three rows plus a translation
+> row): `matrix3 [1,0,0] [0,1,0] [0,0,1] [0,0,0]` → `classOf` **`Matrix3`**. Passing **9** numbers
+> is an **arity** error (`Argument count error: Matrix3 wanted 4, got 9`), and that arity error was
+> read as absence. `rotationZ` / `rotationX` / `rotationY` / `angle` **are** still absent
+> (`Audit/EVIDENCE_2026-10-27.md` §E-10; measured in `CHECKPOINT.md` §"Incident log 2026-10-05
+> (P10-lite)").
 
 ---
 
@@ -53,7 +74,7 @@ S5 owns exactly four tables and the geometry they generate: `placements[]`, `ope
 | File export, glTF, FBX, USD | **nobody — S8 was cancelled 2026-10-05** | **Nothing.** The user saves and exports from Max |
 | Curved or NURBS hosts, swept reveals, mitred corners | **nobody at S5** | Only an axis-aligned `facade_wall` prism can be tiled into cells (§6.2). A NURBS host is a **`07` §12 step 1 change**, escalated (§10.1) |
 | Reveal depths, glazing build-ups, sill nosings | **nobody — S6/S7 were cancelled 2026-10-05** | A component's `variants` / `parameters` (`07` §8.4.3) still carry the **data**, but no stage reads them into geometry |
-| Layer **application** to any node | **nobody — permanently** | Layer is **data** and cannot be applied from this bridge at all (§6.3, `G-79`) |
+| Layer **application** to any node | **nobody at S5 — policy deferred** | **The blanket "impossible" negative is SUPERSEDED (2026-10-27): `ILayerProperties.addNode` works** (Phase 14, `CHECKPOINT.md`; `Audit/EVIDENCE_2026-10-27.md` §E-7). What survives: reading `node.layer` is **read-only**. **Whether** S5 may apply layers is a separate policy decision, **deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4 — until then layer stays **data** and the stage emits no layer statement (§6.3, `G-79`) |
 | Physics-based particle simulation | **nobody — the plugin is absent** | Chaos Scatter for static distribution; PhysX / Max particles for motion; instance copies for RailClone-style patterning (`references/14-chaos-scatter.md` §4) |
 
 ### 1.2 The one-MCP rule
@@ -64,7 +85,7 @@ orchestrator, exactly as in S2 and S4a.
 | Allowed | Forbidden |
 |---|---|
 | `3dsmax-mcp_get_scene_snapshot` / `_get_scene_info` to confirm the scene is empty **before** the gate | **Any exploratory probe.** A fact not in `CHECKPOINT.md` §"Verified facts" is escalated for an orchestrator probe, never opened by S5 |
-| **No modifier at all.** `assembly.ms` must contain zero occurrences of `addModifier` (`G-81`), so the attachable set in §6.4 is a routing fact for other stages, not a permission for this one | `Extrude`, `Bevel`, `Sweep`, `Lathe`, `Surface`, `CrossSection`, `Bevel_Profile` on `addModifier` — they **construct** and then **throw** (`mods=0`). `Bevel_Profile` is unusable through every route. **`Boolean` is worse: it attaches and does nothing** (§6.2, AP-22) |
+| **No modifier at all.** `assembly.ms` must contain zero occurrences of `addModifier` (`G-81`), so the attachable set in §6.4 is a routing fact for other stages, not a permission for this one | On **polygonal geometry** (`Box`), `Extrude`, `Bevel`, `Sweep`, `Lathe`, `Surface`, `CrossSection` **construct** and then **throw** (`mods=0`); `Bevel_Profile` is unusable through every route. **On a shape the same `Extrude` attaches** — `threw=false`, `mods=1`, `capStart=false`, `capEnd=false` (измерено 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-1), so the verdict is a property of the **host**, not of the modifier (§6.4). **`Boolean` is worse: it attaches and does nothing** (§6.2, AP-22) |
 | `3dsmax-mcp_delete_objects` on gate nodes, in the same call that created them | **The absent-plugin group** — `3dsmax-mcp_scatter_forest_pack`, all 14 `3dsmax-mcp_tyflow_*` tools, `3dsmax-mcp_get_railclone_style_graph` (`PLAN.md` §4, `CHECKPOINT.md`). forestPack, forestLite, tyFlow, railClone and phoenixFD are **not installed** |
 | `3dsmax-mcp_manage_layers` actions `list` and `create` — the eight names in `07` §8.1.4, nothing else | **`3dsmax-mcp_manage_layers` object assignment, and `3dsmax-mcp_set_object_property` with `property=layer`.** Both are the read-only `layer` property. §6.3, `G-79` |
 | `3dsmax-mcp_capture_viewport` for a human-facing record, **after** measuring | `3dsmax-mcp_introspect_class` / `_introspect_instance` / `_inspect_plugin_class` as **proof** — they lie (`AGENTS.md` §"The one rule that matters most") |
@@ -86,7 +107,7 @@ orchestrator, exactly as in S2 and S4a.
 | `specs/pipeline/components_registry.json` | `components[].id`, `name`, `width_cm`, `height_cm`, `thickness_cm` — the **only** source of a prototype's dimensions. A `placement` never carries its own size |
 | `specs/pipeline/world_table.csv` | The P5 table. `source_row` in `assembly.json` indexes its **1-based data rows**, header excluded. S5 reads it to **assert** (`G-72`, `G-73`), never to recompute a position |
 | `specs/pipeline/massing.json` | `elements[]` of kind **`facade_wall`** — the only hosts a cell may belong to, and the source of every host's `profile_cm` / `z_range_cm`. `column` / `roof_deck` elements are the scatter `model_refs` and `target_ref`. Plus every `node_name` S5 must not collide with |
-| `references/_p6-contract.md` | **The authority for this stage** — §1.1 the layer negative · §1.2 the measured stack hazard · §2 the `facade_wall` decision · **§3 the `assembly.json` schema** · §4 `G-71`…`G-81` · §5 the builder obligations · §7 the live gate, and the appended **§"P6-D result"** for the tiling that replaced cutting. Where an implementation wants a different key name, id pattern or formula, **this file wins** |
+| `references/_p6-contract.md` | **The authority for this stage** — §1.1 the layer finding (the blanket negative is **superseded 2026-10-27**; the nine measured routes stand) · §1.2 the measured stack hazard · §2 the `facade_wall` decision · **§3 the `assembly.json` schema** · §4 `G-71`…`G-81` · §5 the builder obligations · §7 the live gate, and the appended **§"P6-D result"** for the tiling that replaced cutting. Where an implementation wants a different key name, id pattern or formula, **this file wins** |
 | `references/07-spec-grammar.md` | **§8.5** the schema in full — §8.5.8 is `wall_cells[]` · §9.9 `G-71`…`G-83` · §3.1 the lock gate · §2 units · **§11 + §12 the no-class-names rule** · §9.6 the SKIP discipline |
 | `references/11-layer-standard.md` | §1 the eight layer names · §3.1 naming, **N1** (no `-` in a name) · §6 checklist H1–H12 |
 | `references/14-chaos-scatter.md` | The verified parameter map · the §1.2 hazard · the absent-tool substitutions · `FpInterface` as the **hand-application** read-back (§6.6). **Not** a stage gate — S7 was cancelled 2026-10-05 |
@@ -195,7 +216,7 @@ Read the builder's `--help`; never guess a flag. `01` §8 fixes the shape and fo
 | Determinism | Byte-identical output for byte-identical input |
 | MAXScript shape | One `fn mcpAssemblyBuild_<project>` and **one call** — re-running replaces, never duplicates (the P3 rule). **No `local` at top level.** The explicit-local delete form only: `local prev = getNodeByName "X"` then `if prev != undefined do ( delete prev )` — the context-dependent one-liner throws when the node is absent |
 | Instance route | `n = copy proto` then `n.baseObject = proto.baseObject`. `setCopyMode` **does not exist** |
-| Rotation | `n.rotation = quat <degrees> [0,0,1]`. `rotationZ` / `rotationX` / `rotationY` / `matrix3` / `angle` **do not exist** |
+| Rotation | `n.rotation = quat <degrees> [0,0,1]`. `rotationZ` / `rotationX` / `rotationY` / `angle` **do not exist** — **CORRECTED (2026-10-27):** the row once read *"`rotationZ` / `rotationX` / `rotationY` / `matrix3` / `angle` do not exist"*; **`matrix3` exists** and takes **4 args** (three rows plus a translation row): `matrix3 [1,0,0] [0,1,0] [0,0,1] [0,0,0]` → `classOf` **`Matrix3`**. Passing **9** numbers is an *arity* error (`Matrix3 wanted 4, got 9`), and that arity error was read as absence (`Audit/EVIDENCE_2026-10-27.md` §E-10; `CHECKPOINT.md` §"Incident log 2026-10-05 (P10-lite)") |
 | **`node.pos` on a `Box`** | The **base** sits at `pos.z`; geometry centres on `pos.xy`. It stays true after `copy`, after `baseObject =` and after rotation. To centre a prototype, write `pos.z = cz − height/2` |
 | **Modifier statements** | **None.** `addModifier` count in `assembly.ms` must be **0** (`G-81`), and the emitted script asserts the hosts arrive with empty stacks. Walls are cells, not cuts (§6.2) |
 | Layer code | **None.** `assembly.ms` must contain no `node.layer`, no `LayerManager` setter and no layer-assignment helper (`G-79`). A builder that tries is a build **FAIL**, not a silent no-op |
@@ -261,11 +282,32 @@ modifiers anywhere. **A modifier that attaches and does nothing is worse than on
 S5 emits no modifier at all and expresses an opening as *absent material*: solid cells that tile
 wall-minus-openings exactly (`G-82`).
 
-### 6.3 Layer is **data, permanently** — and there is no layer code in this stage
+### 6.3 Layer is **data at this stage** — and there is no layer code in this stage
 
-**There is no way to assign an object to a layer from this bridge. Nine routes are ruled out and this
-is final, not an open question** (contract §1.1, `CHECKPOINT.md` §"Design consequences of the layer
-finding (P3 decision, closed at P6)"):
+> **SUPERSEDED (2026-10-27) — the blanket negative is refuted.** This section used to open with:
+> *"There is no way to assign an object to a layer from this bridge. Nine routes are ruled out and
+> this is final, not an open question."* That sentence is **refuted**: **`ILayerProperties.addNode`
+> works** (verified in Phase 14, `CHECKPOINT.md` lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md`
+> §E-7). The historical sentence is kept here as the record of what was believed and when it was
+> withdrawn — it is **not** rewritten.
+>
+> | Claim | Status after 2026-10-27 |
+> |---|---|
+> | `node.layer = …` (string, integer index or `LayerProperties` mixin) throws `Property is read-only: layer` | **still true** — reading `node.layer` is read-only |
+> | The two bridge tools have no layer-assignment verb (`manage_layers` vocabulary is `{list, create, delete}`; `set_object_property` emits the same read-only assignment) | **still true** |
+> | "There is **no way** to assign an object to a layer from this bridge — nine routes, final" | **REFUTED.** The interface method `ILayerProperties.addNode` **works**. The nine measured routes were a routing survey, not a proof of impossibility |
+> | "Layers are impossible **forever**" / "layer is data **permanently**" | **REFUTED** as a statement about the environment. It survives only as this stage's **policy**, pending §I.4 |
+>
+> **The application policy is decided elsewhere and is not decided here.** Whether S5 may apply
+> layers is **deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4 — variant (a) "layer is
+> data, the user applies it" versus (b) "scripted assignment allowed, with a check of the real
+> result". **This file does not choose between them, and nothing here claims that layers are now
+> applied automatically.** Until that decision lands, the stage rule below stands unchanged: S5
+> emits **no** layer statement (`G-79`) and `layer_map` stays **data**.
+
+The routes that were measured — all nine failed, and the table below is still accurate; what was
+wrong was the generalisation drawn from it (contract §1.1, `CHECKPOINT.md` §"Design consequences of
+the layer finding (P3 decision, closed at P6)"):
 
 | Route | Result |
 |---|---|
@@ -274,12 +316,13 @@ finding (P3 decision, closed at P6)"):
 | `3dsmax-mcp_manage_layers` object assignment | The action vocabulary is **exactly `{list, create, delete}`**. 40+ candidates — including `rename`, for which the tool's own schema carries a parameter — all return a uniform `Unknown layer action: X` |
 | `3dsmax-mcp_set_object_property` with `property=layer` | Emits `node.layer = <value>` and dies with the same read-only error. A **positive control** on the same tool (`property=pos`) succeeded, so the tool works and `layer` is the blocker |
 
-**What S5 therefore does:** declares `layer_map` as **data**, linted against the closed vocabulary of
-`07` §8.1.4 (**eight** names: `00_SITE`, `01_SLABS`, `02_STRUCTURE`, `03_CORE`, `04_ROOF`, `05_FACADE`,
-`90_SCENE`, `99_DEBUG`), asserts every `placements[].layer` equals its role's `layer_map` entry
-(**`G-75`**) — and emits **no layer statement at all** (`G-79`). Layer application is a **human action in
-the Layer dialog**. `3dsmax-mcp_manage_layers` `create` is permitted for the eight names' existence
-check; nothing else about layers is permitted.
+**What S5 does until §I.4 decides otherwise:** declares `layer_map` as **data**, linted against the
+closed vocabulary of `07` §8.1.4 (**eight** names: `00_SITE`, `01_SLABS`, `02_STRUCTURE`, `03_CORE`,
+`04_ROOF`, `05_FACADE`, `90_SCENE`, `99_DEBUG`), asserts every `placements[].layer` equals its role's
+`layer_map` entry (**`G-75`**) — and emits **no layer statement at all** (`G-79`). Layer application
+is a **human action in the Layer dialog** — a **stage policy**, not a proven impossibility (see the
+SUPERSEDED notice above). `3dsmax-mcp_manage_layers` `create` is permitted for the eight names'
+existence check; nothing else about layers is permitted while the policy is open.
 
 ### 6.4 The attachable modifier set, and what throws
 
@@ -290,12 +333,27 @@ in another stage needs the attach list.
 | Verdict | Names |
 |---|---|
 | **Usable via `3dsmax-mcp_add_modifier`** | `Shell` `Chamfer` `Lattice` `Edit_Poly` `Uvwmap` `TurboSmooth` `Noisemodifier` `Bend` `Twist` `Taper` — the set the P6 ladder used |
-| **Construct but `addModifier` throws, `mods=0`** | `Extrude` `Bevel` `Sweep` `Lathe` `Surface` `CrossSection` |
+| **On polygonal geometry (`Box`): constructs, `addModifier` throws, `mods=0`** | `Extrude` `Bevel` `Sweep` `Lathe` `Surface` `CrossSection` |
+| **On a shape (`SplineShape`): attaches** | `Extrude` — the only modifier/host pair measured this way: `threw=false`, `mods=1`, `classOf` = `Extrude`, `capStart=false`, `capEnd=false` |
 | **Unusable through every route** | `Bevel_Profile` |
 | **Attaches and does nothing** | the Boolean modifier (§6.2.1) |
 
 A throw is not a nuisance to route around: **no `mods=0` and no error is a FAIL, not a partial pass.**
 The last row is the worse case of the same statement — see AP-22.
+
+**The verdict is a property of the HOST, not of the modifier** (измерено 2026-10-27,
+`Audit/EVIDENCE_2026-10-27.md` §E-1): the same `Extrude` attaches to a `SplineShape`
+(`threw=false`, `mods=1`) and throws on a `Box` (`threw=true`, `mods=0`). The old "6 unattachable
+modifiers" row is therefore a statement about **polygonal geometry**, not about those six names.
+**Consequence for a `.ms` emitter:** a builder can write its own modifier stack into the emitted
+script — the typed-tool `add_modifier` is not required for that. **S5 still attaches none**
+(`G-81`); this table stays a routing fact for other stages.
+
+**`Shell`'s parameters — corrected 2026-10-27.** The segment control is the property
+**`segments`**; **`segs` does not exist** and reading it **throws** (измерено 2026-10-27,
+`Audit/EVIDENCE_2026-10-27.md` §E-2). Also readable on a `Shell` modifier: `innerAmount`,
+`outerAmount`, `straightenCorners`. **A missing *wrongly named* property is not a missing
+control** — read the name before concluding that the adjustment itself does not exist.
 
 ### 6.5 The modifier-stack hazard — MEASURED, and why this stage's ceiling is zero
 
@@ -303,7 +361,7 @@ Run deliberately on a clean empty scene at P6, 2026-10-05, one rung per call:
 
 | rungs on one `Box` | result |
 |---|---|
-| 1 · 2 | `Extrude` and `Bevel` **throw** on `addModifier` (`mods=0`) — the P4b-r "6 unattachable modifiers" finding, re-confirmed. **Not a hang** |
+| 1 · 2 | `Extrude` and `Bevel` **throw** on `addModifier` (`mods=0`) on the ladder's **`Box`** — the P4b-r "6 unattachable modifiers" finding, re-confirmed **for polygonal geometry**. **Not a hang**. On a **shape** the same `Extrude` **attaches** (`mods=1`) — the verdict is a property of the host, not of the modifier (измерено 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-1) |
 | 5 | clean, 38 ms total |
 | 10 | clean, 28 ms total |
 | **20** | **`3dsmax-mcp_execute_maxscript` timed out; `3dsmax-mcp_get_scene_snapshot` then timed out; `3dsmax-mcp_get_bridge_status` then aborted. Max froze on the main thread, was killed, and the machine rebooted.** |
@@ -395,8 +453,14 @@ gate list; this is its worked shape.
 **Never assemble in one call.** `3dsmax-mcp_execute_maxscript` runs on Max's **main thread**, one script per call,
 under ~2 s; a long script freezes the UI. Place in batches and delete each batch in the call that
 created it (§9). And a *recoverable* hang still burns the tool call: **`Extrude` / `Bevel` on
-`addModifier` return promptly, a 20-stack returns nothing at all.** Never assume a timeout means "the
-bridge is down" — the scene may be alive and merely busy (§6.5 rule 4).
+`addModifier` return promptly** (on polygonal geometry — §6.4), **a 20-stack returns nothing at
+all.** Never assume a timeout means "the bridge is down" — the scene may be alive and merely busy
+(§6.5 rule 4).
+
+**The MAXScript traps measured on 2026-10-27** — `at` as a name, `row.append x`, the `polyop` edge
+queries, `convertTo` invalidating a reference, `snapshotAsMesh` returning selections — are collected
+in §11 as **AP-24…AP-30** (`Audit/EVIDENCE_2026-10-27.md` §E-6). They are **new**: none of them was
+in the skill before that batch, and none of them may be inferred from the older rows.
 
 **The gate has been run.** The numbers recorded in §8's *measured* column are the P6-D live gate of
 2026-10-05, not expectations: `massing.ms` 27 nodes idempotent over 3 runs, 9 bboxes within
@@ -495,7 +559,7 @@ S5 executes; it does not design, and it escalates anything it cannot build hones
 | **`A-025` would change the wall thickness** — the modelled facade-wall thickness is a *reference-only* proxy | A real build-up is a curtain-wall system schedule, and a licensed professional owns it. It now sets every cell's thin-axis extent (`G-83`), so it changes the whole tiling | the user (`E5`), with the host and the cells it would change |
 | **A `seed` outside 1…31337**, or a project that wants a *random* seed | `seed` is **data** in `assembly.json`. A run-time or generated seed makes the scatter unreproducible when the user applies it by hand (§6.6) | **S1** — the input vocabulary, via `07`'s owner |
 | **`placements.len() > defaults.instance_limit_guard`** (2000) | The guard exists so a corrupt CSV cannot ask Max for a million instances. Exceeding it is an input defect, not a reason to raise the guard | **S1** |
-| **A request to apply layers** | It cannot work. Nine routes ruled out (§6.3). Layer is data and the user applies it in the Layer dialog | the **user** — report the negative with its nine routes; do not attempt it |
+| **A request to apply layers** | The routes measured in §6.3 failed, but the blanket "it cannot work" negative is **refuted** — `ILayerProperties.addNode` **works** (§E-7, 2026-10-27). Whether S5 may apply layers is a **policy** question, **deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4 | the **user** — report the refutation with the measured routes and the §I.4 decision still open; **do not apply layers on your own initiative** |
 | **A missing or contradictory dimension** — a component size, a host profile, an opening extent — or two keys that disagree | S5 may not fill a dimension and may not hand-edit a locked file | **S1 / S4b** |
 | **Any fact not in `CHECKPOINT.md` §"Verified facts"** — including scatter sub-object wiring beyond the parameter map, and per-layer flags | §1.2: S5 escalates for an orchestrator probe, it does not open one | the **orchestrator** |
 
@@ -510,8 +574,16 @@ A question list, not a paragraph — one line per question:
 **Nothing may be recorded as blocked, impossible, non-buildable or non-existent without a transcript
 showing the attempt and the exact error.** A negative needs the same discipline as a positive — this repo
 has shipped fabricated negatives (`CHECKPOINT.md` §"Incident log"), and one of them was a layer claim
-that had to be *un*-retracted. "Layer assignment is impossible from this bridge" is now safe to say
-because nine routes were executed and are recorded; the next negative you form must meet that bar.
+that had to be *un*-retracted. "Layer assignment is impossible from this bridge" was held to be safe to
+say because nine routes were executed and are recorded; the next negative you form must meet that bar.
+
+**That sentence is now SUPERSEDED (2026-10-27) — the layer claim was un-retracted twice.** On
+2026-10-27 the interface method **`ILayerProperties.addNode` was measured working** (Phase 14,
+`CHECKPOINT.md` lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md` §E-7), so the blanket "impossible"
+negative is refuted again. **What is safe to say today** is narrower: the nine recorded routes
+failed, `node.layer` is read-only, and `ILayerProperties.addNode` works. **A transcript of failed
+routes is a fact about those routes — it is not a proof that no other route exists.** The next
+negative you form must meet that bar.
 
 ---
 
@@ -526,11 +598,11 @@ reboot and a silent no-op respectively.
 | **AP-1 · Attaching modifiers to build the walls at all** — "it's just one more Boolean", "chunk it, five per call is fine" | **Zero.** This stage attaches **no** modifier: `addModifier` count in `assembly.ms` must be **0** (`G-81`). The walls are `wall_cells[]`, solid boxes. The old ceilings (≤ 5 per call, ≤ 10 per node) are **retired, not tightened** — 5 and 10 rungs were clean and **20 froze Max until the machine rebooted**, which is why the bound is zero rather than small (§6.5). **Do not re-run the ladder** — it is measured |
 | **AP-2 · Concluding "the bridge is down" because a call timed out** | A timeout is the *only* symptom of the hang, and a recoverable hang still burns the call. Verify with a cheap `3dsmax-mcp_get_bridge_status` first (§6.5) |
 | **AP-3 · Calling `setCopyMode #instance`** | It **does not exist** in this build. The instance route is `n = copy src` then `n.baseObject = src.baseObject` (§6.1) |
-| **AP-4 · Calling `rotationZ` / `rotationX` / `rotationY` / `matrix3` / `angle` / `findString`** | None of them exist, measured with controls. Use `n.rotation = quat <degrees> [0,0,1]`, and `substring s 1 n` for a substring test |
+| **AP-4 · Calling `rotationZ` / `rotationX` / `rotationY` / `angle` / `matrix3` / `findString`** | *"None of them exist, measured with controls"* — **REFUTED (2026-10-27)** for `matrix3` and `findString` (`Audit/EVIDENCE_2026-10-27.md` §E-10; `CHECKPOINT.md` §"Incident log 2026-10-05 (P10-lite)"): **`matrix3` exists**, 4 args — 9 numbers is an *arity* error, not a missing class; **`findString` exists**, `findString "hello world" "o w"` → **5** (1-based), a real miss returns `undefined`. `rotationZ` / `rotationX` / `rotationY` / `angle` **do not exist**, measured with controls — use `n.rotation = quat <degrees> [0,0,1]`. `substring s 1 n` remains an alternative to `findString`, **not** the only option |
 | **AP-5 · Writing `pos = [cx, cy, cz]` and expecting a centred box** | On a `Box`, `node.pos` puts the **base** at `pos.z` (geometry centres on x/y). Still true after `copy`, after `baseObject =` and after rotation. Centre it with `pos.z = cz − height/2` — getting this wrong put every P5 panel one full height too high, and the measurement caught it |
 | **AP-6 · `for o in objects do delete o`** | It **silently skips entries** — it left 24 orphans at P5. Collect names first, delete by name, and **run twice**: deleting a base does not delete its instances (§9 rule 3) |
-| **AP-7 · Emitting layer code** — `node.layer = ...`, a `LayerManager` setter, a "fix" for nodes landing on the wrong layer | It cannot work. Nine routes executed, all failed; `3dsmax-mcp_manage_layers`' vocabulary is exactly `{list, create, delete}` and `3dsmax-mcp_set_object_property` emits the same read-only assignment. **Layer is data; the user applies it.** A layer statement in `assembly.ms` is a **build FAIL** (`G-79`, §6.3) |
-| **AP-8 · Attaching `Extrude`, `Bevel`, `Sweep`, `Lathe`, `Surface`, `CrossSection` or `Bevel_Profile` and treating the throw as noise** | They construct and then `addModifier` **throws**, `mods=0` — the P4b-r "6 unattachable modifiers" finding. `Bevel_Profile` is unusable through every route. **A throw that produced no modifier is a FAIL, not a partial pass.** S5 needs none of them: the attachable set in §6.4 is a routing fact, and this stage's own bound is zero |
+| **AP-7 · Emitting layer code** — `node.layer = ...`, a `LayerManager` setter, a "fix" for nodes landing on the wrong layer | The **stage rule** forbids it, and the rule is **policy, not impossibility**: the nine measured routes failed (`3dsmax-mcp_manage_layers`' vocabulary is exactly `{list, create, delete}`; `3dsmax-mcp_set_object_property` emits the same read-only assignment), but **`ILayerProperties.addNode` works** — the blanket "impossible" negative is **SUPERSEDED — 2026-10-27**, `Audit/EVIDENCE_2026-10-27.md` §E-7. Whether S5 may apply layers is **deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4. **Until that decision lands**, layer is data, the user applies it, and a layer statement in `assembly.ms` is a **build FAIL** (`G-79`, §6.3) |
+| **AP-8 · Attaching `Extrude`, `Bevel`, `Sweep`, `Lathe`, `Surface`, `CrossSection` or `Bevel_Profile` and treating the throw as noise** | On **polygonal geometry** (`Box`) they construct and then `addModifier` **throws**, `mods=0` — the P4b-r "6 unattachable modifiers" finding. `Bevel_Profile` is unusable through every route. **A throw that produced no modifier is a FAIL, not a partial pass.** S5 needs none of them: the attachable set in §6.4 is a routing fact, and this stage's own bound is zero. **Do not generalise the row to shapes:** `Extrude` on a `SplineShape` **attaches** (`threw=false`, `mods=1`, `capStart=false`, `capEnd=false`) — the verdict is a property of the host, not of the modifier (измерено 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-1) |
 | **AP-9 · Calling `3dsmax-mcp_scatter_forest_pack`, any of the 14 `3dsmax-mcp_tyflow_*` tools, or `3dsmax-mcp_get_railclone_style_graph`** | Those plugins are **not installed**. Substitute Chaos Scatter for scatter, PhysX / Max particles for physics, instance copies for RailClone-style patterning (`references/14-chaos-scatter.md` §4) |
 | **AP-10 · Calling `mcg_*` or `3dsmax-mcp_curve_model`, or reaching for `geometry_qa` / `contact_check` / `scene_qa`** | **None of them exist in this bridge.** Max Creation Graph is undrivable from here and the QA tools have no replacement by that name — the real read-back is `3dsmax-mcp_execute_maxscript` plus `FpInterface`. Record the absence; never emulate it by hand |
 | **AP-11 · Emitting the typo-free `distributionDensityPattern`** | The real property name is **`distributionDesityPattern`**, typo included. The **spec** uses the corrected spelling `distribution_density_pattern`; the **builder** emits the typo. A spec that carries the typo breaks `07`'s no-class-names rule |
@@ -543,9 +615,20 @@ reboot and a silent no-op respectively.
 | **AP-18 · Calling the gate passed on a number you inferred**, or writing "matches" where a number belongs | `MEASURED` is a number: `objects.count == …`, worst deviation `… cm`, per-host volume error `… cm³`, `getInstanceCount() == …`. If the gate could not run, write `NOT MEASURED` and say why (§12) |
 | **AP-19 · Concluding one Max error means the bridge is broken** | A large set of names in the connected toolset belongs to the **Rhino** server and fails confusingly against Max (`AGENTS.md` §"MCP tool-name collisions"). Only `3dsmax-mcp_*` acts on Max |
 | **AP-20 · Rewriting a reference or a sibling stage's contract on suspicion** | They are **unverified, not disproven**. Verify claim by claim, then correct only what actually fails (`AGENTS.md`, §"The one rule that matters most") |
-| **AP-21 · `try { } catch { }`** — the brace form | It is a **parse error** in this dialect. Use `try ( ) catch ( )`. Also: `("x" + i as string)` throws on precedence — write `("x" + (i as string))`; `getCurrentException()` throws inside a `catch`; `stopCreating` takes **0** args; `modifiers <node>` does not work as a *function* — use the `node.modifiers` property |
+| **AP-21 · `try { } catch { }`** — the brace form | It is a **parse error** in this dialect. Use `try ( ) catch ( )`. Also: `("x" + i as string)` throws on precedence — write `("x" + (i as string))`; `stopCreating` takes **0** args; `modifiers <node>` does not work as a *function* — use the `node.modifiers` property. **`getCurrentException()` inside a `catch` works** — the old "it throws inside a catch" note was withdrawn 2026-10-05 as false (6/6 throw kinds, with a control) and re-confirmed 2026-10-27; use the flag form `local threw = false` / `catch ( threw = true )` when a boolean is all you need, but do not avoid the call |
 | **AP-22 · Cutting openings with the Boolean modifier, and trusting a census that counts its own loop** | The Boolean modifier **cannot be made to cut in this build**: `Boolean()` throws, `BooleanMod()` carries Voxel Map's paramblock, and the bridge's `add_modifier` **attaches** one whose operand is never set — `verts=8 faces=12`, unchanged, for every `params` spelling (§6.2.1). The previous build therefore shipped **unpierced walls and reported success**, because its `G-80` census counted its own iterations and read `cut_count = 16` against a scene with **zero** modifiers. Two rules answer it: build `wall_cells[]` (`G-82`, `G-83`) and make the census **observe the scene** (`G-80`). A modifier that attaches and does nothing is worse than one that throws |
 | **AP-23 · Fault-injecting by mutating a builder's *output* and rebuilding** | It proves nothing: the rebuild overwrites the mutation before any rule sees it — the first P6-D harness reported **0 of 8 fired** for exactly that reason. Call the predicates directly with a mutated **document** (§8 row 3) |
+| **AP-24 · Naming anything `at`** | `at` is a **reserved word** in this dialect — using it as a name is a **parse error**. Rename it (`at_pos`, `at_row`) |
+| **AP-25 · `row.append x`** — treating `append` as an array method | `append` is a **function**, not a method: `row.append x` raises «Unknown property: append». Write **`append row x`** |
+| **AP-26 · Indexing the result of `polyop.getEdgesUsingFace` as edge indices** | It returns a **BitArray**, so `eu[e]` yields a **boolean**, not an index. Count by iteration: `for e = 1 to ne do if eu[e] do …` |
+| **AP-27 · Calling `polyop.getEdgesUsingEdge` on an object that is not an Editable Poly** | It raises «EPoly operation on non-Editable Poly: Editable Mesh». Check **`classOf`** before the call, and **never hardcode the node name** `Object001` — `Editable_Mesh()` auto-names `Object001/002/…` |
+| **AP-28 · `delete ep` after `convertTo ep Editable_Poly`** | `convertTo` **invalidates the reference** — the old handle does not delete the node. Delete **by name**: `delete (getNodeByName "PROBE_WALL")` |
+| **AP-29 · Expecting `polyop.createEdge` to add edges to an object converted from `Editable_Mesh`** | It reports **`edges_after_create=0`**: the edges are created **by `createPolygon` itself**. The zero is not a failed call — and not a success to report either |
+| **AP-30 · Reading `.indices` off the result of `snapshotAsMesh`** | It returns `FaceSelection` / `VertexSelection` objects, which have **no** `.indices`. Reach the elements with **`getFace mw f`** / **`getVert mw i`** |
+
+**AP-24…AP-30 were added on 2026-10-27** — a measured batch that was **not** in the skill before it
+(`Audit/EVIDENCE_2026-10-27.md` §E-6, 3ds Max 2026.3.2). None of these seven traps appears in the
+older rows above, and none of them may be inferred from the older rows.
 
 ### 11.1 Context discipline
 
