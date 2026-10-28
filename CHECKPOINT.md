@@ -781,6 +781,29 @@ Queue for `poly_surface_shell_v1` — planning document `Audit/AGENT_PLAN_poly_s
 4. **QA-family repairs** (plan §F.2): REPLAY / STACK / WALLS / CENSUS families, the drift sweep,
    `tolerances.linear_cm` semantics, the `scene_units` import, `evalPos` gating.
 
+Maintenance queue (optional, deferred — does not block P2…P6):
+
+5. **Deep semantic re-extraction of the knowledge graph + `graphify label`.** The 2026-10-28
+   `graphify update` refreshed only the AST/code layer (**2814 nodes / 5845 edges / 225
+   communities**); the ~24 docs changed by the cleanup still carry semantic nodes extracted from
+   pre-cleanup content (stale `loc=` line numbers, pre-move paths). The deep pass is the pipeline
+   used on 2026-10-27: detect → chunk the uncached docs (dense extraction; page every file past
+   the 2000-line Read limit; write chunk JSONs to `graphify-out/.graphify_chunk_NN.json`) → one
+   extraction subagent per chunk → semantic-cache save → AST+semantic merge via `build_merge`
+   (replace-on-re-extract; `GRAPHIFY_FORCE=1` for the shrink guard) → cluster → `to_json` →
+   report → HTML export, then `graphify label` (62 communities were auto-renamed by hub on
+   2026-10-28; LLM labeling refreshes the rest). Budget: ~30–60 min plus subagent quota. The
+   2026-10-27 run hit a subagent quota outage mid-flight — chunk files already on disk survive
+   it; re-dispatch only the missing or thin ones, and validate node/edge counts and per-file
+   coverage per chunk before merging.
+6. **Slim pass on `references/_form-units-qa-design.md`** — 267 KB, the largest doc in the repo.
+   It is FROZEN (user-approved 2026-10-10) and still routed by `scripts/qa_check.py`,
+   `references/07-spec-grammar.md` and `agents/max-input.md`, so it cannot be cut blindly. The
+   split: keep the fact tables and decision-register sections that are cited; move the session
+   narrative to a new `Audit/` archive file. Prerequisites: a citation map (grep those three
+   live citers for which sections they point at) and a user decision on the cut lines. Deferred
+   by user decision 2026-10-28 — run as a separate session.
+
 Standing rules: cancelled stages stay cancelled (P7 / P8 / P9 — user decision 2026-10-05; do not
 stub, plan or route toward them). A future entry is a **new dated section**, never a rewrite of an
 old one. When a phase closes, cut a new `Audit/CHECKPOINT-archive-<date>.md` and leave the previous
