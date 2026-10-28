@@ -578,4 +578,4 @@ counted.**
 - [ ] `G-70` fires on an injected row-count mismatch and on an injected wrong `rot_z_deg`.
 - [ ] Live gate §9 executed, every number recorded, scene left empty.
 - [ ] `assumptions.json` carries `A-023` / `A-024` with `recheck_stage: "P6"`.
-- [ ] `CHECKPOINT.md` §P5 written, `PLAN.md` P5 row updated, `SKILL.md` routed, `.skill` rebuilt.
+- [ ] `Audit/CHECKPOINT-archive-2026-10-28.md` §P5 written, `PLAN.md` P5 row updated, `SKILL.md` routed, `.skill` rebuilt.

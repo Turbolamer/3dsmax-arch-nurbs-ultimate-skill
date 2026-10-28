@@ -195,7 +195,7 @@ Two entries, the second of which is the failure mode this format exists to preve
 - **Evidence:** this is already a **pack-level verified fact**, not a project finding.
 - **Proposed:** none. Recorded here only because it is the single most common wrong
   assumption at the hand-off, and the next session on this project will hit it.
-- **Status:** open — informational. See `CHECKPOINT.md` §"P10-lite", the material table.
+- **Status:** open — informational. See `Audit/CHECKPOINT-archive-2026-10-28.md` §"P10-lite", the material table.
 ```
 
 > **Correction — 2026-10-27 (measured, `Audit/EVIDENCE_2026-10-27.md` §E-8).** The example

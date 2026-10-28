@@ -252,7 +252,7 @@ Not a Chaos Scatter matter, but it lands on this file because scatter rows carry
 **SUPERSEDED (2026-10-27) — the blanket negative is refuted.** This section used to be headed
 *"Layer attribution is impossible from this bridge — and that is final"*. It is **refuted**:
 **`ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node`
-(verified in Phase 14, `CHECKPOINT.md` lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md` §E-7). The
+(verified in Phase 14, `CHECKPOINT.md` §"Design consequences of the layer finding"; `Audit/EVIDENCE_2026-10-27.md` §E-7). The
 routes below still stand, and they still show that the **two bridge tools** have no
 layer-assignment route and that **reading `node.layer` is read-only** — a routing survey, not a proof
 of impossibility. Whether the builders should apply layers is a separate policy decision,

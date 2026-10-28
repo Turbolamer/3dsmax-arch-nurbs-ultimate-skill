@@ -91,7 +91,7 @@ reads prose, and no stage reads another stage's transcript.** "Reads" below name
 | 12 | `recipes/*.json` | **S3** (P4) | `nurbs.json` | one recipe body each: `params`, `script` | reserved |
 
 Two facts about this table are load-bearing. **Row 4 is the first stage that touches 3ds Max** — rows
-1–3 are deliberately Max-independent (`CHECKPOINT.md` §P2), and `07` §12.5 needs a file, a schema
+1–3 are deliberately Max-independent (`Audit/CHECKPOINT-archive-2026-10-28.md` §P2), and `07` §12.5 needs a file, a schema
 table **and** an example before a row flips to `defined`; `examples/massing.json` is P3's outstanding
 deliverable, so row 4 is schema-defined but not yet example-proven. **Row 10 has no upstream sibling:**
 S7 is the only stage that reads *all* of the others, which is why it is the only stage that may assert
@@ -274,7 +274,7 @@ it found.** Exit non-zero. Nothing else is required of it.
 | Aspect | Rule | Source |
 |---|---|---|
 | Permitted values | `draft` \| `locked` \| `superseded`. `G-4` makes a non-`locked` file an error for any build and a warning for a lint; `validate_specs.py --build` forces it | `07` §3.1, §9.1 |
-| Who may relax it | nobody at build time. `--allow-draft` downgrades the failure to a SKIP and exists for linting, not for shipping | `CHECKPOINT.md` §P2 |
+| Who may relax it | nobody at build time. `--allow-draft` downgrades the failure to a SKIP and exists for linting, not for shipping | `Audit/CHECKPOINT-archive-2026-10-28.md` §P2 |
 | What a builder prints | the file path and the status found — `massing.json: status=draft`, never a generic failure | `07` §3.1 |
 
 **Why this one gate is enough.** Everything upstream of it is already decided: `G-9`…`G-15` prove

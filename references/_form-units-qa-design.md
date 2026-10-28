@@ -2,6 +2,14 @@
 
 **Status: FROZEN — approved by user on 2026-10-10; all 10 A-* decisions APPROVED; Gate 02 PASS.**
 Date: 2026-10-09. Repository: `D:/Rhino/3dsmax-arch-nurbs-ultimate-skill`.
+
+> **Line-number and path notice (2026-10-28):** the `CHECKPOINT.md:NNN` references throughout this
+> file are point-in-time line numbers from an earlier revision of `CHECKPOINT.md` and had already
+> drifted before 2026-10-28. After the 2026-10-28 checkpoint split, resolve them by **section
+> name** — current state in `CHECKPOINT.md` (§"Verified facts"), historical transcripts in
+> `Audit/CHECKPOINT-archive-2026-10-28.md`. They are kept unedited as the record of where each
+> fact was first transcribed. The root-level `AGENT_PLAN_form_precision.md` and
+> `AGENT_BRIEF_form_precision.md` were moved to `Audit/` by the same cleanup pass.
 Owning authority: `AGENT_PLAN_form_precision.md` (the root plan). This file is that plan's English
 decision register, derived from it. Where this file and the root plan disagree, the root plan wins
 until a phase-02 freeze record says otherwise (`plan §1`).

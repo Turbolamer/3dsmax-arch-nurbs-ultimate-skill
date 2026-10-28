@@ -35,7 +35,7 @@ re-run either; the transcripts are in `CHECKPOINT.md`.
 *"There is **no way to assign an object to a layer from this bridge.** Not from MAXScript, not from
 `3dsmax-mcp_manage_layers`, not from `3dsmax-mcp_set_object_property`."* That sentence is **refuted**:
 **`ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node`
-(verified in Phase 14, `CHECKPOINT.md` lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md` §E-7). The
+(verified in Phase 14, `CHECKPOINT.md` §"Design consequences of the layer finding"; `Audit/EVIDENCE_2026-10-27.md` §E-7). The
 historical sentence is kept as the record of what was believed; it is not rewritten.
 
 What the nine routes below still prove — and all nine still hold — is narrower: **the two bridge

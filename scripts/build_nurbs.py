@@ -1912,7 +1912,7 @@ def number_array(values: Sequence[Any]) -> str:
 # function is introduced, and no sub-object index is ever written as a literal:
 # each is bound to a variable in the statement that appends it, because
 # `appendObject` returns the string "OK" and the index is only knowable from
-# `<set>.numObjects` afterwards (CHECKPOINT P4, bug 1).
+# `<set>.numObjects` afterwards (Audit/CHECKPOINT-archive-2026-10-28.md, §"Bugs in snippets/nurbs_arch_library.ms", bug 1).
 
 
 def census_helper_lines() -> list[str]:

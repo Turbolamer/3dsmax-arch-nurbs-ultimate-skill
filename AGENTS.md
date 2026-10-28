@@ -46,11 +46,11 @@ form precision, walls, stack, replay, units guard).
 
 **An emitted `.ms` is not done until it has been `fileIn`-ed and measured.** `build_spec.py` self-checks
 `G-34`…`G-40` before writing, which proves the file is well-formed and proves nothing about whether
-MAXScript will load it. See `CHECKPOINT.md` §Incident log, 2026-10-04. The same rule has a
+MAXScript will load it. See `Audit/CHECKPOINT-archive-2026-10-28.md` §Incident log, 2026-10-04. The same rule has a
 table-shaped equivalent, and P5 is where it was executed: **an emitted CSV is not done until it has
 been placed in Max and counted** — 136 rows read from `examples/world_table.csv` by MAXScript itself,
 136 panels built as reference instances, `objects.count` asserted at 165, five bboxes measured against
-an independent prediction. See `CHECKPOINT.md` §"P5 — the live gate". The full S1→S5 chain was run
+an independent prediction. See `Audit/CHECKPOINT-archive-2026-10-28.md` §"P5 — the live gate". The full S1→S5 chain was run
 the same way at P10-lite: **254 nodes**, idempotent over three calls, 0 modifiers, scene back to 0.
 
 **Scope, updated 2026-10-10 — P7 (Corona materials + UVs) and P9 (export) remain cancelled by user decision.**
@@ -283,7 +283,7 @@ The library **loads and works**. All three original defects were **fixed at P1-b
 `applyArchTessellation` wrapped `curvatureAngle` in `degToRad`, but that property is in
 **degrees**. It now passes `angleDeg` through unchanged. Scope of the saving is honestly ~3% on the
 shipped surfaces (`spacialEdge` binds there); the 6.9× figure is specific to a curvature-bound
-surface. The unit correction matters regardless — see `CHECKPOINT.md` §P13.
+surface. The unit correction matters regardless — see `Audit/CHECKPOINT-archive-2026-10-28.md` §P13.
 
 ## Context budget — delegate by default
 
@@ -330,6 +330,11 @@ scene objects in the same call rather than re-reading state later.
 - **Update `CHECKPOINT.md` at the end of every stage.** It carries a status board, a
   verified-facts section, an open-bugs table, and an incident log of false conclusions. Read it
   before starting work so you do not re-derive something already settled.
+- **Archive policy (2026-10-28):** `CHECKPOINT.md` carries current state only — the current phase,
+  the stage board, §"Verified facts" (the transcript of record, never trimmed), the routing tables
+  and the curated standing-traps log. Closed-phase logs and full incident transcripts live in
+  `Audit/CHECKPOINT-archive-<date>.md` (repo-only, not packaged). When a phase closes, cut a new
+  archive file; never rewrite an old one.
 - Verified facts go in `CHECKPOINT.md` labeled as executed. Unverified stays labeled unverified.
 - Prefix 3ds Max MCP tools with `3dsmax-mcp_` when writing about them, to keep them distinct from
   the Rhino names.

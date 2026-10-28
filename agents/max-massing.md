@@ -159,7 +159,7 @@ The CLI contract is fixed in `01` §8 — do not vary it, and do not add a secon
 | Layer code | **None.** `massing.ms` is geometry only. Adding layer code is a defect, not an improvement — it cannot work (`07` §8.1.3). **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "cannot work" is scoped to the **property-setter** routes; the layer interface method `ILayerProperties.addNode` *does* work, so the no-layer-code rule is a **policy** (`G-79`), not an impossibility. Whether the policy stays is settled separately (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) |
 
 `--build` forces the lock gate to a **FAIL** instead of the lint **WARN** it is without the flag
-(`CHECKPOINT.md` §P2) — always run it with `--build`. If a flag errors, run `--help` and use only what
+(`Audit/CHECKPOINT-archive-2026-10-28.md` §P2) — always run it with `--build`. If a flag errors, run `--help` and use only what
 it prints; never substitute `python -m py_compile` for a validator run. **A non-zero exit is a stop**:
 fix the spec through S1 (§10) or the builder through its owner (§3). Never rename a key, widen
 `tolerances`, drop a leaf, or delete a group to silence a `FAIL`.
@@ -315,7 +315,7 @@ Any of these is escalated, always — using `10`'s ladder `E1`…`E9` and `01` �
 |---|---|---|
 | **A missing or contradictory dimension** — a value `G-38` needs that `dimensions.json` does not hold, or two keys that disagree | S2 may not fill a dimension (§6.3) and may not hand-edit a locked file | **S1** |
 | **A non-rectangular, rotated, or non-prismatic-in-Z footprint** (§6.3) | The builder refuses it by name; approximating it with a rectangle is a wrong model that validates, and `G-29` assumes prismatic | the user, via S1 |
-| **An industrial clear height above the `G-16` cap of 600 cm** | `levels[].height_cm` is capped 250…600 by `G-16`, so the storey is not expressible. `CHECKPOINT.md` §P2 records this as a **KNOWN LIMITATION**: widen `07`'s range with the change recorded — **never narrow the range to fit, never fake the height** | **S1** — S2 never edits `07` |
+| **An industrial clear height above the `G-16` cap of 600 cm** | `levels[].height_cm` is capped 250…600 by `G-16`, so the storey is not expressible. `Audit/CHECKPOINT-archive-2026-10-28.md` §P2 records this as a **KNOWN LIMITATION**: widen `07`'s range with the change recorded — **never narrow the range to fit, never fake the height** | **S1** — S2 never edits `07` |
 | **Structural sizing** — column section, slab thickness beyond the documented defaults, core wall thickness, load paths, foundations | `09` §5 items 1–2: a licensed engineer's scope. A `low`-confidence proxy from S1 may be built; a better guess may not | the user (`E1`) |
 | **A P3-flagged `A-nnn` that would change the geometry**, or **any fact not in `CHECKPOINT.md` §"Verified facts"** | You are the recheck stage (§4 step 2). §1.2: S2 escalates for an orchestrator probe, it does not open one | the user, naming the `A-nnn`; the orchestrator |
 

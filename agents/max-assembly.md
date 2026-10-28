@@ -32,7 +32,7 @@
 > **CORRECTED (2026-10-27) — the layer clause of the paragraph above.** "Layer assignment is
 > impossible from this bridge — nine routes ruled out, final, not an open question" is
 > **SUPERSEDED**: **`ILayerProperties.addNode` works** (verified in Phase 14, `CHECKPOINT.md`
-> lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md` §E-7). What survives is narrower and still
+> §"Design consequences of the layer finding"; `Audit/EVIDENCE_2026-10-27.md` §E-7). What survives is narrower and still
 > measured: **reading** `node.layer` is read-only, and the two bridge tools have no
 > layer-assignment verb. The nine measured routes were a routing survey, not a proof of
 > impossibility. **Whether S5 may apply layers is a separate policy question, deferred** to
@@ -45,8 +45,8 @@
 > row): `matrix3 [1,0,0] [0,1,0] [0,0,1] [0,0,0]` → `classOf` **`Matrix3`**. Passing **9** numbers
 > is an **arity** error (`Argument count error: Matrix3 wanted 4, got 9`), and that arity error was
 > read as absence. `rotationZ` / `rotationX` / `rotationY` / `angle` **are** still absent
-> (`Audit/EVIDENCE_2026-10-27.md` §E-10; measured in `CHECKPOINT.md` §"Incident log 2026-10-05
-> (P10-lite)").
+> (`Audit/EVIDENCE_2026-10-27.md` §E-10; measured in `Audit/CHECKPOINT-archive-2026-10-28.md`
+> §"Incident log 2026-10-05 (P10-lite)").
 
 ---
 
@@ -287,7 +287,7 @@ wall-minus-openings exactly (`G-82`).
 > **SUPERSEDED (2026-10-27) — the blanket negative is refuted.** This section used to open with:
 > *"There is no way to assign an object to a layer from this bridge. Nine routes are ruled out and
 > this is final, not an open question."* That sentence is **refuted**: **`ILayerProperties.addNode`
-> works** (verified in Phase 14, `CHECKPOINT.md` lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md`
+> works** (verified in Phase 14, `CHECKPOINT.md` §"Design consequences of the layer finding"; `Audit/EVIDENCE_2026-10-27.md`
 > §E-7). The historical sentence is kept here as the record of what was believed and when it was
 > withdrawn — it is **not** rewritten.
 >
@@ -579,7 +579,7 @@ say because nine routes were executed and are recorded; the next negative you fo
 
 **That sentence is now SUPERSEDED (2026-10-27) — the layer claim was un-retracted twice.** On
 2026-10-27 the interface method **`ILayerProperties.addNode` was measured working** (Phase 14,
-`CHECKPOINT.md` lines 1410-1411; `Audit/EVIDENCE_2026-10-27.md` §E-7), so the blanket "impossible"
+`CHECKPOINT.md` §"Design consequences of the layer finding"; `Audit/EVIDENCE_2026-10-27.md` §E-7), so the blanket "impossible"
 negative is refuted again. **What is safe to say today** is narrower: the nine recorded routes
 failed, `node.layer` is read-only, and `ILayerProperties.addNode` works. **A transcript of failed
 routes is a fact about those routes — it is not a proof that no other route exists.** The next

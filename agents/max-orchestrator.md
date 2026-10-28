@@ -9,7 +9,7 @@
 > **The one rule that governs everything here: MAXScript execution is the only ground truth.**
 > Introspection tools lie (`introspect_class "NURBSSet"` → *Class not found*, and `NURBSSet()` then
 > constructs fine). A stage that emits an artefact and never ran it has shipped nothing. **An emitted
-> `.ms` is not done until `fileIn` has run it and its output has been measured** (`CHECKPOINT.md`
+> `.ms` is not done until `fileIn` has run it and its output has been measured** (`Audit/CHECKPOINT-archive-2026-10-28.md`
 > §Incident log 2026-10-04, P3 and P4 — two for two). The table-shaped form: **an emitted CSV is not
 > done until it has been placed in Max and counted** (P5).
 >
@@ -855,7 +855,7 @@ ambiguity I measured and could not resolve without touching a file I do not own.
 
 | # | Question | Why it is open |
 |---|---|---|
-| **8** | **Is the Chaos Scatter part of the delivered model?** `assembly.ms` emits **zero** scatter geometry (zero occurrences of `ChaosScatter` / `scatter` / `SCT_001` in 1979 lines **[re-measured]**), while `assembly.json.scatter[]` carries one row and `agents/max-assembly.md` §7 gate row 8 requires reading `FpInterface.getInstanceCount()` back — which implies a scatter object existed at the gate. `CHECKPOINT.md` §P6 records `objects.count == 244`, which does **not** include a scatter node | Two coherent readings: (a) S5 declares the scatter and the **user** applies it by hand from `snippets/chaos_scatter.ms`, in which case 244 is the correct delivered count; (b) the gate applied it and 244 was measured before, in which case the delivered count is 244 **+ 1 scatter node + N instances** and §5.1's table is wrong. **I did not guess.** §5.5 states the apply route and warns that the count changes |
+| **8** | **Is the Chaos Scatter part of the delivered model?** `assembly.ms` emits **zero** scatter geometry (zero occurrences of `ChaosScatter` / `scatter` / `SCT_001` in 1979 lines **[re-measured]**), while `assembly.json.scatter[]` carries one row and `agents/max-assembly.md` §7 gate row 8 requires reading `FpInterface.getInstanceCount()` back — which implies a scatter object existed at the gate. `Audit/CHECKPOINT-archive-2026-10-28.md` §P6 records `objects.count == 244`, which does **not** include a scatter node | Two coherent readings: (a) S5 declares the scatter and the **user** applies it by hand from `snippets/chaos_scatter.ms`, in which case 244 is the correct delivered count; (b) the gate applied it and 244 was measured before, in which case the delivered count is 244 **+ 1 scatter node + N instances** and §5.1's table is wrong. **I did not guess.** §5.5 states the apply route and warns that the count changes |
 | **9** | **`validate_specs.py --help` says it validates against `G-1..G-40`**, but the implementation runs **138 rows across `G-1`…`G-83`** | `scripts/validate_specs.py` `ArgumentParser` description, verified against the live run (`PASS 138 / FAIL 0 / WARN 0 / SKIP 15`) **[re-measured]** |
 
 ### Also confirmed still stale, lower priority
