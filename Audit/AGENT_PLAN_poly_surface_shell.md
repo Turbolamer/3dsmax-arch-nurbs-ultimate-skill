@@ -382,7 +382,7 @@ wall_technique:  "legacy_cells_v1" | "poly_surface_shell_v1"
   `--request/--results/--out`). Флаг `--assess` задокументирован в 8 местах
   (`agents/max-qa.md:47`, `CHECKPOINT.md:75,102`, `SKILL.md:30,224`, `PLAN.md:250,272,274`,
   `agents/max-orchestrator.md:96,384`, `references/01-pipeline-workflow.md:58`,
-  `references/_form-units-qa-design.md:2693`) и **не существует** в argparse
+  `references/_form-units-qa-design.md` §24.2 «Design review cases») и **не существует** в argparse
   (`qa_check.py:1527-1545`).
 
 **Выход:** `python -m py_compile scripts/*.py` проходит; grep по «невозможны навсегда»,

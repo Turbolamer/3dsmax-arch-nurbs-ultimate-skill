@@ -10,6 +10,50 @@ Date: 2026-10-09. Repository: `D:/Rhino/3dsmax-arch-nurbs-ultimate-skill`.
 > `Audit/CHECKPOINT-archive-2026-10-28.md`. They are kept unedited as the record of where each
 > fact was first transcribed. The root-level `AGENT_PLAN_form_precision.md` and
 > `AGENT_BRIEF_form_precision.md` were moved to `Audit/` by the same cleanup pass.
+>
+> **ERRATA (2026-10-30) — ten statements below are contradicted by the current repository.** Added by
+> the citation-map pass. The frozen body is deliberately **unedited**: where it disagrees with this
+> block, this block and the live file it cites win. Full evidence, each row checked in both directions
+> with a negative control in the same batch: `Audit/_form-qa-citation-map.md`
+> §"Contradictions with current repo state" (D1–D10). D-numbering is by severity, not line order.
+> ⚠️ **Line numbers in this block refer to the frozen 2026-10-10 revision**, i.e. before this
+> insertion shifted them — resolve them by **section name**, per the same convention as the
+> 2026-10-28 notice above.
+>
+> **Read this first if you arrived via a citation.** `references/07-spec-grammar.md:2541` routes here
+> to **§5.2 and §14**, and both currently deliver a false statement to that reader — which is why D1
+> and D10 are the serious two.
+>
+> | # | section | the body says | current truth |
+> |---|---|---|---|
+> | **D1** | **§5.2 (CITED)**, `:259` | "No `qa_check.py`, `curve_gen.py`, `expand_curves.py`, `scene_units.py` … exists. `scripts/` contains exactly 8 modules" | `scripts/` holds **12 modules** and **all four named scripts exist and run**; `AGENTS.md` §"What this repo is" lists each as a runnable command. ⚠️ **Half-true, which is what makes it dangerous** — `capture_views.py`, `export_max.py`, `build_mouldings.py`, `lint_script.py`, `check_skill_md.py` are still genuinely absent, and that lends the false half its credibility |
+> | **D10** | **§14 (CITED)**, `:1268` | "All ten A-* rows remain **OPEN**, including A-LIVE" | Contradicted **inside this same file**: `:150` "APPROVED for all 10 decisions", `:2747-2756` all ten `**APPROVED**`, and the Status line at `:3` |
+> | **D3** | §6.2, `:309-322` | "**None of the following exists** … do not write a `.py` file, do not add a flag, do not add a doc route for any of them" | **7 of the 9 rows now exist**: `curve_gen.py`, `expand_curves.py`, `qa_check.py`, `scene_units.py`, `agents/max-qa.md`, `env_preflight --require-complete` (6 occurrences in `scripts/env_preflight.py`), both fixture paths. Only `:321` (`build_mouldings.py` + the four `_form-*-design.md` refs) is still true |
+> | **D5** | §7.2, `:374` | "**The next free invariant ID is `G-84`** … `PROPOSED` allocation only" | **91 ids registered, max `G-91`** → next free is ≥ `G-92`. `G-84` is taken ("generator schema is valid and complete"): `scripts/validate_specs.py:867`, `:873`, `:915`, `:6510` |
+> | **D4** | §7.1, `:355-367` | heading: "Proposed new files — **none of them exists**" | **8 of the 9 rows exist**; only `references/_form-generators-evidence.md` (`:364`) is genuinely absent. Note `:363` lists *this file itself* as nonexistent — already self-contradictory at freeze time |
+> | **D7** | §6.2, `:322` | fixture + recipe paths are "proposed placements, **not approved**" | Contradicted by §14's A-EXAMPLE row (`:2751`, **APPROVED**) and by `CHECKPOINT.md` (corpus at `specs/fixtures/form-precision/specs/pipeline`, validator **PASS 153 / FAIL 0**) |
+> | **D2** | §6.1, `:287` | heading: "`CURRENT` — **eight scripts**" | 12 modules; the table also **omits the entire QA surface** (`qa_check`, `curve_gen`, `expand_curves`, `scene_units`), so "current executable surface" is materially incomplete |
+> | **D9** | §24 `:2676`, §13.4 `:1197`, §19.2 `:2280` | "**DRAFT / NOT FROZEN. No phase-02 PASS.**" | Contradicted by `:2734-2735` ("**Gate 02 Status: PASS.** / **Document Contract Status: FROZEN.**") and by `:3` |
+> | **D6** | §6.2, `:320` | "no approved API or CLI shape exists; guessing a flag is forbidden" | Contradicted internally by §20.1 `:2340-2350` (exact CLI shapes specified) and externally by `scripts/qa_check.py:1537` (`--calibration-cert` implemented) |
+> | **D8** | §5.3, `:263-284` | 11 unknowns, each "planned at `plan §10` 03.x" | `CHECKPOINT.md` records "Gates 01–13 PASS" → gate 03 is closed. Classified NARRATIVE rather than DEAD: the individual rows were not settled against the gate-03 transcript |
+>
+> **Confirmed still correct** — recorded so nobody re-litigates them during any future cut: P7/P9
+> cancelled and `materials.json` / `export.json` reserved stubs only (`:92`, `:255`, `:573`, `:2388`);
+> `place_components.py` is a real builder, never called unwritten (`:243`–`:261`, `:298`, `:352-353`);
+> `setCopyMode`, `rotationZ`/`rotationX`/`rotationY`, `angle` genuinely absent (`:206`, `:207`,
+> `:231-232`); and the withdrawn-claims table is already right in this file — `getCurrentException()`
+> and `findString` both **work** (`:224`, `:225`). The doc makes **no claim at all** about
+> `introspect_class` (a verified zero, not an unsearched one: the same scan found
+> `getCurrentException` and `findString`).
+>
+> **No slimming was applied, by user decision 2026-10-30.** The inventory classifies this file as
+> CITED 95,569 B / FACT-TABLE 141,208 B / NARRATIVE 27,559 B (**10.3%**) / DEAD 3,392 B, so moving the
+> narrative out would leave ~234.5 KB — still the largest document in the repo. The two real cut
+> options stay open: **C+** (≈ −26 KB, two line-splices, low risk) or **D** (§17, ≈ −60.5 KB, HIGH
+> risk because §17.1 is cited by `scripts/qa_check.py:152` and §17.2–§17.7 are the schema its emitter
+> implements, so D requires editing a live citer). See `Audit/_form-qa-citation-map.md`
+> §"Proposed cut lines".
+
 Owning authority: `AGENT_PLAN_form_precision.md` (the root plan). This file is that plan's English
 decision register, derived from it. Where this file and the root plan disagree, the root plan wins
 until a phase-02 freeze record says otherwise (`plan §1`).

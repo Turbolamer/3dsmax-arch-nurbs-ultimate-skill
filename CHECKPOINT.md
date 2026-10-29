@@ -930,9 +930,21 @@ Maintenance queue (optional, deferred — does not block P2…P6):
    what makes it dangerous. D10 (`:1268` "All ten A-* rows remain OPEN", inside cited §14) is
    contradicted by `:150` and `:2747` of the same file; `:374` says "next free ID is G-84" against
    `validate_specs.py:867,915` (91 gates registered, max G-91).
-   **BLOCKED on a user decision:** which option (A / C+ / D), and whether D1/D10 corrections may be
-   applied inside a FROZEN doc or must land as a dated errata header instead. Deferred by user
-   decision 2026-10-28 to a separate session.
+   **RESOLVED 2026-10-30, user decision: errata only, no slimming.** A dated `ERRATA (2026-10-30)`
+   blockquote was inserted at the head of the FROZEN doc — `git diff` = **44 additions / 0 deletions**,
+   so the frozen body is byte-identical. It lists D1–D10 by **section anchor**, records the
+   "confirmed still correct" set (so nobody re-litigates it during a future cut), and states why no
+   cut was made. It follows the file's own 2026-10-28 notice convention: resolve by section name, and
+   the block's line numbers refer to the frozen 2026-10-10 revision.
+   ⚠️ **Side effect, measured and handled:** the insertion shifted every body line by **+44**
+   (verified on two anchors — D10's text `1268` → `1312`, D5's `374` → `418`). Two files cited this
+   doc by line number. The **live** planning doc `Audit/AGENT_PLAN_poly_surface_shell.md:385` was
+   re-anchored to `§24.2 «Design review cases»` (drift-proof). `Audit/EVIDENCE_2026-10-27.md:175`
+   still reads `:2693` and was **deliberately left untouched** — this file designates it frozen data
+   (E-1…E-16, "do not re-derive or rewrite it"); when reading that pointer, add 44 or resolve by
+   section name.
+   **Still open, not blocking:** the cut options themselves — C+ (≈ −26 KB, two line-splices) and D
+   (§17, ≈ −60.5 KB, requires editing the live citer `scripts/qa_check.py`). Neither was authorised.
 
 Standing rules: cancelled stages stay cancelled (P7 / P8 / P9 — user decision 2026-10-05; do not
 stub, plan or route toward them). A future entry is a **new dated section**, never a rewrite of an
