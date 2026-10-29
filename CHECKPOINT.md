@@ -3,8 +3,9 @@
 **This file is the source of truth for what is done, what is verified, and what is assumed.**
 Update it at the end of every stage. Read it before starting new work.
 
-Last updated: 2026-10-28 (**general cleanup — slimmed to current state; the full history
-2026-10-04…2026-10-27 is archived verbatim in `Audit/CHECKPOINT-archive-2026-10-28.md`**).
+Last updated: 2026-10-30 (**maintenance item 5 — deep semantic re-extraction of the knowledge
+graph, COMPLETE; previous entry 2026-10-28: general cleanup, slimmed to current state, the full
+history 2026-10-04…2026-10-27 archived verbatim in `Audit/CHECKPOINT-archive-2026-10-28.md`**).
 
 **Archive policy (2026-10-28).** This file carries only: the current phase, the stage-status
 board, §"Verified facts" (the transcript of record — never trim it), the routing tables
@@ -17,7 +18,117 @@ new archive file and leave the previous ones untouched — history is appended, 
 §-references that point into pre-2026-10-28 phase sections (§P2, §P12, §P13, §"P5 — the live
 gate", §"P10-lite", §"P7 — what the cancelled probes proved", …) resolve **in the archive file**.
 
-## 2026-10-28 — Phase 16: `poly_surface_shell_v1` — P0 (refuted claims corrected) + P1 (live spike F01)
+## 2026-10-30 — Maintenance item 5: deep semantic re-extraction of the knowledge graph (COMPLETE)
+
+**Scope, user-approved this session.** The **18** "live" documents that `graphify-out/manifest.json`
+marked `semantic_hash == ""`, out of 23 pending. Deliberately **excluded and still pending (5)**:
+`references/_form-units-qa-design.md` (FROZEN — item 6), `Audit/CHECKPOINT-archive-2026-10-28.md`
+(verbatim history), `Audit/AGENT_PLAN_form_precision.md` and `Audit/AGENT_BRIEF_form_precision.md`
+(closed phase), `scripts/build_nurbs.py` (AST layer already fresh from the 2026-10-28
+`graphify update`). This is a **remainder, not a gap** — do not "fix" it without a user decision.
+
+**Why the subagent pipeline and not the CLI.** No LLM backend exists in this environment
+(`graphify provider list` → "No custom providers registered"; no API keys in env), so
+`graphify extract --mode deep` cannot run headless. Route actually executed: 10 chunks → one
+extraction subagent per chunk → `.graphify_chunk_NN.json` → `save_semantic_cache` (returned `int 18`,
+cache 80 → 98 entries) → `build_merge` → `to_json(force=True)` → `GRAPHIFY_BACKEND=none
+graphify cluster-only .` for deterministic community naming.
+
+**Measured result — final gate, 31 independent checks re-run by the orchestrator, not taken from a
+subagent report.** Fresh layer: **507 nodes / 1948 edges / 30 hyperedges**, 0 duplicate ids across
+chunks, 0 duplicate `(source,target,relation,source_file)` triples, all 18 files ≥1 node (min 3).
+
+| | before | after |
+|---|---|---|
+| nodes | 2814 | **2911** (+97) |
+| edges | 5845 | **7119** (+1274) |
+| hyperedges | 27 | **47** (+20) |
+| communities | 225 | **166 — all named, 0 placeholders** |
+| manifest pending `semantic_hash` | 23 | **5** (exactly the excluded set) |
+| `_origin` nodes | ast 1721 / sem 1078 / untagged 15 | **ast 1647 / sem 1249 / untagged 15** |
+| `_origin` edges | ast 4165 / sem 1069 / untagged 1885 | **ast 4165 / sem 2954 / untagged 0** |
+
+`build_merge` reported **"Replaced 410 node(s) from re-extracted source file(s)"** and dropped
+exactly **31** (30× `CHECKPOINT.md`, 1× `AGENTS.md`) — concepts that now live only in the excluded
+`Audit/CHECKPOINT-archive-2026-10-28.md`. **Dangling edges: 0.** The 2 inbound edges the per-chunk
+validator had flagged on chunk 01 came from files that are themselves re-extracted, so they collapsed.
+The 15 still-untagged nodes are pre-existing external import stubs with an EMPTY `source_file`
+(`dataclasses`, `pathlib`, `datetime`, `json`, `math`, …) — correctly left alone.
+
+**Three defects found and repaired, each measured rather than inferred:**
+
+1. **`.deep-pass-protocol.md` §5b is WRONG** where it claims the merge is additive and "drops
+   nothing". `build_merge` does a per-tier REPLACE (`build.py:2546-2551`, source sets from
+   `_tier_replacement_sources`, `build.py:2194-2257`), and `to_json(force=True)` **silently permits
+   the shrink** because the missing-semantic guard lives inside `if not force`
+   (`export.py:294-353`). Measured: 410 replaced, 31 dropped. Any future pass must diff the id sets
+   BEFORE persisting, and must treat `force=True` as "I have already accounted for the loss".
+2. **`build_merge` does not apply the `_origin` tag** from `build.py:68`
+   (`item.setdefault("_origin", "ast" if _is_ast_tier(item) else "semantic")`) to chunk nodes — the
+   merged graph came out with **522 untagged** nodes. `_origin` drives both `_is_ast_tier`
+   (`build.py:45-53`) and that missing-semantic guard, so untagged nodes are invisible to both.
+   Repaired with graphify's own rule; edges tagged to match the **measured** pre-existing convention
+   (5845/5845 old edges carry `_origin`; same-tier endpoints → that tier, mixed-tier leans semantic
+   94:8; hyperedges carry none in either graph).
+3. **56 nodes + 44 edges carried `source_location` of the form `L279-300`**, which `_is_ast_tier`
+   classifies as **AST tier** (measured: `_is_ast_tier({'source_location':'L279-300'})` → `True`,
+   `'§4'` → `False`, `None` → `False`). That contradicts the extraction contract's own rule
+   ("free-form section ref, not a line number") and it is what pulled `AGENTS.md`, `PLAN.md`,
+   `Audit/_drift-audit.md` and `Audit/_fix-a-notes.md` into `new_ast_sources` during the merge
+   (74 AST nodes dropped and re-issued — zero node loss, but the tier identity flipped). Normalised
+   to `lines 279-300`: information kept, heuristic no longer tripped, **0 fresh items now mis-tier**.
+
+**Node-id convention, settled.** `graphify.ids.make_id` (`ids.py:86-93`, `re.sub(r"_+","_")` at
+`ids.py:82`) makes the canonical id for an underscore-stemmed file **single-underscore**
+(`Audit/_fix-b-notes.md` → `audit_fix_b_notes_<entity>`), while the historical semantic tier used
+double (`references__p5_contract_*`; 173 double-underscore ids graph-wide). `extraction-spec.md:61`
+is self-contradictory here: its literal `{parent_dir}_{filename_stem}` rule yields double, the same
+line demands matching the AST id. **Renaming toward double is the harmful direction** — the two
+`source_location:'L1 title'` nodes keep those files in AST-tier replacement, so 22 existing AST nodes
+would be dropped and not re-issued. Both forms were therefore left as-is; `_semantic_id_remap`
+(`build.py:1159-1172`) never rewrites the drift anyway.
+
+**Manifest stamped with graphify's own writer**, `save_manifest(kind="semantic", root=ROOT)` — not by
+hand. Decisive code: `detect.py:2934-2940` (`sem_h` = current md5, `ast_hash` taken from `prev`
+verbatim) and the `scan_corpus=None` seed loop at `detect.py:2874-2887` that preserves rows not in
+`files`. Result: the 102 untouched rows byte-identical, `ast_hash` preserved on all 18. **Positive
+control:** `_stat_and_hash()[2]` (the md5, third return value) equals the stored `ast_hash` on
+**119/120** rows — the single mismatch is `CHECKPOINT.md`, edited after the AST run and intentionally
+left stale so a future `graphify update` re-queues its AST tier. `.graphify_build_state.json`'s
+`graph_size` / `graph_mtime_ns` were re-stamped from the patched file because `watch.py:1836` compares
+them against the on-disk stat and fails closed → a stale stamp forces a full rebuild (they were
+already stale from the merge: 2905870 recorded vs 3452538 on disk).
+
+**Also refreshed, because it was actively misleading.** `graphify-out/.evidence-brief.md` claimed
+"1,439 nodes / 3,719 edges / 88 communities / 24 hyperedges" and "There is no `qa_check.py` … that
+runs" — both false, and load-bearing, since `AGENTS.md` routes every subagent through that file as
+its first read. It now carries the measured figures, the full node/edge field census, the dated
+deep-pass note and the 5-file remainder. `.vocab.txt` regenerated via graphify's own documented
+generator (`graphify/skills/opencode/references/query.md:31-45`, reads `graph.json`, writes only
+`.vocab.txt`): **1615 → 2636 tokens**. Both read-only helpers re-smoke-tested against the new graph
+(`.edge_between.py "wall" "shell"` → real paths; `.traverse.py "qa walls shell" bfs 2500` → 365-node
+subgraph). Previously-absent tokens `coordinates`, `formatting`, `invariant` are now present;
+`bi`, `declare`, `installer`, `numknots` still absent; `qa`/`uv`/`bi` can never appear (the
+generator's 3-character minimum).
+
+**Known remainder, inherent not accidental.** The manifest stamp records each file's md5 at stamp
+time, so **any edit made to one of the 18 after the pass re-queues it** — including this very
+section, which was written after the stamp. The graph's 77 `CHECKPOINT.md` semantic nodes therefore
+describe the file as it stood at extraction, not this paragraph. That is correct behaviour (a future
+`graphify extract` detects the change and re-extracts); do not "repair" it by hand-stamping.
+
+**Artifacts and rollback.** Protocol + chunk plan: `graphify-out/.deep-pass-protocol.md` (its
+§"UNRESOLVED" is still honest reading) and `.deep-pass-chunks.json`. Intermediates kept:
+`.graphify_chunk_01..10.json`, `.graphify_semantic_new.json`, `.graphify_extract.json` (patched
+consistently with `graph.json`, so a re-run of the cluster step reproduces the repaired state).
+Pre-merge backup: `graphify-out/.pre-deep-pass-backup/` (9 files); `cluster-only` additionally backed
+up the curated graph to `graphify-out/2026-10-30/`. `graph.json` is written compact with
+`ensure_ascii=True` — that is graphify's own byte-exact recipe (`export.py:492-494`); do not
+"prettify" it.
+
+---
+
+
 
 **Scope of this phase (user-approved):** P0 + P1 only. P2…P6 are queued separately and are
 **not** started. Planning document: `Audit/AGENT_PLAN_poly_surface_shell.md` (plan, §I holds the
@@ -754,6 +865,8 @@ measured, not inferred, and every row has hit / miss / bogus controls in the arc
 | 8 | `for o in objects do delete o` silently skips entries — 24 orphans survived it at P5 | Collect names first, delete by name, and run the sweep twice (deleting a base does not delete its instances) |
 | 9 | Materials: a shared `baseObject` is a memory optimisation, **not** inheritance — a prototype material propagates to **0** of 10 instances; the pass is per node | Paint the 29 `PROTO_*` nodes and run the scripted sync (`snippets/sync_proto_materials.ms`, ~5 ms, 0 modifiers) — see the section above |
 | 10 | Twice, an inference from a *neighbouring* fact shipped as fact in live documents (the prototype-material claim, in two documents at once; the Extrude-attaches claim) | A claim without its own transcript is UNVERIFIED; measure before routing a user to it |
+| 11 | **A shared scratch dir plus "delete your scratch files before finishing" destroyed 6 orchestrator scripts** (2026-10-30): the evidence-brief subagent deleted the whole shared temp dir, not just its own files, and a concurrently running repair subagent lost `measure.py`/`measure2.py` the same way — it reported "something external deleted them" and could not explain it | Give each concurrent subagent its **own** scratch directory, and phrase cleanup as "delete only the files you created", never "delete the scratch dir" |
+| 12 | `graphify`'s `to_json(force=True)` **silently permits a shrinking graph** — the missing-semantic guard lives inside `if not force` (`export.py:294-353`), and `build_merge` does a per-tier REPLACE, so a re-extraction that re-emits fewer ids than the tier held loses them with no error (2026-10-30: 410 replaced, 31 dropped) | Diff the id sets **before** persisting, confirm every dropped id has 0 inbound edges from out-of-scope files, and treat `force=True` as "I have already accounted for this loss" |
 
 **Do not re-open without a calibrated probe** (hit, miss, bogus in one batch): `getCurrentException`,
 `matrix3`, `findString`, the pipe-discovery "dead bridge" — all four were refuted negatives.
@@ -783,26 +896,43 @@ Queue for `poly_surface_shell_v1` — planning document `Audit/AGENT_PLAN_poly_s
 
 Maintenance queue (optional, deferred — does not block P2…P6):
 
-5. **Deep semantic re-extraction of the knowledge graph + `graphify label`.** The 2026-10-28
-   `graphify update` refreshed only the AST/code layer (**2814 nodes / 5845 edges / 225
-   communities**); the ~24 docs changed by the cleanup still carry semantic nodes extracted from
-   pre-cleanup content (stale `loc=` line numbers, pre-move paths). The deep pass is the pipeline
-   used on 2026-10-27: detect → chunk the uncached docs (dense extraction; page every file past
-   the 2000-line Read limit; write chunk JSONs to `graphify-out/.graphify_chunk_NN.json`) → one
-   extraction subagent per chunk → semantic-cache save → AST+semantic merge via `build_merge`
-   (replace-on-re-extract; `GRAPHIFY_FORCE=1` for the shrink guard) → cluster → `to_json` →
-   report → HTML export, then `graphify label` (62 communities were auto-renamed by hub on
-   2026-10-28; LLM labeling refreshes the rest). Budget: ~30–60 min plus subagent quota. The
-   2026-10-27 run hit a subagent quota outage mid-flight — chunk files already on disk survive
-   it; re-dispatch only the missing or thin ones, and validate node/edge counts and per-file
-   coverage per chunk before merging.
-6. **Slim pass on `references/_form-units-qa-design.md`** — 267 KB, the largest doc in the repo.
-   It is FROZEN (user-approved 2026-10-10) and still routed by `scripts/qa_check.py`,
-   `references/07-spec-grammar.md` and `agents/max-input.md`, so it cannot be cut blindly. The
-   split: keep the fact tables and decision-register sections that are cited; move the session
-   narrative to a new `Audit/` archive file. Prerequisites: a citation map (grep those three
-   live citers for which sections they point at) and a user decision on the cut lines. Deferred
-   by user decision 2026-10-28 — run as a separate session.
+5. **Deep semantic re-extraction of the knowledge graph — DONE 2026-10-30.** Measured result and the
+   three repaired defects are in the dated section above (2814 → **2911** nodes, 5845 → **7119**
+   edges, 27 → **47** hyperedges, 225 → **166** communities all named, manifest pending 23 → **5**,
+   0 dangling edges). Note that `graphify label` was **not** used and must not be: with no API key it
+   sets `force_relabel=True` (`cli.py:2420`), which skips the curated-label reuse branch
+   (`cli.py:2578`) and DISCARDS every curated name. Naming went through
+   `GRAPHIFY_BACKEND=none graphify cluster-only .` — reuses `.graphify_labels.json` where the
+   membership sig still applies, hub-fills the rest, fully deterministic. **Remainder: 5 files still
+   pending by decision, not by oversight** — `references/_form-units-qa-design.md`,
+   `Audit/CHECKPOINT-archive-2026-10-28.md`, `Audit/AGENT_PLAN_form_precision.md`,
+   `Audit/AGENT_BRIEF_form_precision.md`, `scripts/build_nurbs.py`. Re-run recipe if ever needed:
+   `graphify-out/.deep-pass-protocol.md` + `.deep-pass-chunks.json`, applying corrections 1–3 from
+   the dated section **up front** (the protocol as written still contains the false "additive merge"
+   claim in §5b).
+6. **Slim pass on `references/_form-units-qa-design.md`** — 267 KB, the largest doc in the repo,
+   FROZEN (user-approved 2026-10-10), still routed by `scripts/qa_check.py`,
+   `references/07-spec-grammar.md` and `agents/max-input.md`. **The citation-map prerequisite is DONE**
+   (2026-10-30): `Audit/_form-qa-citation-map.md` — 9 files touch the name, not 3 (`CHECKPOINT.md:158`
+   is a 4th routing mention the old queue text missed); 13 live citations; 9 load-bearing sections; a
+   93-row inventory whose byte column sums exactly to 267,728.
+   **The finding that changes the task:** the split as originally scoped **cannot slim this file.**
+   NARRATIVE is only 27,559 B (10.3%) against CITED 95,569 B and FACT-TABLE 141,208 B, so moving the
+   narrative out leaves ~234.5 KB — still the largest doc. Recommended option **C+**: move three
+   contiguous blocks (1160–1263, 2240–2330, 2674–2731) plus 2 DEAD sections to a new
+   `Audit/FORM-QA-SESSION-LOG.md` = 26,161 B (9.8%) for two line-splices. Real reduction needs option
+   **D** (§17, 60.5 KB) and is HIGH risk — §17.1 is cited by `qa_check.py:152` and §17.2–§17.7 are the
+   schema its emitter implements, so D requires editing a live citer.
+   It also catalogues **10 contradictions with current repo state (D1–D10)**. The most serious is D1:
+   `:259` claims `qa_check.py` / `curve_gen.py` / `expand_curves.py` / `scene_units.py` do not exist
+   and that `scripts/` holds 8 modules (it holds 12) — sitting **inside §5.2, which
+   `07-spec-grammar.md:2541` cites**, and half-true (five other scripts really are absent), which is
+   what makes it dangerous. D10 (`:1268` "All ten A-* rows remain OPEN", inside cited §14) is
+   contradicted by `:150` and `:2747` of the same file; `:374` says "next free ID is G-84" against
+   `validate_specs.py:867,915` (91 gates registered, max G-91).
+   **BLOCKED on a user decision:** which option (A / C+ / D), and whether D1/D10 corrections may be
+   applied inside a FROZEN doc or must land as a dated errata header instead. Deferred by user
+   decision 2026-10-28 to a separate session.
 
 Standing rules: cancelled stages stay cancelled (P7 / P8 / P9 — user decision 2026-10-05; do not
 stub, plan or route toward them). A future entry is a **new dated section**, never a rewrite of an
