@@ -3,9 +3,11 @@
 **This file is the source of truth for what is done, what is verified, and what is assumed.**
 Update it at the end of every stage. Read it before starting new work.
 
-Last updated: 2026-10-30 (**maintenance item 5 — deep semantic re-extraction of the knowledge
-graph, COMPLETE; previous entry 2026-10-28: general cleanup, slimmed to current state, the full
-history 2026-10-04…2026-10-27 archived verbatim in `Audit/CHECKPOINT-archive-2026-10-28.md`**).
+Last updated: 2026-10-30 (**maintenance pass 2 — C+ cut applied to the FROZEN form-QA doc, installer
+prune added, 4 dangling/stale anchors repaired, archive rebuilt and re-measured, COMPLETE; earlier
+the same day: maintenance item 5 — deep semantic re-extraction of the knowledge graph, COMPLETE;
+previous entry 2026-10-28: general cleanup, slimmed to current state, the full history
+2026-10-04…2026-10-27 archived verbatim in `Audit/CHECKPOINT-archive-2026-10-28.md`**).
 
 **Archive policy (2026-10-28).** This file carries only: the current phase, the stage-status
 board, §"Verified facts" (the transcript of record — never trim it), the routing tables
@@ -17,6 +19,76 @@ progress logs, closed-stage sections, full incident transcripts, superseded "Res
 new archive file and leave the previous ones untouched — history is appended, never rewritten.
 §-references that point into pre-2026-10-28 phase sections (§P2, §P12, §P13, §"P5 — the live
 gate", §"P10-lite", §"P7 — what the cancelled probes proved", …) resolve **in the archive file**.
+
+## 2026-10-30 — Maintenance pass 2: C+ cut applied, installer prune, anchors repaired (COMPLETE)
+
+**User decisions taken this session, authoritative:** option **C+ authorised**; option **D NOT
+authorised** (§17 must not move); the **5 pending `semantic_hash == ""` files stay pending**; the
+2026-10-30 errata block stays **append-only**. Work was split across two concurrent subagents with
+disjoint file ownership from a shared brief (`Audit/_maintenance-2026-10-30-brief.md`), then
+**re-measured by the orchestrator** — every number below is an independent measurement, not a
+subagent claim.
+
+**C+ cut, measured.** `references/_form-units-qa-design.md` **273,208 → 253,557 B**
+(2,815 → 2,632 lines). Moved **26,161 B / 293 lines / 5 blocks (11 sections)** into the new
+`Audit/FORM-QA-SESSION-LOG.md` (**31,848 B**): §6.2 and §7.1 (both DEAD), §13.3+§13.4, §19.1+§19.2,
+§24+§24.1–§24.4 (NARRATIVE). Each block was located **by heading text**, never by the citation map's
+line numbers — those are pre-errata and off by **+44**. The arithmetic closes:
+`273,208 − 26,161 + 2,542 (5 pointer stubs) + 2,948 (errata append) + 1,020 (orchestrator's UPDATE
+paragraph) = 253,557`.
+
+| gate | measurement |
+|---|---|
+| **§17 untouched (D refused)** | sha256 of the §17 span **`a26547404175afec`** before *and* after; §16 `4e7c6ec489bdff48` and §18 `1e1d58e4087932f9` also identical — a neighbour control, not just the target |
+| body edits are only the splices | `difflib` over the post-errata tail: **exactly 5 change hunks**, each `moved section → stub` (§6.2, §7.1, §13.3–13.4, §19.1–19.2, §24–24.4), 0 other body edits |
+| moved content really moved | 10/10 sub-section headings absent from the doc, present verbatim in the log |
+| errata append-only | blockquote **42 → 78 lines**, first 42 byte-identical |
+| doc is still the largest `.md` | **253,557** vs `references/07-spec-grammar.md` 237,187 — C+ did not dethrone it, exactly as the citation map predicted |
+| regression | `py_compile scripts/*.py` exit **0**; `validate_specs.py --dir examples` **PASS 138 / FAIL 0 / WARN 0 / SKIP 23**; `qa_check.py` imports with all **6** route mentions intact |
+
+**Four anchors repaired — only the URL inside `]( )`, no prose rewritten.** §1's `[§19.1]` and both
+`[§24]` links now point at `../Audit/FORM-QA-SESSION-LOG.md#…`; the **pre-existing** `[§23.3]` slug
+(stale since the 2026-10-10 heading rename, so *not* charged to the cut) was re-pointed at
+`#233-consolidated-10-approved-a--approval-package-user-approved-2026-10-10`. A slug-resolving
+validator over every non-http link in the doc: **10 anchors resolve, 0 dangling live links**. The 3
+matches it still reports at `:76`, `:77`, `:81` are **quoted code spans inside the errata
+blockquote**, not links. Recorded in the doc's errata as an appended dated paragraph, and
+`Audit/_form-qa-citation-map.md`'s UNRESOLVED **7–8 are CLOSED**; **9 stays open** (the moved
+blocks' own internal `CHECKPOINT.md:NNN` refs were never audited — low impact). Citation map
+inventory re-cut from 93 rows / 267,728 B to **82 rows / 252,537 B**, its roll-up equal to the file
+size at cut time.
+
+**Installer prune — the defect found this session, now closed.** `install_skill.py` copied without
+pruning, so files the repo moved to `Audit/` on 2026-10-28 kept living in both installed copies:
+installed agents paid context for 5 stale files and could route to paths that no longer exist.
+Added `prune_stale_files()` (`:70-97`, keep-set = `collect_files()`, walk scoped to `dest`,
+`followlinks=False`, honours `SKIP_DIR_NAMES`, empty dirs removed bottom-up, `dest` itself kept),
+`install_to_dir(..., prune=False)` (`:100-118`, loud per-file reporting), `prune=True` for the two
+skill-owned global dirs (`:156`) and **`prune=False` for `--mcp-repo`** — that directory is shared
+with the `3dsmax-mcp-dev` skill, so the installer does not own its siblings. Verified against a
+synthetic tree first (stale incl. nested removed, current files hash-identical, empty dir removed,
+non-empty kept, out-of-target sibling untouched, second run removes 0), then for real:
+**both installs 5 stale → 0, 107 shipped files byte-identical, 0 extra**.
+
+**Archive rebuilt and re-measured:** `3dsmax-arch-nurbs-ultimate.skill` **1,370,358 → 1,364,374 B**,
+**107 entries, 0 differing from the working tree**, `Audit/` still not packaged. Consequence,
+intended: the moved 26,161 B **leaves the shipped skill** — it is NARRATIVE/DEAD session log, and no
+live citation resolves into it (checked before cutting, not after).
+
+**Trap worth keeping — a subagent disagreement can be *your* span definition.** The C+ subagent
+reported "errata 6,122 → 9,070 B, `startswith`-verified prefix". The orchestrator's first
+independent check returned **False** (6,309 → 9,195) and looked like a U4 violation. It was not: the
+check extracted the errata as "from `ERRATA (2026-10-30)` to the next `\n## `", which swallows the
+following body prose, while the subagent had measured the blockquote only. Re-measured on blockquote
+lines, append-only holds. **Before treating a mismatch with a subagent as a defect, confirm both
+sides measured the same span** — the same shape as the repo's standing rule that a probe without a
+calibrated control has produced a result, not evidence.
+
+**Not done, by decision:** option D (§17, ≈60.5 KB — still available, still requires editing the
+live citer `scripts/qa_check.py`); deep extraction of the 5 pending files. **Inherent remainder:**
+editing `_form-units-qa-design.md`, `install_skill.py` and `_form-qa-citation-map.md` re-queues them
+in `graphify-out/manifest.json`, per the same logic as item 5's "known remainder" — a future
+`graphify extract` picks it up; do not hand-stamp.
 
 ## 2026-10-30 — Maintenance item 5: deep semantic re-extraction of the knowledge graph (COMPLETE)
 
@@ -907,15 +979,20 @@ Maintenance queue (optional, deferred — does not block P2…P6):
    pending by decision, not by oversight** — `references/_form-units-qa-design.md`,
    `Audit/CHECKPOINT-archive-2026-10-28.md`, `Audit/AGENT_PLAN_form_precision.md`,
    `Audit/AGENT_BRIEF_form_precision.md`, `scripts/build_nurbs.py`. Re-run recipe if ever needed:
-   `graphify-out/.deep-pass-protocol.md` + `.deep-pass-chunks.json`, applying corrections 1–3 from
-   the dated section **up front** (the protocol as written still contains the false "additive merge"
-   claim in §5b).
-6. **Slim pass on `references/_form-units-qa-design.md`** — 267 KB, the largest doc in the repo,
+   `graphify-out/.deep-pass-protocol.md` + `.deep-pass-chunks.json`. The protocol **already carries
+   corrections 1–3 in place** — header `⚠️ CORRECTIONS APPLIED 2026-10-30`, §5b rewritten at
+   `:295-296`, §5d at `:333`. An earlier revision of this queue entry said the protocol "as written
+   still contains the false additive-merge claim in §5b"; that text was stale and is corrected here.
+   **User decision 2026-10-30 (pass 2): the 5 stay pending — do not extract them.**
+6. **Slim pass on `references/_form-units-qa-design.md` — C+ APPLIED 2026-10-30 (pass 2).** 267 KB
+   when this entry was written, **253,557 B after the cut** — still the largest `.md` in the repo
+   (`07-spec-grammar.md` is 237,187 B),
    FROZEN (user-approved 2026-10-10), still routed by `scripts/qa_check.py`,
    `references/07-spec-grammar.md` and `agents/max-input.md`. **The citation-map prerequisite is DONE**
    (2026-10-30): `Audit/_form-qa-citation-map.md` — 9 files touch the name, not 3 (`CHECKPOINT.md:158`
    is a 4th routing mention the old queue text missed); 13 live citations; 9 load-bearing sections; a
-   93-row inventory whose byte column sums exactly to 267,728.
+   93-row inventory whose byte column sums exactly to 267,728 (**re-cut by pass 2 to 82 rows /
+   252,537 B; UNRESOLVED 7–8 CLOSED, 9 stays open**).
    **The finding that changes the task:** the split as originally scoped **cannot slim this file.**
    NARRATIVE is only 27,559 B (10.3%) against CITED 95,569 B and FACT-TABLE 141,208 B, so moving the
    narrative out leaves ~234.5 KB — still the largest doc. Recommended option **C+**: move three
@@ -943,8 +1020,21 @@ Maintenance queue (optional, deferred — does not block P2…P6):
    still reads `:2693` and was **deliberately left untouched** — this file designates it frozen data
    (E-1…E-16, "do not re-derive or rewrite it"); when reading that pointer, add 44 or resolve by
    section name.
-   **Still open, not blocking:** the cut options themselves — C+ (≈ −26 KB, two line-splices) and D
-   (§17, ≈ −60.5 KB, requires editing the live citer `scripts/qa_check.py`). Neither was authorised.
+   **CLOSED for C+, still closed for D (user decision 2026-10-30, pass 2).** C+ was authorised and
+   executed — measured result in the dated section above (−26,161 B moved to
+   `Audit/FORM-QA-SESSION-LOG.md`, 5 splices, §16/§17/§18 byte-identical, 0 dangling live anchors).
+   **D (§17, ≈ −60.5 KB) is NOT authorised**: §17.1 is cited by `scripts/qa_check.py:152` and
+   §17.2–§17.7 are the schema its emitter implements, so D means editing a live citer. That saving
+   is still available and still unauthorised — do not take it on your own initiative.
+
+7. **Installer prune — DONE 2026-10-30 (pass 2), found and closed in the same session.**
+   `install_skill.py` copied without pruning, so the 5 files the repo moved to `Audit/` on
+   2026-10-28 (`references/_drift-audit.md`, `references/_fix-{a,b,c,d}-notes.md`) kept living in
+   both installed copies: installed agents paid context for them and could route to paths that no
+   longer exist in the repo. `prune_stale_files()` now converges each install on `collect_files()`,
+   scoped to the target, loud about every removal, and **`prune=False` for `--mcp-repo`** because
+   that directory is shared with the `3dsmax-mcp-dev` skill. Measured: both installs 5 stale → **0**,
+   107 shipped files byte-identical, second run removes 0. Detail in the dated section above.
 
 Standing rules: cancelled stages stay cancelled (P7 / P8 / P9 — user decision 2026-10-05; do not
 stub, plan or route toward them). A future entry is a **new dated section**, never a rewrite of an
