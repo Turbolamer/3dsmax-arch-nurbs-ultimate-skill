@@ -4,13 +4,15 @@
 Supports:
 1. Building a portable .skill ZIP archive (preserving the references/, snippets/, scripts/,
    agents/, specs/ and examples/ layout, plus the top-level PLAN.md / CHECKPOINT.md / AGENTS.md).
-2. Installing to ~/.claude/skills/3dsmax-arch-nurbs-ultimate and ~/.agents/skills/3dsmax-arch-nurbs-ultimate.
+2. Installing to ~/.claude/skills/3dsmax-arch-nurbs-ultimate and ~/.agents/skills/3dsmax-arch-nurbs-ultimate,
+   pruning files in those targets that collect_files() no longer ships (converges on repo state).
 3. Optional --mcp-repo <path> to merge directly into a local cl0nazepamm/3dsmax-mcp checkout's skills/3dsmax-mcp-dev/ directory.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import zipfile
 from pathlib import Path
@@ -65,7 +67,37 @@ def build_archive(files: list[Path]) -> Path:
     return SKILL_ARCHIVE
 
 
-def install_to_dir(dest: Path, files: list[Path]) -> None:
+def prune_stale_files(dest: Path, files: list[Path]) -> list[str]:
+    """Delete files under `dest` that `collect_files()` no longer ships, then remove
+    directories left empty as a result. Returns the removed dest-relative posix names.
+
+    Scoped strictly to `dest`: never walks or deletes outside it. Honors the same
+    _is_packaged() skip rules (SKIP_DIR_NAMES are neither descended into nor pruned),
+    and never follows symlinked directories. `dest` itself is always kept.
+    """
+    keep = {f.relative_to(SKILL_ROOT).as_posix() for f in files}
+    removed: list[str] = []
+    if not dest.is_dir():
+        return removed
+    dirs_seen: list[Path] = []
+    for root, dirnames, filenames in os.walk(dest, followlinks=False):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES]
+        root_path = Path(root)
+        if root_path != dest:
+            dirs_seen.append(root_path)
+        for name in filenames:
+            p = root_path / name
+            rel = p.relative_to(dest).as_posix()
+            if rel not in keep:
+                p.unlink()
+                removed.append(rel)
+    for d in sorted(dirs_seen, key=lambda q: len(q.parts), reverse=True):
+        if d.is_dir() and not d.is_symlink() and not any(d.iterdir()):
+            d.rmdir()
+    return removed
+
+
+def install_to_dir(dest: Path, files: list[Path], *, prune: bool = False) -> None:
     if dest.is_symlink() or (hasattr(dest, "is_junction") and dest.is_junction()):
         dest.unlink()
     dest.mkdir(parents=True, exist_ok=True)
@@ -75,13 +107,23 @@ def install_to_dir(dest: Path, files: list[Path]) -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(f, target)
     print(f"[OK] Installed {len(files)} files to {dest}")
+    if prune:
+        removed = prune_stale_files(dest, files)
+        if removed:
+            for rel in sorted(removed):
+                print(f"     pruned stale file: {rel}")
+            print(f"[OK] Pruned {len(removed)} stale file(s) from {dest}")
+        else:
+            print(f"[OK] Prune: 0 stale files in {dest} (tree already converged)")
 
 
 def merge_into_mcp_repo(mcp_repo: Path, files: list[Path]) -> None:
     mcp_skill_dir = mcp_repo / "skills" / "3dsmax-mcp-dev"
     if not mcp_skill_dir.is_dir():
         raise SystemExit(f"ERROR: {mcp_skill_dir} not found. Pass the root of cl0nazepamm/3dsmax-mcp.")
-    install_to_dir(mcp_skill_dir, files)
+    # prune=False on purpose: this directory is shared with the 3dsmax-mcp-dev skill,
+    # so the installer does not own the sibling files there and must not remove them.
+    install_to_dir(mcp_skill_dir, files, prune=False)
     # Also copy new reference files flat into skills/3dsmax-mcp-dev/ so legacy build_skill.py finds them
     for f in (SKILL_ROOT / "references").glob("*.md"):
         shutil.copy2(f, mcp_skill_dir / f.name)
@@ -109,7 +151,9 @@ def main() -> None:
 
     if args.target in ("global", "all"):
         for base in (Path.home() / ".claude" / "skills", Path.home() / ".agents" / "skills"):
-            install_to_dir(base / SKILL_NAME, files)
+            # These directories are owned exclusively by this skill, so pruning is safe:
+            # anything collect_files() no longer ships (e.g. files moved to Audit/) is removed.
+            install_to_dir(base / SKILL_NAME, files, prune=True)
 
     if args.mcp_repo is not None:
         merge_into_mcp_repo(args.mcp_repo.resolve(), files)
