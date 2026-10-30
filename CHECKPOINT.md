@@ -3,11 +3,14 @@
 **This file is the source of truth for what is done, what is verified, and what is assumed.**
 Update it at the end of every stage. Read it before starting new work.
 
-Last updated: 2026-10-30 (**maintenance pass 2 — C+ cut applied to the FROZEN form-QA doc, installer
-prune added, 4 dangling/stale anchors repaired, archive rebuilt and re-measured, COMPLETE; earlier
-the same day: maintenance item 5 — deep semantic re-extraction of the knowledge graph, COMPLETE;
-previous entry 2026-10-28: general cleanup, slimmed to current state, the full history
-2026-10-04…2026-10-27 archived verbatim in `Audit/CHECKPOINT-archive-2026-10-28.md`**).
+Last updated: 2026-10-30 (**maintenance pass 3 — the §"Dangling references" register re-checked and
+CLOSED, 4 live routes to absent tools fixed, graph drift from the C+ cut measured and recorded as an
+accepted remainder; pass 2 the same day — C+ cut applied to the FROZEN form-QA doc, installer prune
+added, 4 dangling/stale anchors repaired, archive rebuilt and re-measured; earlier still: maintenance
+item 5 — deep semantic re-extraction of the knowledge graph. Previous entry 2026-10-28: general
+cleanup, slimmed to current state, the full history 2026-10-04…2026-10-27 archived verbatim in
+`Audit/CHECKPOINT-archive-2026-10-28.md`**). **The maintenance queue is now empty of authorised
+work — next is P2 (`walls.json`).**
 
 **Archive policy (2026-10-28).** This file carries only: the current phase, the stage-status
 board, §"Verified facts" (the transcript of record — never trim it), the routing tables
@@ -19,6 +22,44 @@ progress logs, closed-stage sections, full incident transcripts, superseded "Res
 new archive file and leave the previous ones untouched — history is appended, never rewritten.
 §-references that point into pre-2026-10-28 phase sections (§P2, §P12, §P13, §"P5 — the live
 gate", §"P10-lite", §"P7 — what the cancelled probes proved", …) resolve **in the archive file**.
+
+## 2026-10-30 — Maintenance pass 3: dangling-reference register CLOSED, graph drift recorded
+
+**Trigger.** While answering "is the general cleanup finished?", the orchestrator measured the
+§"Dangling references" register against the files it names and found **the register was the drift,
+not the reference files** — 3 of its 6 rows were already clean and its citation (`00-audit-p1.md` §7)
+points at a section that lists no dangling references at all. A subagent then re-checked all 7 files
+with a catalog-derived inventory; verdict table, evidence and the four diffs are in the register
+itself (replaced in place, marked **CLOSED**) and in `Audit/_dangling-register-recheck.md`.
+**4 LIVE ROUTE defects fixed** in 3 files (`execute_python`, `set_modifier_property` ×2,
+`draw_spline`), **0 OBSOLETE routers added**, plus one orchestrator edit upgrading `add_offset` from
+UNVERIFIED to measured-absent. Regression: `py_compile` exit 0, `validate_specs --dir examples`
+PASS 138 / FAIL 0 — the fixes are prose-only and touch no gate.
+
+**The transferable lesson, recorded because it cost a near-miss.** The orchestrator's own crude
+pre-scan found **2 of the 4** defects. It missed the other two because it searched for the
+absent-tool names listed in `AGENTS.md` — and `execute_python` / `set_modifier_property` are not in
+that list. **A hand-maintained inventory of wrong things cannot find a wrong thing nobody wrote
+down.** The scan that worked diffed every backticked identifier in the files against the **live tool
+catalog**. Same shape as the repo's standing rule on probes: a check calibrated only against what you
+already suspected produces a result, not evidence.
+
+**Graph drift caused by pass 2's C+ cut — measured, accepted as a remainder, do NOT hand-fix.**
+
+| observation | measurement |
+|---|---|
+| new file unregistered | `Audit/FORM-QA-SESSION-LOG.md` is **absent from `graphify-out/manifest.json`** (120 rows, none is this file) |
+| rows drifted from their AST stamp | **4** — `scripts/install_skill.py`, `CHECKPOINT.md`, `references/_form-units-qa-design.md` (pass 2/3 edits) and `Audit/AGENT_PLAN_poly_surface_shell.md` (**pre-existing**, from the 2026-10-30 re-anchor of `:385`, not from this pass) |
+| nodes describing moved content | ≥1 — `Unresolved register U01-U22 [src=references/_form-units-qa-design.md loc=None]` is §13.3, which now lives in the session log. A `graphify query` can route an agent to a file that no longer holds the text |
+| nodes naming moved sections **by number** | **0** — so a number-keyed scan cannot find the misattribution. It is by concept, not by section label |
+| `.evidence-brief.md` | still states **2911 nodes / 7119 edges** (accurate), makes no pre-cut size claim, does not mention the session log — stale-ish but **not actively misleading**, unlike the version pass 2 replaced |
+
+**Why it stays open:** re-stamping the 4 AST rows is deterministic and cheap, but registering and
+semantically extracting the new `Audit/` doc needs the subagent extraction pipeline again (no LLM
+backend runs headless here), and `Audit/` is not packaged in the `.skill`. Deferred on exactly the
+logic of item 5's remainder — a future `graphify extract` picks all of it up. **Do not hand-stamp the
+manifest** (see item 5's positive control: `ast_hash` must equal the stored md5 on 119/120 rows).
+**Not blocking P2…P6.**
 
 ## 2026-10-30 — Maintenance pass 2: C+ cut applied, installer prune, anchors repaired (COMPLETE)
 
@@ -877,10 +918,56 @@ Substitutions: ChaosScatter for scatter; PhysX / Max particles for physics; inst
 
 ---
 
-## Dangling references still routing to bogus tools internally
-Flagged in `references/00-audit-p1.md` §7, not yet fixed (outside P1's file ownership):
-`nurbs-complete-guide.md`, `nurbs-architecture-recipes.md`, `arch-modifiers-and-procedural-reference.md`,
-`architecture-exterior-pipelines.md`, `curve-construction.md`, `maxscript-animation-controllers.md`.
+## Dangling references routing to absent tools — CLOSED 2026-10-30
+
+The register previously at this heading listed six `references/*.md` files as "flagged in
+`references/00-audit-p1.md` §7, not yet fixed (outside P1's file ownership)". Re-checked per row,
+evidence in `Audit/_dangling-register-recheck.md`. **Both halves of that sentence were wrong:** §7 is
+"What this audit does not authorise" and lists no dangling references (the real source is §3's
+per-file verdict table plus §4.1), and **three of the six rows were already clean.**
+
+178 absent-tool / absent-global token occurrences across the seven relevant files now classify as
+**154 NEGATION · 24 FENCED · 0 LIVE ROUTE**. Four real live routes were found and fixed; no OBSOLETE
+router was added anywhere.
+
+| Row | Verdict | Evidence |
+|---|---|---|
+| `nurbs-complete-guide.md` | **FIXED** — `:3` offered `execute_python` as a co-equal entry point with `execute_maxscript`; that tool is not in the catalog and appears nowhere else in the repo | fixed in place, the file's own parenthetical-negation style |
+| `nurbs-architecture-recipes.md` | **STALE — was already clean.** 26/26 hits are negations (`:6`, `:12` banners; `:16`–`:18` table `Why` column; `:144`/`:201`; `:397`) | — |
+| `arch-modifiers-and-procedural-reference.md` | **FIXED** — `:7` and `:79` both routed to `set_modifier_property`, which `02-mcp-live-orchestration.md:264` already states does not exist (`:22` names it only inside a retraction quote → NEGATION) | substitutes quoted from `02-mcp…:264`–`266`: `inspect_modifier_properties` + `execute_maxscript`, or `batch_modify` |
+| `architecture-exterior-pipelines.md` | **FIXED** — `:122` asserted "`draw_spline` + `add_modifier` … (both tools exist)", contradicting its own `:8` banner and `_closeout-evidence.md:20` | the other 69 hits are negations. `add_offset` also **upgraded from UNVERIFIED to measured-absent** the same day |
+| `curve-construction.md` | **STALE — closed 2026-10-06.** Head OBSOLETE banner `:3`–`:14`, "Absent tool → Verified route" table `:37`–`:45`, divider `:87`–`:93`; the 9 hits below it are FENCED by the file's own declaration | — |
+| `maxscript-animation-controllers.md` | **STALE — never belonged in this register.** 0 hits; `00-audit-p1.md` §3 groups it under **DEDUPE**, not dangling tools | — |
+| `procedural-graphs.md` *(not registered)* | **Coherent as `AGENTS.md` describes** — split, no whole-file router: live Data Channel half `:31`–`:48` + section-level OBSOLETE router `:52`–`:56` fencing all 15 MCG hits | no edit |
+
+**Orchestrator's independent confirmation (live catalog, metadata only — no Max call).** An exact-name
+probe returns **0** matches for `execute_python`, `set_modifier_property`, `draw_spline` and
+`add_offset`, and **exact matches** for `execute_maxscript`, `add_modifier`, `set_object_property`,
+`inspect_modifier_properties`, `batch_modify`, `add_data_channel`, `clone_objects` — so the probe
+discriminates, and every substitute the fixes introduce is itself a real tool (a fix that routed to a
+new absent name would have been the same defect twice). Note the near-misses the catalog contains:
+`set_modifier_state`, `set_object_property`, `set_material_property` — which is exactly how a
+`set_modifier_property` route survives a casual read.
+
+**Method note that matters more than the verdicts.** Two of the four defects were invisible to any
+scan built from `AGENTS.md`'s absent-tool inventory, because `execute_python` and
+`set_modifier_property` are not in it — the orchestrator's own crude pre-scan missed **2 of 4** for
+that reason. They were found only by diffing every backticked identifier in the seven files against
+the **live tool catalog** (104 identifiers → 80 unregistered → 2 tool-shaped and unguarded).
+**Any future re-check must derive its inventory from the catalog, not from a hand-maintained list.**
+Two controls prove the classifier can fire: with the routers stripped from the files' own retained
+pre-fix bodies it reports **6 and 11** LIVE ROUTE hits, which is what makes the 24 FENCED verdicts
+load-bearing rather than convenient.
+
+**Vocabulary correction.** `scatter_forest_pack`, all 14 `tyflow_*` and `get_railclone_style_graph`
+**are registered tools** — real tools over absent plugins. They are not "bogus tool names" and must
+not be listed as such; the correct statement is the one `AGENTS.md` already makes (never call them,
+the plugins are absent).
+
+**Still unsettled, deliberately not edited:** `cosmos_*` is hedged as UNVERIFIED in
+`architecture-exterior-pipelines.md` though the catalog settles it as absent — outside a LIVE ROUTE
+fix, so it stays recorded in the artifact rather than silently changed. The identifier sweep keyed on
+backticks; a bare-word mention would slip through (a regex sweep found none).
 
 ---
 

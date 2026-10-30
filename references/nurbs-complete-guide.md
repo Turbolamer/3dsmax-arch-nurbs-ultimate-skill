@@ -1,6 +1,6 @@
 # NURBS Modeling in 3ds Max — Complete MAXScript & MCP Agent Reference
 
-> **Purpose:** Authoritative reference for creating, inspecting, modifying, trimming, and tessellating NURBS curves and surfaces in Autodesk 3ds Max (2023–2027) via `execute_maxscript` / `execute_python` within `3dsmax-mcp`.
+> **Purpose:** Authoritative reference for creating, inspecting, modifying, trimming, and tessellating NURBS curves and surfaces in Autodesk 3ds Max (2023–2027) via `execute_maxscript` within `3dsmax-mcp`. (**There is no `execute_python` tool in this bridge** — it is not in the connected tool list, and nothing in this repo ever executed it. `execute_maxscript` is the only execution route.)
 > Read this file before authoring any `NURBSSet` or manipulating `Editable Surface` / `NURBS` scene nodes.
 
 ---

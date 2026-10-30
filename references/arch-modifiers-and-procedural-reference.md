@@ -4,7 +4,7 @@
 > **There is no `mcg_*` tool in the connected toolset** — verified by direct inspection of the
 > live tool list, not inferred. MCG cannot be driven from this bridge. See §3.
 
-> **Purpose:** Exact MAXScript/MCP class names, parameter names, enum integers, and architectural recipes for modifiers (`add_modifier`, `set_modifier_property`) and **Data Channel** (`add_data_channel`).
+> **Purpose:** Exact MAXScript/MCP class names, parameter names, enum integers, and architectural recipes for modifiers (`add_modifier`) and **Data Channel** (`add_data_channel`). **There is no `set_modifier_property` tool** in the connected toolset — `references/02-mcp-live-orchestration.md` §4.6 records the verified route instead: `add_modifier` takes a `params` string, and post-hoc edits go through `inspect_modifier_properties` to learn real parameter names, then `execute_maxscript` to write them (or `batch_modify` for one uniform property across many objects).
 >
 > **2026-10-04 correction.** The original purpose line advertised a third subject,
 > **Max Creation Graph (`mcg_*`)**. **No `mcg_*` tool and no `curve_model` tool exist in the
@@ -76,8 +76,11 @@
 > - Unmarked cells were not falsified. Absence of a marker means "not shown wrong by this
 >   pass", **not** "exhaustively verified".
 
-When calling `add_modifier(name=..., modifier=..., params=...)` or `set_modifier_property`, use
-the class name and parameter names in the table below:
+When calling `add_modifier(name=..., modifier=..., params=...)` — **there is no
+`set_modifier_property` tool**, so post-hoc parameter edits go through
+`inspect_modifier_properties` + `execute_maxscript` (§4.6 of
+`references/02-mcp-live-orchestration.md`) — use the class name and parameter
+names in the table below:
 
 | Architectural Purpose | MAXScript Modifier Class | Key Parameters (`params`) & Notes |
 | :--- | :--- | :--- |

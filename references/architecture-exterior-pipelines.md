@@ -119,8 +119,12 @@ centres on `pos.x/y` and **the base sits at `pos.z`**, which stays true after `c
 `baseObject` assignment and after rotation. To centre a box vertically write
 `pos = [cx, cy, cz - height/2]`.
 
-**UNVERIFIED-from-source:** `draw_spline` + `add_modifier` as a two-tool sequence (both tools
-exist; that pairing is not something a transcript covers), and `add_offset` as a bridge tool name.
+**UNVERIFIED-from-source:** `draw_spline` + `add_modifier` as a two-tool sequence (**`draw_spline`
+is absent** — banner above, and `references/_closeout-evidence.md` records it absent — so only
+`add_modifier` exists and the pairing cannot be run at all). **`add_offset` is absent too** — no
+longer merely UNVERIFIED: measured against the live tool catalog on 2026-10-30, an exact-name probe
+returns **0 matches** for `add_offset` while returning exact matches for `add_modifier`,
+`clone_objects` and `inspect_modifier_properties` in the same batch, so the probe discriminates.
 
 ### 2.2 Openings in solid walls — **do not use a Boolean**
 
