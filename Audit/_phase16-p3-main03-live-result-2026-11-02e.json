@@ -1,0 +1,20 @@
+{
+  "artifact_run": "Audit/phase16-p3-main-build-2026-11-02e/Main03",
+  "approved_script_sha256": "91274ffbb1cb9491c6b5fd511ceb238346f45434e56c2d6b467753a7cbdaaf28",
+  "approved_manifest_sha256": "59aa9741db9a40a8c593623e898fa956a4d061781bc695d30b5306b0b3e6565b",
+  "approved_arm_sha256": "825707e3bec8ec3efa48b971a442bd2941379ea5b1121c1871572182aabb6a61",
+  "approved_held_wrapper_sha256": "c09d122744cb2475fd8c5679e7797026b9a5e905a44e6e3a8fafddc23324597c",
+  "pair_and_arm_wrapper_bytes_independently_verified_before_attempt": true,
+  "fresh_state_request": "44de2aef6dfd4d3498b8a07f72aa0263",
+  "fresh_state": "objects0 selection0 unnamed millimeters/1.0",
+  "registry_key": "__P3W_2a27162292203d7e9f982ae655c3a5b20af18a9044b039a105222a09bdf7eff7",
+  "wire": {
+    "ok": true,
+    "result": "P3_MAIN03_AUTHENTIC_ATTEMPT|armed=true|EXCEPTION=-- Runtime error: -- Unable to convert: <MixinInterface:LayerProperties> to type: MaxObject|leaseState=POISONED|witnessStill=true|objectsAfter=0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "59a61aaa30f84b129588d5ff5b7b063f", "protocol_version": 2, "client_round_trip_ms": 28.705, "fallback_error": null},
+    "elapsed_ms": 28.727
+  },
+  "verdict": "FAILED_INITIAL_BASELINE_SAFE_CLEANUP_NOT_ACCEPTED",
+  "interpretation": "Actual authentic emitted geometry pair was loaded through hash-verified read-held wrapper after successful explicit arm. Candidate exact baseline failed on LayerProperties MixinInterface->MaxObject, not class absence. Runtime deleted only its attempted exact node; observed final objects0. Exact witness survived in POISONED state and was intentionally retained; no automatic re-arm/removal. No accepted produced wall remains and no independent final F01 wall measurement exists. Safe NOOP and broad native-metadata readback remain blocked. Successful small probes/offline suites cannot replace these gates."
+}

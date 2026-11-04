@@ -1,0 +1,144 @@
+{
+  "timestamp_utc": "2026-11-02T21:33:34.636801+00:00",
+  "recording_status": "RECORDED_REQUIRES_REVIEW",
+  "recorder_exit_code": 0,
+  "acceptance": "NOT_ASSESSED",
+  "complete_phase16_or_p3": false,
+  "output_directory": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-final2-2026-11-02e",
+  "expected_discovered_scripts": 7,
+  "executed_scripts": 7,
+  "all_discovered_executed": true,
+  "not_run": [],
+  "required_not_available": [],
+  "nonzero_or_unexecuted_returncodes": [],
+  "required_suite_execution": [
+    {
+      "test": "Audit/test_phase16_p3_builder.py",
+      "status": "EXECUTED_REQUIRES_REVIEW",
+      "observed_unittest_counts_not_totals": [
+        34
+      ],
+      "main_reported_prior_test_count_not_current_evidence": 34,
+      "acceptance": "NOT_ASSESSED"
+    },
+    {
+      "test": "Audit/test_phase16_p3_independent.py",
+      "status": "EXECUTED_REQUIRES_REVIEW",
+      "observed_unittest_counts_not_totals": [
+        22
+      ],
+      "main_reported_prior_test_count_not_current_evidence": null,
+      "acceptance": "NOT_ASSESSED"
+    },
+    {
+      "test": "Audit/test_phase16_p3_inputs.py",
+      "status": "EXECUTED_REQUIRES_REVIEW",
+      "observed_unittest_counts_not_totals": [
+        38
+      ],
+      "main_reported_prior_test_count_not_current_evidence": 31,
+      "acceptance": "NOT_ASSESSED"
+    },
+    {
+      "test": "Audit/test_phase16_p3_oracle.py",
+      "status": "EXECUTED_REQUIRES_REVIEW",
+      "observed_unittest_counts_not_totals": [
+        65
+      ],
+      "main_reported_prior_test_count_not_current_evidence": 65,
+      "acceptance": "NOT_ASSESSED"
+    },
+    {
+      "test": "Audit/test_phase16_p3_publication.py",
+      "status": "EXECUTED_REQUIRES_REVIEW",
+      "observed_unittest_counts_not_totals": [
+        42
+      ],
+      "main_reported_prior_test_count_not_current_evidence": 39,
+      "acceptance": "NOT_ASSESSED"
+    },
+    {
+      "test": "Audit/test_phase16_p3_runtime.py",
+      "status": "EXECUTED_REQUIRES_REVIEW",
+      "observed_unittest_counts_not_totals": [
+        42
+      ],
+      "main_reported_prior_test_count_not_current_evidence": 40,
+      "acceptance": "NOT_ASSESSED"
+    }
+  ],
+  "required_suite_coverage_qualifications": [],
+  "all_required_suite_sources_present": true,
+  "all_required_suites_have_positive_execution_evidence": true,
+  "frozen_generated_pairs": [
+    {
+      "directory": "Audit/phase16-p3-live-controls-2026-11-02e/offline-authority-01/clean",
+      "files": {
+        "wall_surface.json": {
+          "state": "FILE",
+          "sha256": "d0c0ad8a6a0610c06f7e8ec5643c04240980ff70185f4e238d28fc0fd2db8432",
+          "size": 5411
+        },
+        "wall_surface.ms": {
+          "state": "FILE",
+          "sha256": "877176facc98b14dfb332cc3d088f2c2409f28c09f71b4074533624c79a4b4bc",
+          "size": 22921
+        }
+      },
+      "status": "PAIR_BYTES_HASHED_NOT_ACCEPTED"
+    },
+    {
+      "directory": "Audit/phase16-p3-main-build-2026-11-02e/Main01/published",
+      "files": {
+        "wall_surface.json": {
+          "state": "FILE",
+          "sha256": "71c71bb66eb4f887863bc29b5e718340c22cb163fcb176d5c5299f6b9b0278f4",
+          "size": 5383
+        },
+        "wall_surface.ms": {
+          "state": "FILE",
+          "sha256": "9df84585dadc25ba4e76e2d756cae8fee2714555f0e0f72d1f1643804fd9b37b",
+          "size": 22893
+        }
+      },
+      "status": "PAIR_BYTES_HASHED_NOT_ACCEPTED"
+    },
+    {
+      "directory": "Audit/phase16-p3-main-build-2026-11-02e/Main02/published",
+      "files": {
+        "wall_surface.json": {
+          "state": "FILE",
+          "sha256": "b22988ac2c48b41525d87b7638b18a87fcd2dd193a7732af691183c4b43c9f04",
+          "size": 5383
+        },
+        "wall_surface.ms": {
+          "state": "FILE",
+          "sha256": "8ce25e8aa297cf8939fdb790979bd20e8cbd6f2074f6450261a26e9cad247a54",
+          "size": 22893
+        }
+      },
+      "status": "PAIR_BYTES_HASHED_NOT_ACCEPTED"
+    },
+    {
+      "directory": "Audit/phase16-p3-main-build-2026-11-02e/Main03/published",
+      "files": {
+        "wall_surface.json": {
+          "state": "FILE",
+          "sha256": "59aa9741db9a40a8c593623e898fa956a4d061781bc695d30b5306b0b3e6565b",
+          "size": 5383
+        },
+        "wall_surface.ms": {
+          "state": "FILE",
+          "sha256": "91274ffbb1cb9491c6b5fd511ceb238346f45434e56c2d6b467753a7cbdaaf28",
+          "size": 23741
+        }
+      },
+      "status": "PAIR_BYTES_HASHED_NOT_ACCEPTED"
+    }
+  ],
+  "source_drift": [],
+  "baseline_problems": [],
+  "git_head_before": "7951e3f584be83e7655072a11bb193c1982128fe",
+  "git_head_after": "7951e3f584be83e7655072a11bb193c1982128fe",
+  "note": "Zero is recorder health only, NEVER acceptance. Review raw logs and every SKIP/xfail/observation; no live/produced-poly evidence is inferred. P2 suites are not rerun. A changed tree stops the batch and fails it."
+}

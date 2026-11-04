@@ -1,0 +1,26 @@
+test_arm_cleanup_requires_exact_published_instance_and_reports_failure (__main__.ProtectiveSourceTests.test_arm_cleanup_requires_exact_published_instance_and_reports_failure) ... ok
+test_attempt_refs_captured_before_next_risky_operation (__main__.ProtectiveSourceTests.test_attempt_refs_captured_before_next_risky_operation) ... ok
+test_cleanup_never_promotes_handle_or_deletes_exact_node (__main__.ProtectiveSourceTests.test_cleanup_never_promotes_handle_or_deletes_exact_node) ... ok
+test_commit_is_construction_marker_not_replay_acceptance (__main__.ProtectiveSourceTests.test_commit_is_construction_marker_not_replay_acceptance) ... ok
+test_conversion_candidate_saved_before_continuity_check (__main__.ProtectiveSourceTests.test_conversion_candidate_saved_before_continuity_check) ... ok
+test_dirty_arm_and_prior_unresolved_refuse_before_building (__main__.ProtectiveSourceTests.test_dirty_arm_and_prior_unresolved_refuse_before_building) ... ok
+test_extracted_status_branch_truth_table (__main__.ProtectiveSourceTests.test_extracted_status_branch_truth_table) ... ok
+test_local_nonce_copy_is_rechecked_but_not_called_independent (__main__.ProtectiveSourceTests.test_local_nonce_copy_is_rechecked_but_not_called_independent) ... ok
+test_mutable_user_buffer_is_copied_before_baseline (__main__.ProtectiveSourceTests.test_mutable_user_buffer_is_copied_before_baseline) ... ok
+test_no_candidate_return_and_unknown_census_are_incomplete (__main__.ProtectiveSourceTests.test_no_candidate_return_and_unknown_census_are_incomplete) ... ok
+test_observed_census_records_exact_objects_for_manual_inspection (__main__.ProtectiveSourceTests.test_observed_census_records_exact_objects_for_manual_inspection) ... ok
+test_partial_cheap_checks_precede_evaluation_but_are_not_complete (__main__.ProtectiveSourceTests.test_partial_cheap_checks_precede_evaluation_but_are_not_complete) ... ok
+test_pre_gate_snapshot_is_exact_previous_runtime_hash (__main__.ProtectiveSourceTests.test_pre_gate_snapshot_is_exact_previous_runtime_hash) ... ok
+test_precreate_guard_removal_is_detected_by_independent_control (__main__.ProtectiveSourceTests.test_precreate_guard_removal_is_detected_by_independent_control) ... ok
+test_preedit_snapshot_is_exact_settled_hash (__main__.ProtectiveSourceTests.test_preedit_snapshot_is_exact_settled_hash) ... ok
+test_replay_branch_and_create_entry_have_no_guard_bypass (__main__.ProtectiveSourceTests.test_replay_branch_and_create_entry_have_no_guard_bypass) ... ok
+test_replay_is_incomplete_before_node_inspection_or_mutation (__main__.ProtectiveSourceTests.test_replay_is_incomplete_before_node_inspection_or_mutation) ... ok
+test_required_fields_refuse_instead_of_absent_equals_absent (__main__.ProtectiveSourceTests.test_required_fields_refuse_instead_of_absent_equals_absent) ... ok
+test_runtime_documents_independent_witness_not_self_authentication (__main__.ProtectiveSourceTests.test_runtime_documents_independent_witness_not_self_authentication) ... ok
+test_snapshot_disposal_unknown_propagates_into_outer_status (__main__.ProtectiveSourceTests.test_snapshot_disposal_unknown_propagates_into_outer_status) ... ok
+test_temporary_precreate_guard_precedes_every_scene_or_lease_mutation (__main__.ProtectiveSourceTests.test_temporary_precreate_guard_precedes_every_scene_or_lease_mutation) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.006s
+
+OK

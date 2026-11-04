@@ -126,9 +126,9 @@ longer merely UNVERIFIED: measured against the live tool catalog on 2026-10-30, 
 returns **0 matches** for `add_offset` while returning exact matches for `add_modifier`,
 `clone_objects` and `inspect_modifier_properties` in the same batch, so the probe discriminates.
 
-### 2.2 Openings in solid walls — **do not use a Boolean**
+### 2.2 Wall Construction & Openings — **do not use a Boolean**
 
-> **This subsection is superseded in place.** It prescribed `boolean_operation` with inline
+> **This subsection is superseded in place.** It historically prescribed `boolean_operation` with inline
 > cutters. That route does not work here, and the failure is silent rather than loud.
 >
 > **Measured:** the **Boolean modifier cannot be made to cut in this build.** `Boolean()` throws,
@@ -138,9 +138,17 @@ returns **0 matches** for `add_offset` while returning exact matches for `add_mo
 > own iterations and read `cut_count = 16` against a scene with **zero** modifiers (`G-81`,
 > `agents/max-assembly.md` AP-22).
 
-**The verified route — build the wall out of solid cells and never cut it.** Emit one `Box` per
-`wall_cells[]` row, each spanning the wall's full thickness:
+#### A. Production Architecture: `closed_inner_contour_shell_v2` (Accepted Default)
+The production architecture builds continuous storey perimeter walls at stage **S4w** (`references/10-wall-generation-pipeline.md`, `references/20-closed-contour-shell-v2-contract.md`):
+1. **Preserved Guide Spline:** Emits unrendered reference `SplineShape` (`<id>_InnerSpline`) tracking floor boundary.
+2. **Continuous Perimeter Poly:** Single `Editable_Poly` ribbon per floor with shared vertex indices at corner seams (valence = 2) and unified storey/opening Z levels.
+3. **Rough Opening Excision:** Opening faces are removed before thickness is applied, completely avoiding Boolean cutters.
+4. **Single Outward Shell:** Exactly one `Shell` modifier with `innerAmount = 0.0`, `outerAmount = wall_thickness_cm`, `straightenCorners = true`, `segments = 1`.
+5. **Watertight Solid:** Manifold mesh with strictly `openEdges == 0`, verified by independent analytical volume oracle in S7 QA.
+6. **Mounting via Manifest:** S5 mounts window/door assemblies using opening manifest local frames $(\vec{T}, \vec{N}_{\text{outward}}, \vec{Z}_{\text{up}})$ with Mechanism A host wall hiding (`host_node.isHidden = true`).
 
+#### B. Preserved Legacy Route: `legacy_cells_v1`
+Build the wall out of solid cells and never cut it. Emit one `Box` per `wall_cells[]` row, each spanning the wall's full thickness:
 1. For each host `facade_wall`, take **its own** `profile_cm` extent — not the opening's centre.
 2. Cut at every opening's `u` boundary to get **columns**.
 3. Inside each column, cut at the `v` boundaries of the openings covering it to get **rows**.
@@ -151,9 +159,12 @@ returns **0 matches** for `add_offset` while returning exact matches for `add_mo
 The opening is therefore passed through cleanly — which is what `G-83` asserts rather than assumes.
 The old "cut depth ≥ 2× the wall thickness" advice is **moot**: there is no cutter.
 
-Two invariants a rerun must reproduce: every `dimensions.json` opening has **exactly one** cut and
+Two invariants a rerun must reproduce in the legacy route: every `dimensions.json` opening has **exactly one** cut and
 every cut exactly one opening — orphans fail in **both** directions (`G-77`); and per host,
 `Σ cell volume == wall volume − openings volume` within tolerance (`G-82`, `G-83`).
+
+#### C. Route Invariant
+Every project specifies its route in `walls.json` and echoes it in `assembly.json`. Conflicting, missing, or invalid selectors fail closed immediately; no silent fallback is permitted between routes.
 
 **UNVERIFIED-from-source:** the original's `mesh_edit` route (`inset` / `bridge` / `extrude` to keep
 100% quad topology and automatic Material IDs on window reveals). `inspect_mesh` and `mesh_edit` do

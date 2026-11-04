@@ -1,0 +1,9 @@
+{
+  "scope":"Main-only candidate controller/graph probe: PARSE FAILURE, not executed geometry and not API absence",
+  "script":"Audit/phase16-p3-main-probes-2026-11-03f/controller-graph.ms",
+  "script_sha256":"85ff2e65de58b79b525fc9af19d2a30eb68a46c2e0e07ee9791553b7df51d372",
+  "precheck":{"ok":true,"result":"P3_CONTROLLER_PRECHECK|objects=0|selection=0|file=|units=millimeters/1.0|dirty=false|layers=1|oldKey=false","error":null,"request_id":"0f8ee368cdb145058b1919ac0f40077a","elapsed_ms":0.451},
+  "fileIn":{"ok":false,"result":null,"warnings":[],"error":{"type":"MAXScriptError","message":"-- Syntax error: at else, expected <factor>\n--  In line:     else o"},"request_id":"a6f912fe0740424da9df66d5e2987473","elapsed_ms":1.806},
+  "postcheck":{"ok":true,"result":"P3_CONTROLLER_AFTER_PARSE|objects=0|selection=0|file=|units=millimeters/1.0|dirty=false|layers=1|oldKey=false","error":null,"request_id":"0479cec8e3484b8fa24b7e2cd3803b91","elapsed_ms":0.366},
+  "interpretation":"Candidate does not parse; no controller or cleanup success is inferred. The reported else follows 'if ... do' rather than 'if ... then'. Postcheck confirms zero nodes; preserve this exact failed file and use a separately named corrected candidate if needed."
+}

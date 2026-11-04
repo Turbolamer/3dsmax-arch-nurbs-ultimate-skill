@@ -494,7 +494,7 @@ totalLen = curveLength $MySpline 1  -- curve index 1
 - `getCurrentException()` inside a `catch` **works**. The note here previously claimed it throws
   *itself*, turning a catchable error into a script abort — that was **withdrawn 2026-10-05 as
   false** (6 of 6 throw kinds returned a real message, with a non-throw control) and was
-  re-confirmed 2026-10-27 (`Audit/EVIDENCE_2026-10-27.md`). Do not avoid the call on the
+  re-confirmed 2026-10-27 (historical measurement). Do not avoid the call on the
   strength of the old note. Use the flag form `local threw = false` / `catch ( threw = true )`
   only when a boolean verdict is all you need.
 - In/out vectors are absolute handle positions, NOT relative direction vectors.

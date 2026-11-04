@@ -1,0 +1,15 @@
+test_control (__main__.Control.test_control) ... FAIL
+
+======================================================================
+FAIL: test_control (__main__.Control.test_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-recorder-next-2026-11-03f\selftest-run-001\fail\Audit\test_phase16_p3_control.py", line 4, in test_control
+    self.assertEqual(2 + 2, 5)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+AssertionError: 4 != 5
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

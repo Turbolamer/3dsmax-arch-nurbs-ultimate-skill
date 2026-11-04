@@ -1,0 +1,103 @@
+{
+  "actual_precondition": "millimeters/1; do not change scene units",
+  "cases": [
+    {
+      "arm": "NOT_USED",
+      "case": "expected_cm1",
+      "identity": "aa66c7932f5fe55f3f0e03881b2c4f54ae97163088fcce56dd0fe2d3e96fb37b",
+      "main_path": "MAIN_Cm1.ms",
+      "namespace": "P3Unit03_Cm1",
+      "production_acceptance": false,
+      "registry": "__P3W_55964b6ee8310451e59a3c8d1fbad241fdb5100e509f57bb47feb47fe3b43357",
+      "runtime_script": "expected_cm1.ms",
+      "runtime_sha256": "6557943da49a9d0ef35144c373bf113fc741e2f5b2856899f5e8aa16f5800e55",
+      "target_reason": "SystemType mismatch",
+      "wrapper_sha256": "b0a956ba26115cf4da2af6e2bc3400a65d30578d105ab55ed9d8c92b870bda4e"
+    },
+    {
+      "arm": "NOT_USED",
+      "case": "NEGATIVE_MUTATED_type_only_same_factor",
+      "identity": "ee2f149c102e7efb3da1d9c8fa42cf1aee85772d0f1add7d2c168fce656df602",
+      "main_path": "MAIN_TypeOnly.ms",
+      "namespace": "P3Unit03_TypeOnly",
+      "production_acceptance": false,
+      "registry": "__P3W_957d2605b4f4d5af3a8f7e5de7fcd83c2659cc0e14be2dacb11855a8217886c3",
+      "runtime_script": "NEGATIVE_MUTATED_type_only_same_factor.ms",
+      "runtime_sha256": "c097cc4e7648e9e2a691244600c663dbd2813d4f30cea8d539e3e2fcc39228fd",
+      "target_reason": "SystemType mismatch",
+      "wrapper_sha256": "d693fef8b039146fc20c93582b0eb1883457f7f279fa8958e9485b132c12e37d"
+    },
+    {
+      "arm": "NOT_USED",
+      "case": "NEGATIVE_MUTATED_stored_factor",
+      "identity": "edfe77ec5daf8de01dcd80fa1d5ed373c3a4383838e35606ef9f95fa65e173c2",
+      "main_path": "MAIN_Factor.ms",
+      "namespace": "P3Unit03_Factor",
+      "production_acceptance": false,
+      "registry": "__P3W_cd2a8f7024233cf68dacb3d617052da23addf89746bb804b0e5c47adf430bdcf",
+      "runtime_script": "NEGATIVE_MUTATED_stored_factor.ms",
+      "runtime_sha256": "c1d4fe57fc7d05c9f0a8b71cf11e8fffa94b7f4a735934e90f4d5df5e58df963",
+      "target_reason": "computed unit factor mismatch",
+      "wrapper_sha256": "76f012f49df55155cef5a7869e27d0dc91e1d2b68f845ecfd0e66c858403152f"
+    }
+  ],
+  "cm_0p1_offline_refusal": "expected SystemScale must be exactly representable in Max Float32",
+  "files": {
+    "MAIN_Cm1.ms": "b0a956ba26115cf4da2af6e2bc3400a65d30578d105ab55ed9d8c92b870bda4e",
+    "MAIN_Factor.ms": "76f012f49df55155cef5a7869e27d0dc91e1d2b68f845ecfd0e66c858403152f",
+    "MAIN_TypeOnly.ms": "d693fef8b039146fc20c93582b0eb1883457f7f279fa8958e9485b132c12e37d",
+    "NEGATIVE_MUTATED_stored_factor.ms": "c1d4fe57fc7d05c9f0a8b71cf11e8fffa94b7f4a735934e90f4d5df5e58df963",
+    "NEGATIVE_MUTATED_type_only_same_factor.ms": "c097cc4e7648e9e2a691244600c663dbd2813d4f30cea8d539e3e2fcc39228fd",
+    "expected_cm1.ms": "6557943da49a9d0ef35144c373bf113fc741e2f5b2856899f5e8aa16f5800e55"
+  },
+  "old_files_unchanged": true,
+  "preserved_old_files_after": {
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\MAIN_Cm1.ms": "fadad85b6293822c7c10b9f7058d45b2b4860fb70210392e010d72b4edd86cbf",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\MAIN_Factor.ms": "a56442d6930247c4d0ad7fe674040acccbb27a607d28b537102f92260bc24faa",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\MAIN_TypeOnly.ms": "ab379bd6efca074a70319132746141cf3b33e505e08e303337803e137f2c5e83",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\NEGATIVE_MUTATED_stored_factor.ms": "51fe568ed47ea7ebdfbd669654745398f53f3258e5953f2b45eb475de54e0111",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\NEGATIVE_MUTATED_type_only_same_factor.ms": "ba8a2dc04295e3f52eb1b422d0dc2432a15b6d29c99eecd1419e6193adab7fd9",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\expected_cm1.ms": "dc6a51d712e40fa0bdc57ced164986d0589ab1197deae144d41ffadefecae054",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\unit-control-index.json": "a3165c49ad1f8c5b318473779f83775fd51ccc7bf378601e4435b7834fc0b78f",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\MAIN_Cm1.ms": "6286324004392eaec83924d94606f03f333581e11ed8d8e34e9025ecac456762",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\MAIN_Factor.ms": "5e73e432205139c13b8cced3cd7d0f56aa73e0801643b57fe3bc4ba9ad91c313",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\MAIN_TypeOnly.ms": "8e21615dddf66a8dc0714978b377a768e48ae85484222ad6b0a4c0bc0f36d549",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\NEGATIVE_MUTATED_stored_factor.ms": "0a1391b0c608c551451f78868b427f365179b0b19ab62bbc11e7e25713874cf5",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\NEGATIVE_MUTATED_type_only_same_factor.ms": "7aa861a0c4c2b5873f6a9bd719f38f10b64fa72aa1fa2519c1ad39de2197a4cf",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\expected_cm1.ms": "4c7b5edb0808465be531bae203b90f91ad908dcb3f2dab14159e327f9a787562",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\unit-control-index.json": "f3616735003fd48d3e50d679c046fac451646e8ae4e858167325a12400c62320"
+  },
+  "preserved_old_files_before": {
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\MAIN_Cm1.ms": "fadad85b6293822c7c10b9f7058d45b2b4860fb70210392e010d72b4edd86cbf",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\MAIN_Factor.ms": "a56442d6930247c4d0ad7fe674040acccbb27a607d28b537102f92260bc24faa",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\MAIN_TypeOnly.ms": "ab379bd6efca074a70319132746141cf3b33e505e08e303337803e137f2c5e83",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\NEGATIVE_MUTATED_stored_factor.ms": "51fe568ed47ea7ebdfbd669654745398f53f3258e5953f2b45eb475de54e0111",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\NEGATIVE_MUTATED_type_only_same_factor.ms": "ba8a2dc04295e3f52eb1b422d0dc2432a15b6d29c99eecd1419e6193adab7fd9",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\expected_cm1.ms": "dc6a51d712e40fa0bdc57ced164986d0589ab1197deae144d41ffadefecae054",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-01\\unit-control-index.json": "a3165c49ad1f8c5b318473779f83775fd51ccc7bf378601e4435b7834fc0b78f",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\MAIN_Cm1.ms": "6286324004392eaec83924d94606f03f333581e11ed8d8e34e9025ecac456762",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\MAIN_Factor.ms": "5e73e432205139c13b8cced3cd7d0f56aa73e0801643b57fe3bc4ba9ad91c313",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\MAIN_TypeOnly.ms": "8e21615dddf66a8dc0714978b377a768e48ae85484222ad6b0a4c0bc0f36d549",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\NEGATIVE_MUTATED_stored_factor.ms": "0a1391b0c608c551451f78868b427f365179b0b19ab62bbc11e7e25713874cf5",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\NEGATIVE_MUTATED_type_only_same_factor.ms": "7aa861a0c4c2b5873f6a9bd719f38f10b64fa72aa1fa2519c1ad39de2197a4cf",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\expected_cm1.ms": "4c7b5edb0808465be531bae203b90f91ad908dcb3f2dab14159e327f9a787562",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-live-controls-2026-11-02e\\unit-main-02\\unit-control-index.json": "f3616735003fd48d3e50d679c046fac451646e8ae4e858167325a12400c62320"
+  },
+  "replay": "INCOMPLETE_REPLAY; not tested or accepted here",
+  "runtime_final_sha256": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15",
+  "sources_after": {
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-f01-input-2026-11-02e\\project\\dimensions.json": "985bd129c01537c5bb5b0632054fe7f24e53237db0a2a4b9bbc01b544e8dfa26",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-f01-input-2026-11-02e\\project\\walls.json": "bbd433c76b83a709845c9a20941414bbadc786dbe6ceac907f9259d9876bfa9f",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\scripts\\scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\scripts\\wall_surface_runtime.py": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15"
+  },
+  "sources_before": {
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-f01-input-2026-11-02e\\project\\dimensions.json": "985bd129c01537c5bb5b0632054fe7f24e53237db0a2a4b9bbc01b544e8dfa26",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-f01-input-2026-11-02e\\project\\walls.json": "bbd433c76b83a709845c9a20941414bbadc786dbe6ceac907f9259d9876bfa9f",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\scripts\\scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\scripts\\wall_surface_runtime.py": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15"
+  },
+  "sources_unchanged": true,
+  "status": "PREPARED_OFFLINE_NOT_EXECUTED",
+  "type_only_scope": "NEGATIVE MUTATED expected TYPE only; keeps mm/1 expected scale/factors; NOT legitimate cm/.1"
+}

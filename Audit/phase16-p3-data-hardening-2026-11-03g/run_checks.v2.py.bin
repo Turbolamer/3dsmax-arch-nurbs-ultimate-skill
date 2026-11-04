@@ -1,0 +1,87 @@
+"""Run bounded offline checks and record immutable raw logs in this directory.
+
+Exit 1 if ANY suite fails or an observed input hash changes. Does not execute or
+parse MAXScript, call Max/MCP, write production files, or decide acceptance.
+"""
+from __future__ import annotations
+
+import ast
+from hashlib import sha256
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+inputs = [
+    ROOT / "scripts/wall_surface_runtime.py",
+    HERE / "wall_surface_runtime.pre-edit.py",
+    HERE / "test_data_hardening.py",
+    HERE / "run_checks.py",
+    ROOT / "Audit/test_phase16_p3_runtime.py",
+    ROOT / "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py",
+    ROOT / "Audit/phase16-p3-metadata-independent-2026-11-03g/REPORT.md",
+]
+
+
+def digest(path):
+    return sha256(path.read_bytes()).hexdigest()
+
+
+def hashes():
+    return {str(p.relative_to(ROOT)).replace("\\", "/"): digest(p) for p in inputs}
+
+
+def exclusive(path, data):
+    with path.open("xb") as out:
+        out.write(data)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2 or sys.argv[1] != "v2":
+        raise SystemExit("expected the one-use output label: v2")
+    prefix = sys.argv[1] + "-"
+    before = hashes()
+    print("Python executable:", sys.executable)
+    print("Python version:", sys.version.replace("\n", " "))
+    parse = {}
+    for path in inputs[:4]:
+        try:
+            ast.parse(path.read_bytes(), filename=str(path))
+            parse[str(path.relative_to(ROOT)).replace("\\", "/")] = "OK"
+        except (SyntaxError, ValueError) as error:
+            parse[str(path.relative_to(ROOT)).replace("\\", "/")] = str(error)
+    print("Python AST parse:", parse)
+    suites = [
+        ("data-hardening", "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py"),
+        ("precreate-protection", "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py"),
+        ("legacy-runtime", "Audit/test_phase16_p3_runtime.py"),
+    ]
+    results = []
+    for name, relative in suites:
+        command = [sys.executable, "-B", relative]
+        print("Run:", " ".join(command), flush=True)
+        process = subprocess.run(command, cwd=ROOT, capture_output=True, check=False)
+        logs = {}
+        for kind, data in (("stdout", process.stdout), ("stderr", process.stderr)):
+            path = HERE / f"{prefix}{name}.{kind}.log"
+            exclusive(path, data)
+            logs[kind] = {"path": str(path.relative_to(ROOT)).replace("\\", "/"),
+                          "sha256": digest(path), "bytes": len(data)}
+        after = hashes()
+        summary = process.stderr.decode("utf-8", "replace").splitlines()
+        summary = [line for line in summary if line.startswith(("Ran ", "OK", "FAILED"))]
+        print("exit:", process.returncode, "summary:", summary, "input hashes stable:", after == before, flush=True)
+        results.append({"name": name, "command": command, "exit": process.returncode,
+                        "summary": summary, "input_sha256_after": after, "logs": logs})
+    payload = {"python_version": sys.version, "input_sha256_before": before,
+               "python_ast_parse": parse, "suites": results,
+               "input_sha256_after": hashes()}
+    result_path = HERE / f"{prefix}results.json"
+    exclusive(result_path, (json.dumps(payload, indent=2, ensure_ascii=True) + "\n").encode("utf-8"))
+    print("results sha256:", digest(result_path))
+    stable = payload["input_sha256_after"] == before and all(r["input_sha256_after"] == before for r in results)
+    if not stable or any(value != "OK" for value in parse.values()) or any(r["exit"] != 0 for r in results):
+        raise SystemExit(1)

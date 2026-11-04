@@ -1,0 +1,20 @@
+{
+  "recording_status": "FAILED",
+  "recorder_exit_code": 1,
+  "acceptance": "NOT_ASSESSED",
+  "complete_phase16_or_p3": false,
+  "expected_suites": 11,
+  "executed_suites": 11,
+  "not_run": [],
+  "failed_suites": [
+    "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py",
+    "Audit/phase16-p3-replay-tests-2026-11-03f/test_replay_safety.py",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py",
+    "Audit/test_phase16_p3_runtime.py"
+  ],
+  "source_drift": [],
+  "baseline_problems": [],
+  "head_before": "7951e3f584be83e7655072a11bb193c1982128fe",
+  "head_at_exit": "7951e3f584be83e7655072a11bb193c1982128fe",
+  "note": "Inspect raw logs and all snapshots; zero means recorder health only. Exit snapshot is before process exit, not a lock or crash-durability guarantee."
+}

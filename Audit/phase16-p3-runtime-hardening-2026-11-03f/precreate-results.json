@@ -1,0 +1,34 @@
+{
+  "scope": "offline Python/source tests only; no MAXScript execution",
+  "before": {
+    "scripts/wall_surface_runtime.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "19360d8f54ce667e692d2c30ce6be7ea28e5fad1a82d3b79d8fbd95195d7919d",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/run_offline.py": "5c0412a809f73d71b2d1c17bf8ee65a924d2df035be4b4532fa9994b352fcc64",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-edit.py.bin": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-precreate-gate.py.bin": "d9f470754639a78b3fe5478fde91e5c513d7834c9ba8ffecbcff990225b9b08a"
+  },
+  "after": {
+    "scripts/wall_surface_runtime.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "19360d8f54ce667e692d2c30ce6be7ea28e5fad1a82d3b79d8fbd95195d7919d",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/run_offline.py": "5c0412a809f73d71b2d1c17bf8ee65a924d2df035be4b4532fa9994b352fcc64",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-edit.py.bin": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-precreate-gate.py.bin": "d9f470754639a78b3fe5478fde91e5c513d7834c9ba8ffecbcff990225b9b08a"
+  },
+  "stable": true,
+  "results": [
+    {
+      "suite": "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py",
+      "exit_code": 0,
+      "stdout": "precreate-1.stdout.log",
+      "stderr": "precreate-1.stderr.log"
+    },
+    {
+      "suite": "Audit/test_phase16_p3_runtime.py",
+      "exit_code": 1,
+      "stdout": "precreate-2.stdout.log",
+      "stderr": "precreate-2.stderr.log"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "warning: in the working copy of 'CHECKPOINT.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'PLAN.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'references/07-spec-grammar.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/init_project.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/place_components.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/validate_specs.py', LF will be replaced by CRLF the next time Git touches it\n"
+}

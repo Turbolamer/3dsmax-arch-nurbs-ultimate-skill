@@ -1,0 +1,23 @@
+{
+  "scope": "Main-only one-call local struct/array/string calibration followed by a separate read-only postcheck; not a persistent witness, wall lease, production safety gate or acceptance",
+  "candidate": "Audit/phase16-p3-lease-next-2026-11-03f/01-local-calibration.ms",
+  "candidate_sha256": "4146bfd9bde17cdb8096f0e968092288c0f2e41663fa628f8a1586626fc9f39b",
+  "wrapper_scope": "Before fileIn the wrapper checked the unnamed mm/1 scene, zero objects/selection, exactly the empty layer 0, absence of historical Main03 key and dirty=true. It then fileIn-ed the listed candidate and read scene counts and dirty state. It did not create nodes, declare globals, save, reset, clear flags or delete anything.",
+  "wire": {
+    "ok": true,
+    "result": "P16_MAIN_LOCAL_CALIBRATION|admitted=true|dirtyBefore=true|candidate=P16_LOCAL_CALIBRATION_NOT_ACCEPTANCE|structAlias=true|structFreshUnequal=true|valuesAlias=true|valuesFreshUnequal=true|nonceDifferentSameLength=true|detachedExpectedUnchanged=true|nonceInPlaceSourceChanged=true|nonceCopyStayed=true|valuesReplacementSeen=true|realGlobal=true|bogusGlobalAbsent=true|rootRoundtrip=true|sceneContextUnchanged=true|objectsAfter=0|selectionAfter=0|dirtyAfter=true|layersAfter=1",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "c2c8f1cd2f95440cb919c61454a3ba7d", "protocol_version": 2, "client_round_trip_ms": 6.819, "fallback_error": null},
+    "elapsed_ms": 6.847
+  },
+  "postcheck": {
+    "ok": true,
+    "result": "P16_POST_LOCAL_CALIBRATION_READONLY|objects=0|selection=0|path=|file=|units=millimeters|scale=1.0|dirty=true|layers=1|oldKey=false|positiveRoot=true|positiveUnits=true|bogus=false|defaultLayer=0;handle=48P;getNumNodes=0;nodesOK=true;memberCount=0",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "55636d0b213f4709b146ba9283f0abbb", "protocol_version": 2, "client_round_trip_ms": 0.529, "fallback_error": null},
+    "elapsed_ms": 0.552
+  },
+  "interpretation": "For this one local invocation, equal-payload separately constructed structs and arrays compared distinct, aliases compared equal, swapping the array was detected, and a copy of one string remained unchanged after the source string's first character was mutated. Root and selected scene/context reads matched before/after. Each is a bounded observed control, not proof across calls, file boundaries, interruptions, full witness lifecycle or arbitrary reference types. The result contains no error marker, but the source itself labels it NOT_ACCEPTANCE. The candidate was not hash-held during fileIn: candidate_sha256 is an offline observation before execution, not an immutable file lock. Dirty=true is retained and is not evidence of an unchanged scene history."
+}

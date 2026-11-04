@@ -1,0 +1,78 @@
+[
+  {
+    "test": "Audit/test_phase16_p3_control.py",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-001\\unexpected\\Audit\\test_phase16_p3_control.py",
+      "-v"
+    ],
+    "started_utc": "2026-11-03T17:38:07.091069+00:00",
+    "ended_utc": "2026-11-03T17:38:07.167871+00:00",
+    "seconds": 0.076811,
+    "returncode": 1,
+    "execution_error": null,
+    "stdout": {
+      "path": "stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "stderr.log",
+      "bytes": 338,
+      "sha256": "e28ec21cec34d8bb755057f09f7c5f038f0a24eca09dc8795efe9cea439e5827"
+    },
+    "observations": {
+      "ran": [
+        {
+          "stream": "stderr",
+          "line": 6,
+          "text": "Ran 1 test in 0.000s",
+          "count": 1
+        }
+      ],
+      "ok_summaries": [],
+      "prohibited_or_failed": [
+        {
+          "stream": "stderr",
+          "line": 1,
+          "text": "test_control (__main__.Control.test_control) ... unexpected success"
+        },
+        {
+          "stream": "stderr",
+          "line": 4,
+          "text": "UNEXPECTED SUCCESS: test_control (__main__.Control.test_control)"
+        },
+        {
+          "stream": "stderr",
+          "line": 8,
+          "text": "FAILED (unexpected successes=1)"
+        },
+        {
+          "stream": "stderr",
+          "line": 8,
+          "text": "FAILED (unexpected successes=1)",
+          "kind": "unexpected successes",
+          "count": 1
+        }
+      ],
+      "qualifier_metadata": [
+        {
+          "stream": "stderr",
+          "line": 8,
+          "text": "FAILED (unexpected successes=1)",
+          "kind": "unexpected successes",
+          "count": 1
+        }
+      ],
+      "issues": [
+        "expected exactly one unittest OK summary",
+        "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+      ],
+      "status": "REFUSED"
+    },
+    "acceptance": "NOT_ASSESSED",
+    "source_drift": [],
+    "baseline_problems": []
+  }
+]

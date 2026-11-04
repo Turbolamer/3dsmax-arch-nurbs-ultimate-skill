@@ -1,0 +1,12 @@
+test_clean_positive_actual_cli_each_boundary_and_late_hook (__main__.ExistingOutputReview.test_clean_positive_actual_cli_each_boundary_and_late_hook) ... ok
+test_initial_contradictory_pair (__main__.ExistingOutputReview.test_initial_contradictory_pair) ... ok
+test_initial_json_alone (__main__.ExistingOutputReview.test_initial_json_alone) ... ok
+test_initial_ms_alone (__main__.ExistingOutputReview.test_initial_ms_alone) ... ok
+test_late_contradictory_pair_after_real_generation (__main__.ExistingOutputReview.test_late_contradictory_pair_after_real_generation) ... ok
+test_late_json_alone_after_real_generation (__main__.ExistingOutputReview.test_late_json_alone_after_real_generation) ... ok
+test_late_ms_alone_after_real_generation (__main__.ExistingOutputReview.test_late_ms_alone_after_real_generation) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 6.794s
+
+OK

@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-11-04T12:37:12+03:00",
+  "status": "PASS",
+  "census": {
+    "objects_count": 0,
+    "selection_count": 0,
+    "maxFilePath": "",
+    "maxFileName": "",
+    "system_scale": 1.0,
+    "metric_type": "millimeters",
+    "save_required": true,
+    "layer_count": 1,
+    "layer0_nodes_count": 0
+  },
+  "registries": {
+    "reg_p3w": false,
+    "reg_p3": false,
+    "reg_main03": false,
+    "reg_bogus": false
+  },
+  "controls": {
+    "control_one": 2
+  },
+  "transport": {
+    "transport": "namedpipe",
+    "round_trip_ms": 0.989
+  }
+}

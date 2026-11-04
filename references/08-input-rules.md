@@ -6,9 +6,13 @@
 > written against is `07-spec-grammar.md`; the values used to fill silences are `09-defaults.md`; the
 > ladder run in step 4 is `10-conflict-resolution.md`.
 >
-> **No 3ds Max.** This stage never touches the bridge. It emits JSON and runs a validator. The single
-> 3ds Max concern it touches — the scene's unit scale — is delegated to `09-defaults.md` §6 and is
-> labelled **UNVERIFIED — no live probe** there. `07` §11 records the same gap.
+> **Max-independent spec gate, not an agent-wide ban.** S1 emits JSON and runs a validator;
+> necessary source-model inspection/calibration may be assigned to an authorized agent under
+> `agents/max-orchestrator.md` §1.1 (2026-11-04). That supersedes temporary no-Max/main-only
+> instructions: one live operator at a time, short sequential calls, unrelated scene preserved,
+> no reset/save of unrelated state or dirty-flag manipulation. Canonical lengths remain cm;
+> inspect native units and translate observations at the boundary (`scripts/scene_units.py`),
+> never change the user's Units Setup or infer missing intent from existing geometry.
 >
 > **Tooling status, stated plainly.** `scripts/init_project.py` and `scripts/validate_specs.py` are P2c
 > deliverables and **both exist and ship** in the skill pack, alongside `scripts/env_preflight.py` and
@@ -263,7 +267,7 @@ Automated QA check plan configuration defined in `specs/pipeline/qa.json` (`sche
 
 | Quantity | Tolerance | Source | Note |
 |---|---|---|---|
-| Linear equality | **± 0.5 cm** | `tolerances.linear_cm`, G-18, G-33 | **0.5 cm = 5 mm**, not half a millimetre — **CORRECTED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-8)**. A **technological tolerance**: it catches a real error. |
+| Linear equality | **± 0.5 cm** | `tolerances.linear_cm`, G-18, G-33 | **0.5 cm = 5 mm**, not half a millimetre — **CORRECTED (2026-10-27, historical record: EVIDENCE §E-8)**. A **technological tolerance**: it catches a real error. |
 | Area equality | **± 0.05 m²** | `tolerances.area_m2` | |
 | Angle equality | **± 0.01°** | `tolerances.angle_deg` | |
 | **Range** checks | **exact, no tolerance** | `07` §9.5 | a value outside its range is out, not nearly in. |
@@ -276,13 +280,13 @@ The level chain is the one place the 0.5 cm tolerance is load-bearing, and it is
 levels[i].elevation_cm = levels[i-1].elevation_cm + levels[i-1].height_cm      (G-18, ±0.5 cm)
 ```
 
-**Technological tolerance vs float epsilon (CORRECTED 2026-10-27, `Audit/EVIDENCE_2026-10-27.md`
+**Technological tolerance vs float epsilon (CORRECTED 2026-10-27, historical record:
 §E-8).** These are two different numbers and must never be swapped or conflated:
 
 | Quantity | Value | What it is | Source |
 |---|---|---|---|
 | **Technological tolerance** | `tolerances.linear_cm` = **0.5 cm = 5 mm** | the built tolerance of the design: a deviation this large is a real error in the spec or the builder | `tolerances.linear_cm`, G-18, G-33; §E-8 |
-| **Float epsilon** | e.g. `|y| < 1e-3` (scene units) | the numerical noise floor of a float computation: a measured artefact such as `inner_max.y = 0.0001` is noise, not a geometry error | `Audit/EVIDENCE_2026-10-27.md` §E-5 |
+| **Float epsilon** | e.g. `|y| < 1e-3` (scene units) | the numerical noise floor of a float computation: a measured artefact such as `inner_max.y = 0.0001` is noise, not a geometry error | historical measurement: 2026-10-27 §E-5 |
 
 The previous wording in this table — *"half a millimetre … absorbs float noise"* — conflated the
 two and was **wrong twice**: 0.5 cm is 5 mm, and float noise is not what the technological

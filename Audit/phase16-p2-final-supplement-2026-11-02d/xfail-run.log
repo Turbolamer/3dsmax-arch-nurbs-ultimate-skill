@@ -1,0 +1,7 @@
+test_direct_api_cannot_recover_json_fraction_after_rounding (phase16_main_xfail.IndependentSpatialReview.test_direct_api_cannot_recover_json_fraction_after_rounding)
+Inherent API limitation: no oracle can recover a previously rounded float. ... expected failure
+
+----------------------------------------------------------------------
+Ran 1 test in 0.017s
+
+OK (expected failures=1)

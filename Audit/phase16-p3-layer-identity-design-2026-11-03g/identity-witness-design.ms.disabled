@@ -1,0 +1,60 @@
+-- OFFLINE TEXT ONLY. DISABLED DESIGN; never fileIn, parse, time, install, or call.
+-- This sketch is intentionally not an executable MAXScript artifact.
+-- It documents the witness boundary requested by the identity review.
+-- No fallback may turn a missing witness into an inferred identity.
+
+-- The caller must supply these exact, same-session references before any
+-- dependency observation. The second tuple item is continuity data only.
+--
+--   rootNodeWitness      = #(exactRootNodeReference, capturedHandle)
+--   rootSceneWitness     = #(exactRootSceneReference, capturedHandle)
+--   managerTargetWitness = #(exactLayerManagerReferenceTarget, capturedHandle)
+--
+-- rootNodeWitness[1] must come directly from the rootNode global.
+-- rootSceneWitness[1] must come directly from the rootScene global.
+-- managerTargetWitness[1] has NO approved source in the supplied evidence.
+-- Therefore a missing managerTargetWitness is a hard INCOMPLETE result.
+
+-- PSEUDOCODE ONLY:
+--
+-- validatePreExistingWitness(witness):
+--     require exact tuple shape and non-undefined reference
+--     reject known Interface and MixinInterface values, plus all unsupported
+--     kinds, before any anim-handle operation; type checks are not identity
+--     require current handle of the retained reference == captured handle
+--     a roundtrip, if separately calibrated, may only compare its result to
+--     the already-retained exact reference; never manufacture or adopt one
+--     never use a name or class label as identity
+--
+-- admitRoots(rootNodeWitness, rootSceneWitness):
+--     validatePreExistingWitness(rootNodeWitness)
+--     validatePreExistingWitness(rootSceneWitness)
+--     require rootNode == rootNodeWitness[1]
+--     require rootScene == rootSceneWitness[1]
+--     require rootNodeWitness[1] != rootSceneWitness[1]
+--
+-- admitLayer(nodeWitness, backingWitness, rootNodeWitness,
+--            rootSceneWitness, managerTargetWitness):
+--     validate all five exact retained reference witnesses
+--     reject if managerTargetWitness is absent
+--     require a separately authenticated, still-current manager anchor
+--     require all relevant reference witnesses pairwise unambiguous
+--     require node.layer.layerAsRefTarg == backingWitness[1]
+--     read only the bounded typed layer/backing/GI profiles
+--     do not call refs.dependents here to discover a manager
+--     do not accept a dependency object by name/class/handle
+--
+-- dependency gate (disabled):
+--     current empty-layer observation suggests exact rootScene + exact
+--     managerTarget, with optional separately retained member nodes.
+--     rootNode remains a required global witness but is not required to be a
+--     layer backing dependent in this proposed profile.
+--     A separately authorised fresh dependency array, if one is ever read,
+--     is compared against pre-existing exact witnesses, never used to obtain
+--     them. Require exactly one rootScene and manager, no foreign/duplicates,
+--     optional calibrated members only; unexpected rootNode is unsupported.
+--     Without a pre-existing exact manager witness, its independent current
+--     anchor AND authorised dependency evidence, return INCOMPLETE.
+--
+-- No construction, mutation, cleanup, save/reset, layer lookup, handle-only
+-- recovery, new dependency read, baseline, replay, or acceptance is designed.

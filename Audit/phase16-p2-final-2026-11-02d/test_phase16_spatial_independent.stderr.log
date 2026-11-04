@@ -1,0 +1,28 @@
+test_direct_api_cannot_recover_json_fraction_after_rounding (__main__.IndependentSpatialReview.test_direct_api_cannot_recover_json_fraction_after_rounding)
+Inherent API limitation: no oracle can recover a previously rounded float. ... expected failure
+test_example_and_hand_calibrated_prism (__main__.IndependentSpatialReview.test_example_and_hand_calibrated_prism) ... ok
+test_extreme_finite_float_is_json_safe (__main__.IndependentSpatialReview.test_extreme_finite_float_is_json_safe) ... ok
+test_gap_and_overlap_preserve_volume_but_are_not_coverage (__main__.IndependentSpatialReview.test_gap_and_overlap_preserve_volume_but_are_not_coverage) ... ok
+test_huge_integer_consumers_fail_closed (__main__.IndependentSpatialReview.test_huge_integer_consumers_fail_closed) ... ok
+test_huge_integer_diagnostic_returns_exact_structured_fail (__main__.IndependentSpatialReview.test_huge_integer_diagnostic_returns_exact_structured_fail)
+A giant discrepancy must remain classified and exactly representable. ... ok
+test_huge_review_does_not_become_fail_or_pass (__main__.IndependentSpatialReview.test_huge_review_does_not_become_fail_or_pass)
+Even an enormous but narrow discrepancy preserves REVIEW semantics. ... ok
+test_missing_cell_entire_host_and_opening_bijection (__main__.IndependentSpatialReview.test_missing_cell_entire_host_and_opening_bijection) ... ok
+test_old_volume_shorter_plan_extent_is_not_hidden (__main__.IndependentSpatialReview.test_old_volume_shorter_plan_extent_is_not_hidden) ... ok
+test_oversized_level_index_is_not_a_diagnostic_crash (__main__.IndependentSpatialReview.test_oversized_level_index_is_not_a_diagnostic_crash)
+Direct callers can supply integer indices beyond the decimal print limit. ... ok
+test_thresholds_and_builder_refusal (__main__.IndependentSpatialReview.test_thresholds_and_builder_refusal) ... ok
+test_unsupported_no_openings_and_malformed_inputs (__main__.IndependentSpatialReview.test_unsupported_no_openings_and_malformed_inputs) ... ok
+test_actual_cli_positive_review_warnings_and_no_openings (__main__.OfflineCLITests.test_actual_cli_positive_review_warnings_and_no_openings) ... ok
+test_builder_cli_rejects_lossy_token_before_output (__main__.OfflineCLITests.test_builder_cli_rejects_lossy_token_before_output)
+The same refusal applies at the legacy builder's input boundary. ... ok
+test_historical_builder_no_openings_and_unsupported_profile (__main__.OfflineCLITests.test_historical_builder_no_openings_and_unsupported_profile) ... ok
+test_missing_dependency_is_not_pass (__main__.OfflineCLITests.test_missing_dependency_is_not_pass) ... ok
+test_validator_cli_rejects_lossy_token_before_g82 (__main__.OfflineCLITests.test_validator_cli_rejects_lossy_token_before_g82)
+A lexical gap must be rejected before it can round away into a PASS. ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 32.664s
+
+OK (expected failures=1)

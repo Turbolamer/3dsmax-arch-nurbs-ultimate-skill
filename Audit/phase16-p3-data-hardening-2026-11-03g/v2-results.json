@@ -1,0 +1,131 @@
+{
+  "python_version": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "input_sha256_before": {
+    "scripts/wall_surface_runtime.py": "2503fbfcfbe1bc0480512f2f7e3fbcfe740a56f9478f37affdbddeeca8edf56a",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/wall_surface_runtime.pre-edit.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py": "80ae5a26f8afd6e94c16b2d8b1d96a5eb24f5a67cae70bf7792f58eb557ff67a",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/run_checks.py": "84cd23d6297533fec6f28ab00573ca920d94708147e3390911b741930ba4cbfa",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "19360d8f54ce667e692d2c30ce6be7ea28e5fad1a82d3b79d8fbd95195d7919d",
+    "Audit/phase16-p3-metadata-independent-2026-11-03g/REPORT.md": "eb1008b49d141a4e2c348b4458093413f3b1a028424d0576979b86e63584d12e"
+  },
+  "python_ast_parse": {
+    "scripts/wall_surface_runtime.py": "OK",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/wall_surface_runtime.pre-edit.py": "OK",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py": "OK",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/run_checks.py": "OK"
+  },
+  "suites": [
+    {
+      "name": "data-hardening",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py"
+      ],
+      "exit": 0,
+      "summary": [
+        "Ran 15 tests in 0.016s",
+        "OK"
+      ],
+      "input_sha256_after": {
+        "scripts/wall_surface_runtime.py": "2503fbfcfbe1bc0480512f2f7e3fbcfe740a56f9478f37affdbddeeca8edf56a",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/wall_surface_runtime.pre-edit.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py": "80ae5a26f8afd6e94c16b2d8b1d96a5eb24f5a67cae70bf7792f58eb557ff67a",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/run_checks.py": "84cd23d6297533fec6f28ab00573ca920d94708147e3390911b741930ba4cbfa",
+        "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+        "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "19360d8f54ce667e692d2c30ce6be7ea28e5fad1a82d3b79d8fbd95195d7919d",
+        "Audit/phase16-p3-metadata-independent-2026-11-03g/REPORT.md": "eb1008b49d141a4e2c348b4458093413f3b1a028424d0576979b86e63584d12e"
+      },
+      "logs": {
+        "stdout": {
+          "path": "Audit/phase16-p3-data-hardening-2026-11-03g/v2-data-hardening.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": "Audit/phase16-p3-data-hardening-2026-11-03g/v2-data-hardening.stderr.log",
+          "sha256": "4259c57f208ca3e24088b1b972ffc8c23b828710b51bff64227e602cb0f8122f",
+          "bytes": 2012
+        }
+      }
+    },
+    {
+      "name": "precreate-protection",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py"
+      ],
+      "exit": 0,
+      "summary": [
+        "Ran 21 tests in 0.007s",
+        "OK"
+      ],
+      "input_sha256_after": {
+        "scripts/wall_surface_runtime.py": "2503fbfcfbe1bc0480512f2f7e3fbcfe740a56f9478f37affdbddeeca8edf56a",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/wall_surface_runtime.pre-edit.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py": "80ae5a26f8afd6e94c16b2d8b1d96a5eb24f5a67cae70bf7792f58eb557ff67a",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/run_checks.py": "84cd23d6297533fec6f28ab00573ca920d94708147e3390911b741930ba4cbfa",
+        "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+        "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "19360d8f54ce667e692d2c30ce6be7ea28e5fad1a82d3b79d8fbd95195d7919d",
+        "Audit/phase16-p3-metadata-independent-2026-11-03g/REPORT.md": "eb1008b49d141a4e2c348b4458093413f3b1a028424d0576979b86e63584d12e"
+      },
+      "logs": {
+        "stdout": {
+          "path": "Audit/phase16-p3-data-hardening-2026-11-03g/v2-precreate-protection.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": "Audit/phase16-p3-data-hardening-2026-11-03g/v2-precreate-protection.stderr.log",
+          "sha256": "211f825536f8e7b26fdfde8071f5265bcb10fbb07d16142a351a732895355a2a",
+          "bytes": 3437
+        }
+      }
+    },
+    {
+      "name": "legacy-runtime",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "Audit/test_phase16_p3_runtime.py"
+      ],
+      "exit": 1,
+      "summary": [
+        "Ran 42 tests in 0.050s",
+        "FAILED (failures=1)"
+      ],
+      "input_sha256_after": {
+        "scripts/wall_surface_runtime.py": "2503fbfcfbe1bc0480512f2f7e3fbcfe740a56f9478f37affdbddeeca8edf56a",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/wall_surface_runtime.pre-edit.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py": "80ae5a26f8afd6e94c16b2d8b1d96a5eb24f5a67cae70bf7792f58eb557ff67a",
+        "Audit/phase16-p3-data-hardening-2026-11-03g/run_checks.py": "84cd23d6297533fec6f28ab00573ca920d94708147e3390911b741930ba4cbfa",
+        "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+        "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "19360d8f54ce667e692d2c30ce6be7ea28e5fad1a82d3b79d8fbd95195d7919d",
+        "Audit/phase16-p3-metadata-independent-2026-11-03g/REPORT.md": "eb1008b49d141a4e2c348b4458093413f3b1a028424d0576979b86e63584d12e"
+      },
+      "logs": {
+        "stdout": {
+          "path": "Audit/phase16-p3-data-hardening-2026-11-03g/v2-legacy-runtime.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": "Audit/phase16-p3-data-hardening-2026-11-03g/v2-legacy-runtime.stderr.log",
+          "sha256": "bde552e42e8b58929eb42bc7854fff1e76c16177ce64714a81b1d4914d479517",
+          "bytes": 41142
+        }
+      }
+    }
+  ],
+  "input_sha256_after": {
+    "scripts/wall_surface_runtime.py": "2503fbfcfbe1bc0480512f2f7e3fbcfe740a56f9478f37affdbddeeca8edf56a",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/wall_surface_runtime.pre-edit.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py": "80ae5a26f8afd6e94c16b2d8b1d96a5eb24f5a67cae70bf7792f58eb557ff67a",
+    "Audit/phase16-p3-data-hardening-2026-11-03g/run_checks.py": "84cd23d6297533fec6f28ab00573ca920d94708147e3390911b741930ba4cbfa",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "19360d8f54ce667e692d2c30ce6be7ea28e5fad1a82d3b79d8fbd95195d7919d",
+    "Audit/phase16-p3-metadata-independent-2026-11-03g/REPORT.md": "eb1008b49d141a4e2c348b4458093413f3b1a028424d0576979b86e63584d12e"
+  }
+}

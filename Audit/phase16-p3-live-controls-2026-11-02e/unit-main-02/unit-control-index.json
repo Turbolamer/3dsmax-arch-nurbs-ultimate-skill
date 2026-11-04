@@ -1,0 +1,61 @@
+{
+  "actual_scene_precondition": "millimeters/1; never change units",
+  "cases": [
+    {
+      "arm": "NOT_USED",
+      "artifact_pair_acceptance": false,
+      "expected_target_reason": "SystemType mismatch",
+      "identity": "90205758ad9140cd2ee532a387ab205b121cdc48daa427ac3625fecaf99abdff",
+      "kind": "expected_cm1",
+      "main_path": "MAIN_Cm1.ms",
+      "namespace": "P3Unit02e_8f3cde_Cm1",
+      "registry": "__P3W_f2e1604dbc0ce81dde8c080b71bceb19b0c3726cd8d117c59d2e009c86e15496",
+      "runtime_script": "expected_cm1.ms",
+      "runtime_script_sha256": "4c7b5edb0808465be531bae203b90f91ad908dcb3f2dab14159e327f9a787562"
+    },
+    {
+      "arm": "NOT_USED",
+      "artifact_pair_acceptance": false,
+      "expected_target_reason": "SystemType mismatch",
+      "identity": "5919e243fac325a1ce973b6bd40df074dd6eef63a89738ed7c147393f9c71879",
+      "kind": "NEGATIVE_MUTATED_type_only_same_factor",
+      "main_path": "MAIN_TypeOnly.ms",
+      "namespace": "P3Unit02e_8f3cde_TypeOnly",
+      "registry": "__P3W_e25520a7646e6b68ea4aa0fe2bb5e59287964050437d94f4ff2260a767e82930",
+      "runtime_script": "NEGATIVE_MUTATED_type_only_same_factor.ms",
+      "runtime_script_sha256": "7aa861a0c4c2b5873f6a9bd719f38f10b64fa72aa1fa2519c1ad39de2197a4cf"
+    },
+    {
+      "arm": "NOT_USED",
+      "artifact_pair_acceptance": false,
+      "expected_target_reason": "computed unit factor mismatch",
+      "identity": "15621a1cb10338f18dc27ea797be815820e93bc4bd50316e315cffc1e8d4c728",
+      "kind": "NEGATIVE_MUTATED_stored_factor",
+      "main_path": "MAIN_Factor.ms",
+      "namespace": "P3Unit02e_8f3cde_Factor",
+      "registry": "__P3W_77cadc409cf163d671636e0cafb410b40272bfcbb8a79934ee56b27d388288a5",
+      "runtime_script": "NEGATIVE_MUTATED_stored_factor.ms",
+      "runtime_script_sha256": "0a1391b0c608c551451f78868b427f365179b0b19ab62bbc11e7e25713874cf5"
+    }
+  ],
+  "cm_0p1_float32": 0.10000000149011612,
+  "cm_0p1_offline_refusal": "expected SystemScale must be exactly representable in Max Float32",
+  "exact_equal_factor_legitimate_pair_current_mm1": "UNAVAILABLE for cm/.1 under exact-Float32-scale public policy",
+  "files": {
+    "MAIN_Cm1.ms": "6286324004392eaec83924d94606f03f333581e11ed8d8e34e9025ecac456762",
+    "MAIN_Factor.ms": "5e73e432205139c13b8cced3cd7d0f56aa73e0801643b57fe3bc4ba9ad91c313",
+    "MAIN_TypeOnly.ms": "8e21615dddf66a8dc0714978b377a768e48ae85484222ad6b0a4c0bc0f36d549",
+    "NEGATIVE_MUTATED_stored_factor.ms": "0a1391b0c608c551451f78868b427f365179b0b19ab62bbc11e7e25713874cf5",
+    "NEGATIVE_MUTATED_type_only_same_factor.ms": "7aa861a0c4c2b5873f6a9bd719f38f10b64fa72aa1fa2519c1ad39de2197a4cf",
+    "expected_cm1.ms": "4c7b5edb0808465be531bae203b90f91ad908dcb3f2dab14159e327f9a787562"
+  },
+  "replay": "INCOMPLETE_REPLAY in current runtime; no replay or geometry acceptance implied",
+  "sources": {
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-f01-input-2026-11-02e\\project\\dimensions.json": "985bd129c01537c5bb5b0632054fe7f24e53237db0a2a4b9bbc01b544e8dfa26",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-f01-input-2026-11-02e\\project\\walls.json": "bbd433c76b83a709845c9a20941414bbadc786dbe6ceac907f9259d9876bfa9f",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\scripts\\scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\scripts\\wall_surface_runtime.py": "f966cbdd9b582df90cad33bfa5b0d2acde44429ccad85fe410629261d474acf5"
+  },
+  "status": "PREPARED_OFFLINE_NO_MAX_EXECUTION",
+  "type_only_control_scope": "NEGATIVE MUTATED source: #centimeters only; retains mm/1 expected scale/factors; NOT legitimate cm/.1"
+}

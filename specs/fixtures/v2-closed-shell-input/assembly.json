@@ -1,0 +1,294 @@
+{
+  "schema_version": "1.0",
+  "spec": "assembly",
+  "project": "pavilion-01",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "wall_surface.json -- opening manifest providing rough openings and local frames; components_registry.json -- component definitions; massing.json -- project envelope",
+    "recorded_at": "2026-11-04T00:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [
+    "storeys[0].openings"
+  ],
+  "origins": {
+    "wall_technique": {
+      "origin": "given"
+    },
+    "wall_ref": {
+      "origin": "given"
+    },
+    "placements[0]": {
+      "origin": "derived",
+      "derives_from": [
+        "storeys[0].openings"
+      ]
+    },
+    "placements[1]": {
+      "origin": "derived",
+      "derives_from": [
+        "storeys[0].openings"
+      ]
+    },
+    "placements[2]": {
+      "origin": "derived",
+      "derives_from": [
+        "storeys[0].openings"
+      ]
+    }
+  },
+  "defaults": {
+    "panel_joint_cm": 2.0,
+    "instance_limit_guard": 2000
+  },
+  "layer_map": {
+    "05_FACADE": [
+      "entrance_door",
+      "frame_member",
+      "glazed_panel",
+      "opaque_panel"
+    ],
+    "99_DEBUG": [
+      "scatter_source"
+    ]
+  },
+  "placements": [
+    {
+      "id": "PLC-001",
+      "opening_id": "OP-001",
+      "component_id": "DOOR-01",
+      "node_name": "PLC_001",
+      "kind": "door",
+      "position_cm": [
+        150.0,
+        -16.0,
+        0.0
+      ],
+      "rot_z_deg": 0.0,
+      "size_cm": [
+        98.0,
+        12.0,
+        209.0
+      ],
+      "local_frame": {
+        "origin_cm": [
+          100.0,
+          0.0,
+          0.0
+        ],
+        "tangent": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "outward": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "basis_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            100.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ]
+        ]
+      },
+      "rough_opening": {
+        "width_cm": 100.0,
+        "height_cm": 210.0,
+        "depth_cm": 30.0
+      },
+      "mounting_parameters": {
+        "recess_cm": 10.0,
+        "frame_depth_cm": 12.0,
+        "clearance_sides_cm": 1.0,
+        "clearance_top_cm": 1.0,
+        "clearance_bottom_cm": 0.0,
+        "overlap_cm": 1.5
+      },
+      "layer": "05_FACADE",
+      "instance": true
+    },
+    {
+      "id": "PLC-002",
+      "opening_id": "OP-002",
+      "component_id": "COMP_WINDOW",
+      "node_name": "PLC_002",
+      "kind": "window",
+      "position_cm": [
+        410.0,
+        -16.0,
+        90.0
+      ],
+      "rot_z_deg": 0.0,
+      "size_cm": [
+        178.0,
+        12.0,
+        119.0
+      ],
+      "local_frame": {
+        "origin_cm": [
+          320.0,
+          0.0,
+          90.0
+        ],
+        "tangent": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "outward": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "basis_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            320.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            90.0
+          ]
+        ]
+      },
+      "rough_opening": {
+        "width_cm": 180.0,
+        "height_cm": 120.0,
+        "depth_cm": 30.0
+      },
+      "mounting_parameters": {
+        "recess_cm": 10.0,
+        "frame_depth_cm": 12.0,
+        "clearance_sides_cm": 1.0,
+        "clearance_top_cm": 1.0,
+        "clearance_bottom_cm": 0.0,
+        "overlap_cm": 1.5
+      },
+      "layer": "05_FACADE",
+      "instance": true
+    },
+    {
+      "id": "PLC-003",
+      "opening_id": "OP-003",
+      "component_id": "COMP_WINDOW",
+      "node_name": "PLC_003",
+      "kind": "window",
+      "position_cm": [
+        616.0,
+        200.0,
+        110.0
+      ],
+      "rot_z_deg": 90.0,
+      "size_cm": [
+        198.0,
+        12.0,
+        129.0
+      ],
+      "local_frame": {
+        "origin_cm": [
+          600.0,
+          100.0,
+          110.0
+        ],
+        "tangent": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "outward": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "basis_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0,
+            600.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0,
+            100.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            110.0
+          ]
+        ]
+      },
+      "rough_opening": {
+        "width_cm": 200.0,
+        "height_cm": 130.0,
+        "depth_cm": 30.0
+      },
+      "mounting_parameters": {
+        "recess_cm": 10.0,
+        "frame_depth_cm": 12.0,
+        "clearance_sides_cm": 1.0,
+        "clearance_top_cm": 1.0,
+        "clearance_bottom_cm": 0.0,
+        "overlap_cm": 1.5
+      },
+      "layer": "05_FACADE",
+      "instance": true
+    }
+  ],
+  "scatter": [],
+  "wall_technique": "closed_inner_contour_shell_v2",
+  "wall_ref": "wall_surface.json"
+}

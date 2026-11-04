@@ -1,0 +1,19 @@
+test_artifacts_are_present_and_python_test_parses (__main__.P31OfflineStructuralTests.test_artifacts_are_present_and_python_test_parses) ... ok
+test_each_read_requires_both_property_surfaces_and_hierarchy (__main__.P31OfflineStructuralTests.test_each_read_requires_both_property_surfaces_and_hierarchy) ... ok
+test_enumeration_guard_rejects_drift_unknowns_and_duplicates (__main__.P31OfflineStructuralTests.test_enumeration_guard_rejects_drift_unknowns_and_duplicates) ... ok
+test_exact_witness_rejects_mixin_before_anim_api (__main__.P31OfflineStructuralTests.test_exact_witness_rejects_mixin_before_anim_api) ... ok
+test_hierarchy_and_dependency_guards_fail_closed (__main__.P31OfflineStructuralTests.test_hierarchy_and_dependency_guards_fail_closed) ... ok
+test_layer_as_ref_targ_is_exact_and_not_recursed (__main__.P31OfflineStructuralTests.test_layer_as_ref_targ_is_exact_and_not_recursed) ... ok
+test_membership_is_witness_bound_and_bounded (__main__.P31OfflineStructuralTests.test_membership_is_witness_bound_and_bounded) ... ok
+test_name_is_state_only_and_gaps_are_recorded (__main__.P31OfflineStructuralTests.test_name_is_state_only_and_gaps_are_recorded) ... ok
+test_nested_gi_is_explicitly_profiled (__main__.P31OfflineStructuralTests.test_nested_gi_is_explicitly_profiled) ... ok
+test_no_scene_mutation_or_runtime_integration_tokens (__main__.P31OfflineStructuralTests.test_no_scene_mutation_or_runtime_integration_tokens) ... ok
+test_observed_profiles_and_backing_only_degrade (__main__.P31OfflineStructuralTests.test_observed_profiles_and_backing_only_degrade) ... ok
+test_profile_names_and_types_match_recorded_enumerations (__main__.P31OfflineStructuralTests.test_profile_names_and_types_match_recorded_enumerations) ... ok
+test_read_is_double_checked_and_always_incomplete (__main__.P31OfflineStructuralTests.test_read_is_double_checked_and_always_incomplete) ... ok
+test_scalar_detachment_is_typed_bounded_and_finite (__main__.P31OfflineStructuralTests.test_scalar_detachment_is_typed_bounded_and_finite) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.003s
+
+OK

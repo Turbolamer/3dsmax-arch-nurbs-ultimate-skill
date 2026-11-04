@@ -1,0 +1,84 @@
+{
+  "prior_runs_before_sha256": {
+    "Main01": {
+      "arm-record.json": "8c0e8c3a8851c0ad5d4126df2661fad146a13a75e20a5be91a20d264ffe26d3f",
+      "cli-exit.json": "d24219f6de94b955cf36d25bd2aca88e2d35eef45b9317b7083f55ec8fe9653c",
+      "cli-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cli-stdout.txt": "4135a64cfb5ac09ca8a6a3e551e91af9cd9d5bac44f05f234fa19447f02c512e",
+      "completion.json": "5863c99e217391ae902cf7a41abfa97faa3b7483c68fd9bac4243093e8e27d3c",
+      "held_pair_filein.ms": "cf434e3505f449a2d37942cfd8e3c632fcb713ef0a6a09ee73852590d41abfad",
+      "main_only_arm.ms": "a36f425a352e4091bf653b35a3c208812897e4a33749ab0a33ac4d053911b06f",
+      "operational-plan.json": "470e418c9187b2b5f7671abe3ca6d3426ccc16dcf82d40b147608fcbd85dd618",
+      "protected-after.json": "d8e63498ed5d43ce5b24bda468a2763eafa2615b608c960f3209886d0d711b77",
+      "protected-before.json": "d8e63498ed5d43ce5b24bda468a2763eafa2615b608c960f3209886d0d711b77",
+      "published/wall_surface.json": "71c71bb66eb4f887863bc29b5e718340c22cb163fcb176d5c5299f6b9b0278f4",
+      "published/wall_surface.ms": "9df84585dadc25ba4e76e2d756cae8fee2714555f0e0f72d1f1643804fd9b37b",
+      "request.json": "f3ed6015bb90e96689b5b604e23dbe7ae1f47e242f4d28e5acb2bc9eec76d8b3"
+    },
+    "Main02": {
+      "arm-record.json": "ee718876f208a070e6e483a61bfdd48229249da34146085e5a427ead339cf1bb",
+      "cli-exit.json": "d24219f6de94b955cf36d25bd2aca88e2d35eef45b9317b7083f55ec8fe9653c",
+      "cli-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cli-stdout.txt": "f4ff8b292555fdb7596bb07f1e0efd70345a271099e9d2877827ad9b5b6fce53",
+      "completion.json": "1c8bcc32eb4cbd2d9b35c3c2304658699c131e28388fdc4f3ac95181ea7d1c09",
+      "held_pair_filein.ms": "362b8cd0c0f7f465b75715b0f1ca2c8c362419b1d870ecd0fd9bf5801f6e0bb4",
+      "main01-preservation-external.json": "932a8696c11e763589d4d27fbc1dcfea28331f242db26fb6eddb708e2d8cd909",
+      "main_only_arm.ms": "842681153f9758d27abb940abaccbc5f1e858037da5946f8cc6f9e3c9d3ba606",
+      "operational-plan.json": "470e418c9187b2b5f7671abe3ca6d3426ccc16dcf82d40b147608fcbd85dd618",
+      "protected-after.json": "c41f90294ef7ee9a64ce77efbbf91b8c5d9c2bd52447f87880581274754721f5",
+      "protected-before.json": "c41f90294ef7ee9a64ce77efbbf91b8c5d9c2bd52447f87880581274754721f5",
+      "published/wall_surface.json": "b22988ac2c48b41525d87b7638b18a87fcd2dd193a7732af691183c4b43c9f04",
+      "published/wall_surface.ms": "8ce25e8aa297cf8939fdb790979bd20e8cbd6f2074f6450261a26e9cad247a54",
+      "request.json": "105d578c4fad905687928613bc7521806cf8abfb8cb7dfe5edad21530121ecb8"
+    }
+  },
+  "prior_runs_after_sha256": {
+    "Main01": {
+      "arm-record.json": "8c0e8c3a8851c0ad5d4126df2661fad146a13a75e20a5be91a20d264ffe26d3f",
+      "cli-exit.json": "d24219f6de94b955cf36d25bd2aca88e2d35eef45b9317b7083f55ec8fe9653c",
+      "cli-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cli-stdout.txt": "4135a64cfb5ac09ca8a6a3e551e91af9cd9d5bac44f05f234fa19447f02c512e",
+      "completion.json": "5863c99e217391ae902cf7a41abfa97faa3b7483c68fd9bac4243093e8e27d3c",
+      "held_pair_filein.ms": "cf434e3505f449a2d37942cfd8e3c632fcb713ef0a6a09ee73852590d41abfad",
+      "main_only_arm.ms": "a36f425a352e4091bf653b35a3c208812897e4a33749ab0a33ac4d053911b06f",
+      "operational-plan.json": "470e418c9187b2b5f7671abe3ca6d3426ccc16dcf82d40b147608fcbd85dd618",
+      "protected-after.json": "d8e63498ed5d43ce5b24bda468a2763eafa2615b608c960f3209886d0d711b77",
+      "protected-before.json": "d8e63498ed5d43ce5b24bda468a2763eafa2615b608c960f3209886d0d711b77",
+      "published/wall_surface.json": "71c71bb66eb4f887863bc29b5e718340c22cb163fcb176d5c5299f6b9b0278f4",
+      "published/wall_surface.ms": "9df84585dadc25ba4e76e2d756cae8fee2714555f0e0f72d1f1643804fd9b37b",
+      "request.json": "f3ed6015bb90e96689b5b604e23dbe7ae1f47e242f4d28e5acb2bc9eec76d8b3"
+    },
+    "Main02": {
+      "arm-record.json": "ee718876f208a070e6e483a61bfdd48229249da34146085e5a427ead339cf1bb",
+      "cli-exit.json": "d24219f6de94b955cf36d25bd2aca88e2d35eef45b9317b7083f55ec8fe9653c",
+      "cli-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cli-stdout.txt": "f4ff8b292555fdb7596bb07f1e0efd70345a271099e9d2877827ad9b5b6fce53",
+      "completion.json": "1c8bcc32eb4cbd2d9b35c3c2304658699c131e28388fdc4f3ac95181ea7d1c09",
+      "held_pair_filein.ms": "362b8cd0c0f7f465b75715b0f1ca2c8c362419b1d870ecd0fd9bf5801f6e0bb4",
+      "main01-preservation-external.json": "932a8696c11e763589d4d27fbc1dcfea28331f242db26fb6eddb708e2d8cd909",
+      "main_only_arm.ms": "842681153f9758d27abb940abaccbc5f1e858037da5946f8cc6f9e3c9d3ba606",
+      "operational-plan.json": "470e418c9187b2b5f7671abe3ca6d3426ccc16dcf82d40b147608fcbd85dd618",
+      "protected-after.json": "c41f90294ef7ee9a64ce77efbbf91b8c5d9c2bd52447f87880581274754721f5",
+      "protected-before.json": "c41f90294ef7ee9a64ce77efbbf91b8c5d9c2bd52447f87880581274754721f5",
+      "published/wall_surface.json": "b22988ac2c48b41525d87b7638b18a87fcd2dd193a7732af691183c4b43c9f04",
+      "published/wall_surface.ms": "8ce25e8aa297cf8939fdb790979bd20e8cbd6f2074f6450261a26e9cad247a54",
+      "request.json": "105d578c4fad905687928613bc7521806cf8abfb8cb7dfe5edad21530121ecb8"
+    }
+  },
+  "prior_runs_unchanged": true,
+  "four_new_sources_before": {
+    "build_wall_surface.py": "a2b0534835352d740710e6136a64fdeb9b9b1cd42c307cb15776511462903878",
+    "wall_surface_inputs.py": "5c1e3134756396ff34fbc869d72f89e2f616c2ae8a29aead196d5f5689d28f12",
+    "wall_surface_runtime.py": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15",
+    "wall_surface_publish.py": "7868798b426f0f0c53560a9c36a65bfba4342930543ac0b041e369217d66b76b"
+  },
+  "four_new_sources_after": {
+    "build_wall_surface.py": "a2b0534835352d740710e6136a64fdeb9b9b1cd42c307cb15776511462903878",
+    "wall_surface_inputs.py": "5c1e3134756396ff34fbc869d72f89e2f616c2ae8a29aead196d5f5689d28f12",
+    "wall_surface_runtime.py": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15",
+    "wall_surface_publish.py": "7868798b426f0f0c53560a9c36a65bfba4342930543ac0b041e369217d66b76b"
+  },
+  "four_new_sources_unchanged": true,
+  "runner_exit_code": 0,
+  "live_execution": "NOT_RUN"
+}

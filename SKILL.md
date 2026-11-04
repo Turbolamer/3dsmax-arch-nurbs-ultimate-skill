@@ -1,6 +1,6 @@
 ---
 name: 3dsmax-arch-nurbs-ultimate
-description: Spec-first architectural, exterior and NURBS modeling for Autodesk 3ds Max 2026 through the cl0nazepamm/3dsmax-mcp bridge, plus an active S7 QA gate (qa_check.py) and a hand-off for manual material assignment. Ships a stage-by-stage build pipeline executed live against Max 2026.3.2 — massing, relational NURBS via NURBSSet/NURBSNode with analytical curve expansion (curve_gen.py, expand_curves.py), native scene unit preambles (scene_units.py), panelised facade grids, reference-instanced assembly with tiled wall openings and Mechanism A host hiding (place_components.py as last geometry builder), 8-micron precision control of point_grid vs u_loft, and an offline/live S7 QA gate. States the verified tool inventory, absent plugins (forestPack/tyFlow/railClone), Rhino collisions, and measured MAXScript traps. Materials (P7) and export (P9) remain out of scope by user decision.
+description: Spec-first architectural, exterior and NURBS modeling for Autodesk 3ds Max 2026 through the cl0nazepamm/3dsmax-mcp bridge, plus an active S7 QA gate (qa_check.py) and a hand-off for manual material assignment. Ships a stage-by-stage build pipeline executed live against Max 2026.3.2 — massing, relational NURBS via NURBSSet/NURBSNode with analytical curve expansion (curve_gen.py, expand_curves.py), native scene unit preambles (scene_units.py), panelised facade grids, perimeter walls via closed_inner_contour_shell_v2 (build_wall_surface.py), reference-instanced assembly with opening manifest placement and Mechanism A host hiding (place_components.py as last geometry builder), 8-micron precision control of point_grid vs u_loft, and an offline/live S7 QA gate. States the verified tool inventory, absent plugins (forestPack/tyFlow/railClone), Rhino collisions, and measured MAXScript traps. Materials (P7) and export (P9) remain out of scope by user decision.
 ---
 
 # 3ds Max MCP — Ultimate Architecture, Exteriors and NURBS Agent Skill
@@ -15,6 +15,29 @@ Verified against 3ds Max **2026.3.2 (Security Fix)**, transport `namedpipe`, pro
 
 **Read this before anything else. `CHECKPOINT.md` is the status board of record; this section is a summary of it, not a second source.**
 
+**Production architecture default (2026-11-04):** **`closed_inner_contour_shell_v2`** is
+the production-accepted, fully verified default route for new projects (**12/12 live Max PASS**,
+**106/106 tests PASS**, exact analytical oracle match $17.022\text{ m}^3$ / $17,022,000,000.0\text{ mm}^3$).
+It models perimeter walls per storey via S4w (`build_wall_surface.py` / `build_wall_v2.py`) as a
+single continuous `Editable_Poly` ribbon with rough openings excised, exactly 1 outward `Shell` modifier
+(`outerAmount=wall_thickness`, `straightenCorners=true`, `segments=1`), and a hidden reference
+`SplineShape` guide (`_InnerSpline`). S5 (`place_components.py`) mounts components into rough openings
+from the S4w manifest with **Mechanism A host wall hiding** (`host_node.isHidden = true`) and zero
+modifiers (`G-81`). S7 (`qa_check.py`) independently verifies geometry against an analytical volume
+oracle, solid watertightness (`openEdges == 0`), seam valence, aperture boundaries, and stack health.
+Legacy routes (**`legacy_cells_v1`** — discrete solid wall tiling cells `WAL_` with zero modifiers;
+and **`poly_surface_shell_v1`**) remain supported as explicit options without silent fallback.
+
+**Current authorization (2026-11-04):** the user has lifted temporary no-Max/read-only/offline-only
+restrictions imposed while busy. Authorized agents may operate live Max when needed, including
+delegated probes and stage gates. This supersedes older temporary stops and main-only routing,
+not historical evidence or acceptance gates. The orchestrator assigns **one live operator at a
+time**; other agents make no overlapping Max calls. Use short sequential calls, inspect the current
+scene, preserve unrelated content, never reset/save unrelated scene state or manipulate its dirty
+flag, and clean up only proven-owned temporary objects. The measured fatal stack,
+`formattedPrint` and synthetic `nurbsID` safeguards remain. See `agents/max-orchestrator.md` §1.1.
+A new architecture being tested is not built or accepted by this permission change.
+
 ### 0.1 What is built and measured
 
 Stages **P0 → P6** and the **Form Precision & Staged Unit Pipeline (Stages 01..13)** are closed. Every one was executed against live Max, and every emitted artefact was `fileIn`-ed and measured — not merely self-checked offline. Headline numbers, all from the `CHECKPOINT.md` stage table:
@@ -25,17 +48,18 @@ Stages **P0 → P6** and the **Form Precision & Staged Unit Pipeline (Stages 01.
 | Layer standard + massing (S2), `G-34`…`G-40` | `fileIn examples/massing.ms` → **27** nodes (22 `Box` + 5 `Dummy`), idempotent over 3 runs, **9/9** bboxes exact to `0.000000 cm` |
 | NURBS core + analytical precision (S3), `G-41`…`G-56` | `fileIn examples/nurbs.ms` → **10** nodes (plus fixtures up to 37 nodes), analytical curve expansion via `curve_gen.py` & `expand_curves.py` ($\le 0.001\text{ cm}$), 8-micron precision verified on `point_grid` ($0.000824\text{ cm}$) |
 | Facade grid + component registry (S4a/S4b), `G-57`…`G-70` | `world_table.csv` read **by MAXScript itself** → 136 rows → 136 panels placed, `objects.count` = **165 = 136 + 29** |
-| Assembly + Mechanism A host hiding (S5), `G-71`…`G-83` | `fileIn examples/assembly.ms` → **244** nodes = 27 + 136 `PLC_` + 29 `PROTO_` + **52 `WAL_`**, idempotent, **0 modifiers**, Mechanism A hides host walls (`host_node.isHidden = true`), $B_{\text{total}}$ volume budget exact in $\text{cm}^3$ |
-| **Full S1→S5 chain, re-run end to end** | the three `.ms` in order → **254** nodes, idempotent over 3 calls, **0 modifiers**, 52/52 cell bboxes exact, **0 nodes off layer 0**, scene back to **0** |
-| **Active S7 QA verification gate (`qa_check.py`)** | `qa.json` (`G-87`…`G-90`), 3-step loop: offline query emit (`--emit`) → live MCP batch collect → offline assessment (`--assess`) with independent analytical geometry oracle; asserts coverage, census, form, walls, stack, replay, units guard |
+| Closed shell v2 perimeter walls (S4w), Contract 20 | `build_wall_surface.py` / `build_wall_v2.py` → `wall_surface.json` + `wall_surface.ms` → 1 `Editable_Poly` + 1 `Shell` (`straightenCorners=true`) + hidden `_InnerSpline` guide, verified solid manifold (`openEdges == 0`) |
+| Assembly + Mechanism A host hiding (S5), `G-71`…`G-83` | `fileIn assembly.ms` → mounts component assemblies into rough openings from S4w manifest (or 52 `WAL_` solid cells in legacy route), idempotent, **0 modifiers** (`G-81`), Mechanism A hides host walls (`host_node.isHidden = true`), volume budget exact |
+| **Full S1→S4w→S5 chain, live-verified in Max** | `massing.ms` + `wall_surface.ms` + `assembly.ms` → idempotent, **0 modifiers on placements**, Mechanism A verified, scene back to **0** |
+| **Active S7 QA verification gate (`qa_check.py`)** | `qa.json` (`G-87`…`G-90`), 3-step loop: offline query emit (`--emit`) → live MCP batch collect → offline assessment (`--assess`) with independent analytical geometry oracle ($17.022\text{ m}^3$ exact match); asserts coverage, census, form, solid watertightness (`openEdges == 0`), seam valence, aperture bounds, stack health, replay, units guard |
 
-> **Two node counts, both correct, different chains.** **244** is `massing.ms` + `assembly.ms`.
-> **254** is the whole chain including `nurbs.ms`. Always say which one you mean.
+> **Two node counts, both correct, different chains.** **244** is legacy `massing.ms` + `assembly.ms`.
+> **254** is the legacy chain including `nurbs.ms`. The v2 closed shell chain produces a single continuous perimeter poly per floor plus hidden guide spline. Always specify which route you mean.
 
 Key measured facts about Max shaped the whole architecture:
 
 - **Scene units are native-aware.** Canonical specs store `_cm` lengths; `scripts/scene_units.py` generates MAXScript scaling preambles ($c$ cm/unit, $f$ unit/cm) matching `units.SystemType` and `units.SystemScale`.
-- **The Boolean modifier is unusable in this build.** It attaches and silently cuts nothing. Openings are cut by **tiling the wall with solid cells** (`WAL_`) instead. Under **Mechanism A**, host walls from massing are hidden (`host_node.isHidden = true`) so discrete cells provide geometry without active host collisions.
+- **The Boolean modifier is unusable in this build.** It attaches and silently cuts nothing. Under default route **`closed_inner_contour_shell_v2`**, perimeter walls are modeled as a continuous `Editable_Poly` ribbon per floor with rough openings excised before applying 1 outward `Shell` modifier (`straightenCorners=true`), and component assemblies are mounted into openings by S5 with **Mechanism A host wall hiding** (`host_node.isHidden = true`). In legacy route **`legacy_cells_v1`**, openings are cut by tiling walls with solid cells (`WAL_`).
 - **`place_components.py` is the last geometry builder (S5).** It produces zero modifiers by design (`G-81`).
 - **Form precision boundary:** `NURBSULoftSurface` (`u_loft`) has an internal B-spline fit error $\approx 2.14\text{ cm}$ caused by Max's fixed CV allocation (12 CVs across sections), whereas `point_grid` (`NURBSPointSurface` via `makePointSurfaceGrid`) achieves **$0.0008\text{ cm}$ (8 microns)** deviation.
 - **Layer assignment:** While `node.layer` is read-only in MAXScript, scripted layer assignment is verified working via `ILayerProperties.addNode` (`lyr.addNode <node>`). Builders leave layer assignment decoupled by design (`G-79`).
@@ -116,7 +140,8 @@ Three of these carry a **verified capability limit**, not a bug:
 ### 1.5 Core operational principles
 
 - **Match the request.** Do not run `get_bridge_status` or `get_session_context` as a blind preamble; call them only when diagnosing a connection.
-- **Sequential writes only.** Never issue mutating calls concurrently. Interleaved writes corrupt Max undo transactions and crash the bridge.
+- **One live operator; sequential writes only.** The orchestrator may assign an authorized delegate to necessary Max work, but no other agent calls Max until the slot is released. Never issue mutating calls concurrently. Interleaved writes corrupt Max undo transactions and crash the bridge.
+- **Preserve the user's scene.** Establish current scene state and exact fixture ownership before writes. Do not delete/reset/save unrelated scene content or clear/restore the dirty flag. Older whole-scene sweeps and zero-object assertions apply only to admitted disposable fixtures; uncertain ownership is a stop, not permission to delete by name.
 - **No guard tokens exist.** There is no token, freshness, or `STALE_*` protocol on this server. There is no progressive-dispatch indirection either — no toolset enumeration, no toolset descriptor, and no generic call wrapper. Call tools directly by name.
 - **No multi-instance management API.** The bridge pins to the first connected Max instance, automatically, via named-pipe discovery. TCP `127.0.0.1:8765` is neither used nor required.
 - **No dialog-inspection API.** If a call returns `BLOCKED_BY_DIALOG`, **never repeat it** — the first call is still blocked inside Max. Tell the user to dismiss the dialog in the UI, then re-read state with a read-only tool. If `USER_BUSY` comes back, Max holds an open interactive undo transaction: wait and retry read-only only.
@@ -133,7 +158,7 @@ Pick the pipeline before creating geometry.
 | 2D footprints, site contours, profiles | Shape objects — `Rectangle`, `Line`, `NGon`, `Circle`, `Arc`, `Helix`, `Donut`, `Star`, `PipeObject`, `Text` — via `create_object` or `execute_maxscript` | `references/maxscript-splines-shapes.md` |
 | Cornices, parapet copings, window frames, curbs, gutters, reveals | Shape profile plus the `Extrude` or `Sweep` modifier. **`Extrude` attaches to a shape through MAXScript `addModifier`** — measured 2026-10-27 (`threw=false`, `mods=1`), so an emitted script may carry the stack itself; `Sweep` still throws on polygonal geometry and needs `add_modifier` | `references/arch-modifiers-and-procedural-reference.md` |
 | Columns, balusters, piers, tapered members, chimneys | `create_object` primitives, or shape profile plus `Lathe` (typed-tool route only), or Box plus taper/scale | `references/arch-modifiers-and-procedural-reference.md` |
-| **Walls with punched window and door openings** | **Not a Boolean.** Build the wall as **solid cells** tiling wall-minus-openings: decompose along the run axis, cut at every opening's `u` boundary, then at the `v` boundaries covering each column. Every boundary comes from some opening edge, so the subdivision has no gap and no overlap | `agents/max-assembly.md`, `references/07-spec-grammar.md` §8.5.8 |
+| **Walls with punched window and door openings** | **Default:** **`closed_inner_contour_shell_v2`** via S4w `build_wall_surface.py` / `build_wall_v2.py` — single continuous `Editable_Poly` perimeter per floor with rough openings excised, thickened outward by exactly 1 `Shell` modifier (`straightenCorners=true`, `segments=1`), plus hidden reference guide spline (`_InnerSpline`). Followed by **S5 `place_components.py`** mounting component frames into rough openings from opening manifest, deactivating host walls via **Mechanism A** (`host_node.isHidden = true`), with 0 modifiers (`G-81`). **Legacy route:** `legacy_cells_v1` (tiled solid cells `WAL_`). **Prototype route:** `poly_surface_shell_v1`. Booleans are never used. | `references/20-closed-contour-shell-v2-contract.md`, `agents/max-assembly.md`, `references/07-spec-grammar.md` §8.5.8 |
 | Floor slabs, decks, prismatic massing | `create_object` primitives from a locked `massing.json`, emitted by `build_spec.py`. A `Box` is centred on `pos.x`/`pos.y` with its **base at `pos.z`** | `references/07-spec-grammar.md` §8.1, `agents/max-massing.md` |
 | Pitched roofs, stairs, ramps, custom mullions | `create_object` plus Edit Poly, Extrude or other modifiers | `references/maxscript-mesh-poly-ops.md` |
 | Modular multi-storey facades, curtain walls, railings, fences | MAXScript source array plus `clone_objects(mode:"instance")`. railClone is absent — see section 1.2 | `references/architecture-exterior-pipelines.md` |
@@ -237,7 +262,8 @@ Each stage has its own agent file carrying the contract, the procedure, a comple
 | S3 — NURBS, and the four relational kinds in particular | `agents/max-nurbs.md` |
 | S4a — panelised facade grid | `agents/max-facade.md` |
 | S4b — component registry | `agents/max-components.md` |
-| S5 — assembly: instances, tiled walls, Chaos Scatter (last geometry builder) | `agents/max-assembly.md` |
+| S4w — closed shell v2 perimeter walls (production default) | `references/20-closed-contour-shell-v2-contract.md` · `scripts/build_wall_surface.py` / `scripts/build_wall_v2.py` |
+| S5 — assembly: manifest placement, Mechanism A host hiding, Chaos Scatter (last geometry builder) | `agents/max-assembly.md` |
 | S7 — QA verification gate: emit, live MCP collect, assessment oracle | `agents/max-qa.md` |
 | orchestration, hand-off and the live-gate discipline | **`agents/max-orchestrator.md`** |
 
@@ -328,12 +354,13 @@ python scripts/env_preflight.py                          # emit MAXScript probes
 python scripts/env_preflight.py --results results.json    # score captured results; exit 1 on any FAIL
 python scripts/env_preflight.py --json                    # machine-readable report
 python scripts/install_skill.py                          # build .skill + install to ~/.claude, ~/.agents
-python scripts/init_project.py --project X --dir D       # scaffold a workdir, 11 spec files + project.json
+python scripts/init_project.py --project X --dir D [--route closed_inner_contour_shell_v2|legacy_cells_v1|poly_surface_shell_v1]  # scaffold workdir, 11 spec files + project.json (default route: closed_inner_contour_shell_v2)
 python scripts/validate_specs.py --dir examples          # lint every spec against G-1..G-90
-python scripts/build_spec.py --stage massing --in examples --out examples   # emits massing.json + massing.ms
-python scripts/build_nurbs.py --in examples --out examples                 # emits nurbs.json + nurbs.ms
-python scripts/facade_tables.py --in examples --out examples              # emits both P5 JSONs + both CSVs
-python scripts/place_components.py --in examples --out examples           # emits assembly.json + assembly.ms (S5, LAST geometry builder)
+python scripts/build_spec.py --stage massing --in examples --out examples   # S2: emits massing.json + massing.ms
+python scripts/build_nurbs.py --in examples --out examples                 # S3: emits nurbs.json + nurbs.ms
+python scripts/facade_tables.py --in examples --out examples              # S4a/S4b: emits both P5 JSONs + both CSVs
+python scripts/build_wall_surface.py --in <p> --out <p> ...                  # S4w: perimeter wall emitter (or scripts/build_wall_v2.py for v2 closed shell)
+python scripts/place_components.py --in examples --out examples           # S5, LAST geometry builder: emits assembly.json + assembly.ms (manifest placement + Mechanism A host hiding)
 python scripts/curve_gen.py                              # analytical curve generator library (import module)
 python scripts/expand_curves.py --project-dir <p> --in <in.json> --out <out.json>  # expand draft curves, recompute, verify <= 0.001 cm
 python scripts/scene_units.py                            # scene units translation & scale factor utilities
@@ -345,7 +372,7 @@ python -m py_compile scripts/*.py                        # the only "test" that 
 Three constraints on that list:
 
 - **`build_spec.py` accepts `--stage massing` only** and exits non-zero for anything else.
-- **`place_components.py` is the LAST geometry builder (S5)**. It reads four inputs — `components_registry.json`, `world_table.csv`, `massing.json`, `dimensions.json` — all of which must be `locked` unless `--allow-draft`.
+- **`place_components.py` is the LAST geometry builder (S5)**. It reads input specifications (`components_registry.json`, `world_table.csv`, `massing.json`, `dimensions.json`, and `wall_surface.json` in v2). Under default route `closed_inner_contour_shell_v2`, it mounts assemblies into rough openings declared in `wall_surface.json` and hides massing host walls via Mechanism A (`host_node.isHidden = true`), producing 0 modifiers (`G-81`). In legacy route `legacy_cells_v1`, it tiles walls into discrete solid cells (`WAL_`).
 - **An emitted `.ms` is not done until it has been `fileIn`-ed and measured**, and an emitted **CSV** is not done until it has been placed in Max and counted. Self-checks prove a file is well-formed and prove nothing about whether MAXScript will load it.
 
 ### 6.3 Named in `PLAN.md` but NOT written — never reference these as if they run
@@ -363,7 +390,7 @@ Verification combines stage-by-stage live checks with the formal **S7 QA verific
 5. **Naming and reference hygiene.** `get_dependencies`, `walk_references`, `get_wired_params`, `list_wireable_params`.
 6. **Scatter determinism.** Snapshot with `saveConfiguration(filePath, reserved)`, restore with `loadConfiguration(filePath)`, read `getInstanceCount()` before and after. If the counts differ, the seed is not applied.
 7. **Visual confirmation.** `capture_multi_view` for an overview sheet, `capture_viewport` for one framed view, `isolate_and_capture_selected` for a single element. Eye-level perspective at `165–180 cm` plus a three-quarter bird's-eye.
-8. **Clean up in the same call that created the objects.** `for o in objects do delete o` **silently skips entries** — collect the names first, then delete by name, and run it twice, because deleting a base does not delete its instances.
+8. **Clean up only proven-owned temporary objects, preferably in the creating call.** `for o in objects do delete o` **silently skips entries**, and a global sweep is not authorized in a user scene. Retain exact created-node references and verify cleanup against the entry baseline; name-based legacy cleanup is only for an admitted disposable fixture with independently established ownership. Deleting a base does not delete its instances. After timeout or unknown identity, inspect/report rather than assume cleanup.
 9. **The S7 QA Gate (`qa_check.py`):**
    - **Emit:** `python scripts/qa_check.py --in <p> --emit <run_dir> --run-id <token> [--calibration-cert <cert>]`. Generates `qa-request.json`, `qa-run-context.json`, and sequential query scripts (`batch_001.ms`, etc.).
    - **Capture:** Execute read-only batch scripts via `3dsmax-mcp_execute_maxscript` and record wire strings to `results.json`.

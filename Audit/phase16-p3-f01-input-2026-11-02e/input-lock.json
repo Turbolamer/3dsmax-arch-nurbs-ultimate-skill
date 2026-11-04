@@ -1,0 +1,22 @@
+{
+  "schema_version": "f01-input-lock-1",
+  "status": "locked_input_only_not_produced_output",
+  "project": "phase16-p3-f01",
+  "path_base": "repository_root",
+  "files_sha256": {
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/assumptions.json": "54c0a86e852c3e3a6cbf3ed0beb6dbad420bda67fa7063d250540a1cb28ffcb1",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/conflicts_resolved.json": "18627ae616e75aa630eba4647aa414d1a888d6fa72dbf921e7c22c9f260cb836",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/dimensions.json": "985bd129c01537c5bb5b0632054fe7f24e53237db0a2a4b9bbc01b544e8dfa26",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/walls.json": "bbd433c76b83a709845c9a20941414bbadc786dbe6ceac907f9259d9876bfa9f",
+    "Audit/phase16-p3-f01-input-2026-11-02e/direction-authority.json": "af3686f8105896cddadcee2ad659badab4e250377ca86853dc9a665bb0a201cb",
+    "Audit/phase16-p3-f01-input-2026-11-02e/fixture-brief.md": "0a4ad6576e9fb77548b485749ae878add07209e8877b4b391a86f44d5e09869e",
+    "Audit/AGENT_PLAN_poly_surface_shell.md": "37813bb8f6b8d2e445c69a0424d78997f80a3752303ccffebee802e1d84ee672",
+    "Audit/EVIDENCE_2026-10-27.md": "2869308638ba8e87766617a572937a769eb325b0a0699075c64d2cb8452141ad",
+    "Audit/_phase16-p3-contract-2026-11-02e.md": "25a017893a2b42bfa5cd22539a6f8ff8e55d8a0dfc2ef4f92d10cc2c2b934aca"
+  },
+  "direction_authority": "Audit/phase16-p3-f01-input-2026-11-02e/direction-authority.json",
+  "source_file": "Audit/AGENT_PLAN_poly_surface_shell.md",
+  "source_sha256": "37813bb8f6b8d2e445c69a0424d78997f80a3752303ccffebee802e1d84ee672",
+  "source_location": "section G.1 lines 670-673: analytical F01 wall u=0..400 cm, Y=0, Z=0..300, outward (0,-1,0), thickness30; section A.5 lines 172-179 explicitly identifies the preserved inner face on Y=0 and outer growth in -Y. This attests the actual analytical source, not the south compass label or winding.",
+  "not_a_builder_manifest": true
+}

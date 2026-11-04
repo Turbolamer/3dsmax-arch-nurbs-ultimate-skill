@@ -1,0 +1,19 @@
+{
+  "scope": "Main-only read-only exact identity controls on the current empty default layer; not complete dependency graph or production reader acceptance",
+  "root_identity": {
+    "ok": true,
+    "result": "P3G_ROOT_REFERENCE_READONLY|rootNodeClass=MAXRootNode;handle=39P;rootSceneClass=Scene;handle=36P;rootNodeEqRootScene=false;rootNodeEqRootSceneGlobal=false;layerManagerClass=Interface;layerBackingClass=Base_LayerBase_Layer;backingHandle=48P;positiveRoot=true;positiveRootScene=true;positiveLM=true;bogus=false",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "8b4a338f43ef46e498aa320e9d5c4c66", "protocol_version": 2, "client_round_trip_ms": 0.575, "fallback_error": null},
+    "elapsed_ms": 0.609
+  },
+  "manager_identity": {
+    "ok": true,
+    "result": "P3G_MANAGER_DEPENDENCY_READONLY|managerClass=Interface;managerHandle=undefined;managerRound=false;managerError=-- Unable to convert: <Interface:LayerManager> to type: MaxObject;depCount=2|dep1=Layer_Manager;eqLM=false;eqRoot=false;eqScene=false;h=46P;rt=true;er=|dep2=Scene;eqLM=false;eqRoot=false;eqScene=true;h=36P;rt=true;er=",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "8a7bb175043948ec882d6c6d69e4595f", "protocol_version": 2, "client_round_trip_ms": 0.621, "fallback_error": null},
+    "elapsed_ms": 0.641
+  },
+  "documentation_reference": "Autodesk MAXScript 2026, GUID-78B79975-7BA5-4A03-8FEF-27E78D14B575, documents layerAsRefTarg and shows LayerManager and Scene reference targets in an illustrative populated-layer refs.dependents result; GUID-141213A1-B5A8-457B-8838-E602022C8798 describes rootScene. These docs are not proof of a complete live graph.",
+  "interpretation": "The live control distinguished rootNode from rootScene, found the latter exactly equal to one of the current empty default layer backing dependents, and found the Interface LayerManager distinct from either dependent. Passing the Interface directly to getHandleByAnim threw an actual conversion error, captured above, so no interface handle or roundtrip is claimed. The other dependent was a distinct handle-comparable Layer_Manager RefTarget, but its association to the public interface, lifecycle, stability and all other possible dependents remain unproven. The offline candidate tests its caller's root witness against rootNode and also requires that root witness appear as a dependent; this empty-layer example lacks such a dependent. The complete candidate reader and its dependency path have not yet been executed, and a populated layer may change the observed set. Separately main has since exercised only partial p31 helper functions on the existing empty layer in layer-empty-observer-result.json; that does not test the candidate dependency path. Never whitelist a class, name or handle as authority."
+}

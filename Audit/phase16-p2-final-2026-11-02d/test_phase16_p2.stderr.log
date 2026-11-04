@@ -1,0 +1,45 @@
+Phase 16 P2 OFFLINE harness: live Max was NOT queried; SKIP is not PASS.
+Locked poly mutation/manifest tests need --p2-fixture and will SKIP.
+test_existing_qa_missing_results_never_passes (__main__.LegacyRegression.test_existing_qa_missing_results_never_passes) ... ok
+test_from_examples_preserves_legacy_route (__main__.LegacyRegression.test_from_examples_preserves_legacy_route) ... ok
+test_known_g82_missing_first_cell_limit (__main__.LegacyRegression.test_known_g82_missing_first_cell_limit)
+Known baseline risk, not an accepted proof of complete wall tiling. ... ok
+test_legacy_builder_is_deterministic_without_modifiers (__main__.LegacyRegression.test_legacy_builder_is_deterministic_without_modifiers) ... ok
+test_legacy_fault_injection_reaches_each_wall_rule (__main__.LegacyRegression.test_legacy_fault_injection_reaches_each_wall_rule) ... ok
+test_no_selector_legacy_baselines_all_modes (__main__.LegacyRegression.test_no_selector_legacy_baselines_all_modes) ... ok
+test_explicit_legacy_retains_legacy_gates (__main__.PolyAcceptance.test_explicit_legacy_retains_legacy_gates) ... ok
+test_fresh_scaffold_declares_poly_and_stays_draft (__main__.PolyAcceptance.test_fresh_scaffold_declares_poly_and_stays_draft) ... ok
+test_invalid_or_missing_selector_does_not_fallback_to_legacy (__main__.PolyAcceptance.test_invalid_or_missing_selector_does_not_fallback_to_legacy) ... ok
+test_legacy_builder_refuses_poly_before_overwrite (__main__.PolyAcceptance.test_legacy_builder_refuses_poly_before_overwrite) ... ok
+test_locked_poly_does_not_run_legacy_wall_rules (__main__.PolyAcceptance.test_locked_poly_does_not_run_legacy_wall_rules) ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+test_locked_poly_manifest_missing_is_explicitly_incomplete_or_fail (__main__.PolyAcceptance.test_locked_poly_manifest_missing_is_explicitly_incomplete_or_fail) ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+test_locked_poly_rejects_legacy_tables (__main__.PolyAcceptance.test_locked_poly_rejects_legacy_tables) ... 
+  test_locked_poly_rejects_legacy_tables (__main__.PolyAcceptance.test_locked_poly_rejects_legacy_tables) (field='wall_cells') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_poly_rejects_legacy_tables (__main__.PolyAcceptance.test_locked_poly_rejects_legacy_tables) (field='opening_cuts') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+test_locked_poly_route_mismatch_fails_g92 (__main__.PolyAcceptance.test_locked_poly_route_mismatch_fails_g92) ... 
+  test_locked_poly_route_mismatch_fails_g92 (__main__.PolyAcceptance.test_locked_poly_route_mismatch_fails_g92) (value='legacy_cells_v1') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_poly_route_mismatch_fails_g92 (__main__.PolyAcceptance.test_locked_poly_route_mismatch_fails_g92) (value='unsupported_route') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_poly_route_mismatch_fails_g92 (__main__.PolyAcceptance.test_locked_poly_route_mismatch_fails_g92) (value=None) ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) ... 
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='duplicate_run_id') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='nonpositive_thickness') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='reversed_height') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='missing_block_reference') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='invalid_contour_reference') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='zero_outward') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='nonpositive_numeric_epsilon') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='negative_topology_budget') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='reversed_opening') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='outside_opening') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='inverted_sill_head') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='missing_opening_run') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+  test_locked_wall_negative_mutations (__main__.PolyAcceptance.test_locked_wall_negative_mutations) (case='overlapping_openings') ... skipped 'pending: supply --p2-fixture with a real locked poly pipeline after P2'
+test_no_emitted_or_live_artifact_is_not_a_production_pass (__main__.PolyAcceptance.test_no_emitted_or_live_artifact_is_not_a_production_pass) ... ok
+test_poly_qa_without_runtime_observations_is_incomplete (__main__.PolyAcceptance.test_poly_qa_without_runtime_observations_is_incomplete) ... skipped 'pending: real poly QA project and request required; no runtime evidence invented'
+test_selector_without_walls_file_fails_closed (__main__.PolyAcceptance.test_selector_without_walls_file_fails_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 29.689s
+
+OK (skipped=21)
+INCOMPLETE: skipped checks are not acceptance or runtime evidence.

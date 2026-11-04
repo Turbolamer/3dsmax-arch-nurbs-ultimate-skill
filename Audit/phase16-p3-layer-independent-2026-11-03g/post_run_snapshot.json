@@ -1,0 +1,47 @@
+{
+  "utc": "2026-11-03T19:37:23.311307+00:00",
+  "scope": "read-only post-run observation, not a lock or writer attribution",
+  "prior_manifest_runtime_sha256": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+  "runtime_snapshot_sha256": "ab806d2054fb9af74aaf0a4f43044450f8ffc1217d1f15331bea1b735364efc2",
+  "runtime_marker_lines": {
+    "INCOMPLETE_REPLAY": [
+      879,
+      1074
+    ],
+    "INCOMPLETE_PRECREATE": [
+      21,
+      893,
+      1074
+    ],
+    "p3LayerSnapshot": [],
+    "p31ObserveTwice": [],
+    "layerAsRefTarg": []
+  },
+  "observed_input_sha256": {
+    "Audit/phase16-p3-layer-reader-2026-11-03f/layer_reader.ms": "0dc718d9ae30751d8c32220e10e1d5d05141cf498b0092c3e89da9f252ea3ca7",
+    "Audit/phase16-p3-layer-reader-2026-11-03f/layer_reader_p31_offline.ms": "5b16d1d648a2cdefd9b98440ad4fb4ae1ca1a1c3dde0ecf47990dfe44a8ad4f2",
+    "Audit/phase16-p3-layer-reader-2026-11-03f/emitter_fragment.py": "105cbcba7771175e0291a421dea4f874c66b9f51ddb0db3fd5dba340cb8b16b9",
+    "Audit/phase16-p3-layer-reader-2026-11-03f/test_candidate.py": "27bf1a85bf483e232a3367fd1dc2321ebbe6b273d1388c614fc6a593182153b4",
+    "Audit/phase16-p3-layer-reader-2026-11-03f/test_p31_offline.py": "a6725a4d28ff555bf70db9cc8bc2c32a49a2e4a5b6604e83b58cc207e7e8d69b",
+    "Audit/phase16-p3-layer-reader-2026-11-03f/README_p31_offline.md": "072a46f1a5382b17775dc3cc440996e88814594704eefd4e02244c01dbd2a62e",
+    "Audit/phase16-p3-layer-reader-2026-11-03f/REPORT.md": "fed6e750921065cfa920de8e4c0041578f580fc62c9434874ff312daf0096ee8",
+    "Audit/phase16-p3-layer-reader-2026-11-03f/REPORT_p31_offline.md": "7c076ce3080101d13fec2a663049cc1d19d5c7cb2423b678ba03cd8cc706dce1",
+    "Audit/_phase16-p3-contract-2026-11-02e.md": "4e53b474fc65db7ce1fc2fc78bc3e5358b59e85690d66bb600475474d878bf0f",
+    "Audit/_phase16-p3-resume-2026-11-03f.md": "b3df0d3e27c2ec568197b4adb2f4679c467805ea7d29a992dbb72cacf198846c",
+    "Audit/_phase16-p3-layer-calibration-brief-2026-11-03f.md": "dcee5901eab5ddf56d0d83ceeff410658c335d9a903ffe6d4b6c06e8b902a1a5",
+    "Audit/_phase16-p3-layer-readonly-2026-11-03f.json": "c4a338253d3315d87be74d7f5fdb533867487d5f9271d8b67050568b3107a383",
+    "Audit/phase16-p3-main-probes-2026-11-03f/layer-owned.ms": "aaca2608e05ba46c83e89a554210d11dfc676ef8b6c7ae1d805591834eebaffc",
+    "Audit/phase16-p3-main-probes-2026-11-03f/layer-owned-result.json": "382b98f6eee156e8ad893c96b37052182c004786bc3348bdba5ce1bcd36676e4",
+    "Audit/phase16-p3-main-probes-2026-11-03f/layer-membership.ms": "07fdd1599c5517445eeee89282aa65caded0d1038fe057aada95e4a7f8d56a79",
+    "Audit/phase16-p3-main-probes-2026-11-03f/layer-membership-result.json": "be51b426e9e25f78b7308286d148e1b515d532e585982607df6c586388cad673",
+    "scripts/wall_surface_runtime.py": "ab806d2054fb9af74aaf0a4f43044450f8ffc1217d1f15331bea1b735364efc2",
+    "Audit/phase16-p3-layer-independent-2026-11-03g/test_independent.py": "5527991d2bf68055abb678f8c031cfa63ed675137b139affcf69b3da5fcf5d17",
+    "Audit/phase16-p3-layer-independent-2026-11-03g/run_offline.py": "a2a3d1ef0ab5920babe8917e65eed53c57f58909c29fdd497f81877266e3f818"
+  },
+  "drift_relative_to_run": {
+    "scripts/wall_surface_runtime.py": {
+      "run": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+      "now": "ab806d2054fb9af74aaf0a4f43044450f8ffc1217d1f15331bea1b735364efc2"
+    }
+  }
+}

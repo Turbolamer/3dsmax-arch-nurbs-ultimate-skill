@@ -1,0 +1,15 @@
+{
+  "scope": "static analysis of generated source; modeled status is not MAXScript execution",
+  "runtime_sha256": "d9f470754639a78b3fe5478fde91e5c513d7834c9ba8ffecbcff990225b9b08a",
+  "checks": {
+    "precreate_has_no_unconditional_require_false_or_bare_throw": true,
+    "attempt_and_building_precede_constructor": true,
+    "node_reader_reaches_evaluated_snapshot_after_comment_not_guard": true,
+    "nonce_and_identity_guards_precede_prior_building_classification": true,
+    "entry_status_for_modeled_early_guard_failure": true,
+    "success_publication_replaces_attempt_evidence_before_commit": true,
+    "post_failure_poison_occurs_after_census_and_residual_work": true
+  },
+  "modeled_early_guard_status": "P3_REFUSED",
+  "model_assumptions": "entry failure before unresolved flag; attempt false; successful bounded census and no diagnostic errors"
+}

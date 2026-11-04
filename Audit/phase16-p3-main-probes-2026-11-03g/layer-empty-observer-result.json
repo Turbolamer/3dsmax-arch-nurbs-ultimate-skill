@@ -1,0 +1,25 @@
+{
+  "scope": "Main-only empty-layer partial helper calibration, NOT p31ReadOnce/p31ObserveTwice, production baseline, clean replay or acceptance",
+  "candidate_source": "Audit/phase16-p3-layer-reader-2026-11-03f/layer_reader_p31_offline.ms",
+  "candidate_sha256_before_and_after": "5b16d1d648a2cdefd9b98440ad4fb4ae1ca1a1c3dde0ecf47990dfe44a8ad4f2",
+  "wrapper_generator": "Audit/phase16-p3-main-probes-2026-11-03g/make-layer-empty-observer.py",
+  "wrapper_generator_sha256": "00c02b31bc04d3f0e01ccf0768bf31aaffca9e501f5088520fec3adcd84deeac",
+  "wrapper": "Audit/phase16-p3-main-probes-2026-11-03g/layer-empty-observer.ms",
+  "wrapper_sha256_before_and_after": "2dcd5550d5c2b4f2bdf9d0779ea09a70ac614f3445390703ba4b10745c8386bd",
+  "wrapper_bytes": 18184,
+  "wire": {
+    "ok": true,
+    "result": "P31_EMPTY_LOCAL_OBSERVER|stage=layer-interface|interfaceCount=33;repeatEqual=true|stage=backing|backingCount=34;repeatEqual=true|stage=nested-gi|giCount=18|stage=detached-edits|detachedGIEditDetected=true|detachedDegradeEditDetected=true|wrongBackingRefRefused=true|bogusProfileRefused=true|undefinedFloatRefused=true|status=INCOMPLETE_PARTIAL_ONLY|postContextAndBackingUnchanged=true|dirty=true",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "85ac23ea297f442a95b4603b9ad820ac", "protocol_version": 2, "client_round_trip_ms": 13.043, "fallback_error": null},
+    "elapsed_ms": 13.07
+  },
+  "separate_postcheck": {
+    "ok": true,
+    "result": "P31_POST_PARTIAL_READER|objects=0|selection=0|path=|file=|units=millimeters|scale=1.0|dirty=true|layers=1|layer=0;backing=48P;nodesOK=true;members=0;numNodes=0|oldKey=false",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "8713df48061e4710b0aa3e8ae6d4a65c", "protocol_version": 2, "client_round_trip_ms": 0.43, "fallback_error": null},
+    "elapsed_ms": 0.448
+  },
+  "interpretation": "The complete candidate helper text parsed as part of this newly generated wrapper, and its called profile/typed-detach/finite/reference functions read the existing empty default layer twice. Returned counts and repeat equality were observed. The first detached nested GI scalar and the detached backing degrade scalar were independently toggled in returned arrays, and comparison detected those local array edits; no layer property was mutated. An incorrect backing witness, bogus profile and undefined Float each threw under the local try/catch. The wrapper did not call p31ReadOnce, p31ObserveTwice, p31ReadMembers, p31ReadDependencies or the separate layer_reader.ms candidate; it does not establish their runtime behavior, dependency completeness, actual live GI/degrade edit detection, populated membership, baseline or replay. Wrapper source and candidate file hashes matched observations before/after execution but were not locked during fileIn. State endpoints and dirty=true match as reported, not a proof of unchanged undo/history or absence of intermediate callbacks."
+}

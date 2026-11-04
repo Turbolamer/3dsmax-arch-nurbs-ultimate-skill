@@ -1,0 +1,8 @@
+{
+  "status": "OFFLINE_ONLY_UNEXECUTED_IN_MAX",
+  "supersedes_unexecuted": "control_lock_probe.ms",
+  "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\control_lock_probe_calibrated.ms",
+  "sha256": "38bf9d41c8d724c4046d6e385157e2c142edb94466a0864e2c441bdce08d9618",
+  "expected_live_only": "denied WRITE open while read handles held; same WRITE-open signature succeeds after close with CanWrite=true; no Write/SetLength; exclusive READ reopen; tuple includes both closed flags",
+  "qualification": "No locks or API semantics accepted until main executes exact control"
+}

@@ -1,0 +1,22 @@
+{
+  "scope": "Separate post-record final-document status hashes; not a test, atomic lock or live acceptance",
+  "prior_record": "Audit/_phase16-p3-post-publication-2026-11-03g.json",
+  "prior_record_sha256": "17b8767b371f76df5cba2d365c3e0f8bf695d0a36f8dc9019d0f7b969bd48a99",
+  "acceptance": "P3.1_NOT_ACCEPTED",
+  "authorized_status_publication_after_prior_record": {
+    "CHECKPOINT.md": {
+      "sha256_in_prior_record": "eafb211ea32cdb4f4317f19d63a79954e0b58638d16ef3c2e8466e1ca5bb54fe",
+      "sha256_after": "7fdd4247ea768aa74e2b2beca47a80a462d5c7ba78ad3ac712d25929d707943f"
+    },
+    "Audit/_phase16-p3-resume-2026-11-03g.md": {
+      "sha256_in_prior_record": "28f1cdb00d298de2730e9855be0ef6d6dbb9c459d3e1f65aeb6d21825fb515e5",
+      "sha256_after": "f98f72eaa8a4e76602411215473e38e35b9e8fd1b0325c424a955b7ce7b60129"
+    },
+    "Audit/_phase16-p3-next-session-2026-11-03g-ru.md": {
+      "sha256_in_prior_record": "65e109c6ae549f2196b5543024bb2e889a657bd3afcbe0f360f9857d12babefa",
+      "sha256_after": "e26ca4c6b1d505183c30452cf6067a82934b3e92cc28350eeeb8ef41e352b7ad"
+    }
+  },
+  "runtime_sha256_in_prior_record_and_after": "ab806d2054fb9af74aaf0a4f43044450f8ffc1217d1f15331bea1b735364efc2",
+  "qualification": "The prior non-atomic record captured 2097 files after author stop; these are later intentional documentation/status updates and do not change that earlier record. This supplement does not repeat a complete repository census, does not rerun tests, excludes itself to avoid circular hashing, and is not a filesystem lock."
+}

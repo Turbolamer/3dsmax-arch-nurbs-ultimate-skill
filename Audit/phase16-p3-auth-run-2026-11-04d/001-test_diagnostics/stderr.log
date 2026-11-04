@@ -1,0 +1,18 @@
+test_actual_calibration_data_is_not_f01_or_polygon_observation (__main__.GroupDiagnostics.test_actual_calibration_data_is_not_f01_or_polygon_observation) ... ok
+test_disconnected_and_wrong_oriented_group_refuse (__main__.GroupDiagnostics.test_disconnected_and_wrong_oriented_group_refuse) ... ok
+test_inconsistent_and_overlapping_group_membership_refuse (__main__.GroupDiagnostics.test_inconsistent_and_overlapping_group_membership_refuse) ... ok
+test_malformed_ceilings_indices_and_metadata_refuse (__main__.GroupDiagnostics.test_malformed_ceilings_indices_and_metadata_refuse) ... ok
+test_same_triangles_different_groups_distinguish_group_count_from_face_count (__main__.GroupDiagnostics.test_same_triangles_different_groups_distinguish_group_count_from_face_count) ... ok
+test_two_channel_match_does_not_authenticate_and_mismatches_refuse (__main__.GroupDiagnostics.test_two_channel_match_does_not_authenticate_and_mismatches_refuse) ... ok
+test_two_groups_and_derived_loops_are_not_polygon_acceptance (__main__.GroupDiagnostics.test_two_groups_and_derived_loops_are_not_polygon_acceptance) ... ok
+test_emitted_output_is_monolithic_and_does_not_publish_grid_loops (__main__.OracleBoundary.test_emitted_output_is_monolithic_and_does_not_publish_grid_loops) ... ok
+test_f01_actual_inputs_produce_analytical_prediction_only (__main__.OracleBoundary.test_f01_actual_inputs_produce_analytical_prediction_only) ... ok
+test_historical_main03_is_failure_not_current_grid_evidence (__main__.OracleBoundary.test_historical_main03_is_failure_not_current_grid_evidence) ... ok
+test_triangle_only_synthetic_control_stays_incomplete (__main__.OracleBoundary.test_triangle_only_synthetic_control_stays_incomplete) ... ok
+test_candidate_narrow_temp_ownership_and_read_only_tokens (__main__.StaticCandidate.test_candidate_narrow_temp_ownership_and_read_only_tokens) ... ok
+test_delimiters_and_reserved_names_lexically_only (__main__.StaticCandidate.test_delimiters_and_reserved_names_lexically_only) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.016s
+
+OK

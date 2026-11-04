@@ -17,7 +17,7 @@
 | Stage · Input | **S3** — the curved-geometry build stage (`01` §"S3", `PLAN.md` §4 row P4) · `specs/pipeline/massing.json` and `dimensions.json`, plus `assumptions.json` / `conflicts_resolved.json` |
 | Output | `nurbs.json` (`07` §8.2) and the builder's `nurbs.ms`, then the nodes that script creates |
 | Geometry produced | one NURBS node per `surfaces[]` entry · one node per `derivatives[]` entry (`quad_panels` mesh, `space_frame` spline cage) · **no dummies, no grouping** — grouping is S2's |
-| 3ds Max calls | `3dsmax-mcp_execute_maxscript` — **mandatory**, and it is the **orchestrator's** call, not a subagent's (§4 steps 6–8). **No probes** (§1.2) |
+| 3ds Max calls | `3dsmax-mcp_execute_maxscript` — **mandatory** for the live gate (§4 steps 6–8), by the orchestrator or its authorized delegate. Necessary calibrated probes follow §1.2 |
 | Consumer · Precondition | S4a/S4b → S5, which is **the last stage** · S2 complete and locked (`07` §9.6 `G-34`…`G-40` PASS) |
 | Blocked by | A `nurbs.json` that is not `locked`. Full stop (§2.2) |
 | Findings | See `agents/max-orchestrator.md` §6.2. If this session produced a real finding — a measured value outside `tolerances.linear_cm`, a surface or relation the `nurbs.json` kinds cannot describe, or a lattice value that is legal but wrong for this building — record it in `<project>/IMPROVEMENTS.md`. **A session with no findings writes nothing and creates no file.** Format: `references/improvement-log.md` |
@@ -55,15 +55,19 @@ coordinate quantization `q6`, and chord bounds) and driven via `scripts/expand_c
 | Materials, renderers, UV authoring | **nobody — S6 was cancelled 2026-10-05** | **Applied by hand by the user**; the hand-off is `agents/max-orchestrator.md` §5. `materials.json` is a **reserved stub**, not a deliverable and not a gate. `mat_id` is a sub-material index, data only — and data nothing reads |
 | Layer **application** to any node | **nobody — permanently** *(the current policy of this skill, not an impossibility — see the correction)* | **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the previous wording — *"**There is no way to assign an object to a layer from this bridge. Nine routes are ruled out and this is final, not an open question**"* — is **refuted**. Two facts must be separated: **(a) reading `node.layer` is read-only** — the setter throws `Property is read-only: layer`; **(b) the layer interface method `ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node` (Phase 14, `CHECKPOINT.md` §"Design consequences of the layer finding"). The nine measured routes still prove the **two bridge tools** have no assignment route (`manage_layers`' vocabulary is exactly `{list, create, delete}`; `set_object_property` with `property=layer` dies on the same read-only assignment, with a `property=pos` positive control succeeding in the same batch) — they are a routing survey, not a proof of impossibility (`agents/max-assembly.md` §6.3). **Layer is data** (`07` §8.1.3); **no builder emits layer code** (`G-79`); **the user applies it in the Layer dialog today** — that is the *current policy* of this skill. **Whether the builders should apply layers is a separate policy decision, deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4; the refuted claim must not be replaced by an "always apply layers automatically" claim |
 
-### 1.2 The one-MCP rule
+### 1.2 Coordinated live execution and necessary probes
 
-**You may execute the emitted `nurbs.ms` and read state back. You may not probe** — and at S3 the
-boundary is stricter than at S2, because **the live execution belongs to the orchestrator**.
+**An authorized S3 worker may execute `nurbs.ms`, measure it and run necessary calibrated
+probes.** The former main-only and blanket probe bans are superseded by
+`agents/max-orchestrator.md` §1.1. Obtain the single live-operator slot before any call; other
+agents do not call Max concurrently. Use short sequential calls, inspect ownership before legacy
+name-deleting scripts, preserve unrelated scene content and never reset/save unrelated state or
+manipulate the dirty flag. The synthetic `nurbsID` crash safeguard remains absolute.
 
 | Allowed | Forbidden |
 |---|---|
-| The orchestrator running `3dsmax-mcp_execute_maxscript` with `fileIn "<abs path>/nurbs.ms"`, then one read-back call | **Any exploratory probe of your own.** A fact not in `CHECKPOINT.md` §"Verified facts" is escalated for an orchestrator probe, never opened by S3 (`01` §"S3") |
-| `3dsmax-mcp_get_scene_info` / `_get_scene_snapshot` to confirm the scene holds what the spec says | A second Max call from a subagent "just to check". Max is single-threaded; concurrent calls are how the session is corrupted |
+| The designated operator running `3dsmax-mcp_execute_maxscript` with `fileIn "<abs path>/nurbs.ms"`, bounded read-backs or necessary calibrated probes with controls | Unscheduled live calls, uncontrolled mutations or deletion of unowned scene objects |
+| `3dsmax-mcp_get_scene_info` / `_get_scene_snapshot` in the operator slot to confirm current state | Overlapping Max calls from another agent, even "just to check". Max is single-threaded |
 | `3dsmax-mcp_delete_objects` on nodes you created, in the same call | Every tool in `01` §1.2 — the forestPack / `tyflow_*` / RailClone group and the Rhino-server names (`get_objects`, `loft`, `sweep1`, `pipe`, `analyze_objects`, every `gh_*`) |
 | `3dsmax-mcp_capture_viewport` for a human-facing record, after measuring | `3dsmax-mcp_introspect_class` / `_introspect_instance` / `_inspect_plugin_class` as **proof**. They both fail on the NURBS surface classes (`Unknown class: NURBS1RailSweepSurface`). Introspection is a hint, never proof |
 
@@ -177,7 +181,7 @@ Ordered and deterministic. Each step has a pass condition.
 | 3 | **Classify each candidate against §6** | Each surface is exactly one of the **eight** kinds in §6.1. Every section belongs to ≥ 1 surface (`G-44`). **G-42 rectangular lattice checks apply to lofts/grids**, while independent sweep sections may differ in point count across families | Every refusal recorded with the surface id and reason, and escalated (§10). **A form that needs a rail sweep, a 2-rail sweep, a blend or a projected trim is S3's own work, not an escalation** — classify it, write the keys §6.7 states, and build it (§6.7) |
 | 4 | **Emit `nurbs.json` and `nurbs.ms`** | Run the builder (§5). **You do not hand-write either file.** Then read `nurbs.json` back from disk and verify it independently — recompute one arc or one lattice Z by hand and compare | The file matches your hand computation at `tolerances.linear_cm`; the section set matches what you derived |
 | 5 | **Validate** | `python scripts/validate_specs.py --dir <specs_dir> --build` | Exit **0**. `G-41`…`G-54`, `G-84`, `G-85` **PASS** or **SKIP with a stated reason** — see §8 row 2 |
-| 6 | **Run in 3ds Max** | §7. One script per call, under ~2 s. **The orchestrator runs this, not a subagent** | Returns without error; the scene holds the expected nodes |
+| 6 | **Run in 3ds Max** | §7. One script per call, under ~2 s. **The orchestrator or its authorized live operator runs this** (§1.2) | Returns without error; the scene holds the expected nodes |
 | 7 | **Measure** | §8. Node count, names, `node.min` / `node.max`, parameter domains, and the **evaluated** surface against the lattice | Every node present and named; the four numbers in §6.2 explained by what came back |
 | 8 | **Clean up, then report** | §9. Delete what you created in the same call, then return §12 | Only the S3 nodes remain; the report is under the §12 cap |
 
@@ -285,9 +289,7 @@ same divisions. `examples/nurbs.json`: `SUR-002_Canopy` is a `point_grid`, `SUR-
 **The QA consequence, and it is not optional: any comparison of the surface against the lattice must
 compare the *evaluated* surface, never the lattice against itself** (`07` §8.2.3). A check that samples
 the lattice and compares it to the lattice passes a surface that is 58 cm out of position.
-**CORRECTED (2026-10-06):** this sentence used to say "asserted by P8". **P8 (S7, automated QA) was
-cancelled on 2026-10-05**, so no automated check asserts it. **The rule stands for whoever measures this
-surface** — S3's own gate does — and it is the user's to apply if they measure it themselves.
+**CORRECTED (2026-11-04):** While P8 automated QA was originally paused in early planning, **S7 QA (`qa_check.py`) is now active and verified** — evaluating `QA-V1-FORM` by sampling $(u, v)$ points on the evaluated surface against analytical references. **The rule stands for whoever measures this surface** — S3's own gate does, and S7 QA verifies it against certified tolerances.
 
 ### 6.2.1 Surface precision: `u_loft` vs `point_grid` for analytical barrels
 
@@ -730,7 +732,7 @@ an index against an ordinal you noted at append time.
 
 ## 7. The 3ds Max step
 
-**The orchestrator executes `nurbs.ms`. S3 does not.** These are the verified facts the step depends on.
+**The orchestrator or its authorized S3 live operator executes `nurbs.ms`.** These are the verified facts the step depends on.
 
 | Fact | Status | Consequence |
 |---|---|---|
@@ -741,7 +743,7 @@ an index against an ordinal you noted at append time.
 | **An object's layer cannot be assigned from MAXScript.** Six routes executed, all throw `Property is read-only: layer`. Layer creation and reading do work | ✅ verified, six transcripts. **CORRECTED (2026-10-06): three further routes were ruled out — nine in total** — and the action name is **not unknown, it does not exist** (`agents/max-assembly.md` §6.3) | **Layer stays data.** Nodes land where Max puts new geometry and that is expected — **not a defect, never "fixed" in the emitted script.** **No stage applies the layer; the user does, in the Layer dialog** (this cell used to say "S5 applies `assembly.json.layer_map`") |
 | `getNURBSSet node #relational` + `getObject rset i` is the read route for sub-objects; `evalPos surf u v` is the read route for a point | ✅ executed | This is the measurement route (§8) |
 
-**UNVERIFIED — do not build on these without an orchestrator probe:** `nurbs.ms` on a scene that is not
+**UNVERIFIED — do not build on these without a coordinated calibrated probe:** `nurbs.ms` on a scene that is not
 empty; `setPoint` on a committed surface; any surface-closure method; a `space_frame` cage on a
 `cv_grid` whose domain is `[0, 1]` against a `point_grid` whose domain is chord-length; a **cross-set
 `rail1ID:` / `rail2ID:`** form — the *parent* side has a transcript (§6.7.4), the rail side does not, so
@@ -855,18 +857,18 @@ S3 computes; it does not design, and it escalates anything it cannot build hones
 
 | Topic | Why | Goes to |
 |---|---|---|
-| **The meaning of an unspecified dependent key.** `parallel: false` and `flip_trim: true` — what they do geometrically. **Resolved since 2026-10-04 and no longer on this list:** the `tension1`/`tension2` **default** (now `0.0`, measured), the `edge1`/`edge2` **mapping** (all sixteen combinations measured), and whether a `trim` cuts (**it does not**). | These semantics are **deliberately unspecified** — only the `true`/`false` round-trips have transcripts for the two remaining keys. **The four kinds themselves are not on this list; their keys are in §6.7.1.** Never invent a value, a range or a mapping: `G-52` checks the edge *range*, not the mapping, so an invented mapping fails silently | **an orchestrator probe with a known-positive control**, then **`07`'s owner** records the meaning — a new key is added to §8.2.7 first, per §12 step 1 |
+| **The meaning of an unspecified dependent key.** `parallel: false` and `flip_trim: true` — what they do geometrically. **Resolved since 2026-10-04 and no longer on this list:** the `tension1`/`tension2` **default** (now `0.0`, measured), the `edge1`/`edge2` **mapping** (all sixteen combinations measured), and whether a `trim` cuts (**it does not**). | These semantics are **deliberately unspecified** — only the `true`/`false` round-trips have transcripts for the two remaining keys. **The four kinds themselves are not on this list; their keys are in §6.7.1.** Never invent a value, a range or a mapping: `G-52` checks the edge *range*, not the mapping, so an invented mapping fails silently | **a coordinated calibrated probe with known-positive and bogus controls** (§1.2), then **`07`'s owner** records the meaning — a new key is added to §8.2.7 first, per §12 step 1 |
 | **A ceiling for `tension1` / `tension2`.** The default is `0.0`; the overshoot above `0` is **unbounded by Max** and grows with the tension (§6.7.5) | A bound is a **design decision**, not a measurement — the transcripts establish the direction and the growth, not a safe number. `G-16` currently finds the tensions unbounded; that is a known defect, and picking the number is not S3's to do | **`07`'s owner**, with §10.2's format if it needs a transcript |
 | ~~**The printed string form of an `*ID`.** **CLOSED 2026-10-06 by execution.** `IntegerPtr`, printed `<decimal>P`; `railID="0P"` on a committed 1-rail sweep **was real**, and `rail1ID` / `rail2ID` on a 2-rail sweep read the full pointer and equal the rail curve's own `nurbsID`. The value **changes between builds of identical geometry** — never persist one | **Still never assert a format** and never write a literal — that is a crash. The format being known changes nothing about what a spec may encode; a builder binds the id in the same script that consumes it (`G-56`). Transcript: `12-nurbs-gotchas.md` §3.29 | **closed — measured** |
-| **A cross-set `rail1ID:` / `rail2ID:` form.** `parent1ID:` across sets has a transcript (§6.7.4); the rail side does not | A **hypothesis**. Rails are curves in the same set and use `rail:` by ordinal; do not switch to an id form without a transcript | **an orchestrator probe**, then **`07`'s owner** |
-| **Deleting a parent node that a live relation still points at.** After the parent was deleted the relation **did not break — in the one case measured** (`evalPos(0.5,0.5)=[899.861,900,600.97]`, unchanged bbox) | **One test, one outcome, not a guarantee.** The relation set is not refilled by the parent's removal, so the id can dangle | **an orchestrator probe** before anything depends on it; until then, **keep parent nodes alive** |
+| **A cross-set `rail1ID:` / `rail2ID:` form.** `parent1ID:` across sets has a transcript (§6.7.4); the rail side does not | A **hypothesis**. Rails are curves in the same set and use `rail:` by ordinal; do not switch to an id form without a transcript | **a coordinated calibrated probe** (§1.2), then **`07`'s owner** |
+| **Deleting a parent node that a live relation still points at.** After the parent was deleted the relation **did not break — in the one case measured** (`evalPos(0.5,0.5)=[899.861,900,600.97]`, unchanged bbox) | **One test, one outcome, not a guarantee.** The relation set is not refilled by the parent's removal, so the id can dangle | **a coordinated calibrated probe on owned fixtures** (§1.2) before anything depends on it; until then, **keep parent nodes alive** |
 | **A trim-profile closure assertion**, or a `G-` row for the `surface_ref` ordering convention | Both are expressible and unchecked: `G-50` counts profiles (≥ 1) without testing that one closes, and it checks only that a `trim` *names* a surface, while "declared earlier" is enforced for `blend` alone | **`07`'s owner.** A `closed` assertion belongs in a `G-` row, not in prose |
 | **A form §8.2 still cannot express** — `revolve`, `freeform`, a surface from a swept profile, per-surface `closed_u` / `closed_v`, knot vectors, or any second geometry table such as `relations[]` | There is no `kind` for it, and §8.2.3's list of **eight** is closed. Writing one into `nurbs.json` is a `G-43` FAIL and a schema change | **S3's owner, then `07`'s owner** |
 | **A relation parent whose kind the builder cannot build on its own node** — a parent that is itself `rail_sweep`, `two_rail_sweep`, `blend` or `trim` | `G-50` refuses it by name. Only `u_loft`, `uv_loft`, `point_grid`, `cv_grid` can be built uncommitted and committed as their own node | **`07`'s owner** (the build rule is the builder's, but the admissibility rule is the schema's) |
 | **A missing or contradictory dimension** in `massing.json` / `dimensions.json` | S3 may not fill a dimension and may not hand-edit a locked file | **S2 / S1** |
 | **Structural sizing** — shell thickness, diagrid member depth, cable pretension, node capacities | A licensed engineer's scope (`09` §5) | the user (`E1`) |
 | **A `kind` whose measured result violates the design intent** — a canopy whose bounding box is 58 cm above its lattice when the brief says it shall not exceed | §6.2 is a property of the kind, not a bug. The fix is a different kind or a different lattice, and that is a design decision | the user, with the four numbers |
-| **Any fact not in `CHECKPOINT.md` §"Verified facts"** | §1.2: S3 escalates for an orchestrator probe, it does not open one | the orchestrator |
+| **Any fact not in `CHECKPOINT.md` §"Verified facts"** | Remains UNVERIFIED until a necessary calibrated probe is scheduled under §1.2; an authorized S3 worker may execute it | the orchestrator for scheduling; the owning spec stage for changes |
 
 ### 10.2 How to record a request you cannot fulfil
 
@@ -924,8 +926,8 @@ is not a S3 instrument.
 
 ### 11.1 Context discipline
 
-**Never probe** (`01` §6). **One bridge call per batch**: build in one, read back in one, delete in the
-same call as the create. **Compute, don't transcribe** — verify the builder by recomputing an arc or a
+**Coordinate necessary probes under §1.2.** **One short bridge call per bounded batch**; clean up
+only proven-owned temporary objects, preferably in the creating call. **Compute, don't transcribe** — verify the builder by recomputing an arc or a
 lattice Z from `massing.json`, not by reading the emitted `.ms` back and nodding at it. **No bulk dumps
 in the final message**; never read another agent's transcript. `07` §8.2 and §9.7 are read **once**.
 
@@ -942,7 +944,7 @@ VALIDATOR: scripts/validate_specs.py --dir <specs_dir> --build -> exit <n>  (PAS
 G-41..G-54, G-84..G-85: <n> PASS / <n> SKIP — <for each SKIP, the reason the check could not be evaluated; G-54 always SKIPs at lint; G-84/G-85 SKIP if generator metadata absent>
 BUILDER: scripts/build_nurbs.py -> exit <n> · <n> sections / <n> surfaces (<by kind>) · <n> derivatives · surface index resolved by superclass, no literal index emitted
 DEPENDENT: <n> dependent surface(s) (<kinds>) · G-50..G-53 <n> PASS / <n> FAIL · G-54 census <for each node: id -> expected, actual> · <"none in this spec" if there are none>
-LIVE: nurbs.ms fileIn-ed in 3ds Max by the orchestrator, no error · <n>/<n> nodes present · <n> nodes deleted in the sweep · scene otherwise empty
+LIVE: nurbs.ms fileIn-ed by <authorized operator>, no error · <n>/<n> owned nodes present · <n> owned temporary nodes cleaned · entry baseline preserved / differences: <details>
 MEASURED: worst |measured − expected| across all surfaces = <n> cm (tolerance linear_cm = <n> cm) · param domains <kind>=chord-length / [0,1] as expected · shell crown base <n> -> offset <n> for thickness_cm <n>
 OBJECTIONS: <one line per defect in a file you do not own, naming file and line, or "none">
 NOT-IMPLEMENTED: <n> — <one line each: what was asked, the class that exists, what is missing>
@@ -1029,7 +1031,7 @@ copy specs/recipes/<recipe>.json  <project>/specs/pipeline/nurbs.json
 # 3. replace every origin_inputs and derives_from path with real keys in massing.json / dimensions.json
 # 4. python scripts/validate_specs.py --dir <project>/specs/pipeline --build
 # 5. python scripts/build_nurbs.py --in <project>/specs/pipeline --out <project>/specs/pipeline
-# 6. fileIn nurbs.ms in live Max (orchestrator), measure per section 8
+# 6. fileIn nurbs.ms in live Max (designated operator under section 1.2), measure per section 8
 ```
 
 | Validator result on a recipe, verbatim | What it means |

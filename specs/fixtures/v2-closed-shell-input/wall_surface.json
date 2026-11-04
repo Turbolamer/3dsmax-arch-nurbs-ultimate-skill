@@ -1,0 +1,327 @@
+{
+  "schema_version": "2.0",
+  "spec": "wall_surface",
+  "project": "pavilion-01",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "walls.json",
+    "recorded_at": "2026-11-04T00:00:00Z"
+  },
+  "status": "locked",
+  "wall_technique": "closed_inner_contour_shell_v2",
+  "namespace": "WS",
+  "nodes": [
+    {
+      "name": "WS_storey_1",
+      "role": "wall_shell",
+      "storey_id": "storey_1",
+      "class": "Editable_Poly"
+    },
+    {
+      "name": "WS_storey_1_InnerSpline",
+      "role": "inner_guide_spline",
+      "storey_id": "storey_1",
+      "class": "SplineShape"
+    }
+  ],
+  "owned_nodes": [
+    "WS_storey_1",
+    "WS_storey_1_InnerSpline"
+  ],
+  "openings": [
+    {
+      "manifest_version": "2.0",
+      "project_id": "pavilion-01",
+      "storey_id": "storey_1",
+      "contour_id": "storey_1_contour",
+      "segment_id": "seg_south",
+      "opening_id": "OP-001",
+      "kind": "door",
+      "component_type_id": "components_registry.json:components:DOOR-01",
+      "mount_reference": "inner_face",
+      "local_frame": {
+        "origin_cm": [
+          100.0,
+          0.0,
+          0.0
+        ],
+        "tangent": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "outward": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "basis_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            100.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ]
+        ]
+      },
+      "station_along_segment": {
+        "s_min_cm": 100.0,
+        "s_max_cm": 200.0,
+        "width_cm": 100.0
+      },
+      "vertical_bounds": {
+        "sill_z_cm": 0.0,
+        "head_z_cm": 210.0,
+        "height_cm": 210.0
+      },
+      "rough_opening": {
+        "width_cm": 100.0,
+        "height_cm": 210.0,
+        "depth_cm": 30.0
+      },
+      "wall_thickness_cm": 30.0,
+      "mounting_parameters": {
+        "recess_cm": 10.0,
+        "frame_depth_cm": 12.0,
+        "clearance_sides_cm": 1.0,
+        "clearance_top_cm": 1.0,
+        "clearance_bottom_cm": 0.0,
+        "overlap_cm": 1.5
+      },
+      "provenance": {
+        "source_file": "walls.json",
+        "source_path": "storey_1.openings[OP-001]"
+      }
+    },
+    {
+      "manifest_version": "2.0",
+      "project_id": "pavilion-01",
+      "storey_id": "storey_1",
+      "contour_id": "storey_1_contour",
+      "segment_id": "seg_south",
+      "opening_id": "OP-002",
+      "kind": "window",
+      "component_type_id": "COMP_WINDOW",
+      "mount_reference": "inner_face",
+      "local_frame": {
+        "origin_cm": [
+          320.0,
+          0.0,
+          90.0
+        ],
+        "tangent": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "outward": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "basis_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            320.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            90.0
+          ]
+        ]
+      },
+      "station_along_segment": {
+        "s_min_cm": 320.0,
+        "s_max_cm": 500.0,
+        "width_cm": 180.0
+      },
+      "vertical_bounds": {
+        "sill_z_cm": 90.0,
+        "head_z_cm": 210.0,
+        "height_cm": 120.0
+      },
+      "rough_opening": {
+        "width_cm": 180.0,
+        "height_cm": 120.0,
+        "depth_cm": 30.0
+      },
+      "wall_thickness_cm": 30.0,
+      "mounting_parameters": {
+        "recess_cm": 10.0,
+        "frame_depth_cm": 12.0,
+        "clearance_sides_cm": 1.0,
+        "clearance_top_cm": 1.0,
+        "clearance_bottom_cm": 0.0,
+        "overlap_cm": 1.5
+      },
+      "provenance": {
+        "source_file": "walls.json",
+        "source_path": "storey_1.openings[OP-002]"
+      }
+    },
+    {
+      "manifest_version": "2.0",
+      "project_id": "pavilion-01",
+      "storey_id": "storey_1",
+      "contour_id": "storey_1_contour",
+      "segment_id": "seg_east",
+      "opening_id": "OP-003",
+      "kind": "window",
+      "component_type_id": "COMP_WINDOW",
+      "mount_reference": "inner_face",
+      "local_frame": {
+        "origin_cm": [
+          600.0,
+          100.0,
+          110.0
+        ],
+        "tangent": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "outward": [
+          1.0,
+          -0.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "basis_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0,
+            600.0
+          ],
+          [
+            1.0,
+            -0.0,
+            0.0,
+            100.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            110.0
+          ]
+        ]
+      },
+      "station_along_segment": {
+        "s_min_cm": 100.0,
+        "s_max_cm": 300.0,
+        "width_cm": 200.0
+      },
+      "vertical_bounds": {
+        "sill_z_cm": 110.0,
+        "head_z_cm": 240.0,
+        "height_cm": 130.0
+      },
+      "rough_opening": {
+        "width_cm": 200.0,
+        "height_cm": 130.0,
+        "depth_cm": 30.0
+      },
+      "wall_thickness_cm": 30.0,
+      "mounting_parameters": {
+        "recess_cm": 10.0,
+        "frame_depth_cm": 12.0,
+        "clearance_sides_cm": 1.0,
+        "clearance_top_cm": 1.0,
+        "clearance_bottom_cm": 0.0,
+        "overlap_cm": 1.5
+      },
+      "provenance": {
+        "source_file": "walls.json",
+        "source_path": "storey_1.openings[OP-003]"
+      }
+    }
+  ],
+  "analytical_volume_cm3": 17022000.0,
+  "volume_cm3": 17022000.0,
+  "analytical_bbox_cm": [
+    -30.0,
+    -30.0,
+    0.0,
+    630.0,
+    430.0,
+    300.0
+  ],
+  "bounds_cm": [
+    -30.0,
+    -30.0,
+    0.0,
+    630.0,
+    430.0,
+    300.0
+  ],
+  "topology_budget": {
+    "total_grid_polygons": 50,
+    "total_deleted_faces": 7,
+    "total_base_active_polygons": 43,
+    "total_evaluated_triangles": 86
+  },
+  "storeys": [
+    {
+      "id": "storey_1",
+      "base_z_cm": 0.0,
+      "top_z_cm": 300.0,
+      "wall_thickness_cm": 30.0,
+      "analytical_volume_cm3": 17022000.0,
+      "bounds_cm": [
+        -30.0,
+        -30.0,
+        0.0,
+        630.0,
+        430.0,
+        300.0
+      ],
+      "topology": {
+        "grid_polygons": 50,
+        "deleted_faces": 7,
+        "base_active_polygons": 43,
+        "evaluated_triangles": 86
+      }
+    }
+  ]
+}

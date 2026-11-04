@@ -1,0 +1,39 @@
+test_actual_runtime_artifact_integration_pure_not_full_fixture (__main__.ArtifactTests.test_actual_runtime_artifact_integration_pure_not_full_fixture) ... ok
+test_authentic_f01_snapshot_emit_publish_deterministic_new_dirs_only (__main__.ArtifactTests.test_authentic_f01_snapshot_emit_publish_deterministic_new_dirs_only) ... ok
+test_coordinator_fake_seams_validate_drift_then_publish_order (__main__.ArtifactTests.test_coordinator_fake_seams_validate_drift_then_publish_order) ... ok
+test_deterministic_manifest_script_hash_identity_not_circular (__main__.ArtifactTests.test_deterministic_manifest_script_hash_identity_not_circular) ... ok
+test_existing_output_refused_before_any_dependency_load (__main__.ArtifactTests.test_existing_output_refused_before_any_dependency_load) ... ok
+test_generator_contract_hash_drift_discriminated_on_temp_source (__main__.ArtifactTests.test_generator_contract_hash_drift_discriminated_on_temp_source) ... ok
+test_geometric_normal_is_not_skew_declared_vector (__main__.ArtifactTests.test_geometric_normal_is_not_skew_declared_vector) ... ok
+test_identity_changes_for_each_configuration_and_source_hash (__main__.ArtifactTests.test_identity_changes_for_each_configuration_and_source_hash) ... ok
+test_incomplete_metadata_nonfinite_prediction_and_script_without_identity_refuse (__main__.ArtifactTests.test_incomplete_metadata_nonfinite_prediction_and_script_without_identity_refuse) ... ok
+test_late_source_drift_and_adapter_false_refuse_before_publication (__main__.ArtifactTests.test_late_source_drift_and_adapter_false_refuse_before_publication) ... ok
+test_pair_two_mib_limit_stricter_than_publication_helper (__main__.ArtifactTests.test_pair_two_mib_limit_stricter_than_publication_helper) ... ok
+test_ambiguous_strings_and_noncanonical_hashes (__main__.AuthorityTests.test_ambiguous_strings_and_noncanonical_hashes) ... ok
+test_bad_root_and_schema_refused (__main__.AuthorityTests.test_bad_root_and_schema_refused) ... ok
+test_each_missing_key_and_unknown_key_refused (__main__.AuthorityTests.test_each_missing_key_and_unknown_key_refused) ... ok
+test_each_source_wall_value_compared_independently (__main__.AuthorityTests.test_each_source_wall_value_compared_independently) ... ok
+test_exact_pair_shapes (__main__.AuthorityTests.test_exact_pair_shapes) ... ok
+test_finite_numeric_closed_record (__main__.AuthorityTests.test_finite_numeric_closed_record) ... ok
+test_missing_source_and_source_traversal_refused (__main__.AuthorityTests.test_missing_source_and_source_traversal_refused) ... ok
+test_nonunique_run_and_inverted_z_refused (__main__.AuthorityTests.test_nonunique_run_and_inverted_z_refused) ... ok
+test_positive_closed_record_and_exact_scalar_values (__main__.AuthorityTests.test_positive_closed_record_and_exact_scalar_values) ... ok
+test_relative_source_uses_only_process_cwd_no_authority_directory_fallback (__main__.AuthorityTests.test_relative_source_uses_only_process_cwd_no_authority_directory_fallback) ... ok
+test_source_hash_is_exact_raw_bytes_not_json_or_text_reencoding (__main__.AuthorityTests.test_source_hash_is_exact_raw_bytes_not_json_or_text_reencoding) ... ok
+test_source_text_is_never_executed (__main__.AuthorityTests.test_source_text_is_never_executed) ... ok
+test_strict_authority_parser_numeric_and_duplicate_controls (__main__.AuthorityTests.test_strict_authority_parser_numeric_and_duplicate_controls) ... ok
+test_ambiguous_path_spellings_refuse (__main__.BoundaryTests.test_ambiguous_path_spellings_refuse) ... ok
+test_input_path_preflight_refuses_reparse_before_snapshot (__main__.BoundaryTests.test_input_path_preflight_refuses_reparse_before_snapshot) ... ok
+test_namespace_strict_ascii (__main__.BoundaryTests.test_namespace_strict_ascii) ... ok
+test_observed_hash_drift_refuses_without_writing (__main__.BoundaryTests.test_observed_hash_drift_refuses_without_writing) ... ok
+test_output_exists_and_all_input_overlap_directions_refuse (__main__.BoundaryTests.test_output_exists_and_all_input_overlap_directions_refuse) ... ok
+test_reparse_control_discriminates_regular_ancestor (__main__.BoundaryTests.test_reparse_control_discriminates_regular_ancestor) ... ok
+test_snapshot_binds_exact_raw_bytes_and_parsed_document (__main__.BoundaryTests.test_snapshot_binds_exact_raw_bytes_and_parsed_document) ... ok
+test_symlink_ancestor_and_hardlink_source_refuse_where_available (__main__.BoundaryTests.test_symlink_ancestor_and_hardlink_source_refuse_where_available) ... ok
+test_units_exact_type_scale_and_equal_factor_pairs (__main__.BoundaryTests.test_units_exact_type_scale_and_equal_factor_pairs) ... ok
+test_unknown_flags_abbreviations_duplicate_flags_no_force_or_draft (__main__.BoundaryTests.test_unknown_flags_abbreviations_duplicate_flags_no_force_or_draft) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 0.955s
+
+OK

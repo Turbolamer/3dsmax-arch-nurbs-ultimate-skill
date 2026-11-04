@@ -1,0 +1,274 @@
+{
+  "schema_version": "1.0",
+  "spec": "assumptions",
+  "project": "pavilion-01",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "gaps in the user brief of 2026-10-04; each entry names the silence it fills",
+    "recorded_at": "2026-10-04T11:40:00Z"
+  },
+  "status": "locked",
+  "assumptions": [
+    {
+      "id": "A-001",
+      "field_path": "site.plot_rotation_deg",
+      "value": 0.0,
+      "reason": "The brief is silent on plot rotation.",
+      "confidence": "medium",
+      "invalidated_by": "site plan",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-002",
+      "field_path": "site.setback_cm",
+      "value": 100.0,
+      "reason": "The brief is silent on setback.",
+      "confidence": "medium",
+      "invalidated_by": "site plan",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-003",
+      "field_path": "structure.x_bay_cm",
+      "value": [
+        300.0,
+        360.0
+      ],
+      "reason": "The brief is silent on x bays.",
+      "confidence": "medium",
+      "invalidated_by": "grid plan",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-004",
+      "field_path": "structure.y_bay_cm",
+      "value": [
+        460.0
+      ],
+      "reason": "The brief is silent on y bays.",
+      "confidence": "medium",
+      "invalidated_by": "grid plan",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-005",
+      "field_path": "structure.column_section_cm",
+      "value": [
+        40.0,
+        40.0
+      ],
+      "reason": "The brief is silent on column section.",
+      "confidence": "medium",
+      "invalidated_by": "structure spec",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-006",
+      "field_path": "levels[0].use",
+      "value": "pavilion_gallery",
+      "reason": "The brief is silent on level use.",
+      "confidence": "medium",
+      "invalidated_by": "schedule",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-007",
+      "field_path": "core.type",
+      "value": "none",
+      "reason": "The brief is silent on core type.",
+      "confidence": "medium",
+      "invalidated_by": "schedule",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-008",
+      "field_path": "core.footprint_cm",
+      "value": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          100.0,
+          0.0
+        ],
+        [
+          100.0,
+          100.0
+        ],
+        [
+          0.0,
+          100.0
+        ]
+      ],
+      "reason": "The brief is silent on core footprint.",
+      "confidence": "medium",
+      "invalidated_by": "schedule",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-009",
+      "field_path": "core.wall_thickness_cm",
+      "value": 20.0,
+      "reason": "The brief is silent on core wall thickness.",
+      "confidence": "medium",
+      "invalidated_by": "structure spec",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-010",
+      "field_path": "floor_plates[0].thickness_cm",
+      "value": 30.0,
+      "reason": "The brief is silent on floor plate thickness.",
+      "confidence": "medium",
+      "invalidated_by": "structure spec",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-011",
+      "field_path": "floor_plates[0].net_usable_area_m2",
+      "value": 30.36,
+      "reason": "The brief is silent on net area.",
+      "confidence": "medium",
+      "invalidated_by": "schedule",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-012",
+      "field_path": "roof.slope_deg",
+      "value": 0.0,
+      "reason": "The brief is silent on roof slope.",
+      "confidence": "medium",
+      "invalidated_by": "roof spec",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-013",
+      "field_path": "roof.parapet_height_cm",
+      "value": 60.0,
+      "reason": "The brief is silent on parapet height.",
+      "confidence": "medium",
+      "invalidated_by": "elevation",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-014",
+      "field_path": "roof.parapet_thickness_cm",
+      "value": 20.0,
+      "reason": "The brief is silent on parapet thickness.",
+      "confidence": "medium",
+      "invalidated_by": "roof detail",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-015",
+      "field_path": "roof.coping_overhang_cm",
+      "value": 5.0,
+      "reason": "The brief is silent on coping overhang.",
+      "confidence": "medium",
+      "invalidated_by": "roof detail",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-016",
+      "field_path": "roof.drainage",
+      "value": "internal_scupper",
+      "reason": "The brief is silent on roof drainage.",
+      "confidence": "medium",
+      "invalidated_by": "MEP spec",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    },
+    {
+      "id": "A-023",
+      "field_path": "components_registry.json:defaults.panel_thickness_cm",
+      "value": 3.0,
+      "reason": "The brief is silent on panel thickness.",
+      "confidence": "medium",
+      "invalidated_by": "facade spec",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5"
+      ]
+    },
+    {
+      "id": "A-024",
+      "field_path": "components_registry.json:defaults.joint_width_cm",
+      "value": 2.0,
+      "reason": "The brief is silent on joint width.",
+      "confidence": "medium",
+      "invalidated_by": "facade spec",
+      "recheck_stage": "P5",
+      "downstream_stages": [
+        "P5"
+      ]
+    },
+    {
+      "id": "A-025",
+      "field_path": "massing.json:defaults.facade_wall_thickness_cm",
+      "value": 20.0,
+      "reason": "The brief is silent on facade wall thickness.",
+      "confidence": "medium",
+      "invalidated_by": "massing spec",
+      "recheck_stage": "P3",
+      "downstream_stages": [
+        "P3"
+      ]
+    }
+  ],
+  "cross_references": {
+    "note": "Values that were NOT invented are listed here for completeness so a reader of dimensions.json does not have to open conflicts_resolved.json to find out why a value looks chosen. Nothing in this block is an assumption and no id here matches an A- id. Conflict-sourced values are owned by conflicts_resolved.json; derived values are recomputed by the validator under G-32 and are owned by no ledger.",
+    "conflict_sourced_paths": []
+  }
+}

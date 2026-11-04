@@ -1,0 +1,387 @@
+{
+  "protocol_version": "form_qa_wire_v1",
+  "canonicalization": "form_cjson_v1",
+  "project": "pavilion-01",
+  "run_id": "live-run-001",
+  "qa_hash": "1cb50167f70210a6dd6012546423e0d3cdf963adfa03cf4cb0286dd3761e93d1",
+  "profile": "closed_inner_contour_shell_v2",
+  "selected_frame": 0,
+  "methods": {
+    "arc_solver": "interval_lipschitz_arc_v1",
+    "landmark_solver": "none_v1",
+    "serializer": "invariant_decimal_wire_v1",
+    "factor": "certified_native_factor_v1",
+    "volume": "box_endpoint_propagation_v1"
+  },
+  "dependencies": [
+    {
+      "id": "DEP_DIMENSIONS",
+      "file": "dimensions.json",
+      "sha256": "45f37402242af7bd2d8551047c89d195226d677bcf48f5ec2b158aa0227bf3df",
+      "format": "json",
+      "spec": "dimensions",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "DEP_MASSING",
+      "file": "massing.json",
+      "sha256": "34b64b17747a34a813ee2167e32eb7781d0aed1a6b07860793f3197750f473d1",
+      "format": "json",
+      "spec": "massing",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "DEP_WALLS",
+      "file": "walls.json",
+      "sha256": "49f5506f5d3cdb9031597f16bc40dcd3e04b615229ac6095f67566ecfc5a92bd",
+      "format": "json",
+      "spec": "walls",
+      "schema_version": "2.0"
+    },
+    {
+      "id": "DEP_WALL_SURFACE",
+      "file": "wall_surface.json",
+      "sha256": "d8686f8ce1b8a18ebd99990ff4d3a2587779d8cc643dfeb124c616f55421a81e",
+      "format": "json",
+      "spec": "wall_surface",
+      "schema_version": "2.0"
+    },
+    {
+      "id": "DEP_COMPONENTS_REGISTRY",
+      "file": "components_registry.json",
+      "sha256": "07469f2de6c5bebd334ccf7fb673d289c3a6df51f3d4d5f6db7ab859e56f76ce",
+      "format": "json",
+      "spec": "components_registry",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "DEP_ASSEMBLY",
+      "file": "assembly.json",
+      "sha256": "1d4f1e9949be72f5ce90c4a43e14fd6b625387ff0c79f727394f0c2196ce3b05",
+      "format": "json",
+      "spec": "assembly",
+      "schema_version": "1.0"
+    }
+  ],
+  "expected_target_ids": [
+    "EL_001",
+    "EL_002",
+    "PLC_001",
+    "PLC_002",
+    "PLC_003",
+    "TGT_PROJECT",
+    "WS_storey_1"
+  ],
+  "expected_check_ids": [
+    "CHK_APERTURE_01",
+    "CHK_APERTURE_02",
+    "CHK_APERTURE_03",
+    "CHK_CENSUS_EL1",
+    "CHK_CENSUS_EL2",
+    "CHK_COVERAGE",
+    "CHK_PLACEMENT_01",
+    "CHK_PLACEMENT_02",
+    "CHK_PLACEMENT_03",
+    "CHK_SOLID",
+    "CHK_SURFACE",
+    "CHK_TOPOLOGY"
+  ],
+  "expected_observation_ids": [
+    "O10b1bb8508a7ba291ad32d371ecbb907eb3952bb51de0fcc7867d976f0e4fdd",
+    "O1e358a126320cd0765bb8729b023e1290e7eba2470643fcddb3796c1ca06592",
+    "O4917f92238699614af532e62a8815c7b977ded33a9b92c952182eec8b466a7a",
+    "O582f7ca5d0d26e45416a8bb39c586d05e99d60112dc4bbccbd7a72879f717a4",
+    "O792151e50b3b2006a56db3afd47a5912347fef48dfb749aec4ae9cb2ba901c4",
+    "O79666e0ca53fff52293a1d4a61c190ee8a8553bc0d25e2da14c25d83c6cf1a1",
+    "O94fc22d10018d2660b2229a63443a89ea826084220c6c9f22e1fe4aa7acdaaa",
+    "O965c6da7e95d493177c52848790d6e09e0ec0e9198d1dd5336a0a28e93c5de7",
+    "Ocdce6c57bbc99b4152a38efb1cb7a80884e88fafe662086e75eead8e4702342",
+    "Od26ef76f52982b8879d597101a3475224629ca6829baa1e648ea8a6059bf640",
+    "Oe97b490ecc2b6e279730f3c6aecdea97ea7c9c82bb6b639f0b723c9b5abd29f",
+    "Of9c519f098f68d1ded037a09aff4aa71f6ac3c236d652eae58381a32acf0316"
+  ],
+  "expected_sample_ids": [
+    "S114142fa7b0bf5a3d236478df80bd6b0eab15f303696c9e4c88dfa5c67f474b",
+    "S158b65594b1eb55a2fdec2ac65e0c92971ce1dcb3870fcdf873c18f97951f7a",
+    "S2428b1df7e9a1aeabeb37c04ac81188b31e8441de12aaacef2fc103f42007a3",
+    "S4d3618dad063cb95485ef2d8cc146d7dc0c3d60d74b372302b6c01526f401f6",
+    "S5986dcbe78a502f0743490cc51280d95c7064fe5c233bc09255f825f03a64a1",
+    "S695aae7c83731cfe2741253686be339d7ab06aae51c15ba5fb00c710c5da17c",
+    "S8d4fdc410d784ec6024764fdec3fd50e78f7d9917fac5d8100ba05c72e5f124",
+    "Saa12beec3285285e5111900e94ba5c3eba65428551b7e475d366459e834cf94",
+    "Sb729969f43a2db1eb2c61cb1672f91cd827da3632683e6cc9b9f704fcddf26f",
+    "Sd6cb76baba856021c993da8ed1b937a42ee82d4dbd8c0e1700c52680aa88f4e",
+    "Se79496a55f46d5b2cc24f99499efb22aa63519a1ab8becf8a9bac971705e365",
+    "Sec0df9a3d922e9c1791b52d470cb71da082d92917475032a6d3bf653f4c3e32"
+  ],
+  "observations": [
+    {
+      "id": "Ocdce6c57bbc99b4152a38efb1cb7a80884e88fafe662086e75eead8e4702342",
+      "check_id": "CHK_COVERAGE",
+      "target_id": "TGT_PROJECT",
+      "sample_id": "Sec0df9a3d922e9c1791b52d470cb71da082d92917475032a6d3bf653f4c3e32",
+      "schedule_label": "record",
+      "evidence_source": "assessment",
+      "metrics": [
+        {
+          "id": "binding",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 4,
+          "expected_labels": [
+            "pavilion-01",
+            "live-run-001",
+            "local_only_v1"
+          ],
+          "tolerance_ref": "exact",
+          "method_id": "coverage_sets_v1"
+        }
+      ]
+    },
+    {
+      "id": "O79666e0ca53fff52293a1d4a61c190ee8a8553bc0d25e2da14c25d83c6cf1a1",
+      "check_id": "CHK_SOLID",
+      "target_id": "WS_storey_1",
+      "sample_id": "S5986dcbe78a502f0743490cc51280d95c7064fe5c233bc09255f825f03a64a1",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "solid_v1",
+          "method_id": "qa-v1-solid_v1"
+        }
+      ]
+    },
+    {
+      "id": "O582f7ca5d0d26e45416a8bb39c586d05e99d60112dc4bbccbd7a72879f717a4",
+      "check_id": "CHK_TOPOLOGY",
+      "target_id": "WS_storey_1",
+      "sample_id": "S158b65594b1eb55a2fdec2ac65e0c92971ce1dcb3870fcdf873c18f97951f7a",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "topology_v1",
+          "method_id": "qa-v1-topology_v1"
+        }
+      ]
+    },
+    {
+      "id": "O965c6da7e95d493177c52848790d6e09e0ec0e9198d1dd5336a0a28e93c5de7",
+      "check_id": "CHK_SURFACE",
+      "target_id": "WS_storey_1",
+      "sample_id": "S695aae7c83731cfe2741253686be339d7ab06aae51c15ba5fb00c710c5da17c",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "surface_v1",
+          "method_id": "qa-v1-surface_v1"
+        }
+      ]
+    },
+    {
+      "id": "O792151e50b3b2006a56db3afd47a5912347fef48dfb749aec4ae9cb2ba901c4",
+      "check_id": "CHK_APERTURE_01",
+      "target_id": "PLC_001",
+      "sample_id": "Saa12beec3285285e5111900e94ba5c3eba65428551b7e475d366459e834cf94",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "aperture_v1",
+          "method_id": "qa-v1-aperture_v1"
+        }
+      ]
+    },
+    {
+      "id": "O10b1bb8508a7ba291ad32d371ecbb907eb3952bb51de0fcc7867d976f0e4fdd",
+      "check_id": "CHK_APERTURE_02",
+      "target_id": "PLC_002",
+      "sample_id": "S2428b1df7e9a1aeabeb37c04ac81188b31e8441de12aaacef2fc103f42007a3",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "aperture_v1",
+          "method_id": "qa-v1-aperture_v1"
+        }
+      ]
+    },
+    {
+      "id": "Od26ef76f52982b8879d597101a3475224629ca6829baa1e648ea8a6059bf640",
+      "check_id": "CHK_APERTURE_03",
+      "target_id": "PLC_003",
+      "sample_id": "Sb729969f43a2db1eb2c61cb1672f91cd827da3632683e6cc9b9f704fcddf26f",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "aperture_v1",
+          "method_id": "qa-v1-aperture_v1"
+        }
+      ]
+    },
+    {
+      "id": "O94fc22d10018d2660b2229a63443a89ea826084220c6c9f22e1fe4aa7acdaaa",
+      "check_id": "CHK_PLACEMENT_01",
+      "target_id": "PLC_001",
+      "sample_id": "S8d4fdc410d784ec6024764fdec3fd50e78f7d9917fac5d8100ba05c72e5f124",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "placement_v1",
+          "method_id": "qa-v1-placement_v1"
+        }
+      ]
+    },
+    {
+      "id": "Of9c519f098f68d1ded037a09aff4aa71f6ac3c236d652eae58381a32acf0316",
+      "check_id": "CHK_PLACEMENT_02",
+      "target_id": "PLC_002",
+      "sample_id": "Se79496a55f46d5b2cc24f99499efb22aa63519a1ab8becf8a9bac971705e365",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "placement_v1",
+          "method_id": "qa-v1-placement_v1"
+        }
+      ]
+    },
+    {
+      "id": "O4917f92238699614af532e62a8815c7b977ded33a9b92c952182eec8b466a7a",
+      "check_id": "CHK_PLACEMENT_03",
+      "target_id": "PLC_003",
+      "sample_id": "Sd6cb76baba856021c993da8ed1b937a42ee82d4dbd8c0e1700c52680aa88f4e",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "placement_v1",
+          "method_id": "qa-v1-placement_v1"
+        }
+      ]
+    },
+    {
+      "id": "O1e358a126320cd0765bb8729b023e1290e7eba2470643fcddb3796c1ca06592",
+      "check_id": "CHK_CENSUS_EL1",
+      "target_id": "EL_001",
+      "sample_id": "S114142fa7b0bf5a3d236478df80bd6b0eab15f303696c9e4c88dfa5c67f474b",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "exact",
+          "method_id": "qa-v1-census_v1"
+        }
+      ]
+    },
+    {
+      "id": "Oe97b490ecc2b6e279730f3c6aecdea97ea7c9c82bb6b639f0b723c9b5abd29f",
+      "check_id": "CHK_CENSUS_EL2",
+      "target_id": "EL_002",
+      "sample_id": "S4d3618dad063cb95485ef2d8cc146d7dc0c3d60d74b372302b6c01526f401f6",
+      "schedule_label": "record",
+      "evidence_source": "live",
+      "metrics": [
+        {
+          "id": "record_data",
+          "kind": "identity",
+          "quantity": "identity",
+          "unit": "text",
+          "space": "session",
+          "arity": 1,
+          "tolerance_ref": "exact",
+          "method_id": "qa-v1-census_v1"
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "id": "batch_001",
+      "ordinal": 0,
+      "kind": "observations",
+      "observation_ids": [
+        "O10b1bb8508a7ba291ad32d371ecbb907eb3952bb51de0fcc7867d976f0e4fdd",
+        "O1e358a126320cd0765bb8729b023e1290e7eba2470643fcddb3796c1ca06592",
+        "O4917f92238699614af532e62a8815c7b977ded33a9b92c952182eec8b466a7a",
+        "O582f7ca5d0d26e45416a8bb39c586d05e99d60112dc4bbccbd7a72879f717a4",
+        "O792151e50b3b2006a56db3afd47a5912347fef48dfb749aec4ae9cb2ba901c4",
+        "O79666e0ca53fff52293a1d4a61c190ee8a8553bc0d25e2da14c25d83c6cf1a1",
+        "O94fc22d10018d2660b2229a63443a89ea826084220c6c9f22e1fe4aa7acdaaa",
+        "O965c6da7e95d493177c52848790d6e09e0ec0e9198d1dd5336a0a28e93c5de7",
+        "Od26ef76f52982b8879d597101a3475224629ca6829baa1e648ea8a6059bf640",
+        "Oe97b490ecc2b6e279730f3c6aecdea97ea7c9c82bb6b639f0b723c9b5abd29f",
+        "Of9c519f098f68d1ded037a09aff4aa71f6ac3c236d652eae58381a32acf0316"
+      ],
+      "trace_slot_ids": [],
+      "max_rows": 11
+    }
+  ],
+  "request_hash": "3abf496c29e1cf0a0391f5763387021c4cd0d6140ae8b633754cf539c59bdcec"
+}

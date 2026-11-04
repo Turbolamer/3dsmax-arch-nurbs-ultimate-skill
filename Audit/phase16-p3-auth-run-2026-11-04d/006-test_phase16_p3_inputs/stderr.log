@@ -1,0 +1,43 @@
+test_authentic_f01_missing_inventory_not_waived_when_reached (__main__.AdapterTests.test_authentic_f01_missing_inventory_not_waived_when_reached) ... ok
+test_authentic_f01_positive_no_downstream_outputs_invented (__main__.AdapterTests.test_authentic_f01_positive_no_downstream_outputs_invented) ... ok
+test_bounded_json_sizes (__main__.AdapterTests.test_bounded_json_sizes) ... ok
+test_closed_wall_objects_unknown_fields (__main__.AdapterTests.test_closed_wall_objects_unknown_fields) ... ok
+test_contour_selector_strict (__main__.AdapterTests.test_contour_selector_strict) ... ok
+test_distinct_near_u_v_stations_refuse_without_snap (__main__.AdapterTests.test_distinct_near_u_v_stations_refuse_without_snap) ... ok
+test_draft_and_superseded_sources (__main__.AdapterTests.test_draft_and_superseded_sources) ... ok
+test_duplicate_json_tokens_each_consumed_kind (__main__.AdapterTests.test_duplicate_json_tokens_each_consumed_kind) ... ok
+test_duplicate_parent_pipeline_input_refused (__main__.AdapterTests.test_duplicate_parent_pipeline_input_refused) ... ok
+test_empty_draft_assembly_accepted_not_output_proof (__main__.AdapterTests.test_empty_draft_assembly_accepted_not_output_proof) ... ok
+test_future_outputs_not_required_contradictory_assembly_refused (__main__.AdapterTests.test_future_outputs_not_required_contradictory_assembly_refused) ... ok
+test_json_hygiene (__main__.AdapterTests.test_json_hygiene) ... ok
+test_json_loss_overflow_underflow_and_deep_nesting (__main__.AdapterTests.test_json_loss_overflow_underflow_and_deep_nesting) ... ok
+test_known_required_formula_positive_and_wrong_recompute (__main__.AdapterTests.test_known_required_formula_positive_and_wrong_recompute) ... ok
+test_ledger_value_and_transitive_cross_reference_failure (__main__.AdapterTests.test_ledger_value_and_transitive_cross_reference_failure) ... ok
+test_namespace_units_and_equal_factor_pair_kept_explicit (__main__.AdapterTests.test_namespace_units_and_equal_factor_pair_kept_explicit) ... ok
+test_no_openings_are_supported_as_input (__main__.AdapterTests.test_no_openings_are_supported_as_input) ... ok
+test_numeric_max_precision_refusal (__main__.AdapterTests.test_numeric_max_precision_refusal) ... ok
+test_one_run_one_block_no_partial_project (__main__.AdapterTests.test_one_run_one_block_no_partial_project) ... ok
+test_opening_bounds_touching_overlap_and_bad_link (__main__.AdapterTests.test_opening_bounds_touching_overlap_and_bad_link) ... ok
+test_positive_snapshots_units_and_shared_exact_stations (__main__.AdapterTests.test_positive_snapshots_units_and_shared_exact_stations) ... ok
+test_precision_thickness_and_planning_count_ceilings (__main__.AdapterTests.test_precision_thickness_and_planning_count_ceilings) ... ok
+test_private_snapshot_not_second_original_parse (__main__.AdapterTests.test_private_snapshot_not_second_original_parse) ... ok
+test_provenance_missing_unrelated_and_cycles (__main__.AdapterTests.test_provenance_missing_unrelated_and_cycles) ... ok
+test_publication_drift_hash_and_membership (__main__.AdapterTests.test_publication_drift_hash_and_membership) ... ok
+test_required_block_link_and_return_refused (__main__.AdapterTests.test_required_block_link_and_return_refused) ... ok
+test_selector_and_outer_reference (__main__.AdapterTests.test_selector_and_outer_reference) ... ok
+test_unapproved_required_skip_refused (__main__.AdapterTests.test_unapproved_required_skip_refused) ... ok
+test_unknown_required_wall_and_upstream_formula_refused (__main__.AdapterTests.test_unknown_required_wall_and_upstream_formula_refused) ... ok
+test_used_upstream_malformed_g1_not_inventory_waived (__main__.AdapterTests.test_used_upstream_malformed_g1_not_inventory_waived) ... ok
+test_validator_globals_restored (__main__.AdapterTests.test_validator_globals_restored) ... ok
+test_clean_actual_public_build_to_disjoint_run_still_succeeds (__main__.ProjectArtifactPresenceTests.test_clean_actual_public_build_to_disjoint_run_still_succeeds) ... ok
+test_existing_actual_public_builder_refuses_before_output_staging (__main__.ProjectArtifactPresenceTests.test_existing_actual_public_builder_refuses_before_output_staging) ... ok
+test_existing_json_ms_each_or_pair_refuse_before_private_staging (__main__.ProjectArtifactPresenceTests.test_existing_json_ms_each_or_pair_refuse_before_private_staging) ... ok
+test_late_actual_public_builder_mutation_refuses_before_publisher (__main__.ProjectArtifactPresenceTests.test_late_actual_public_builder_mutation_refuses_before_publisher) ... ok
+test_late_new_pipeline_artifact_is_not_missing_from_presence_snapshot (__main__.ProjectArtifactPresenceTests.test_late_new_pipeline_artifact_is_not_missing_from_presence_snapshot) ... ok
+test_late_presence_and_observed_removal_preserve_all_old_bytes (__main__.ProjectArtifactPresenceTests.test_late_presence_and_observed_removal_preserve_all_old_bytes) ... ok
+test_parent_pipeline_boundary_files_dirs_and_links_refuse (__main__.ProjectArtifactPresenceTests.test_parent_pipeline_boundary_files_dirs_and_links_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 121.234s
+
+OK

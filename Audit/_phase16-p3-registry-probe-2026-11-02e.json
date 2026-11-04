@@ -1,0 +1,11 @@
+{
+  "script": "Audit/_phase16-p3-main-registry-probe-2026-11-02e.ms",
+  "wire": {
+    "ok": true,
+    "result": "P3_REGISTRY_PROBE|aliasEqual=true|separateEqual=false|read1=P3_REGISTRY_READ|state=armed|read2=P3_REGISTRY_READ|state=armed|read3=P3_REGISTRY_READ|state=armed|witnessStill=true|missing=P3_REGISTRY_READ|REFUSED_UNDEFINED|wrongType=P3_REGISTRY_READ|REFUSED_TYPE|scalarDetached=true|objects=0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "52015f63a4444610b8f7c38955e67359", "protocol_version": 2, "client_round_trip_ms": 32.28, "fallback_error": null},
+    "elapsed_ms": 32.324
+  },
+  "interpretation": "Single struct alias distinguishes independent equal-valued struct; same struct readable across three fileIn calls; undefined and wrong type discriminate; scalar copies detach from changed Point3. No scene node created. Probe globals cleared by exact names reserved at entry. This is a small API proof, not generated runtime replay/edit safety or persistence."
+}

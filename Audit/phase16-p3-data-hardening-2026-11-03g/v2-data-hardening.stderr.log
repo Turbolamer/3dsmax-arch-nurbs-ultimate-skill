@@ -1,0 +1,20 @@
+test_count_limit_inclusive (__main__.ModelChecks.test_count_limit_inclusive) ... ok
+test_count_one_inclusive_and_false_support_skips_values (__main__.ModelChecks.test_count_one_inclusive_and_false_support_skips_values) ... ok
+test_invalid_counts_and_types_are_incomplete (__main__.ModelChecks.test_invalid_counts_and_types_are_incomplete) ... ok
+test_invalid_support_and_read_exception_are_incomplete (__main__.ModelChecks.test_invalid_support_and_read_exception_are_incomplete) ... ok
+test_supported_alive_scalars_detached_and_change_detected (__main__.ModelChecks.test_supported_alive_scalars_detached_and_change_detected) ... ok
+test_supported_channel_with_zero_elements_has_no_value_reads (__main__.ModelChecks.test_supported_channel_with_zero_elements_has_no_value_reads) ... ok
+test_unknown_dead_flags_are_incomplete_and_dead_entries_not_read (__main__.ModelChecks.test_unknown_dead_flags_are_incomplete_and_dead_entries_not_read) ... ok
+test_unknown_or_bad_live_value_never_returns_a_snapshot (__main__.ModelChecks.test_unknown_or_bad_live_value_never_returns_a_snapshot) ... ok
+test_unreadable_results_are_never_equal (__main__.ModelChecks.test_unreadable_results_are_never_equal) ... ok
+test_zero_count_no_support_or_values_read (__main__.ModelChecks.test_zero_count_no_support_or_values_read) ... ok
+test_actual_emitter_contains_strict_data_guards (__main__.SourceChecks.test_actual_emitter_contains_strict_data_guards) ... ok
+test_detector_rejects_guard_removal_and_raw_getter (__main__.SourceChecks.test_detector_rejects_guard_removal_and_raw_getter) ... ok
+test_pre_edit_fails_guard_detector (__main__.SourceChecks.test_pre_edit_fails_guard_detector) ... ok
+test_precreate_replay_and_cleanup_tail_unchanged (__main__.SourceChecks.test_precreate_replay_and_cleanup_tail_unchanged) ... ok
+test_saved_snapshot_exact_hash (__main__.SourceChecks.test_saved_snapshot_exact_hash) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.016s
+
+OK

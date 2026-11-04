@@ -14,12 +14,35 @@
 > invariants `G-57`…`G-70` in §9.8).
 > **Defined at P6:** `assembly.json` (§8.5, with invariants `G-71`…`G-83` in §9.9; Mechanism A host deactivation and G-82 volume identity).
 > **Defined under Schema 1.1 (P8 / L-QA / Stepped Massing):** `qa.json` (§8.7, with invariants `G-87`…`G-90` in §9.10; `G-84`…`G-86` for form references and generators; `G-91` for stepped massing setbacks and tier-scoped facades).
+> **Phase 16 P2 wall declaration:** `walls.json` has a conditionally present, data-only contract in §8.9;
+> the route-aware predicates and artifact/runtime obligations are in §9.11. The contract is not evidence
+> of a working wall emitter, a live Max acceptance, or a poly QA profile. Rollout follows §12.
 > **Reserved stubs (cancelled 2026-10-05):** `materials.json` (P7), `export.json` (P9).
 >
 > **This document needs no 3ds Max.** Everything here is a data contract. It makes claims about
 > 3ds Max in exactly one place — §11 — and everything in that section is taken from
 > `CHECKPOINT.md` §"Verified facts" and is labelled with how it was established. No range, default or
 > dimension in §2–§10 was read off a 3ds Max probe.
+
+**Archival Phase 16 P2 record (historical reference, 2026-11-02d; superseded by accepted Plan v4 `closed_inner_contour_shell_v2` in Phase 4).**
+This records the historical gate decision after the independently executed stable run and
+evidence review (archival record: `Audit/_phase16-p2-final-evidence-review-2026-11-02d.md`).
+The verification record (`Audit/_phase16-p2-verification-2026-11-02d.md`) and
+execution snapshot (`Audit/phase16-p2-final-2026-11-02d/snapshot-verdict.json`)
+are historical records. Accepted executable byte SHA-256s:
+
+```text
+616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f scripts/validate_specs.py
+42401725a42271b1c45dbeabed22bb76b73587e7b85e9fe970801b606092eb88 scripts/init_project.py
+4f9735ffbf9d59f6e858bed5d6390342db8230b50a036e462d894c00d07b91ac scripts/place_components.py
+d8d1e930808465f3340e2ed2e4cc04e45b46d033cc14ebc57ecb66a61b6ece4e scripts/wall_cell_coverage.py
+```
+
+The historical review disposed of 21 SKIPs and one expected failure, bounded I/O,
+caller-policy differences and legacy restrictions without turning them into PASS.
+This documentation publication occurred after testing; publication before/after hashes are
+separately recorded in archival record `Audit/_phase16-grammar-review-2026-11-02d.md`.
+(Note: as of Phase 4/5, `closed_inner_contour_shell_v2` is accepted production architecture; see §8.9.8).
 
 ---
 
@@ -144,11 +167,96 @@ stage does.
 |---|---|---|
 | Encoding | UTF-8, no BOM | G-7 |
 | Line ending | LF (`\n`). No CRLF. | G-7 |
-| Parsing | Strict JSON. No comments, no trailing commas, no single quotes, no NaN/Infinity. | G-7 |
+| Parsing | Strict JSON. No comments, trailing commas, single quotes, duplicate object keys or NaN/Infinity; the current numeric decoding policy is below. | G-7 |
+| Input nesting | Validator file/strict-string and initializer seed/ownership-text boundaries: at most 128 nested array/object containers, including the root; over-limit text is refused before decoding. Not a general Python object-graph guarantee or a claim that every builder loader has the same scanner. | G-7 / initializer input refusal |
 | Trailing newline | Exactly one LF at end of file | G-7 |
 | Trailing newline | Yes, exactly one | — |
 | Key order | The six envelope keys first, in order. Within an object, order is not semantic **except** in `dimensions.json` where `origins` must precede the value tree it annotates. | G-1 |
 | `recorded_at` | ISO-8601. The only clock value allowed anywhere in a spec. | G-6 |
+
+**Phase 16 P2 numeric boundary — accepted within the exact offline snapshot above, 2026-11-02d.** Strict JSON and
+non-lossy input decoding are contract requirements; the implementation distinctions below are not
+exceptions authorizing ambiguous or rounded specs. The current `validate_specs.py` file loader uses
+`strict_json_loads` for each loaded spec, rejecting duplicate keys at every object nesting level,
+`NaN`/`Infinity` constants, overflow to a non-finite float, and decimal/exponent tokens whose
+`Decimal(token)` differs numerically from `Decimal(str(float(token)))`. Thus an underflow such as
+`1e-400` is rejected rather than silently decoded as zero; `0.1` passes the shortest-decimal
+round-trip comparison, **not** a test of exact binary representation. Equivalent spellings such as
+`1.00` and `1e0` may pass: this is numeric decimal equality, not textual identity. Integer tokens
+must be within `±(2^53 − 1)`. The current validator limits floating-token length to 1024 characters
+but does **not** impose that integer-token magnitude bound on every floating token; a later geometry
+gate can impose its own bound, including G-82's range check on its inputs. These bounds are for safe
+handling, not physical tolerances.
+
+**Conservative file/strict-string resource boundary:** `MAX_JSON_CONTAINER_DEPTH = 128` limits
+nesting of both arrays and objects, including the root container. `strict_json_loads` runs an iterative,
+string-aware lexical scanner **before strict JSON decoding**; quoted brackets and escaped quotes or
+backslashes are accounted for rather than counted as containers. Over-limit text raises `ValueError`,
+which the file loader records as fatal input/G-7, not an internal G-8 `RecursionError`. Valid JSON
+deeper than 128 is deliberately refused even if the Python decoder could parse it. This is a
+conservative input resource policy, not a geometric tolerance or a replacement parser: malformed
+syntax and the duplicate/numeric rules remain the decoder/hooks' responsibility.
+
+The boundary covers validator file loading and callers passing text to `strict_json_loads`.
+Preconstructed `LoadedFile.doc`, direct walker calls and other already-decoded Python objects bypass
+it; **no safety for cyclic Python containers, arbitrary object graphs or unlimited direct-API depth**
+is claimed. The independent initializer and builder loaders do not automatically inherit this scanner.
+
+**2026-11-02d supersession:** the initializer now implements its **own** equivalent conservative
+128-container string-aware scanner for every used seed and ownership document. It does not inherit
+the validator function; initializer failures are controlled initialization refusals, not validator
+G-7 findings. The legacy builder has not acquired a universal independent 128-container scanner:
+explicit-wall validation still uses the validator, while ordinary builder parsing has its own error
+boundary. Do not extend the repaired file/string guarantees to arbitrary preconstructed objects.
+
+These are **file-loader** guarantees, not a property of every Python entry point. A caller supplying
+already-decoded objects cannot recover duplicate keys or original decimal digits lost by an earlier
+parse. The spatial helper operates on the integer or the shortest decimal string of each already
+decoded float, using rational arithmetic from that point; it cannot recover the original token.
+
+**Historical caller-policy description below — SUPERSEDED 2026-11-02d by the bounded builder/scaffold
+repairs; retained as evidence of the earlier implementation, not current production behavior:**
+
+The current legacy builder checks duplicate keys for route documents and for explicit-wall input
+snapshots, but its ordinary `read_spec` path for historical inputs does **not** enable that duplicate
+key check. Its numeric loader requires the same shortest-decimal comparison and bounds integer tokens
+and integer-valued decimal tokens to `±(2^53 − 1)`. The initializer applies duplicate-key checks,
+the shortest-decimal comparison, the integer bound and an additional float-magnitude bound to all
+**explicit-wall** seed documents; on a historical no-wall seed it enables duplicate-key checking for
+the assembly route document, not all seed documents, and does not enable the same strict numeric
+policy for those seeds. Do not infer a global builder/initializer guarantee from G-7: run the validator
+at the appropriate boundary and recheck these distinctions after the concurrent P2 edits. In particular,
+the observed validator accepts floating spellings `9007199254740992.0` and `1e20` at its parser while
+refusing the corresponding out-of-range integer tokens; the builder and explicit-wall seed loader refuse
+those floating values too. G-82 additionally bounds **all numeric values in its three input documents**
+to `±(2^53 − 1)` before the old volume calculation. That downstream guard does not establish a uniform
+G-7 magnitude policy for other rules. Parser acceptance alone is never range, arithmetic or geometry
+acceptance; cross-caller compatibility and the policy difference require explicit review, not a blanket
+claim that every loader enforces identical strict numeric rules.
+
+**Current caller policy after those repairs (final offline evidence within the accepted snapshot):**
+all production legacy-builder `read_spec` calls now set `reject_duplicate_keys=True`, including
+historical no-selector inputs, as do route/snapshot reads. The standalone `strict_loads` default
+remains duplicate-permissive; a direct default-helper call no longer represents production input
+behavior. Every initializer-used seed, historical or explicit-wall, and its ownership manifest now
+uses one duplicate/numeric/depth-strict parser before destination writes. Rejecting previously
+last-value-wins or rounded invalid historical JSON is an intentional compatibility tightening, not
+permission to change valid no-selector routing or silently repair the source.
+
+| Boundary / production caller | Duplicate keys | Decimal numeric decoding | Magnitude / depth scope |
+|---|---|---|---|
+| Validator file load / `strict_json_loads` | Reject at every nesting level | Finite, shortest-decimal equality; float tokens ≤1024 characters | Integer tokens within `±(2^53−1)`; floating spellings do not all inherit that magnitude bound; 128 containers including root. |
+| Legacy builder consumed JSON, all routes | Reject via production `read_spec`, route and snapshot calls | Finite, shortest-decimal equality | Integer and integer-valued floating tokens within `±(2^53−1)`; no universal independent 128-container scanner. Explicit-wall validation adds the validator boundary. |
+| Initializer used seeds and ownership text, all routes | Reject at every nesting level | Finite, shortest-decimal equality; float tokens ≤1024 characters | Integer tokens **and all float magnitudes** within `±(2^53−1)`; independent 128-container scanner including root. Invalid ownership text supplies no overwrite authorization. |
+| Spatial oracle direct decoded-object API | Original duplicate keys cannot be recovered | Exact rationals from integer / shortest float decimal after decoding | Cannot reconstruct lost JSON digits; not a JSON loader, full schema validator or Python object-graph safety gate. |
+
+Consequently `0.1`, `1.00` and `1e0` can pass numeric decoding without exact binary
+representation; `1e-400`, lossy `10000000000000001.9`, non-finite constants and overflow must
+refuse at all three production JSON boundaries. `9007199254740992.0` and `1e20` distinguish
+the documented validator parser policy from the stricter builder/initializer policies; parser
+acceptance still proves no schema/range/geometry acceptance. The separate G-82 all-input numeric
+bound remains in force. Final caller-policy controls and exact hashes are in the coordinator's
+settled run and final evidence review §§3–5; the pre-repair audit table remains historical.
 
 ### 3.3 Tolerance block
 
@@ -178,8 +286,9 @@ than 0.5 cm is a bug, and the validator is right to reject it. Enforced by **G-3
 
 ## 4. The full pipeline inventory
 
-Specs live in `specs/pipeline/`. `examples/` holds the worked example. Twelve files, seven of them
-defined now.
+Specs live in `specs/pipeline/`. `examples/` holds the worked example. The inventory includes defined
+files, reserved stubs and the conditional wall declaration; an entry alone does not prove a builder or
+worked example exists.
 
 | File | Owner | Purpose | Status | Top-level keys |
 |---|---|---|---|---|
@@ -191,10 +300,16 @@ defined now.
 | `facade_grids.json` | **P5** | Per-facade bay and opening axes, and the panelised partition those axes generate: one rectangle per grid cell, kinded, each naming the opening it realises and carrying the world centre P6 places it at. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `facades` `axes` `panels` `panel_types` |
 | `components_registry.json` | **P5** | The parametric blocks that grid needs: one entry per distinct `(kind, width, height)` class of panel with an ordered parameter list, plus the family index P6 resolves a panel against. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `defaults` `component_types` `components` `families` |
 | `assembly.json` | **P6** | The last derived file in the chain: where each component instance goes, which `facade_wall` each opening belongs to, the solid cells each of those walls is built from, and the Chaos Scatter setup — plus `layer_map`, which is **data only** and is never applied by a builder. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `defaults` `layer_map` `placements` `opening_cuts` `wall_cells` `scatter` |
+| `walls.json` | **S4w** (v2.0 accepted; v1.0 legacy) | Closed inner contour perimeter shell (`closed_inner_contour_shell_v2`, schema 2.0 with `storeys[]`), or legacy straight runs (`poly_surface_shell_v1`, schema 1.0) (§8.9). | **defined (schema 2.0 accepted production architecture; schema 1.0 legacy)** | Schema 2.0: `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `wall_technique` `reference_face` `numeric_epsilon_cm` `numeric_unit_epsilon` `storeys`; Schema 1.0: `blocks` `wall_runs` `openings` `upper_returns` |
 | `materials.json` | P7 — **CANCELLED 2026-10-05** | Renderer selection and Corona PBR materials with slot maps and UV rules. **Not planned work** — materials are assigned by hand. | reserved | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `renderer` `materials` `uv_rules` |
 | `qa.json` | **P8** | Automated QA configuration and check plan (form precision and structural integrity). Raw capture and results artifacts are stored separately outside pipeline. | **defined** | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `origins` `profile` `dependencies` `scope` `check_plan` `sampling` `limits` `capture_plan` |
 | `export.json` | P9 — **CANCELLED 2026-10-05** | FBX / OBJ / USD export settings, tessellation, and instance preservation. **Not planned work** — no exporter exists. | reserved | `schema_version` `spec` `project` `units` `source` `status` `tolerances` `origin_inputs` `exports` `tessellation` `delivery` |
 | `recipes/*.json` | P4 | Individual NURBS recipe bodies emitted as MAXScript. Not part of the pipeline chain. | reserved | `schema_version` `recipe` `source` `params` `script` |
+
+**Inventory compatibility:** the `assembly.json` row records the existing **legacy** shape; §8.5.9
+defines the route-dependent extension without changing old assemblies. `walls.json` is not universally
+required: a historical project with neither it nor an assembly selector remains legacy. A declared
+selector without a valid wall document is an error, not an excuse to default; see §8.9.1.
 
 > **Pipeline status update (L-QA / A-OWNERS):** **P8 is restored as an automated check plan** per
 > locked decision `L-QA` and owner scope `A-OWNERS`. `qa.json` is a defined, locked configuration
@@ -705,10 +820,10 @@ name the rule that beat it, not just express preference.
 
 ---
 
-## 8. Reserved schemas
+## 8. Other pipeline schemas
 
-Not defined here — the owning stage completes each one. The key lists exist so no stage has to
-invent a file shape from nothing, and so `dimensions.json` can be written with the consumers in mind.
+These sections include completed schemas, reserved key lists and the Phase 16 wall contract. Reserved
+lists remain promises for their owning stages; a declared schema is not itself an implemented builder.
 
 ### 8.1 `massing.json` (P3) — **defined**
 
@@ -1874,6 +1989,9 @@ still names three spec files, which is what `G-6` resolves — it is a statement
 
 #### 8.5.1 Top level
 
+The following table describes the existing **legacy** assembly. For conditional route keys and array
+exclusivity, including unchanged historical files, see §8.5.9; it does not reinterpret the rows below.
+
 | Key | Type | Req | Notes |
 |---|---|---|---|
 | `schema_version` | string | yes | semver; major must match §2 |
@@ -2102,6 +2220,81 @@ $$B_{\text{total}} = B(w_{\text{host}}, h_{\text{host}}, t_{\text{host}}) + \sum
 The volume identity check passes if:
 $$|\sum V_{\text{cells}} - (V_{\text{host}} - \sum V_{\text{openings}})| \le B_{\text{total}}$$
 This budget is strictly dimensional ($\text{cm}^3$, the product of three lengths); it is never $\text{linear\_cm}^2$ or an arbitrary float threshold.
+**2026-11-02 correction:** the volume comparison is necessary but not sufficient for G-82. A
+missing cell may fit the aggregate budget, and gaps and overlaps may cancel. The independent 3D
+coverage check and its explicit REVIEW/build-refusal policy are also required (§9.9 G-82).
+The historical volume subcheck infers wall thickness as the **smaller plan extent**. A wall thicker
+than its run length can therefore fail that subcheck even when the independent spatial check passes;
+this is a known limitation to review, not permission to drop the volume gate.
+
+#### 8.5.9 Phase 16 route-dependent assembly — contract, not an implemented poly build
+
+§8.5.1–§8.5.8 describe the **existing legacy** output and its historically measured behavior. The
+following is an additive route contract, not a rewrite of that history; the accepted offline additional
+G-82 spatial gate can nevertheless refuse cases the old builder accepted (§9.9). Resolve the route
+once according to §8.9.1 before dispatching any assembly checks. Common checks still apply to the
+inputs and fields that exist (§9.9, §9.11).
+
+| Assembly case | Selector and wall reference | Legacy arrays |
+|---|---|---|
+| Production `closed_inner_contour_shell_v2` (Accepted Default) | `assembly.json.wall_technique` matches `"closed_inner_contour_shell_v2"` in `walls.json` v2.0 (`storeys[]`). S5 mounts window/door assemblies via S4w opening manifest; deactivates massing host walls via Mechanism A (`host_node.isHidden = true`). | `opening_cuts` and `wall_cells` are **absent** (Mechanism A host hiding eliminates active host collisions). |
+| Historical legacy, neither `walls.json` nor an assembly selector | Neither selector nor wall document required. Do not rewrite old assemblies or infer a poly route. | Existing legacy **shape** remains unchanged; the offline spatial build gate retains compatibility limits described under G-82. |
+| Explicit `legacy_cells_v1` | A valid `walls.json` declares the route; a produced assembly echoes the same selector. No poly `wall_ref`/manifest is part of the legacy assembly. | A produced assembly retains **both** `opening_cuts[]` and `wall_cells[]` and their existing checks. |
+| Preserved prototype `poly_surface_shell_v1` | `assembly.json.wall_technique` **matches** the selector in `walls.json` v1.0; `wall_ref` is exactly `"wall_surface.json"`. Preserved for isolated straight-run fixtures. | `opening_cuts` and `wall_cells` are **absent**, not empty arrays. |
+
+Unknown, invalid, conflicting or partial selectors, including a declared selector without a valid
+wall document, **FAIL closed** instead of falling back to legacy. An empty draft scaffold assembly is
+not a produced assembly: it remains visibly incomplete and cannot establish either a successful poly
+build or the existence of the manifest. A fresh non-seeded scaffold selects the accepted production
+architecture `closed_inner_contour_shell_v2` in schema 2.0; `--from examples` preserves historical legacy
+when the source has no wall selector. The S5 builder (`place_components.py`) supports `closed_inner_contour_shell_v2`
+via manifest mounting and Mechanism A host hiding, and preserves `legacy_cells_v1` via discrete `WAL_` solid boxes.
+Unknown, invalid or conflicting selectors **FAIL closed before writing**; no silent fallback is permitted between routes.
+
+`G-74` retains its existing four-table rule; it is not silently enlarged to include a new kind of
+wall node. The future wall emitter owns its own `WS_` namespace and its own collision/ownership and
+census checks. A prefix alone is not permission to delete another owner's or the user's nodes.
+
+#### 8.5.10 Offline input/output safety boundary — current implementation, not a transaction guarantee
+
+The legacy builder refuses poly dispatch before output. With explicit `legacy_cells_v1`, it validates
+locked wall/dependency inputs even under `--allow-draft`, without treating a pre-existing assembly
+output as a prerequisite. A separate `--out` must already contain byte-identical verified `walls.json`;
+the builder does not copy or repair it. Source-byte snapshots and route/path checks are repeated before
+writing. These checks are bounded pre-write evidence, not proof that filesystem paths cannot change.
+
+**Historical pre-repair implementation — SUPERSEDED 2026-11-02d; retained, not a current guarantee:**
+
+The builder writes `assembly.json` and then `assembly.ms`, each via a temporary file and `os.replace`.
+Individual replacement is not **pair atomicity**: a second-write failure can leave a new JSON beside an
+old or absent script. The initializer writes its files sequentially with `Path.write_text`, without
+rollback or an atomic project transaction. Existing links/reparse points and relevant hardlinks are
+checked, but neither implementation holds an immutable path/handle lock from inspection through all
+writes. Concurrent file or parent-directory substitution after the last check remains unsafe.
+
+**Bounded repairs now present:** the production builder stages both changed payloads and exact
+prior bytes before replacing either output. Its pair writer attempts restoration after a recovered
+replacement error, verifying installed-entry identity before rollback; it reports `ROLLBACK INCOMPLETE`
+and retains/names recovery files if restoration cannot finish. A repeated commit guard compares
+captured input/output route entries, applicable input snapshots and lexical parent-directory
+identities before staging, replacements and completion. These checks address the specifically
+reported late substitutions without treating the substituted state as newly authorized input.
+
+The initializer now stages each file through the already-open `mkstemp` descriptor, flushes/fsyncs,
+rechecks destination/parent and staged-leaf state, and replaces only that destination; it no longer
+opens the final leaf for truncation. The bounded recovered write/fsync/replace failure guarantee
+preserves the **affected destination**, not the whole project: files still commit sequentially,
+manifest last, with no rollback of prior completed replacements.
+
+Neither repair supplies immutable directory/file locks, handle-relative hostile-concurrency
+protection, an atomic two-file/project transaction or crash/power-loss durability. A mixed JSON/MS
+state remains observable between replacements; subsequent failure during rollback, cleanup or a
+late parent change may prevent full recovery. Rechecks do not close the intervals inside staging,
+read, replacement, rollback or cleanup. Preserving a sentinel in the named recovered-error and
+deterministic-substitution controls is not arbitrary-race acceptance. Preserve and inspect retained
+or partial files; do not delete them or assume a `--force` retry is safe. A stronger transaction,
+migration or replacement contract needs separate review. The coordinator's offline P2 acceptance
+includes these bounded guarantees only; final evidence review §§4–6 records the controls and exclusions.
 
 ### 8.6 `materials.json` (P7 — **cancelled 2026-10-05, reserved stub only**)
 
@@ -2148,13 +2341,319 @@ Object fields `measured`, `results`, `pass`, `verdict`, `error`, `checks`, `capt
 | `tessellation` | tessellation settings per geometry class, and the tolerance used |
 | `delivery` | the delivery MAXScript's responsibilities and the delivery manifest |
 
+### 8.9 `walls.json` (Phase 16 P2) — conditional, data-only declaration
+
+This is the initial **schema 1.1 straight-run contract**, not a working geometry route. It does not
+declare implementation classes, modifiers, plugin names or tool calls in the spec data. It introduces
+no material or layer-application policy. `wall_surface.json` and `wall_surface.ms` are planned output
+artifacts, **not** alternate names for this input and not evidence of an implemented emitter. §12
+records the outstanding produced-output integration and example work. Phase 16 P2 is **accepted
+offline only** on the exact snapshot above; the validator behavior below is not completed poly/live
+integration. This supersedes the earlier dated P2 non-acceptance status, not its evidence.
+
+#### 8.9.1 Presence, route and lifecycle
+
+- If **neither** `walls.json` nor an assembly selector exists and there is no orphan `wall_ref`,
+  select historical `legacy_cells_v1` without inventing a selector. This is the only implicit
+  fallback. A `wall_ref` without its selector/document is a partial declaration, not legacy. If a
+  wall document is present, `wall_technique` is required and must be exactly `legacy_cells_v1`,
+  `poly_surface_shell_v1` or `closed_inner_contour_shell_v2`.
+  Resolve once and use that result everywhere; do not infer the route separately per rule.
+- Unknown, invalid, conflicting or partial selectors, and any declared selector without a valid wall
+  document, fail rather than fall back. A produced poly assembly echoes the selector and names its
+  manifest as in §8.5.9. A historical assembly needs neither selector nor wall document.
+- A fresh, non-seeded scaffold is intended to declare `poly_surface_shell_v1` explicitly, with a
+  **draft** wall file; a historical `--from examples` source without a selector stays legacy. Route
+  selection does not imply unchanged builder acceptance: the offline G-82 gate retains the legacy
+  no-opening and unsupported-geometry limitations documented in §9.9.
+- For an explicit-wall seed, the current initializer checks original project identities before
+  re-stamping the project and preserves each seeded spec's complete `source` object, ledger IDs and
+  origin references. Historical no-wall seeds retain their older source re-stamping behavior; this is
+  not a source-content verification. `--force` is not a route migration or overwrite permission for an
+  authored/locked/seeded wall: the current wall overwrite check is restricted to an unchanged,
+  hash-recorded fresh draft stub. Existing route scripts/manifests at checked destination locations
+  block rewriting; outputs outside those locations are not exhaustively discovered. See §8.5.10 for
+  the remaining non-atomic and concurrent-substitution limits.
+- **2026-11-02d scope clarification:** strict seed parsing now applies to historical no-wall seeds
+  too, but their historical source re-stamping and no-selector route remain unchanged. The wall
+  hash/template guard does **not** protect authored non-wall content: `--force` still permits
+  overwriting previously recorded non-wall paths. Per-file staging prevents the bounded failed-file
+  truncation case; it is not content ownership attestation, whole-project rollback or a migration.
+- A fresh `draft` may have empty arrays and provenance, and `null` for pending `reference_face`,
+  `numeric_epsilon_cm` and `numeric_unit_epsilon`. Non-empty draft data is checked as far as its
+  available dependencies permit; missing evidence is not a PASS. A locked poly declaration requires
+  populated `blocks[]` and `wall_runs[]`, all declared parameters and complete provenance. Per G-4,
+  `--build` refuses draft. A draft or an absent output is not a production-ready wall.
+
+#### 8.9.2 Top level and provenance
+
+The object is closed. All listed keys are present; the six envelope keys come **first and in the
+order** in §3.1. The table describes the locked poly declaration unless a draft exception is stated
+above. There are no implicit geometry defaults.
+
+| Key | Type | Units | Constraint / meaning |
+|---|---|---|---|
+| `schema_version` | string | — | Exactly `"1.1"` for this file. |
+| `spec` | string | — | Exactly `"walls"`. |
+| `project`, `units`, `source`, `status` | per §3.1 | cm, deg | Project and envelope rules apply; `source` may be a user brief or derived under §3.1. It must identify the actual source, never claim an unsupported value. |
+| `tolerances` | object | cm, m², deg | Exactly `linear_cm`, `area_m2`, `angle_deg`, copied verbatim from `dimensions.json` under G-33; no epsilon is inserted here. |
+| `origin_inputs` | array | — | Paths actually read from defined upstream files, resolving under the existing path rules (G-31). Empty when no such input has been read. |
+| `origins` | object | — | Flat provenance map under §5.2, G-9/10 and the ledger rules; every non-exempt domain leaf is covered **exactly once** when locked. |
+| `wall_technique` | string | — | `legacy_cells_v1` or `poly_surface_shell_v1`; explicit whenever this file exists. |
+| `reference_face` | string | — | Initial locked poly subset: exactly `inner`. `outer` requires a separately specified and verified future path; never reinterpret it as `inner`. |
+| `numeric_epsilon_cm` | number | cm | Finite, non-boolean linear numerical epsilon: `0 < numeric_epsilon_cm ≤ 0.01` cm; separate from `tolerances` and from design/form tolerances. |
+| `numeric_unit_epsilon` | number | dimensionless | Finite, non-boolean epsilon: `0 < numeric_unit_epsilon ≤ 0.001` for vector lengths, perpendicularity and normals; distinct from the linear epsilon. |
+| `blocks` | array of objects | — | Locked poly: at least one, §8.9.3. |
+| `wall_runs` | array of objects | — | Locked poly: at least one, §8.9.4. |
+| `openings` | array of objects | — | Zero or more rough openings, §8.9.5. |
+| `upper_returns` | array of objects | — | Zero or more declared returns, §8.9.6. |
+
+The wall route may be sourced from a brief or derived: unlike a derived-only output, it must not
+force every domain value to `derived`. `given`, `derived`, `assumed` and `conflict` retain §5.2's
+meaning; derived paths resolve, and assumed/conflict values bind to the appropriate ledger under
+G-10–G-13. Origins may cover a whole array element only when all its leaves share that origin.
+`origin_inputs` is a path list, not a substitute for the wall file's origins. An opening's optional
+source provenance uses this same mechanism; no arbitrary, unchecked opening source-reference key is
+added to the closed object.
+
+**Explicit legacy applicability:** the table's populated-run and non-null face/epsilon requirements
+describe locked **poly**. The current validator permits `null` face/epsilons and empty geometry arrays
+on explicit `legacy_cells_v1`; the closed top-level keys, origins, units, project and inherited
+tolerances are still checked, as is any supplied run/opening data. A null legacy declaration neither
+authorizes a null locked poly input nor supplies a wall formula or physical-face proof.
+
+**Wall bare-path ownership.** For `walls.json.origin_inputs`, the path is a bare dotted/indexed
+path to an upstream value, not a filename-qualified ledger path. The current validator selects its
+one owner from the first path token using this **closed** mapping (`WALL_UPSTREAM_ROOTS` in
+`scripts/validate_specs.py`):
+
+| Owner | Supported root tokens |
+|---|---|
+| `dimensions.json` | `building`, `site`, `structure`, `levels`, `core`, `floor_plates`, `roof`, `facades`, `openings`, `form_references`, `precision_targets`, `raw_source_values`, `tolerances` |
+| `massing.json` | `storeys`, `elements`, `site_pad`, `grouping` |
+| `nurbs.json` | `sections`, `surfaces`, `derivatives` |
+| `facade_grids.json` | `axes`, `panels`, `panel_types` |
+| `components_registry.json` | `component_types`, `components`, `families` |
+
+The full, well-formed path must **actually resolve in the selected owner**. Ambiguous `defaults`
+and unknown upstream roots are unsupported; no fallback or search through similarly named paths in
+other documents is permitted. For `derives_from`, a path that resolves locally in `walls.json` is
+treated as local first (wall metadata is not a valid sourced value); otherwise the same upstream
+mapping applies. This distinction matters for roots such as `openings`: `origin_inputs` selects
+`dimensions.json`, while a resolving local `derives_from` path selects the wall value. A ledger's
+`field_path` is a **different** grammar: a bare ledger path selects `dimensions.json` and a wall
+target must be qualified, e.g. `walls.json:wall_runs[0].thickness_cm` (§6.1.1).
+
+An upstream owner is eligible only when exactly one non-recipe copy is loaded, readable and defined,
+has the same project, is `locked`, has a supported schema version (`1.0` or `1.1`) and exact
+`{"length": "cm", "angle": "deg"}` units, passes file hygiene, and has no failed checks reported
+at that file's location when wall provenance is assessed. Eligibility and resolution do not certify
+the source content. For an `assumed`/`conflict` wall origin, the named entry must be unique in its
+same-project, locked, valid ledger; its primary path (`field_path` or
+`resolution.resulting_value_of`) must resolve in `walls.json` and overlap the origin path, its
+`value` or `resolution.chosen_value` must equal that resolved target, and its claimed wall paths must
+cover every non-exempt leaf covered by the origin. Merely finding the ledger ID is insufficient.
+Local `derives_from` dependencies must themselves have origin coverage and form an **acyclic** graph;
+self-reference and multi-entry cycles fail. For a selected wall source, the accepted offline validator also
+traverses the reached upstream origins and each reached stage's `origin_inputs`, checks source and
+ledger eligibility transitively, and rejects missing paths, missing/overlapping source coverage,
+invalid ledger bindings, backward stage references and cycles instead of accepting the first matching
+path. Permitted cross-file direction is: massing → dimensions; NURBS and facade grids → dimensions or
+massing; component registry → dimensions or facade grids; dimensions has no upstream stage here.
+Upstream conflict entries must claim the reached path and their primary value must match **their own**
+resolved target; an upstream conflict can legitimately claim multiple consequences. An informational
+`conflict_ref` on a wall-local derived value is currently **SKIP** for input linkage, even when its ID
+exists; do not turn it into a wall provenance PASS. The final settled-tree evidence verifies the bounded
+checks, not source truth. For an upstream derived `conflict_ref`, the current traversal requires a matching
+conflict-resolved origin in that value's declared dependency graph; merely listing a conflict-related
+stage `origin_inputs` path is insufficient. This differs from the explicitly unverified wall-local
+annotation above.
+
+**Historical 2026-11-02d active-validator reconciliation — provisional status superseded by the
+final evidence disposition below:** the newly edited traversal also rejects
+`conflict_ref` on a non-derived reached upstream origin or wall-local origin; an existing but unrelated
+ledger ID must not establish linkage for `given`, `assumed` or `conflict`. Derived upstream annotations
+still require the declared conflict-input graph; a valid wall-local derived annotation remains
+explicitly unverified/SKIP. Source read-back is not a settled-tree behavioral verdict for these repairs.
+
+**Historical registry caveat:** `examples/components_registry.json` contains an existing cycle
+between `components[0].size_cm` and its parameter-origin dependencies. When a wall source selects a
+path that reaches that cycle, the transitive check must refuse/invalidate that wall source, not call it
+acyclic; unrelated legacy use is not itself evidence of a wall-source failure. Do not rewrite the
+historical registry or redirect its origins merely to create a positive control. A separate synthetic
+acyclic control tests discrimination but does not prove the historical fixture's provenance.
+
+Separately establish that the declared source was actually read and supports the claimed value,
+that any derived value was computed correctly, and which physical face and direction are outward.
+Path resolution, ledger binding or source eligibility alone proves none of these. **Historical
+pre-repair G-32 findings below, measured on validator `3675bd7f...` — SUPERSEDED AS CURRENT CLAIMS
+2026-11-02d by active repairs pending final independent verification; evidence retained:** the wall validator
+does not specify a formula for G-32 and reports that recomputation **SKIP**, not PASS. **This is not only
+a wall-local distinction:** the current transitive provenance check rejects reached owner FAILs but
+does not require every reached upstream derived value to have a G-32 formula PASS. It can therefore
+report scoped wall G-10/G-93 PASS while an upstream G-32 is SKIP. The existing G-32 formula registry
+recomputes documented dimensional formulas from fixed document fields; it is not a generic evaluator
+of `derives_from`, nor does it prove that the declared dependency list matches the fields actually used
+by that formula. Later stages have their own named arithmetic checks; transitive path/ledger/acyclicity
+checks do not add missing formula oracles. These are implementation/acceptance gaps to review against
+the unchanged G-32 requirement (§9.4), not permission to claim complete derived-source verification.
+
+**Historical in-progress source response — retained before final test disposition:** existing documented dimensional formulas now have a
+dependency-coverage check; unrelated `derives_from` must not pass merely because fixed-field
+arithmetic happens to match. The check permits declared ancestor paths and recognized derived
+intermediates, including the documented zero-base height-chain closure; it is not a generic algebra
+engine, exact textual-list identity or proof of actual execution reads. The traversal now records
+reached upstream G-32 SKIP as incomplete: wall G-10/G-93 must not retain a full PASS, and build mode
+must refuse unavailable upstream recomputation. This does not invent formulas for unsupported paths,
+guarantee a formula oracle for every collapsed origin/stage, or change wall-local G-32 SKIP.
+The validator author is still active at this reconciliation; the coordinator must verify exact final
+source, calibrated controls, annotation behavior and all remaining coverage, not accept this prose.
+
+**Final 2026-11-02d disposition — verified bounded offline, no longer ACTIVE/provisional:** the
+final evidence review §3 and final run's 48-method transitive regression / 29-method independent
+validator review close the reproduced dependency, reached-incompleteness and annotation cases on
+validator `61605041...`. Clean known-formula controls have their optional conflict annotation removed
+from both sides; unrelated dependency lists fail independently of arithmetic or annotation masking.
+Required dependency coverage, ancestor/intermediate closure and nonzero-base height boundaries are
+tested. Reached upstream unknown-formula G-32 SKIP yields wall G-10/G-93 SKIP in lint, never a full
+wall PASS, and build refuses it including the file/rule/draft-flag controls. Unreached unrelated SKIPs
+need not invalidate an independent wall source. Non-derived annotations are rejected rather than
+credited; valid wall-local derived annotation linkage remains explicitly SKIP. Wall-local unsupported
+formula recomputation likewise remains G-32 SKIP even where scoped dependency/schema checks pass.
+This is the finite documented registry and bounded claim scope, not arbitrary algebra, execution-read
+tracing, source authentication, physical direction or blanket derived-value acceptance. Earlier
+exact-hash findings remain historical; no intended contract is waived by their tested closure.
+
+Draft provenance is checked where present but remains incomplete/**SKIP**; a scoped check of an available field is
+not a PASS for the draft or for missing runtime evidence.
+
+The two epsilons are independent of one another, the three inherited arithmetic tolerances, and any
+physical design/form tolerance. Their upper bounds are **defensive limits**, not tolerances or
+inferred defaults: the linear bound prevents an arbitrarily large numerical threshold from being
+treated as a design allowance, while the unit bound prevents a large vector slack from accepting
+clearly non-unit or parallel directions as unit perpendiculars. Zero is also rejected independently,
+even when the unit epsilon is unavailable. Neither limit is a measured accuracy claim, and no
+epsilon value is inferred from the F01 experiment. The current validator range-checks the linear
+epsilon as a declaration; its contour comparison uses the inherited `tolerances.linear_cm`, not
+this epsilon. At a future scene boundary, convert the linear epsilon as a length using §2; the
+dimensionless epsilon is not scaled. Topology counts are also dimensionless integers and are not
+tolerance-adjusted.
+
+#### 8.9.3 `blocks[]`
+
+Each closed block object has exactly `{id, z_range_cm}`: `id` is a unique block identifier and
+`z_range_cm` is `[base, top]` in project/world cm, with finite numeric entries and `base < top`.
+A block is a declared vertical interval, not proof that its enclosing walls exist.
+
+#### 8.9.4 `wall_runs[]`, reference contour and coordinates
+
+Each closed run object contains exactly the fields below. Run ids are globally unique **across
+`wall_runs[]` and `upper_returns[]`**. All numbers are finite; booleans are not numbers.
+
+| Key | Type | Units | Constraint / meaning |
+|---|---|---|---|
+| `id` | string | — | Unique run identifier across runs and returns. |
+| `block_id` | string | — | Resolves to an existing `blocks[].id`. |
+| `contour_ref` | string | — | Exactly `dimensions.json:facades:<id>`, resolving to **one and only one** existing facade. |
+| `start_cm`, `end_cm` | `[x, y]` | cm | Finite project/world XY endpoints, not scene units; distinct, so run length is positive. |
+| `outward` | `[nx, ny]` | dimensionless | Finite supplied XY unit vector, perpendicular to the directed run within `numeric_unit_epsilon`. |
+| `thickness_cm` | number | cm | Strictly positive. |
+| `base_z_cm`, `top_z_cm` | number | cm | Project/world Z with `base_z_cm < top_z_cm`, both inside the referenced block's Z range. |
+| `topology_budget` | object | counts | Closed per-run ceilings, §8.9.7. |
+
+`contour_ref` uses the existing `<spec>.json:<collection>:<id>` selector shape, not an arbitrary
+string. The directed run may be a **subsegment**, not necessarily the whole facade: its endpoints
+must lie on the resolved facade's `start_corner_cm` → `end_corner_cm` segment and follow that
+direction, within the project's `tolerances.linear_cm`. Missing, duplicate or geometrically
+disagreeing targets fail; choosing the first duplicate is not resolution. A facade's name, compass
+label or winding does **not** prove which physical face is inner. The supplied provenance and
+`reference_face` must identify that face; neither face nor outward direction may be guessed. A
+well-formed provenance record alone cannot prove that its source actually identifies the physical
+face: unresolved or contradictory source evidence remains incomplete and requires review.
+
+Let `length = |end − start|`, `t = (end − start) / length` and
+`P(u,v) = (start.x + t.x·u, start.y + t.y·u, base_z_cm + v)`. Thus `u` is measured from the run
+start and `v` from its own base, both in cm. `outward` is an independently supplied semantic vector;
+it is not inferred by choosing a winding. Check `abs(|outward| − 1) ≤ numeric_unit_epsilon` and
+`abs(dot(t, outward)) ≤ numeric_unit_epsilon`. These checks accept either sign of a unit perpendicular:
+the supplied outward **sign is a declaration, not proof** of the physical outside. An authoritative
+reference-face/contour source or independent geometry evidence must establish the sign; neither a
+compass label nor winding supplies that proof. A future builder must choose winding so the surface
+normal matches the declared outward vector and convert cm to scene units. `direction_deg` is a compass
+facing label, **not** the run angle. Different blocks can have different Z ranges; declaring them
+does not prove that their intersections or seams are correct.
+
+#### 8.9.5 `openings[]`
+
+Each closed object contains exactly `{id, wall_run_id, kind, u_range_cm, sill_cm, head_cm}`.
+Opening ids are unique; `wall_run_id` resolves to an existing `wall_runs[]` or `upper_returns[]`
+run. `kind` is `window` or `door`.
+All bounds are finite, `u_range_cm = [lo, hi]` satisfies `0 ≤ lo < hi ≤ length`, and
+`0 ≤ sill_cm < head_cm ≤ top_z_cm − base_z_cm`. Both vertical values are from the **run base**,
+not from a facade, storey or scene origin. Different openings on the same run must not overlap in
+`u` (G-94); the wall schema imposes **no one-opening-per-bay** restriction. A door may start at
+`v = 0`, in which case it is a boundary notch. The values describe **rough openings**, not frames
+or trim. The existing independent `dimensions.json` G-28 remains unchanged; no claim is made that
+this new wall representation relaxes that separate legacy source constraint. This initial contract
+defines no mandatory one-to-one join to `dimensions.json.openings[]`; origins remain required, and
+source discrepancies must not be silently treated as reconciled.
+
+#### 8.9.6 `upper_returns[]` and representational limits
+
+Each closed return object has **the same fields and constraints as a run** (§8.9.4), plus
+`adjacent_run_ids`: exactly two distinct ids resolving to other runs or returns, not itself. It has
+its own block, sourced facade contour, endpoints, Z interval, outward vector, thickness and topology
+budget. These ids declare intended contacts; they do not prove that seams weld or that a block or
+building is enclosed. A return lacking a valid facade source must not be invented or treated as
+covered. In particular the first `dimensions.json:facades:<id>` target cannot represent arbitrary
+internal upper returns or every architectural contour; `outer`-referenced cases and unsupported
+contours remain unsupported/incomplete, not a request to discard them. No whole-building enclosure
+PASS is possible without independently validated cross-sections and future QA.
+
+#### 8.9.7 `topology_budget` — declarations, not measurements
+
+Every run and return carries a closed object with exactly these three non-negative **integers**
+(not booleans), each a ceiling for that individual run/return:
+
+| Key | Scope of declared maximum |
+|---|---|
+| `max_grid_polygons` | Station-grid polygons before opening removals. |
+| `max_base_active_polygons` | Active base polygons after removals, excluding dead elements. |
+| `max_evaluated_triangles` | Triangles in the evaluated mesh after thickness is applied. |
+
+Counts include the effect of all declared openings on their owning run; returns carry their own
+budgets. These are maxima, not promised exact counts or lint-time measurements. The F01 counts
+15 / 12 / 96 are **only that measured fixture**, never defaults. Do not silently optimize topology
+or claim a scene count from JSON; future output/live checks must report declared and measured
+categories separately (G-97/98).
+
+#### 8.9.8 `closed_inner_contour_shell_v2` (Accepted Production Architecture, schema 2.0)
+
+When `wall_technique` is `"closed_inner_contour_shell_v2"`, `schema_version` is `"2.0"`.
+The full normative contract is packaged in [`references/20-closed-contour-shell-v2-contract.md`](20-closed-contour-shell-v2-contract.md) without any runtime dependency on `Audit/` or `experiments/`.
+
+- **Top-level closed keys:** `schema_version`, `spec`, `project`, `units`, `source`, `status`, `tolerances`, `origin_inputs`, `origins`, `wall_technique`, `reference_face`, `numeric_epsilon_cm`, `numeric_unit_epsilon`, `storeys`.
+- **Reference face:** `"inner"` or `"outer"`.
+- **`storeys[]`:** array of closed floor boundary declarations:
+  - `id`: unique storey identifier.
+  - `base_z_cm`, `top_z_cm`: finite numbers with `base_z_cm < top_z_cm`.
+  - `wall_thickness_cm`: positive finite number. Missing thickness must be backed by a recorded assumption in `assumptions.json`; the builder never invents defaults.
+  - `vertices_cm`: array of $\ge 3$ coordinate pairs $[x, y]$ in cm defining a simple, non-self-intersecting 2D polygon.
+  - **CCW Normalization:** orientation is normalized to CCW, updating segment directions and opening intervals ($s' = L - s$) while preserving stable segment and opening IDs. Closing duplicate vertex is stripped without creating a zero-length edge.
+  - **Safe offset:** if `reference_face == "outer"`, inner contour is derived via validated inward offset subject to 6 mathematical safety gates (simplicity, non-degeneracy, miter limit, inset collapse, edge collapse, notch clearance).
+  - `segments[]`: segment declarations with stable IDs, vertex indices, and facade references.
+  - `openings[]`: rough openings with stable IDs, segment references, kind (`"window"` or `"door"`), $s$-ranges, sill and head elevations.
+  - `topology_budget`: per-storey operational ceilings (`max_grid_polygons`, `max_base_active_polygons`, `max_evaluated_triangles`).
+- **S4w → S5 → QA Opening Manifest:** produces structured records with right-handed orthonormal local frames $(\vec{T}, \vec{N}_{\text{outward}}, \vec{Z}_{\text{up}})$ and $3 \times 4$ transformation matrices for component placement.
+
 ---
 
 ## 9. Invariants
 
-Every rule here is **mechanically checkable** from the files alone, with no 3ds Max and no rendering.
-`scripts/validate_specs.py` (P2c) implements exactly this list; if a rule cannot be expressed as a
-function over the parsed JSON, it does not belong here.
+Static JSON predicates are mechanically checkable from the files alone. Some existing rules explicitly
+own emitted-artifact checks, and §9.11 separates Phase 16 declaration checks from future artifact and
+runtime gates. A JSON lint must report the latter **SKIP**, not claim a scene measurement. Inclusion
+here specifies an obligation; it is not by itself evidence that a validator or runtime gate implements it.
 
 ### 9.1 Envelope and hygiene
 
@@ -2166,7 +2665,7 @@ function over the parsed JSON, it does not belong here.
 | **G-4** | `status` is known, and only `locked` builds | `status` ∈ {`draft`, `locked`, `superseded`}. A non-`locked` file is an error for any build, a warning for a lint. |
 | **G-5** | Units are cm and deg | `units.length == "cm"` and `units.angle == "deg"` on every file. |
 | **G-6** | `source` is well formed | `source.kind` ∈ {`user_brief`, `drawing`, `image`, `imported`, `assumed`, `derived`}; `source.reference` non-empty; `source.recorded_at` parses as ISO-8601. `kind == "derived"` additionally requires `reference` to name a spec file that exists in the project |
-| **G-7** | File hygiene | File is UTF-8 without BOM, contains no `\r`, ends with exactly one `\n`, and parses with a strict JSON reader that rejects comments, trailing commas and `NaN`/`Infinity`. |
+| **G-7** | File hygiene and bounded strict-text input | File is UTF-8 without BOM, contains no `\r`, ends with exactly one `\n`, and parses with a strict JSON reader rejecting comments, trailing commas, duplicate keys, `NaN`/`Infinity`, non-finite overflow and unsafe numeric decoding as specified in §3.2. Validator file/`strict_json_loads` text is limited to 128 nested array/object containers including the root by a string-aware lexical check before decoding; exceeding it raises `ValueError` mapped to file G-7 refusal, not internal G-8 recursion failure. Preconstructed Python documents bypass this boundary; no general object-graph safety is established. |
 | **G-8** | Unit suffix lint | Every key carrying a length ends `_cm`, every area ends `_m2`, every angle ends `_deg`. A key named `height`, `width`, `depth`, `thickness`, `radius`, `offset`, `spacing`, `sill`, `head`, `length`, `rise` or `run` **without** a unit suffix is an error. The envelope keys, everything under `tolerances`, and index/count keys (`*_index`, `*_indices`, `*_count`) are outside the rule — `units.length` names a unit, it is not a length. |
 
 ### 9.2 Traceability
@@ -2207,9 +2706,15 @@ function over the parsed JSON, it does not belong here.
 | Id | Title | Check |
 |---|---|---|
 | **G-31** | Cross-file references resolve | Every id, dotted path and `component_ref` a file references exists in the file that declares it. Every `origin_inputs` path resolves in a **defined** file, and every ledger `field_path` — **bare or file-qualified per §6.1.1** — resolves in a file that exists in the project. |
-| **G-32** | Derived values recompute | Every `origin: "derived"` value equals its documented formula recomputed from its `derives_from` inputs, at the tolerance for its unit. A derived value that disagrees is an error, never a warning — this is what stops a hand edit to `total_height_cm` from surviving. |
+| **G-32** | Derived values recompute | Every `origin: "derived"` value is required to equal its documented formula recomputed from its `derives_from` inputs, at the tolerance for its unit. A derived value that disagrees is an error, never a warning — this is what stops a hand edit to `total_height_cm` from surviving. A wall-derived value with no formula oracle remains **SKIP**, not a recomputation PASS (§8.9.2). |
 | **G-33** | Tolerances are declared | `tolerances` exists in `dimensions.json`, all three values are present and non-negative, and every arithmetic rule above uses them unless it names its own. |
 | **G-86** | Form references and precision targets are well-formed and resolve | In `dimensions.json` under `schema_version: "1.1"`: validates `form_references[]` (kinds `arc`, `ellipse_arc`, `semi_elliptical_barrel`; required plane, center_cm, from/to_deg, radius_cm or semi_axes_cm, count or longitudinal_range_cm; center_cm[1]==0 and angles (0,180)/(180,0) for barrel) and `precision_targets[]` (role: `design_surface`, profile in `form_precision_v1` / `legacy_structure_v1`, `reference_ref` resolves to a `form_references[].id`, `source_ref` resolves to downstream geometry). If schema_version is `"1.0"`, presence of either field is a FAIL; if `"1.1"` without analytical form targets, reports honest SKIP. **FAIL** on malformed keys, unknown kinds, out-of-range angles/radii, or dangling references |
+
+**G-32 claim scope:** the row above remains the requirement, not a claim that all derived values are
+currently recomputed. A PASS for the implemented formula subset is not a PASS for skipped paths,
+dependency-list fidelity or all upstream arithmetic. §8.9.2 records independently observed limits of
+the wall traversal and fixed-field formula registry, their dated repairs and the verified final
+disposition; historical findings and final tests remain visible in the accepted offline evidence.
 
 ### 9.5 Tolerance policy
 
@@ -2218,6 +2723,9 @@ function over the parsed JSON, it does not belong here.
 - **G-27's strict `<` on `width_cm` has no tolerance.** 420 cm in a 450 cm bay passes; 450 cm fails.
 - **G-22 and G-23 use 0.5 cm** so that a value written as `449.9999` is not a violation.
 - **A tolerance is never applied to a count.** `bay_count` is an integer and is compared exactly.
+- **Phase 16 wall-local numerical epsilons are separate** from these three copied tolerances and from
+  physical form/design tolerances: `numeric_epsilon_cm` is linear; `numeric_unit_epsilon` is
+  dimensionless (§8.9.2). Neither has an inferred default.
 
 ---
 
@@ -2369,6 +2877,15 @@ structural reason above.
 
 ### 9.9 Assembly — `assembly.json` (P6)
 
+**Route qualifier (Phase 16):** the table below records the legacy rules and their evidence. On a
+valid poly route, `G-76`, `G-77`, `G-81`, `G-82` and `G-83` report **SKIP (legacy-only)**; they
+remain applicable to legacy, never silently relaxed. G-82 now includes the additional offline-accepted
+spatial gate described below. An invalid route is a FAIL, not a
+poly SKIP. Common checks remain enabled wherever their inputs exist. In particular `G-74` stays scoped
+to the tables it names; `G-80` remains a scene-observing census with **route-dependent expectations**,
+not an obligation for poly to create `WAL_` cells. The poly census is a future obligation, not a
+claim that one exists. See §8.5.9 and §9.11.
+
 Same machinery, no new tolerances. **`G-71`…`G-78` are predicates over the parsed JSON plus
 `components_registry.json`, `world_table.csv`, `massing.json` and `dimensions.json`; nothing
 needs 3ds Max.** `G-82` and `G-83` join them — the wall tiling is arithmetic over the same files.
@@ -2389,8 +2906,41 @@ arrangement exactly. Every geometry row names the tolerance it used (§9.5).
 | **G-79** | No layer assignment in the emitted MAXScript | The emitted `assembly.ms` contains no `node.layer`, no `LayerManager` setter, no `.setLayer(`, `setProperty #layer`, `.layerIndex` or `LayerProperties`, and no layer-assignment helper. **FAIL at build time; honest SKIP with its reason at lint time.** Layer is unreachable from this bridge by nine measured routes (§8.5.6), so a builder that tries is a build FAIL, not a silent no-op |
 | **G-80** | Emitted census — and it must **observe the scene** | The emitted `.ms` **walks the scene** and counts what it finds: placed instances, prototypes and the `WAL_`-prefixed wall cells, then **throws** on any mismatch against the three tables and against `wall_cells[]`. **FAIL at build time; honest SKIP with its reason at lint time** — a static JSON file cannot observe a script it did not write. The builder is the single implementation and asserts it on the bytes it has just written. **The scene walk is itself a required needle, not an implementation detail:** the previous census counted iterations of its own loop and therefore reported `cut_count = 16` and passed while the scene held `objects.count` 208 and **zero modifiers anywhere** (`nodes carrying modifiers=0`, `max stack=0`). A counter cannot detect a failed attach, which is why this rule is about what the census looks *at* |
 | **G-81** | **Zero modifiers** — the stage attaches none | `addModifier` **does not appear at all** in the emitted `assembly.ms`: not once, in any function, for any node. The emitted script additionally **asserts the hosts arrive with empty stacks** and throws if any host carries one. **FAIL at build time. Measured, not inferred:** on 2026-10-05 `Extrude` and `Bevel` threw on `addModifier`, five rungs were clean in 38 ms, ten in 28 ms, and **twenty froze Max on the main thread until the machine rebooted.** The ladder is why the ceiling is **zero** rather than small — and the Boolean modifier that used to require a ceiling cannot cut at all in this build (§8.5.8.1), so there is nothing left to bound. The exact breaking point between ten and twenty is not established and must never be re-measured |
-| **G-82** | The cells tile each wall exactly — **the volume identity** | For every host, the sum of its cells' `volume_cm3` equals **the host's volume minus its openings' volume** (each opening taken at the wall's own thickness, because every opening is cut clean through) within the Box endpoint volume propagation budget (cm³) derived from linear_cm (§13.1, §21.4). Cells must be non-degenerate and lie inside the host's `z_range_cm`. **FAIL** — a difference is either a **gap** (material that was never built) or an **overlap** (material counted twice), and both are wrong in opposite directions, so a count is not enough and an average is not a check. **This is the rule the Boolean route could never have satisfied:** a modifier that removes nothing leaves the volume untouched, so a "successful" cut build reads as a wall with every opening still filled. SKIP with its reason when `massing.json` declares no `facade_wall`, or when `wall_cells[]` is absent — a file without it predates the tiling |
+| **G-82** | Legacy cells: volume identity **and independent spatial coverage** | Retain the historical aggregate host-minus-openings volume comparison within the Box endpoint budget (cm³) derived from `linear_cm` (§13.1, §21.4). In addition `scripts/wall_cell_coverage.py` partitions each cut host in 3D from host, cell, facade, level and opening boundaries, without trusting `volume_cm3`, and checks solid occupancy, openings, outside cells, and the opening/cut join. Only both tests passing yield G-82 **PASS**; neither is live-scene evidence. The oracle's **REVIEW**, **FAIL** and **NOT_APPLICABLE** and their caller-specific consequences are specified below. |
 | **G-83** | Every cell carries its wall's **full thickness** | Each cell's extent in the wall's thin axis equals the host wall's own extent in that axis, within `linear_cm`. **FAIL** — a tiling of solid cells cannot express a partial-depth opening, so a cell that stops short of a face is a **defect, not a style choice**, and the alternative it invites is a silent partial-depth hole: a reveal that is not a reveal. This is stated as an invariant rather than assumed because the cross axis is the one place where "carry the wall's own extent" could quietly become "carry most of it" |
+
+**G-82 spatial results and boundaries (accepted offline, not live):** the supported spatial domain is axis-aligned
+rectangular facade-wall prisms, rectangular clean-through cuts and box cells. The oracle examines
+cut hosts, including a cut host with no cells, and requires every declared opening to join exactly
+one cut. It is not a census of the entire building envelope. Its partition uses exact rational
+arithmetic **after** the decoding boundary described in §3.2; this does not mean binary floats
+exactly represent the original decimal tokens, nor does it recover lost tokens. It is resource-bounded,
+and unsupported/ambiguous geometry or exceeded limits are **FAIL**, never a sampled or partial PASS.
+
+* **PASS:** no spatial discrepancy in the supported, evaluated cut hosts. G-82 overall also
+  requires the separate historical volume subcheck to pass; volume alone cannot detect a missing
+  cell inside its budget or equal-volume gaps and overlaps.
+* **REVIEW:** a nonzero endpoint discrepancy at or below `linear_cm`, or a connected spatial defect
+  whose bounding box's smallest span is at or below `linear_cm`. Larger endpoint discrepancies or
+  spatial defects with all three bounding spans greater than `linear_cm` are **FAIL**. This threshold
+  is for review, not an acceptable gap width; even a wide thin defect is REVIEW, not a PASS.
+  Validator lint reports WARN + SKIP for REVIEW; validator `--build` reports FAIL. A separate volume
+  or other rule may independently fail, so do not summarize mixed findings as a clean SKIP.
+* **NOT_APPLICABLE:** a valid no-opening/no-cut/no-cell case has no cut host to evaluate. When the
+  validator reaches this result, G-82 is SKIP, not spatial PASS. Invalid/missing data or orphan
+  cells do not become NOT_APPLICABLE merely because cuts are absent.
+
+The current `place_components.py` requires a spatial **PASS before writing in every mode**: it
+refuses REVIEW, FAIL **and NOT_APPLICABLE**, including historical no-selector projects and without
+`--build`. A no-opening case that reaches this oracle is therefore refused, and unsupported geometry
+is refused too. This does not prove a particular no-opening project previously built: an older
+self-check may already refuse it before the spatial gate. Unchanged route selection and a
+byte-identical supported example do **not** prove complete legacy compatibility. The old volume
+subcheck has the separate thickness-vs-length limitation in §8.5.8.3. Final evidence review §§3–6
+records calibrated actual historical-emitter comparisons and these retained restrictions: three
+supported projects retain actual generated JSON/MS byte parity, some near-tolerance/unsupported
+historical cases intentionally refuse, and the tested no-opening CLI already refused in the old
+self-check. This is not universal compatibility, no-opening spatial PASS or live coverage.
 
 **`G-72`, `G-73`, `G-76` and `G-77` are the four that make this stage a build rather than a
 description.** `G-76` says every opening has a wall to be cut out of; `G-77` says there is
@@ -2439,6 +2989,53 @@ and `examples/` stays `FAIL 0 / WARN 0` with and without `--build`.
 projects where QA configuration has not yet been authored, `qa.json` is absent or draft; `G-87`…`G-90` report
 an honest `SKIP` with the reason `"qa.json is absent; QA configuration has not been scaffolded or run"`. At
 the P8 gate, a locked `qa.json` is evaluated strictly under `--build`.
+
+### 9.11 Wall route and surface obligations — Phase 16 P2 contract
+
+Resolve the route **once** at dispatch and use it across these predicates and §9.9. The static portion
+checks declarations, not geometry. `G-95`, `G-98`, `G-99` and `G-100` are **SKIP at JSON lint**,
+even for locked input: script, manifest or live evidence is not present merely because it is named.
+An inapplicable route reports SKIP with the reason; an invalid selector fails G-92 and is never a
+valid poly branch. The static declaration portion has accepted offline evidence on the named snapshot;
+the future artifact/runtime obligations below remain requirements, not claimed implementations.
+
+| Id | Scope | Predicate or future evidence obligation |
+|---|---|---|
+| **G-92** | JSON; route and echo | No wall file, assembly selector or orphan `wall_ref` ⇒ historical legacy. Otherwise require a valid wall document with an explicit known selector, reject unknown, partial or conflicting selectors, and require a produced assembly on either explicit route to echo it. A draft empty assembly remains incomplete, not an output. |
+| **G-93** | JSON; wall schema and joins | For the applicable declared wall input enforce §8.9's closed objects, required keys, schema/envelope, finite non-boolean numbers, ranges, IDs, block links, positive lengths/thickness, Z bounds, separate bounded epsilons, unit/perpendicular outward vector, unique facade-selector resolution and directed-subsegment agreement. Check valid paths, exact inherited tolerances and origins/ledger coverage. The provenance must identify the inner face, but a syntactically valid record alone does not establish that its source actually does so or that the declared outward sign is physically correct. Draft exceptions are only those in §8.9.1. |
+| **G-94** | JSON; openings | Opening IDs resolve to runs; `kind`, finite intervals and local bounds satisfy §8.9.5. Different openings on one run do not overlap in `u`; no one-opening-per-bay rule is added to this wall representation. |
+| **G-95** | Future poly artifact/runtime | The emitted wall script declares the expected stack, agrees with the wall manifest, and respects the declared modifier limit. **SKIP at JSON lint**; no emitted stack is established by a wall declaration. |
+| **G-96** | JSON; route exclusivity | A produced poly assembly echoes the route, sets `wall_ref` exactly to `wall_surface.json`, and omits both `wall_cells` and `opening_cuts`, even as empty arrays. Explicit legacy retains both arrays and has no poly wall reference. Historical legacy remains unchanged (§8.5.9). Artifact existence and the absence of `WAL_` scene nodes are output/live obligations, not JSON proof. |
+| **G-97** | JSON declaration; later measurement | Each poly run/return has exactly the three non-negative integer ceilings in §8.9.7. JSON lint can validate the declarations only; later report grid, active-base and evaluated-triangle measurements separately from declared maxima and do not silently optimize. |
+| **G-98** | Future poly artifact/runtime | The manifest must declare each wall's reference inner face, outward displacement, expected volume and bounds, and support scene-observing census and live geometry comparisons. **SKIP at JSON lint**; independent direction verification is required in addition to volume, which cannot detect reversed winding. |
+| **G-99** | Future artifact/runtime, both routes | An emitter's scene-unit guard declares the expected `SystemType`, `SystemScale` and cm→scene factor and refuses a live mismatch before mutation. **SKIP at JSON lint**; the obligation is not a claimed poly implementation. |
+| **G-100** | Future artifact/runtime, both routes | No scene reset; delete only nodes actually owned by the emitter, without destroying user work. Demonstrate idempotence by a real replay, not a self-reported counter. **SKIP at JSON lint**; naming a script or namespace does not prove safety. |
+
+For walls, §8.9.2 specifies the offline-accepted validator's upstream owner selection, transitive source
+and ledger checks, owner/path/value binding and acyclic dependency graph. Those checks and any scoped
+declaration PASS do not prove actual source reading, arbitrary recomputation, physical direction or live geometry.
+P2 acceptance is the separate coordinator gate decision tied to final evidence, not any one PASS row.
+Draft completeness and unavailable runtime evidence remain **SKIP, not PASS**. The current poly
+`G-96` reports static route-mixing violations as FAIL, but even when those checks succeed its full
+exclusivity verdict remains SKIP while the output manifest contract is unvalidated; a manifest's mere
+presence is not validation.
+
+The future `wall_surface.json` manifest and `wall_surface.ms` script belong to the wall build output,
+not `walls.json` input; future QA request/results and live captures remain separate execution artifacts
+outside `specs/pipeline/`. Missing or unmeasured output is **INCOMPLETE/SKIP**, or a build-gate
+refusal where a locked output is required. Check that at the **appropriate output boundary**, not as a
+permanent precondition preventing a future builder from consuming valid locked input. There is no
+poly runtime QA profile or live acceptance claimed by this contract.
+
+Acceptance of the integrated P2 work requires unchanged legacy examples, stepped-tower and
+form-precision baselines and negative injections for selectors, closed schemas/IDs, non-finite values,
+contour resolution or disagreement, outward vectors, openings, provenance, tolerances/epsilons,
+budgets and legacy/poly assembly mixing. Their bounded offline final results and the coordinator's
+acceptance are linked above; do not infer produced/live results from these requirements. Final evidence
+review §2 accounts for all 21 original-harness SKIPs and the pre-rounded-object expected failure:
+the 13 wall mutations ran separately with a draft input-only adapter, while authentic produced-poly
+and real poly-QA cases remain NOT RUN. The expected failure is an API information-loss limitation,
+not a protective PASS. Future P3/later authentic artifacts must eventually exercise those gates.
 
 ---
 
@@ -2571,9 +3168,10 @@ schemas that disagree.
 1. **Add the schema row.** A table in §5–§8 with key, type, required/optional, units, range, meaning,
    default. A key with no declared range is unbounded, and the validator will say so rather than
    guessing. If it carries a length, the key ends `_cm` (G-8) — no exceptions, no bare `height`.
-2. **Add the invariant.** A `G-n` row in §9 stating a check that is a **function over the parsed
-   JSON**. Not "the geometry should look right" — not "the core should be sensible". If you cannot
-   write it as a predicate, it is not an invariant; put it in `09-defaults.md` instead.
+2. **Add the invariant.** A `G-n` row in §9 stating a mechanically decidable check. Static JSON
+   rules are functions over parsed files; artifact/runtime rules must name their evidence boundary
+   and report SKIP at JSON lint. Not "the geometry should look right" or "the core should be
+   sensible": a subjective design convention belongs in `09-defaults.md`, not a fabricated PASS.
 3. **Add the validator rule.** `scripts/validate_specs.py` implements it in the same stage. An
    invariant that nothing checks is documentation, and documentation that claims to be a check is
    worse than no invariant at all.
@@ -2587,6 +3185,26 @@ schemas that disagree.
 6. **Add the example.** A worked example is part of the definition, not an illustration of it. For a
    new reserved file, that means the owning stage ships `examples/<name>.json` and it passes every
    invariant. Without an example, the schema stays `reserved` regardless of how complete §5–§8 look.
+
+#### Phase 16 P2 — placement in the six-step extension process
+
+Offline P2 is accepted as the declaration/validation partition; this does **not** declare the full
+six-step produced/live rollout complete. The inventory's “offline P2 accepted; produced/live rollout
+incomplete” distinguishes the tested input contract from an authentic produced poly example and
+runtime implementation under steps 3 and 6. Conditional presence preserves historical projects.
+
+| Step | Placement / remaining obligation |
+|---|---|
+| 1 — schema | §8.9 specifies the wall input and §8.5.9 the route-dependent assembly contract; only the initial inner-reference, facade-sourced straight-run subset is covered. |
+| 2 — invariants | §9.11 specifies G-92…G-100 and partitions static from future output/live evidence; §9.9 records route applicability without deleting legacy checks. |
+| 3 — validator | Offline inventory, single route dispatch and static predicates have final positive/negative evidence and coordinator acceptance on the named snapshot; this prose is post-test publication, not the proof. No JSON validator substitutes for future artifact/runtime gates. |
+| 4 — provenance | §8.9.2 applies the existing origins, input-path and ledger rules; complete coverage and correct source evidence must be supplied and validated per project. |
+| 5 — inventory | §4 adds conditional `walls.json`, preserves valid historical no-selector legacy, and fresh draft/scaffold/selector wiring has bounded offline evidence. No fresh scaffold proves produced geometry or runtime integration. |
+| 6 — worked example | `specs/fixtures/poly-shell-input/` is a **synthetic hypothetical input only**; it is not a produced assembly, manifest, emitted surface or measured model. A sourced, locked wall example and regression/fault-injection results are still required for complete rollout. The literal `examples/<name>.json` rule above conflicts with preserving the existing no-selector `examples/` project if a poly `walls.json` is inserted there; use a separate project fixture or obtain an explicit process decision, never silently reroute the old example. No emitted wall surface, Max pass or poly QA pass follows from the synthetic input. |
+
+The current installer includes fixture JSON under `specs/` but not its `README.md`; an eventual
+packaging review must keep the synthetic-only warning visible or deliberately exclude/move the input.
+Do not infer permission to run the installer: it overwrites the archive and can prune installed copies.
 
 ### Rules for extending an existing key or schema
 

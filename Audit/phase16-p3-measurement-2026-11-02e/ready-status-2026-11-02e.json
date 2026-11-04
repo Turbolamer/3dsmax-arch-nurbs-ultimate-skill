@@ -1,0 +1,26 @@
+{
+  "schema_version": "p3-measurement-readiness-1",
+  "status": "FROZEN_READY_FOR_MAIN_ENVELOPE_RETEST_NOT_ACCEPTED",
+  "catch_bodies_lexically_checked_no_explicit_throw": {
+    "measure.ms": 7,
+    "calibrate_snapshot.ms": 2,
+    "calibrate_writer.ms": 4
+  },
+  "frozen_source_hashes_match": true,
+  "measure_ms_sha256": "eee6d56ecb0d7c270494d55ba90f51ccb1032eb261defb7a2bf11baa8772d8f9",
+  "actual_capture_sha256": "81b69fc1de39a9fcd410b9158cac6d317030d2f2bcd10bde4cd32afdf12c364a",
+  "actual_base_area_scene2": 10000,
+  "actual_signed_volume_scene3": 100000.00000000001,
+  "envelope_integer64_fix_runtime_status": "PENDING_MAIN_RETEST",
+  "prior_measurement_failures": [
+    "reserved by parse defect, corrected",
+    "marshalled GetBytes array .Length failure before file creation, corrected",
+    "actual full file captured but compact envelope 3516L invalid JSON; source corrected, retest pending"
+  ],
+  "main_runtime_host_compile_rule": "Main-reported runtime Main02arm compile failure: only argumentless throw permitted syntactically in catch; outside measurement ownership, no runtime source edited",
+  "qualifications": [
+    "catch check is lexical and does not prove helper calls cannot fail",
+    "tiny-quad capture is bounded calibration, not F01/P3.1 acceptance",
+    "no live Max calls or existing capture writes by this verifier"
+  ]
+}

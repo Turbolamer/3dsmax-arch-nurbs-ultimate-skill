@@ -37,6 +37,31 @@ goes), ``massing.json`` (the envelope to cut) and ``dimensions.json`` (the openi
 the facade runs). All four must be ``locked`` unless ``--allow-draft``; ``--build``
 refuses a draft outright, which is the P2/P3 convention. The *emitted*
 ``assembly.json`` is ``locked``, and ``--build`` re-checks that on the bytes on disk.
+This is still the legacy wall-cell builder: an explicit poly wall route, an invalid
+selector, a selector conflict, or an unreadable route file is refused before building or
+writing anything. An old project with neither ``walls.json`` nor a selector stays legacy;
+an explicit legacy wall selector is echoed with provenance in the generated assembly.
+Explicit legacy requires a locked wall declaration and verified locked dependencies,
+including the validator's G-9/G-10/G-93 input gates; --allow-draft cannot bypass them.
+Every consumed JSON number must retain its decimal value through float decoding;
+lossy or out-of-range numbers are refused before geometry or output is written.
+Duplicate keys in consumed JSON are refused in historical no-selector projects
+as well: silently selecting the last ambiguous value is not compatibility.
+Integral JSON values outside +/-((1 << 53) - 1) are refused even when that
+particular value is exactly representable; adjacent integers need not be. This
+is a deliberate legacy compatibility restriction, shared with the validator.
+For a separate output directory, a byte-identical, regular, locked walls.json must already
+exist there. The builder never copies that file. The generated assembly is also checked
+by the independent spatial wall-cell oracle before either output is written: REVIEW,
+FAIL and NOT_APPLICABLE do not establish coverage and are refused.
+Output commits stage both payloads and rollback already replaced entries on recovered
+I/O errors. Directory identities and route/input bytes are checked again inside the
+commit, including before replacements and rollback. These bounded checks refuse the
+measured late substitutions; they are NOT a filesystem transaction, crash recovery,
+or a lock against arbitrary concurrent/hostile writers. Rollback itself can fail;
+its diagnostic identifies retained recovery files rather than claiming preservation.
+Input/output directory spellings containing ``..`` are intentionally refused before
+staging; use a path without parent traversal rather than silently resolving links.
 
 DECISIONS THIS BUILDER MAKES, AND WHY
 --------------------------------------
@@ -120,19 +145,30 @@ DECISIONS THIS BUILDER MAKES, AND WHY
 
 from __future__ import annotations
 
-import argparse
-import json
-import math
-import os
-import re
 import sys
-from pathlib import Path
-from typing import Any, Sequence
 
+# Do not create import caches before the route gate has decided whether this builder
+# may run. Restore the caller's setting when this module is imported.
+_dont_write_bytecode = sys.dont_write_bytecode
+sys.dont_write_bytecode = True
 try:
-    from scripts.scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
-except ImportError:
-    from scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
+    import argparse
+    import json
+    import math
+    import os
+    import re
+    import stat
+    import tempfile
+    from decimal import Decimal, DecimalException
+    from pathlib import Path
+    from typing import Any, Sequence
+
+    try:
+        from scripts.scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
+    except ImportError:
+        from scene_units import emit_unit_preamble, scene_length_expr, scene_point_expr
+finally:
+    sys.dont_write_bytecode = _dont_write_bytecode
 
 # --------------------------------------------------------------------------- #
 # Constants declared by references/07-spec-grammar.md and the P6 contract
@@ -141,6 +177,7 @@ except ImportError:
 SUPPORTED_SCHEMA_MAJOR = 1
 SUPPORTED_SCHEMA_MINORS: tuple[int, ...] = (0, 1)
 SCHEMA_VERSION = "1.0"
+MAX_SAFE_JSON_INTEGER = (1 << 53) - 1
 
 STAGES: tuple[str, ...] = ("assembly",)
 DEFAULT_STAGE = "assembly"
@@ -149,8 +186,15 @@ DIMENSIONS_NAME = "dimensions.json"
 MASSING_NAME = "massing.json"
 REGISTRY_NAME = "components_registry.json"
 WORLD_CSV_NAME = "world_table.csv"
+WALLS_NAME = "walls.json"
 OUT_JSON_NAME = "assembly.json"
 OUT_MS_NAME = "assembly.ms"
+
+WALL_TECHNIQUE_KEY = "wall_technique"
+LEGACY_WALL_TECHNIQUE = "legacy_cells_v1"
+POLY_WALL_TECHNIQUE = "poly_surface_shell_v1"
+CLOSED_SHELL_V2_WALL_TECHNIQUE = "closed_inner_contour_shell_v2"
+WALL_SURFACE_NAME = "wall_surface.json"
 
 #: 07 section 8.1.4 -- the layer vocabulary is closed.
 LAYER_VOCABULARY: tuple[str, ...] = (
@@ -276,7 +320,10 @@ def as_float(value: Any) -> float | None:
     if isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
-        number = float(value)
+        try:
+            number = float(value)
+        except OverflowError:
+            return None
         return None if math.isnan(number) or math.isinf(number) else number
     if isinstance(value, str):
         try:
@@ -295,11 +342,57 @@ def close(left: Any, right: Any, tolerance: float) -> bool:
     return abs(a - b) <= tolerance
 
 
-def strict_loads(text: str) -> Any:
+def strict_loads(text: str, *, reject_duplicate_keys: bool = False) -> Any:
     def _reject(name: str) -> Any:
         raise ValueError(f"JSON constant {name} is not allowed (07 G-7)")
 
-    return json.loads(text, parse_constant=_reject)
+    def _representable(value: str) -> float:
+        # A bounded preview prevents giant bad numbers from overwhelming an error
+        # message or tripping Python's integer-to-string digit limit.
+        preview = value if len(value) <= 80 else value[:77] + "..."
+        try:
+            number = float(value)
+        except (OverflowError, ValueError) as exc:
+            raise ValueError(f"JSON number {preview} cannot be decoded safely (07 G-7)") from exc
+        if not math.isfinite(number):
+            raise ValueError(f"JSON number {preview} is not finite (07 G-7)")
+        try:
+            decimal_value = Decimal(value)
+            identical = decimal_value == Decimal(str(number))
+            unsafe_integer = (decimal_value == decimal_value.to_integral_value()
+                              and decimal_value.copy_abs() > MAX_SAFE_JSON_INTEGER)
+        except (DecimalException, ValueError) as exc:
+            raise ValueError(f"JSON number {preview} cannot be compared safely (07 G-7)") from exc
+        if unsafe_integer:
+            raise ValueError(
+                f"JSON number {preview} exceeds the safe integer bound "
+                f"+/-{MAX_SAFE_JSON_INTEGER} (07 G-7)"
+            )
+        if not identical:
+            raise ValueError(
+                f"JSON number {preview} loses decimal precision when decoded as a float (07 G-7)"
+            )
+        return number
+
+    def _integer(value: str) -> int:
+        # Integers are decoded exactly by json, but the builder subsequently
+        # converts geometric integers to float. Guard that conversion too.
+        _representable(value)
+        try:
+            return int(value)
+        except ValueError as exc:
+            raise ValueError("JSON integer exceeds the safe decoding limit (07 G-7)") from exc
+
+    def _unique(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError(f"duplicate JSON object key {key!r}")
+            result[key] = value
+        return result
+
+    return json.loads(text, parse_constant=_reject, parse_float=_representable, parse_int=_integer,
+                      object_pairs_hook=_unique if reject_duplicate_keys else None)
 
 
 def _round_tree(node: Any) -> Any:
@@ -403,6 +496,490 @@ def covers(entry: str, leaf: str) -> bool:
 # Reading the upstream files
 # --------------------------------------------------------------------------- #
 
+
+def route_entry_present(path: Path) -> bool:
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return False
+    except OSError as exc:
+        raise Refusal(f"refusing to build: cannot inspect {path}: {exc}") from exc
+    return True
+
+
+def _link_or_reparse(info: Any) -> bool:
+    return stat.S_ISLNK(info.st_mode) or bool(
+        getattr(info, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+    )
+
+
+def require_safe_output_paths(out_dir: Path) -> None:
+    """Refuse links present at this check; this is not a directory/handle lock."""
+    absolute = out_dir.absolute()
+    paths = (absolute, *absolute.parents, out_dir / OUT_JSON_NAME, out_dir / OUT_MS_NAME)
+    for path in paths:
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            raise Refusal(f"refusing to build: cannot inspect {path}: {exc}") from exc
+        if _link_or_reparse(info):
+            raise Refusal(f"refusing to build: unsafe symlink or reparse point {path}.")
+        if path in (absolute, *absolute.parents):
+            if not stat.S_ISDIR(info.st_mode):
+                raise Refusal(f"refusing to build: output {path} is not a directory.")
+        elif not stat.S_ISREG(info.st_mode) or info.st_nlink > 1:
+            raise Refusal(f"refusing to build: {path} is not a safe regular output file.")
+
+
+def check_route_locations(specs_dir: Path) -> None:
+    """Reject an unselected parent/child route rather than silently ignoring it."""
+    absolute = specs_dir.absolute()
+    for directory in (absolute, *absolute.parents):
+        try:
+            info = directory.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            raise Refusal(f"refusing to build: cannot inspect {directory}: {exc}") from exc
+        if _link_or_reparse(info) or not stat.S_ISDIR(info.st_mode):
+            raise Refusal(f"refusing to build: unsafe route directory {directory}.")
+    alternatives = [specs_dir / "pipeline"]
+    if specs_dir.name.casefold() == "pipeline":
+        alternatives.append(specs_dir.parent)
+    for alternate in alternatives:
+        try:
+            info = alternate.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            raise Refusal(f"refusing to build: cannot inspect {alternate}: {exc}") from exc
+        if _link_or_reparse(info) or not stat.S_ISDIR(info.st_mode):
+            raise Refusal(f"refusing to build: ambiguous route directory {alternate} is not safe.")
+    manifest = specs_dir / "wall_surface.json"
+    walls_doc = read_route_document(specs_dir, WALLS_NAME)
+    walls_route = route_selector(walls_doc, specs_dir / WALLS_NAME, WALLS_NAME) if walls_doc else None
+    if route_entry_present(manifest) and walls_route != CLOSED_SHELL_V2_WALL_TECHNIQUE:
+        raise Refusal(f"refusing to build: legacy route cannot retain wall manifest {manifest}.")
+    for name in (WALLS_NAME, OUT_JSON_NAME, "wall_surface.json"):
+        for alternate in alternatives:
+            path = alternate / name
+            if route_entry_present(path):
+                raise Refusal(
+                    f"refusing to build: ambiguous wall route; {path} is outside "
+                    f"the selected directory {specs_dir}."
+                )
+
+
+def read_route_document(specs_dir: Path, name: str) -> dict[str, Any] | None:
+    """Read an optional route document strictly, without following a file link."""
+    path = specs_dir / name
+    if not route_entry_present(path):
+        return None
+    try:
+        info = path.lstat()
+    except OSError as exc:
+        raise Refusal(f"refusing to build: cannot inspect {path}: {exc}") from exc
+    if _link_or_reparse(info) or not stat.S_ISREG(info.st_mode):
+        raise Refusal(f"refusing to build: {path} is not a safe regular file.")
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        raise Refusal(f"refusing to build: cannot read {path}: {exc}") from exc
+    try:
+        document = strict_loads(text, reject_duplicate_keys=True)
+    except (ValueError, json.JSONDecodeError, RecursionError) as exc:
+        raise Refusal(f"refusing to build: {path} is not strict JSON -- {exc} (07 G-7).") from exc
+    if not isinstance(document, dict):
+        raise Refusal(f"refusing to build: {path} top level is not an object (07 G-1).")
+    return document
+
+
+def require_route_document_shape(document: dict[str, Any], path: Path, name: str) -> None:
+    """Check route envelope and wall table shape; full G-93 remains validator work."""
+    envelope = ("schema_version", "spec", "project", "units", "source", "status")
+    spec = "walls" if name == WALLS_NAME else "assembly"
+    versions = ("1.1", "2.0") if spec == "walls" else ("1.0", "1.1", "2.0")
+    source = document.get("source")
+    if (list(document)[:len(envelope)] != list(envelope)
+            or document.get("spec") != spec or document.get("schema_version") not in versions
+            or not isinstance(document.get("project"), str) or not document["project"].strip()
+            or document.get("units") != {"length": "cm", "angle": "deg"}
+            or not isinstance(source, dict) or set(source) != {"kind", "reference", "recorded_at"}
+            or source.get("kind") not in ("user_brief", "drawing", "image", "imported", "assumed", "derived")
+            or not all(isinstance(source.get(key), str) and source[key].strip()
+                       for key in ("reference", "recorded_at"))
+            or document.get("status") not in ("draft", "locked", "superseded")):
+        raise Refusal(f"refusing to build: {path} has an invalid route document envelope.")
+    if spec == "walls":
+        technique = document.get(WALL_TECHNIQUE_KEY)
+        if technique == CLOSED_SHELL_V2_WALL_TECHNIQUE:
+            keys = set(envelope) | {"tolerances", "origin_inputs", "origins", WALL_TECHNIQUE_KEY,
+                "reference_face", "numeric_epsilon_cm", "numeric_unit_epsilon", "storeys"}
+            if (set(document) != keys or not isinstance(document["tolerances"], dict)
+                    or set(document["tolerances"]) != {"linear_cm", "area_m2", "angle_deg"}
+                    or not isinstance(document["origins"], dict)
+                    or not isinstance(document.get("origin_inputs"), list)
+                    or not isinstance(document.get("storeys"), list)):
+                raise Refusal(f"refusing to build: {path} has an invalid route document shape.")
+        else:
+            keys = set(envelope) | {"tolerances", "origin_inputs", "origins", WALL_TECHNIQUE_KEY,
+                "reference_face", "numeric_epsilon_cm", "numeric_unit_epsilon", "blocks", "wall_runs",
+                "openings", "upper_returns"}
+            if (set(document) != keys or not isinstance(document["tolerances"], dict)
+                    or set(document["tolerances"]) != {"linear_cm", "area_m2", "angle_deg"}
+                    or not isinstance(document["origins"], dict)
+                    or any(not isinstance(document[key], list) for key in
+                           ("origin_inputs", "blocks", "wall_runs", "openings", "upper_returns"))):
+                raise Refusal(f"refusing to build: {path} has an invalid route document shape.")
+
+
+def route_selector(document: dict[str, Any] | None, path: Path, name: str) -> str | None:
+    if document is None:
+        return None
+    require_route_document_shape(document, path, name)
+    if name == OUT_JSON_NAME and "wall_ref" in document and document.get(WALL_TECHNIQUE_KEY) != CLOSED_SHELL_V2_WALL_TECHNIQUE:
+        raise Refusal(
+            f"refusing to build: {path} declares wall_ref; a legacy assembly cannot own "
+            "a poly wall reference."
+        )
+    if WALL_TECHNIQUE_KEY not in document:
+        if name == WALLS_NAME:
+            raise Refusal(f"refusing to build: {path} does not declare {WALL_TECHNIQUE_KEY}.")
+        return None
+    technique = document[WALL_TECHNIQUE_KEY]
+    if not isinstance(technique, str) or technique not in (
+        LEGACY_WALL_TECHNIQUE,
+        POLY_WALL_TECHNIQUE,
+        CLOSED_SHELL_V2_WALL_TECHNIQUE,
+    ):
+        raise Refusal(
+            f"refusing to build: {path} declares invalid {WALL_TECHNIQUE_KEY} {technique!r}; "
+            f"expected {LEGACY_WALL_TECHNIQUE!r}, {POLY_WALL_TECHNIQUE!r} or {CLOSED_SHELL_V2_WALL_TECHNIQUE!r}."
+        )
+    return technique
+
+
+def empty_assembly_draft(document: dict[str, Any]) -> bool:
+    return document.get("status") == "draft" and all(
+        key not in document or document[key] in ({}, [])
+        for key in ("origins", "defaults", "layer_map", "origin_inputs", "placements",
+                    "opening_cuts", "wall_cells", "scatter")
+    )
+
+
+def require_legacy_wall_route(specs_dir: Path) -> str | None:
+    """Fail closed before geometry or output when the input route is not legacy."""
+    check_route_locations(specs_dir)
+    walls_doc = read_route_document(specs_dir, WALLS_NAME)
+    assembly_doc = read_route_document(specs_dir, OUT_JSON_NAME)
+    walls = route_selector(walls_doc, specs_dir / WALLS_NAME, WALLS_NAME)
+    assembly = route_selector(assembly_doc, specs_dir / OUT_JSON_NAME, OUT_JSON_NAME)
+    if walls is not None and assembly is not None and walls != assembly:
+        raise Refusal(
+            f"refusing to build: {WALLS_NAME} and input {OUT_JSON_NAME} disagree on "
+            f"{WALL_TECHNIQUE_KEY}: {walls!r} versus {assembly!r}."
+        )
+    if POLY_WALL_TECHNIQUE in (walls, assembly):
+        raise Refusal(
+            f"refusing to build: {WALL_TECHNIQUE_KEY} {POLY_WALL_TECHNIQUE!r} is not "
+            f"supported by this legacy wall-cell builder; it cannot generate the poly route."
+        )
+    if assembly is not None and walls is None:
+        raise Refusal(
+            f"refusing to build: input {OUT_JSON_NAME} declares {WALL_TECHNIQUE_KEY} "
+            f"{assembly!r} but {WALLS_NAME} is missing; the route declaration is incomplete."
+        )
+    if walls is not None and assembly_doc is not None and assembly is None and not empty_assembly_draft(assembly_doc):
+        raise Refusal(
+            f"refusing to build: produced input {OUT_JSON_NAME} must echo "
+            f"{WALLS_NAME} {WALL_TECHNIQUE_KEY} {walls!r}."
+        )
+    if walls == LEGACY_WALL_TECHNIQUE and assembly_doc is not None and not empty_assembly_draft(assembly_doc):
+        if any(not isinstance(assembly_doc.get(key), list) for key in ("opening_cuts", "wall_cells")):
+            raise Refusal(
+                f"refusing to build: produced legacy {OUT_JSON_NAME} must retain "
+                "opening_cuts and wall_cells arrays."
+            )
+    return walls
+
+
+def read_verified_file(path: Path) -> bytes:
+    """Refuse an input link/reparse/hardlink observed before reading its bytes.
+
+    This lstat/read pair is not an arbitrary-concurrent-substitution guarantee.
+    """
+    try:
+        info = path.lstat()
+        if _link_or_reparse(info) or not stat.S_ISREG(info.st_mode) or info.st_nlink > 1:
+            raise Refusal(f"refusing to build: {path} is not a safe, unlinked regular file.")
+        return path.read_bytes()
+    except OSError as exc:
+        raise Refusal(f"refusing to build: cannot safely read {path}: {exc}") from exc
+
+
+def require_safe_output_route(
+    out_dir: Path, wall_technique: str | None, input_walls: bytes | None = None
+) -> None:
+    """Do not replace a poly, invalid, or differently selected output assembly."""
+    require_safe_output_paths(out_dir)
+    if wall_technique == CLOSED_SHELL_V2_WALL_TECHNIQUE:
+        wall_path = out_dir / WALLS_NAME
+        if route_entry_present(wall_path):
+            existing_walls = route_selector(read_route_document(out_dir, WALLS_NAME), wall_path, WALLS_NAME)
+            if existing_walls != wall_technique:
+                raise Refusal(
+                    f"refusing to build: output {out_dir} has {WALL_TECHNIQUE_KEY} "
+                    f"{existing_walls!r}, but the input route declaration is {wall_technique!r}; "
+                    "a v2 assembly cannot be written into a different wall route."
+                )
+        assembly_path = out_dir / OUT_JSON_NAME
+        if route_entry_present(assembly_path):
+            existing_asm = route_selector(read_route_document(out_dir, OUT_JSON_NAME), assembly_path, OUT_JSON_NAME)
+            if existing_asm is not None and existing_asm != wall_technique:
+                raise Refusal(
+                    f"refusing to build: output {out_dir} has {WALL_TECHNIQUE_KEY} "
+                    f"{existing_asm!r}, but the input route declaration is {wall_technique!r}; "
+                    "a v2 assembly cannot be written into a different wall route."
+                )
+        return
+    if wall_technique == LEGACY_WALL_TECHNIQUE:
+        wall_path = out_dir / WALLS_NAME
+        if input_walls is None or not route_entry_present(wall_path):
+            raise Refusal(
+                f"refusing to build: output {out_dir} must already contain the byte-identical "
+                f"verified locked {WALLS_NAME}; this builder will not copy it. Use --out "
+                "pointing at the input directory or supply an identical wall file."
+            )
+        if read_verified_file(wall_path) != input_walls:
+            raise Refusal(
+                f"refusing to build: output {wall_path} differs from the verified input "
+                f"{WALLS_NAME}; it will not be overwritten."
+            )
+    existing = require_legacy_wall_route(out_dir)
+    if existing != wall_technique:
+        raise Refusal(
+            f"refusing to build: output {out_dir} has {WALL_TECHNIQUE_KEY} "
+            f"{existing!r}, but the input route declaration is {wall_technique!r}; "
+            "a legacy assembly cannot be written into a different wall route."
+        )
+
+
+def _load_wall_validator() -> Any:
+    """Import the actual validator only for an explicit route, without cache writes."""
+    previous = sys.dont_write_bytecode
+    sys.dont_write_bytecode = True
+    try:
+        try:
+            from scripts import validate_specs as validator
+        except ImportError:
+            import validate_specs as validator
+        return validator
+    except Exception as exc:
+        raise Refusal(f"refusing to build: wall input validator is unavailable: {exc}") from exc
+    finally:
+        sys.dont_write_bytecode = previous
+
+
+def verify_explicit_wall_inputs(specs_dir: Path) -> dict[Path, bytes]:
+    """Run existing validator input gates without loading the old output assembly.
+
+    The validator's inventory and G-82 include assembly *output*, which is not a
+    prerequisite for producing a replacement. Only actual inputs and their
+    required findings are considered here; no SKIP is promoted to a PASS.
+    """
+    validator = _load_wall_validator()
+    required = ("walls", "dimensions", "massing", "components_registry",
+                "assumptions", "conflicts_resolved")
+    optional = ("nurbs", "facade_grids")
+    alternatives = [specs_dir / "pipeline"]
+    if specs_dir.name.casefold() == "pipeline":
+        alternatives.append(specs_dir.parent)
+    snapshots: dict[Path, bytes] = {}
+    paths: list[Path] = []
+    for name in required + optional:
+        filename = name + ".json"
+        path = specs_dir / filename
+        for alternate in alternatives:
+            candidate = alternate / filename
+            if route_entry_present(candidate):
+                raise Refusal(f"refusing to build: ambiguous input dependency {candidate}.")
+        if not route_entry_present(path):
+            if name in required:
+                raise Refusal(f"refusing to build: required wall input dependency {path} is missing.")
+            continue
+        data = read_verified_file(path)
+        try:
+            decoded = strict_loads(data.decode("utf-8"), reject_duplicate_keys=True)
+        except (UnicodeError, ValueError, RecursionError) as exc:
+            raise Refusal(f"refusing to build: {path} is not strict JSON: {exc}") from exc
+        if not isinstance(decoded, dict):
+            raise Refusal(f"refusing to build: {path} is not a JSON object.")
+        if name in required and decoded.get("status") != "locked":
+            raise Refusal(
+                f"refusing to build: explicit legacy requires locked {path}; "
+                f"status is {decoded.get('status')!r}, even with --allow-draft."
+            )
+        paths.append(path)
+        snapshots[path] = data
+
+    # Also protect the CSV actually consumed by the builder and the route-bearing
+    # assembly inspected earlier, while deliberately excluding the latter from lint.
+    csv_path = specs_dir / WORLD_CSV_NAME
+    snapshots[csv_path] = read_verified_file(csv_path)
+    assembly_path = specs_dir / OUT_JSON_NAME
+    if route_entry_present(assembly_path):
+        snapshots[assembly_path] = read_verified_file(assembly_path)
+
+    report = validator.Report()
+    try:
+        session = validator.load_session(paths, specs_dir, report)
+        session.build_gate = True
+        session.allow_draft = False
+        for record in session.files:
+            if record.fatal is not None or record.raw != snapshots.get(record.path):
+                raise Refusal(f"refusing to build: {record.path} was unreadable or changed during validation.")
+        old_build = validator.session_build_gate
+        old_draft = validator.session_allow_draft
+        try:
+            validator.session_build_gate = True
+            validator.session_allow_draft = False
+            validator.run_checks(session, report)
+        finally:
+            validator.session_build_gate = old_build
+            validator.session_allow_draft = old_draft
+    except Refusal:
+        raise
+    except Exception as exc:
+        raise Refusal(f"refusing to build: wall input validation could not complete: {exc}") from exc
+
+    wall = session.walls
+    dimensions = session.dimensions
+    if (wall is None or dimensions is None or not isinstance(wall.doc, dict)
+            or not isinstance(dimensions.doc, dict) or session.wall_route != LEGACY_WALL_TECHNIQUE):
+        raise Refusal("refusing to build: explicit legacy wall route or dimensions could not be verified.")
+    project = wall.doc.get("project")
+    tolerance_keys = {"linear_cm", "area_m2", "angle_deg"}
+    wall_tolerances, dim_tolerances = wall.doc.get("tolerances"), dimensions.doc.get("tolerances")
+    if (not isinstance(wall_tolerances, dict) or not isinstance(dim_tolerances, dict)
+            or set(wall_tolerances) != tolerance_keys or set(dim_tolerances) != tolerance_keys
+            or any(isinstance(wall_tolerances[k], bool) or isinstance(dim_tolerances[k], bool)
+                   or not isinstance(wall_tolerances[k], (int, float))
+                   or not isinstance(dim_tolerances[k], (int, float))
+                   or wall_tolerances[k] != dim_tolerances[k] for k in tolerance_keys)):
+        raise Refusal("refusing to build: walls.json tolerances must exactly match dimensions.json.")
+
+    # Require actual source records named by wall provenance, not merely a path
+    # that happens to exist somewhere in the session.
+    upstream = validator._wall_upstream(wall, session, report)
+    used_sources: set[str] = set()
+    provenance_paths = [(path, False) for path in wall.doc.get("origin_inputs", [])]
+    for entry in wall.doc.get("origins", {}).values():
+        if isinstance(entry, dict) and isinstance(entry.get("derives_from"), list):
+            provenance_paths.extend((path, True) for path in entry["derives_from"])
+    for path, local_allowed in provenance_paths:
+        if local_allowed and validator._wall_path(path, wall.doc):
+            continue  # local derives_from is checked for coverage and cycles by G-10
+        source = validator._wall_source(path, upstream)
+        if source is not None:
+            used_sources.add(source.name)
+
+    checked_names = set(required) | used_sources
+    records = {r.name: r for r in session.files if r.name in checked_names}
+    if set(records) != checked_names:
+        raise Refusal("refusing to build: a required wall provenance dependency was not loaded.")
+    findings = report.findings
+    for name in sorted(checked_names):
+        record = records[name]
+        if (not isinstance(record.doc, dict) or record.doc.get("status") != "locked"
+                or record.doc.get("project") != project):
+            raise Refusal(f"refusing to build: {record.path} must be locked in project {project!r}.")
+        rows = [f for f in findings if f.location == record.label or f.location.startswith(record.label + "::")]
+        bad = [f for f in rows if f.severity in ("FAIL", "WARN")]
+        if bad:
+            first = bad[0]
+            raise Refusal(f"refusing to build: {first.rule} {first.location}: {first.detail}")
+        checks = [f"G-{n}" for n in range(1, 8)]
+        if name in ("walls", "dimensions"):
+            checks += ["G-9", "G-10"]
+        if name == "walls":
+            checks += ["G-93", "G-94"]
+            if wall.doc.get("wall_runs") or wall.doc.get("upper_returns"):
+                checks.append("G-97")
+        if name == "assumptions":
+            checks += ["G-11", "G-12", "G-13", "G-15"]
+        if name == "conflicts_resolved":
+            checks += ["G-11", "G-12", "G-13", "G-14"]
+        if name == "massing":
+            checks += [f"G-{n}" for n in range(34, 41)]
+        if name == "components_registry":
+            checks += ["G-65", "G-66", "G-67"]
+        for rule in checks:
+            if (any(f.rule == rule and f.severity != "PASS" for f in rows)
+                    or not any(f.rule == rule and f.severity == "PASS" and f.location == record.label for f in rows)):
+                raise Refusal(f"refusing to build: {rule} was not verified PASS for {record.path}.")
+
+    for rule in ("G-31", "G-33"):
+        rows = [f for f in findings if f.rule == rule]
+        if any(f.severity != "PASS" for f in rows) or not any(
+                f.severity == "PASS" and f.location == dimensions.label for f in rows):
+            detail = next((f.detail for f in rows if f.severity == "FAIL"), "missing or incomplete check")
+            raise Refusal(f"refusing to build: {rule} input dependency check did not pass: {detail}")
+    return snapshots
+
+
+def verify_snapshots(specs_dir: Path, snapshots: dict[Path, bytes]) -> None:
+    for path, expected in snapshots.items():
+        if read_verified_file(path) != expected:
+            raise Refusal(f"refusing to write: verified input {path} changed during the build.")
+    alternatives = [specs_dir / "pipeline"]
+    if specs_dir.name.casefold() == "pipeline":
+        alternatives.append(specs_dir.parent)
+    for name in ("walls", "dimensions", "massing", "components_registry", "assumptions",
+                 "conflicts_resolved", "nurbs", "facade_grids", "assembly"):
+        path = specs_dir / (name + ".json")
+        if route_entry_present(path) != (path in snapshots):
+            raise Refusal(f"refusing to write: input route or dependency {path} changed during the build.")
+        for alternate in alternatives:
+            candidate = alternate / path.name
+            if route_entry_present(candidate):
+                raise Refusal(f"refusing to write: ambiguous input dependency {candidate}.")
+
+
+def _safe_diagnostic(value: Any) -> str:
+    """Do not let an unprintable, enormous integer turn a refusal into a crash."""
+    try:
+        text = str(value)
+    except Exception:
+        return "<diagnostic could not be safely formatted>"
+    return text if len(text) <= 2000 else text[:1997] + "..."
+
+
+def verify_spatial_coverage(assembly: dict[str, Any], massing: dict[str, Any],
+                            dimensions: dict[str, Any]) -> None:
+    """Require the independent spatial oracle to PASS the exact generated payload."""
+    previous = sys.dont_write_bytecode
+    sys.dont_write_bytecode = True
+    try:
+        try:
+            from scripts.wall_cell_coverage import check_wall_cell_coverage
+        except ImportError:
+            from wall_cell_coverage import check_wall_cell_coverage
+        result = check_wall_cell_coverage(assembly, massing, dimensions)
+        status = result.status
+        findings = result.findings
+    except Exception as exc:
+        raise Refusal("refusing to write: independent G-82 spatial coverage could not run: "
+                      + _safe_diagnostic(exc)) from exc
+    finally:
+        sys.dont_write_bytecode = previous
+    if status != "PASS":
+        detail = "; ".join(_safe_diagnostic(finding) for finding in findings[:3]) or "no spatial coverage proof"
+        raise Refusal("refusing to write: independent G-82 spatial coverage is "
+                      + _safe_diagnostic(status) + ": " + detail)
+
+
 WORLD_COLUMNS: tuple[str, ...] = (
     "instance_id",
     "component_ref",
@@ -433,18 +1010,20 @@ def read_spec(specs_dir: Path, name: str) -> dict[str, Any]:
         )
     try:
         text = path.read_text(encoding="utf-8")
-    except OSError as exc:
+    except (OSError, UnicodeError) as exc:
         raise Refusal(f"refusing to build: cannot read {path}: {exc}") from exc
     try:
-        document = strict_loads(text)
-    except (ValueError, json.JSONDecodeError) as exc:
+        document = strict_loads(text, reject_duplicate_keys=True)
+    except (ValueError, json.JSONDecodeError, RecursionError) as exc:
         raise Refusal(f"refusing to build: {path} is not strict JSON -- {exc} (07 G-7).") from exc
     if not isinstance(document, dict):
         raise Refusal(f"refusing to build: {path} top level is not an object (07 G-1).")
 
     version = document.get("schema_version")
     match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?$", str(version)) if isinstance(version, str) else None
-    if (
+    if name in (WALL_SURFACE_NAME, WALLS_NAME) and str(version) in ("2.0", "1.0", "1.1"):
+        pass
+    elif (
         match is None
         or int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR
         or int(match.group(2)) not in SUPPORTED_SCHEMA_MINORS
@@ -1239,9 +1818,10 @@ def build_defaults(registry: dict[str, Any]) -> dict[str, Any]:
 
 
 def origin_inputs(
-    dimensions: dict[str, Any], massing: dict[str, Any], registry: dict[str, Any]
+    dimensions: dict[str, Any], massing: dict[str, Any], registry: dict[str, Any],
+    wall_technique: str | None = None,
 ) -> list[str]:
-    """The dotted paths in the three JSON inputs this builder read (07 S-4).
+    """The dotted paths in the JSON inputs this builder read (07 S-4).
 
     ``world_table.csv`` is not a JSON document and contributes no dotted path. A placement's
     traceability to it is its own ``source_row``, and G-72 asserts that join in **both**
@@ -1266,6 +1846,8 @@ def origin_inputs(
     collect(massing.get("elements"), "elements")
     collect(registry.get("defaults"), "defaults")
     collect(registry.get("components"), "components")
+    if wall_technique is not None:
+        paths.add(WALL_TECHNIQUE_KEY)  # walls.json:wall_technique
     return sorted(paths)
 
 
@@ -1317,7 +1899,180 @@ def build_origins(document: dict[str, Any]) -> dict[str, Any]:
             f"scatter[{index}]",
             [f"scatter[{index}].target_ref", f"scatter[{index}].model_refs"],
         )
+    if WALL_TECHNIQUE_KEY in document:
+        put(WALL_TECHNIQUE_KEY, [WALL_TECHNIQUE_KEY])
     return origins
+
+
+def build_assembly_v2(
+    dimensions: dict[str, Any],
+    massing: dict[str, Any],
+    registry: dict[str, Any],
+    wall_surface: dict[str, Any],
+    walls: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], float]:
+    """Build assembly.json for closed_inner_contour_shell_v2 using opening manifest."""
+    project = dimensions.get("project") or wall_surface.get("project") or "unnamed"
+    source = dimensions.get("source")
+    recorded_at = source.get("recorded_at") if isinstance(source, dict) else None
+    if not isinstance(recorded_at, str) or not recorded_at:
+        recorded_at = wall_surface.get("source", {}).get("recorded_at", "2026-11-04T00:00:00Z")
+    tolerances = dimensions.get("tolerances") or wall_surface.get("tolerances") or {
+        "linear_cm": 0.5, "area_m2": 0.05, "angle_deg": 0.01
+    }
+    openings = wall_surface.get("openings", [])
+    if not isinstance(openings, list) or not openings:
+        raise Refusal("refusing to build: wall_surface.json has no openings[] declared.")
+
+    # Extract segment lengths from walls spec if available
+    seg_lengths: dict[str, float] = {}
+    if walls and isinstance(walls.get("storeys"), list):
+        for st in walls["storeys"]:
+            verts = st.get("vertices_cm", [])
+            for seg in st.get("segments", []):
+                s_idx = seg.get("start_vertex_index")
+                e_idx = seg.get("end_vertex_index")
+                if (
+                    isinstance(s_idx, int)
+                    and isinstance(e_idx, int)
+                    and 0 <= s_idx < len(verts)
+                    and 0 <= e_idx < len(verts)
+                ):
+                    v0 = verts[s_idx]
+                    v1 = verts[e_idx]
+                    seg_lengths[str(seg.get("id"))] = math.hypot(v1[0] - v0[0], v1[1] - v0[1])
+
+    # Validate openings: stations, bounds, non-overlap
+    intervals_by_seg: dict[str, list[tuple[float, float, str]]] = {}
+    for idx, op in enumerate(openings):
+        op_id = str(op.get("opening_id", f"OP-{idx+1:03d}"))
+        seg_id = str(op.get("segment_id", ""))
+        station = op.get("station_along_segment", {})
+        s_min = station.get("s_min_cm") if isinstance(station, dict) else None
+        s_max = station.get("s_max_cm") if isinstance(station, dict) else None
+        if s_min is None or s_max is None:
+            s_range = op.get("s_range_cm")
+            if isinstance(s_range, (list, tuple)) and len(s_range) == 2:
+                s_min, s_max = s_range[0], s_range[1]
+        if s_min is not None and s_max is not None:
+            s_min_f, s_max_f = float(s_min), float(s_max)
+            if s_min_f < 0.0 or s_max_f <= s_min_f:
+                raise Refusal(
+                    f"refusing to build: opening {op_id} has invalid or inverted station range [{s_min_f}, {s_max_f}]."
+                )
+            if seg_id in seg_lengths and s_max_f > seg_lengths[seg_id] + 0.001:
+                raise Refusal(
+                    f"refusing to build: opening {op_id} station s_max ({s_max_f}) exceeds segment length ({seg_lengths[seg_id]})."
+                )
+            intervals_by_seg.setdefault(seg_id, []).append((s_min_f, s_max_f, op_id))
+
+    for seg_id, spans in intervals_by_seg.items():
+        spans.sort(key=lambda item: item[0])
+        for i in range(len(spans) - 1):
+            left = spans[i]
+            right = spans[i + 1]
+            if right[0] < left[1]:
+                raise Refusal(
+                    f"refusing to build: opening collision/overlap detected between {left[2]} and {right[2]} on segment {seg_id!r}."
+                )
+
+    placements: list[dict[str, Any]] = []
+    defaults = build_defaults(registry)
+
+    for idx, op in enumerate(openings):
+        op_id = str(op.get("opening_id", f"OP-{idx+1:03d}"))
+        kind = str(op.get("kind", "window"))
+        comp_type_id = str(op.get("component_type_id", f"COMP_{kind.upper()}"))
+        comp_id = comp_type_id.split(":")[-1]
+
+        rough = op.get("rough_opening", {})
+        rough_w = float(rough.get("width_cm", 100.0))
+        rough_h = float(rough.get("height_cm", 210.0))
+        rough_d = float(rough.get("depth_cm", 30.0))
+
+        mount = op.get("mounting_parameters", {})
+        recess_cm = float(mount.get("recess_cm", 10.0))
+        frame_depth_cm = float(mount.get("frame_depth_cm", 12.0))
+        clearance_sides = float(mount.get("clearance_sides_cm", 1.0))
+        clearance_top = float(mount.get("clearance_top_cm", 1.0))
+        clearance_bottom = float(mount.get("clearance_bottom_cm", 0.0 if kind == "door" else 1.0))
+
+        frame_w = rough_w - 2.0 * clearance_sides
+        frame_h = rough_h - clearance_bottom - clearance_top
+        frame_d = frame_depth_cm
+
+        if frame_w <= 0.0 or frame_h <= 0.0 or frame_d <= 0.0:
+            raise Refusal(f"refusing to build: opening {op_id} clearances exceed rough opening.")
+
+        local_frame = op.get("local_frame", {})
+        origin = [float(v) for v in local_frame.get("origin_cm", [0.0, 0.0, 0.0])]
+        tangent = [float(v) for v in local_frame.get("tangent", [1.0, 0.0, 0.0])]
+        outward = [float(v) for v in local_frame.get("outward", [0.0, -1.0, 0.0])]
+        up = [float(v) for v in local_frame.get("up", [0.0, 0.0, 1.0])]
+
+        p_pivot = [
+            origin[0] + (rough_w / 2.0) * tangent[0] + (recess_cm + frame_d / 2.0) * outward[0] + clearance_bottom * up[0],
+            origin[1] + (rough_w / 2.0) * tangent[1] + (recess_cm + frame_d / 2.0) * outward[1] + clearance_bottom * up[1],
+            origin[2] + (rough_w / 2.0) * tangent[2] + (recess_cm + frame_d / 2.0) * outward[2] + clearance_bottom * up[2],
+        ]
+        rot_z = math.degrees(math.atan2(tangent[1], tangent[0]))
+        rot_z = (rot_z + 360.0) % 360.0
+
+        node_name = f"PLC_{idx+1:03d}"
+        placements.append({
+            "id": f"PLC-{idx+1:03d}",
+            "opening_id": op_id,
+            "component_id": comp_id,
+            "node_name": node_name,
+            "kind": kind,
+            "position_cm": [q(p_pivot[0]), q(p_pivot[1]), q(p_pivot[2])],
+            "rot_z_deg": q(rot_z),
+            "size_cm": [q(frame_w), q(frame_d), q(frame_h)],
+            "local_frame": local_frame,
+            "rough_opening": rough,
+            "mounting_parameters": mount,
+            "layer": "05_FACADE",
+            "instance": True,
+        })
+
+    wall_thickness = float(wall_surface.get("storeys", [{}])[0].get("wall_thickness_cm", 30.0))
+    origins: dict[str, Any] = {
+        "wall_technique": {"origin": "given"},
+        "wall_ref": {"origin": "given"},
+    }
+    for idx, _ in enumerate(placements):
+        origins[f"placements[{idx}]"] = {
+            "origin": "derived",
+            "derives_from": ["storeys[0].openings"],
+        }
+    origin_ins = ["storeys[0].openings"]
+
+    doc: dict[str, Any] = {
+        "schema_version": str(dimensions.get("schema_version", SCHEMA_VERSION)),
+        "spec": "assembly",
+        "project": project,
+        "units": {"length": "cm", "angle": "deg"},
+        "source": {
+            "kind": "derived",
+            "reference": (
+                f"{WALL_SURFACE_NAME} -- opening manifest providing rough openings and local frames; "
+                f"{REGISTRY_NAME} -- component definitions; "
+                f"{MASSING_NAME} -- project envelope"
+            ),
+            "recorded_at": recorded_at,
+        },
+        "status": "locked",
+        "tolerances": dict(tolerances),
+        "origin_inputs": origin_ins,
+        "origins": origins,
+        "defaults": defaults,
+        "layer_map": build_layer_map(),
+        "placements": placements,
+        "scatter": [],
+        "wall_technique": CLOSED_SHELL_V2_WALL_TECHNIQUE,
+        "wall_ref": WALL_SURFACE_NAME,
+    }
+    return doc, wall_thickness
 
 
 def build_assembly(
@@ -1325,8 +2080,17 @@ def build_assembly(
     massing: dict[str, Any],
     registry: dict[str, Any],
     world_rows: Sequence[dict[str, str]],
+    wall_technique: str | None = None,
+    wall_surface: dict[str, Any] | None = None,
+    walls: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], float]:
     """The whole ``assembly.json``, in 07 section 8.5's declared key order."""
+    if wall_technique == CLOSED_SHELL_V2_WALL_TECHNIQUE:
+        if wall_surface is None:
+            raise Refusal(f"refusing to build: {WALL_SURFACE_NAME} is required for {wall_technique!r}.")
+        return build_assembly_v2(dimensions, massing, registry, wall_surface, walls=walls)
+    if wall_technique is not None and wall_technique != LEGACY_WALL_TECHNIQUE:
+        raise Refusal(f"refusing to build: unsupported {WALL_TECHNIQUE_KEY} {wall_technique!r}.")
     defaults = build_defaults(registry)
     joint = float(defaults["panel_joint_cm"])
     toward = footprint_centre(dimensions)
@@ -1366,12 +2130,13 @@ def build_assembly(
                 f"entry; "
                 f"{MASSING_NAME} -- the facade_wall envelope the openings are cut in; "
                 f"{DIMENSIONS_NAME} -- the openings and the facade runs"
+                + (f"; {WALLS_NAME} -- the explicit wall_technique" if wall_technique is not None else "")
             ),
             "recorded_at": recorded_at,
         },
         "status": "locked",
         "tolerances": dict(tolerances),
-        "origin_inputs": origin_inputs(dimensions, massing, registry),
+        "origin_inputs": origin_inputs(dimensions, massing, registry, wall_technique),
         "origins": {},
         "defaults": defaults,
         "layer_map": build_layer_map(),
@@ -1380,6 +2145,8 @@ def build_assembly(
         "wall_cells": build_wall_cells(opening_cuts, massing, dimensions),
         "scatter": build_scatter(massing),
     }
+    if wall_technique is not None:
+        document[WALL_TECHNIQUE_KEY] = wall_technique
     document["origins"] = build_origins(document)
     return document, thickness
 
@@ -1427,6 +2194,110 @@ def prototype_dims(prototypes: Sequence[Prototype], component_id: str) -> tuple[
     raise Refusal(f"refusing to emit: no prototype for component {component_id!r} (G-71).")
 
 
+def render_ms_v2(
+    document: dict[str, Any],
+    massing: dict[str, Any],
+    dimensions: dict[str, Any],
+    registry: dict[str, Any],
+) -> str:
+    """Emit MAXScript for closed_inner_contour_shell_v2: Box prototypes + instances."""
+    project = document["project"]
+    function = build_fn_name(project)
+    placements = document["placements"]
+
+    # Prototype grouping: group placements by distinct (component_id, width, depth, height)
+    proto_map: dict[tuple[str, float, float, float], str] = {}
+    proto_defs: list[tuple[str, float, float, float]] = []
+    for p in placements:
+        c_id = str(p["component_id"]).replace("-", "_")
+        sz = p["size_cm"]  # [width, depth, height]
+        w, d, h = float(sz[0]), float(sz[1]), float(sz[2])
+        key = (c_id, w, d, h)
+        if key not in proto_map:
+            p_name = f"PROTO_{c_id}_{len(proto_defs) + 1}"
+            proto_map[key] = p_name
+            proto_defs.append((p_name, w, d, h))
+
+    proto_names = [p_name for p_name, _, _, _ in proto_defs]
+    instance_names = [str(p["node_name"]) for p in placements]
+    all_names = proto_names + instance_names
+
+    body: list[str] = []
+    preamble = emit_unit_preamble(stage="assembly", factor_var="__f_unit")
+    for line in preamble.splitlines():
+        body.append(line[4:] if line.startswith("    ") else line)
+
+    body.append(f"-- {OUT_JSON_NAME} (v2): placements={len(placements)} prototypes={len(proto_defs)}")
+    body.append("-- G-79: no statement below assigns a layer to a node; layer_map stays data.")
+    body.append("-- delete-by-name, twice: deleting a base does not delete its instances.")
+    for _run in (1, 2):
+        for nm in all_names:
+            body.append(f'local prev_{nm} = getNodeByName "{nm}"')
+            body.append(f'if prev_{nm} != undefined do ( delete prev_{nm} )')
+
+    body.append("-- prototypes: one box per distinct component, sized from rough opening minus clearances.")
+    for p_name, w, d, h in proto_defs:
+        body.append(
+            f'local {p_name} = Box width:({scene_length_expr(w)}) length:({scene_length_expr(d)}) '
+            f'height:({scene_length_expr(h)}) pos:[0.0,0.0,0.0]'
+        )
+        body.append(f'{p_name}.name = "{p_name}"')
+        body.append(f'{p_name}.isHidden = true')
+
+    body.append("-- placements: copy from prototype, share baseObject, transform via orthonormal basis.")
+    for p in placements:
+        node_name = str(p["node_name"])
+        c_id = str(p["component_id"]).replace("-", "_")
+        sz = p["size_cm"]
+        w, d, h = float(sz[0]), float(sz[1]), float(sz[2])
+        p_name = proto_map[(c_id, w, d, h)]
+        lf = p["local_frame"]
+        t = [float(v) for v in lf.get("tangent", [1.0, 0.0, 0.0])]
+        n = [float(v) for v in lf.get("outward", [0.0, -1.0, 0.0])]
+        u = [float(v) for v in lf.get("up", [0.0, 0.0, 1.0])]
+        pos = [float(v) for v in p["position_cm"]]
+
+        body.append(f'local {node_name} = copy {p_name}')
+        body.append(f'{node_name}.baseObject = {p_name}.baseObject')
+        body.append(f'{node_name}.name = "{node_name}"')
+        pt_expr = scene_point_expr(pos)
+        body.append(
+            f'{node_name}.transform = matrix3 '
+            f'[{t[0]:.7f}, {t[1]:.7f}, {t[2]:.7f}] '
+            f'[{n[0]:.7f}, {n[1]:.7f}, {n[2]:.7f}] '
+            f'[{u[0]:.7f}, {u[1]:.7f}, {u[2]:.7f}] '
+            f'{pt_expr}'
+        )
+
+    body.append("-- Mechanism A: host wall hiding (ensure any legacy facade_wall does not occlude openings)")
+    facade_hosts = [
+        str(el.get("id")).replace("-", "_")
+        for el in (massing.get("elements") or [])
+        if isinstance(el, dict) and el.get("kind") == "facade_wall"
+    ]
+    if facade_hosts:
+        body.append('for host_name in #(' + ', '.join(f'"{h}"' for h in facade_hosts) + ') do (')
+        body.append('    local host_nd = getNodeByName host_name')
+        body.append('    if host_nd != undefined do host_nd.isHidden = true')
+        body.append(')')
+
+    body.append('-- Census assert: count placed instances')
+    body.append('local placed_found = 0')
+    for nm in instance_names:
+        body.append(f'if (getNodeByName "{nm}") != undefined do placed_found = placed_found + 1')
+    body.append(f'if placed_found != {len(instance_names)} do (')
+    body.append(f'    throw ("Census failure: expected {len(instance_names)} placed nodes, found " + (placed_found as string))')
+    body.append(')')
+    body.append('true')
+
+    script_lines = [f'fn {function} =', '(']
+    for line in body:
+        script_lines.append(f'    {line}')
+    script_lines.append(')')
+    script_lines.append(f'{function}()')
+    return '\n'.join(script_lines) + '\n'
+
+
 def render_ms(
     document: dict[str, Any],
     massing: dict[str, Any],
@@ -1454,6 +2325,8 @@ def render_ms(
     the previous version counted its own bookkeeping and reported success with nothing in
     the scene.
     """
+    if document.get(WALL_TECHNIQUE_KEY) == CLOSED_SHELL_V2_WALL_TECHNIQUE:
+        return render_ms_v2(document, massing, dimensions, registry)
     project = document["project"]
     if not isinstance(project, str) or not PROJECT_ID_RE.match(project):
         raise Refusal(
@@ -1654,6 +2527,57 @@ def _fail(failures: list[str], rule: str, message: str) -> None:
     failures.append(f"{rule}: {message}")
 
 
+def self_check_v2(
+    document: dict[str, Any],
+    dimensions: dict[str, Any],
+    massing: dict[str, Any],
+    registry: dict[str, Any],
+    script: str,
+) -> list[str]:
+    failures: list[str] = []
+    if document.get(WALL_TECHNIQUE_KEY) != CLOSED_SHELL_V2_WALL_TECHNIQUE:
+        _fail(failures, "G-92", "assembly wall_technique does not echo closed_inner_contour_shell_v2")
+    if document.get("wall_ref") != WALL_SURFACE_NAME:
+        _fail(failures, "G-92", f"assembly wall_ref must be {WALL_SURFACE_NAME}")
+    if "opening_cuts" in document:
+        _fail(failures, "G-82", "opening_cuts must be absent for v2 route")
+    if "wall_cells" in document:
+        _fail(failures, "G-82", "wall_cells must be absent for v2 route")
+
+    # G-81 zero modifiers
+    if "addModifier" in script:
+        _fail(failures, "G-81", "addModifier found in emitted script; zero modifiers required")
+
+    # G-79 no layer code
+    if "node.layer" in script or ".layer =" in script:
+        _fail(failures, "G-79", "layer assignment found in emitted script")
+
+    # G-74 safe node names
+    names: dict[str, str] = {}
+    placements = document.get("placements", [])
+    if not isinstance(placements, list) or not placements:
+        _fail(failures, "G-71", "assembly has no placements[]")
+    else:
+        for idx, p in enumerate(placements):
+            p_id = p.get("id")
+            if not isinstance(p_id, str) or not PLACEMENT_ID_RE.match(p_id):
+                _fail(failures, "G-71", f"placement id {p_id!r} does not match ^PLC-\\d{{3}}$")
+            node_name = p.get("node_name")
+            if not isinstance(node_name, str) or not NODE_NAME_RE.match(node_name):
+                _fail(failures, "G-74", f"placement node_name {node_name!r} is not safe")
+            if node_name in names:
+                _fail(failures, "G-74", f"duplicate node_name {node_name!r}")
+            names[node_name] = f"placements[{idx}]"
+            pos = p.get("position_cm")
+            if not isinstance(pos, list) or len(pos) != 3 or any(as_number(v) is None for v in pos):
+                _fail(failures, "G-73", f"placement {p_id} position_cm is invalid")
+            size = p.get("size_cm")
+            if not isinstance(size, list) or len(size) != 3 or any(as_number(v) is None or v <= 0 for v in size):
+                _fail(failures, "G-73", f"placement {p_id} size_cm is invalid")
+
+    return failures
+
+
 def self_check(
     document: dict[str, Any],
     dimensions: dict[str, Any],
@@ -1661,6 +2585,7 @@ def self_check(
     registry: dict[str, Any],
     world_rows: Sequence[dict[str, str]],
     script: str,
+    wall_technique: str | None = None,
 ) -> list[str]:
     """Every one of G-71..G-81, run against the emitted document and script.
 
@@ -1668,7 +2593,27 @@ def self_check(
     refuses on any failure. That is the P5 device and it is the reason a sliver could not
     ship: a build that merely completes is not proof that the numbers are right.
     """
+    if wall_technique == CLOSED_SHELL_V2_WALL_TECHNIQUE:
+        return self_check_v2(document, dimensions, massing, registry, script)
     failures: list[str] = []
+    if wall_technique is None:
+        if WALL_TECHNIQUE_KEY in document:
+            _fail(failures, "G-92", "historical legacy output unexpectedly declares a wall selector")
+    elif wall_technique != LEGACY_WALL_TECHNIQUE or document.get(WALL_TECHNIQUE_KEY) != wall_technique:
+        _fail(failures, "G-92", "assembly wall_technique does not echo the explicit legacy wall route")
+    else:
+        inputs = document.get("origin_inputs")
+        if not isinstance(inputs, list) or WALL_TECHNIQUE_KEY not in inputs:
+            _fail(failures, "G-31", "explicit wall selector is missing from origin_inputs")
+        source = document.get("source")
+        reference = source.get("reference") if isinstance(source, dict) else None
+        if not isinstance(reference, str) or WALLS_NAME not in reference:
+            _fail(failures, "G-6", "explicit wall selector is missing from source.reference")
+        origins = document.get("origins")
+        if not isinstance(origins, dict) or origins.get(WALL_TECHNIQUE_KEY) != {
+            "origin": "derived", "derives_from": [WALL_TECHNIQUE_KEY]
+        }:
+            _fail(failures, "G-10", "explicit wall selector has no derived provenance entry")
     linear = as_number((document.get("tolerances") or {}).get("linear_cm")) or 0.5
     angle = as_number((document.get("tolerances") or {}).get("angle_deg")) or 0.01
     placements = document["placements"]
@@ -2427,9 +3372,10 @@ def write_bytes(path: Path, text: str) -> None:
         if existing_bytes == data:
             return
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp_p = path.parent / f"{path.name}.tmp.{os.getpid()}"
+    fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.tmp.", dir=path.parent)
+    tmp_p = Path(tmp_name)
     try:
-        with open(tmp_p, "wb") as f:
+        with os.fdopen(fd, "wb") as f:
             f.write(data)
             f.flush()
             os.fsync(f.fileno())
@@ -2442,15 +3388,196 @@ def write_bytes(path: Path, text: str) -> None:
                 pass
 
 
+def _directory_identities(*directories: Path) -> dict[Path, tuple[int, int] | None]:
+    """Remember lexical directory identities, never resolve a substituted link."""
+    result: dict[Path, tuple[int, int] | None] = {}
+    for directory in directories:
+        if ".." in directory.parts:
+            raise Refusal(
+                f"refusing to write: directory {directory} contains parent traversal '..'; "
+                "use an input/output path without parent traversal."
+            )
+        absolute = directory.absolute()
+        for path in (absolute, *absolute.parents):
+            if path in result:
+                continue
+            try:
+                info = path.lstat()
+            except FileNotFoundError:
+                result[path] = None
+                continue
+            if _link_or_reparse(info) or not stat.S_ISDIR(info.st_mode):
+                raise Refusal(f"refusing to write: unsafe commit directory {path}.")
+            result[path] = (info.st_dev, info.st_ino)
+    return result
+
+
+def _verify_directories(expected: dict[Path, tuple[int, int] | None]) -> None:
+    for path, identity in expected.items():
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            if identity is None:
+                continue
+            raise Refusal(f"refusing to write: commit directory {path} disappeared.")
+        if (_link_or_reparse(info) or not stat.S_ISDIR(info.st_mode)
+                or identity != (info.st_dev, info.st_ino)):
+            raise Refusal(f"refusing to write: commit directory {path} changed or became unsafe.")
+
+
+class OutputCommitGuard:
+    """Bounded check/use guard, deliberately not an arbitrary-race safety claim.
+
+    Capture before the final route check so a substitution after that check is
+    compared with the earlier directory identities and bytes, not blessed as new
+    state. Output leaf replacement does not truncate a late hardlink's target.
+    """
+
+    def __init__(self, specs_dir: Path, out_dir: Path, snapshots: dict[Path, bytes]):
+        self.directories = _directory_identities(specs_dir, out_dir)
+        self.files: dict[Path, bytes | None] = dict(snapshots)
+        for directory in (specs_dir, out_dir):
+            alternatives = [directory / "pipeline"]
+            if directory.name.casefold() == "pipeline":
+                alternatives.append(directory.parent)
+            for name in (WALLS_NAME, OUT_JSON_NAME, "wall_surface.json"):
+                for parent in (directory, *alternatives):
+                    path = parent / name
+                    if path not in self.files:
+                        self.files[path] = read_verified_file(path) if route_entry_present(path) else None
+
+    def verify(self, replaced: set[Path] | None = None) -> None:
+        _verify_directories(self.directories)
+        for path, expected in self.files.items():
+            # assembly.json is an input when --out == --in. Once deliberately
+            # replaced, the old input bytes are no longer the expected payload.
+            if replaced and path.absolute() in replaced:
+                continue
+            if expected is None:
+                if route_entry_present(path):
+                    raise Refusal(f"refusing to write: commit route entry {path} appeared.")
+            elif read_verified_file(path) != expected:
+                raise Refusal(f"refusing to write: commit input or route {path} changed during the build.")
+
+
+def _stage_output(path: Path, data: bytes, guard: OutputCommitGuard) -> Path:
+    guard.verify()
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.tmp.", dir=path.parent)
+    staged = Path(name)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except BaseException as exc:
+        # Only this exact mkstemp entry belongs to this call. Never recurse.
+        # This entry is not registered with the pair writer until we return.
+        # If cleanup also fails, retain its exact path and both failure causes.
+        try:
+            _verify_directories(guard.directories)
+            staged.unlink()
+        except (OSError, Refusal) as cleanup_exc:
+            raise Refusal(
+                f"refusing to stage {path}: {_safe_diagnostic(exc)}; "
+                f"cleanup failed: {_safe_diagnostic(cleanup_exc)}; retained staging file {staged}"
+            ) from exc
+        raise
+    return staged
+
+
+def write_output_pair(out_dir: Path, text: str, script: str, guard: OutputCommitGuard) -> None:
+    """Recover an ordinary second-replace failure, not a crash-atomic pair commit.
+
+    Keep exact old bytes in separate staged files until both replacements succeed.
+    If restoration encounters a further I/O/path failure, leave its recovery file
+    and name it in the controlled refusal; never follow a changed parent to undo.
+    """
+    guard.verify()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    # Previously missing directories were created by us after checking their
+    # ancestors. Record them for all subsequent checks; existing ids stay fixed.
+    current = _directory_identities(out_dir)
+    for path, identity in current.items():
+        if guard.directories.get(path) is None:
+            guard.directories[path] = identity
+    guard.verify()
+    staged: dict[Path, Path] = {}
+    backups: dict[Path, Path | None] = {}
+    installed: dict[Path, tuple[int, int]] = {}
+    retained: set[Path] = set()
+    try:
+        for name, payload in ((OUT_JSON_NAME, text), (OUT_MS_NAME, script)):
+            path = out_dir / name
+            data = payload.encode("utf-8")
+            if b"\r" in data or not data.endswith(b"\n") or data.endswith(b"\n\n"):
+                raise Refusal(f"refusing to write {path}: expected UTF-8 with exactly one final LF (07 G-7).")
+            guard.verify()
+            old = None
+            if route_entry_present(path):
+                info = path.lstat()
+                if _link_or_reparse(info) or not stat.S_ISREG(info.st_mode):
+                    raise Refusal(f"refusing to write: unsafe output entry {path}.")
+                old = path.read_bytes()
+            if old == data:
+                continue
+            staged[path] = _stage_output(path, data, guard)
+            backups[path] = _stage_output(path, old, guard) if old is not None else None
+        for path, source in staged.items():
+            guard.verify(set(installed))
+            info = source.lstat()
+            os.replace(source, path)
+            installed[path.absolute()] = (info.st_dev, info.st_ino)
+        guard.verify(set(installed))
+    except (OSError, Refusal) as exc:
+        recovery_errors: list[str] = []
+        for path in reversed(list(staged)):
+            identity = installed.get(path.absolute())
+            if identity is None:
+                continue
+            backup = backups[path]
+            try:
+                # Do not restore into a substituted directory or overwrite a
+                # third party's replacement of the entry that we installed.
+                _verify_directories(guard.directories)
+                info = path.lstat()
+                if _link_or_reparse(info) or (info.st_dev, info.st_ino) != identity:
+                    raise Refusal(f"installed output {path} changed before rollback")
+                if backup is None:
+                    path.unlink()  # exact newly created entry, not a broad delete
+                else:
+                    os.replace(backup, path)
+            except (OSError, Refusal) as recovery_exc:
+                if backup is not None:
+                    retained.add(backup)
+                recovery_errors.append(f"{path}: {_safe_diagnostic(recovery_exc)}; recovery file {backup}")
+        detail = ("; ROLLBACK INCOMPLETE: " + "; ".join(recovery_errors)
+                  if recovery_errors else "; any replaced outputs restored to their prior bytes")
+        raise Refusal("refusing to write output pair: " + _safe_diagnostic(exc) + detail) from exc
+    finally:
+        # A late parent substitution must not redirect even our cleanup unlinks.
+        # If that check fails, retain the private files and report their paths.
+        leftovers = []
+        for path in (*staged.values(), *(p for p in backups.values() if p is not None)):
+            if path in retained:
+                continue
+            try:
+                _verify_directories(guard.directories)
+                path.unlink(missing_ok=True)
+            except (OSError, Refusal) as cleanup_exc:
+                leftovers.append(f"{path}: {_safe_diagnostic(cleanup_exc)}")
+        if leftovers:
+            print("warning: private output staging cleanup incomplete: " + "; ".join(leftovers), file=sys.stderr)
+
+
 # --------------------------------------------------------------------------- #
 # Entry point
 # --------------------------------------------------------------------------- #
 
 
 def summarise(document: dict[str, Any], script: str) -> str:
-    placements = document["placements"]
-    cuts = document["opening_cuts"]
-    scatter = document["scatter"]
+    placements = document.get("placements", [])
+    cuts = document.get("opening_cuts", [])
+    scatter = document.get("scatter", [])
     hosts: dict[str, int] = {}
     for cut in cuts:
         hosts[str(cut["host_ref"])] = hosts.get(str(cut["host_ref"]), 0) + 1
@@ -2458,9 +3585,10 @@ def summarise(document: dict[str, Any], script: str) -> str:
     passes = len(
         [1 for start in range(0, len(cuts), MAX_MODIFIERS_PER_CALL)]
     ) or 1
+    read_names = UPSTREAM_NAMES + ((WALLS_NAME,) if WALL_TECHNIQUE_KEY in document else ())
     lines = [
         "place_components.py --stage assembly",
-        f"  project    {document['project']}  (read: {', '.join(UPSTREAM_NAMES)})",
+        f"  project    {document['project']}  (read: {', '.join(read_names)})",
         f"  placements {len(placements)}  -> {prototypes} prototypes, one per distinct "
         "component_id",
         f"  cuts       {len(cuts)}  difference, over {len(hosts)} facade_wall hosts, in "
@@ -2540,6 +3668,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if not specs_dir.is_dir():
             raise Refusal(f"refusing to build: --in {specs_dir} is not a directory.")
+        wall_technique = require_legacy_wall_route(specs_dir)
+        try:
+            snapshots = (verify_explicit_wall_inputs(specs_dir)
+                         if wall_technique == LEGACY_WALL_TECHNIQUE else {})
+        except Refusal:
+            raise
+        except Exception as exc:
+            raise Refusal(f"refusing to build: explicit wall input validation is incomplete: {exc}") from exc
+        input_walls = snapshots.get(specs_dir / WALLS_NAME)
+        require_safe_output_route(out_dir, wall_technique, input_walls)
+        commit_guard = OutputCommitGuard(specs_dir, out_dir, snapshots)
         dimensions = read_spec(specs_dir, DIMENSIONS_NAME)
         massing = read_spec(specs_dir, MASSING_NAME)
         registry = read_spec(specs_dir, REGISTRY_NAME)
@@ -2549,9 +3688,22 @@ def main(argv: Sequence[str] | None = None) -> int:
             (REGISTRY_NAME, registry),
         ):
             require_locked(document, name, args.allow_draft, args.build_gate)
-        world_rows = read_world_table(specs_dir)
+        wall_surface = None
+        walls_doc = None
+        if wall_technique == CLOSED_SHELL_V2_WALL_TECHNIQUE:
+            wall_surface = read_spec(specs_dir, WALL_SURFACE_NAME)
+            require_locked(wall_surface, WALL_SURFACE_NAME, args.allow_draft, args.build_gate)
+            if (specs_dir / WALLS_NAME).is_file():
+                walls_doc = read_spec(specs_dir, WALLS_NAME)
+            world_rows = []
+        else:
+            world_rows = read_world_table(specs_dir)
+        if snapshots:
+            verify_snapshots(specs_dir, snapshots)
 
-        document, thickness = build_assembly(dimensions, massing, registry, world_rows)
+        document, thickness = build_assembly(
+            dimensions, massing, registry, world_rows, wall_technique, wall_surface=wall_surface, walls=walls_doc
+        )
         if args.build_gate and document.get("status") != "locked":
             raise Refusal(
                 f"refusing to write: the emitted {OUT_JSON_NAME} would carry status "
@@ -2565,25 +3717,33 @@ def main(argv: Sequence[str] | None = None) -> int:
         checked = strict_loads(text)
         script = render_ms(checked, massing, dimensions, registry, thickness)
         failures = self_check(
-            checked, dimensions, massing, registry, world_rows, script
+            checked, dimensions, massing, registry, world_rows, script, wall_technique
         )
         if failures:
             raise Refusal(
                 f"refusing to write: the self-check failed {len(failures)} invariant(s).\n  - "
                 + "\n  - ".join(failures[:20])
             )
+        if wall_technique != CLOSED_SHELL_V2_WALL_TECHNIQUE:
+            verify_spatial_coverage(checked, massing, dimensions)
 
         json_path = out_dir / OUT_JSON_NAME
         ms_path = out_dir / OUT_MS_NAME
-        write_bytes(json_path, text)
-        write_bytes(ms_path, script)
+        # Recheck after building in memory, before either output is touched.
+        if snapshots:
+            verify_snapshots(specs_dir, snapshots)
+        require_safe_output_route(out_dir, wall_technique, input_walls)
+        write_output_pair(out_dir, text, script, commit_guard)
     except Refusal as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_REFUSAL
+    except OSError as exc:
+        print("error: refusing to build/write: filesystem I/O failed: " + _safe_diagnostic(exc), file=sys.stderr)
+        return EXIT_REFUSAL
 
     if args.as_json:
-        placements = checked["placements"]
-        cuts = checked["opening_cuts"]
+        placements = checked.get("placements", [])
+        cuts = checked.get("opening_cuts", [])
         hosts: dict[str, int] = {}
         for cut in cuts:
             hosts[str(cut["host_ref"])] = hosts.get(str(cut["host_ref"]), 0) + 1
@@ -2594,7 +3754,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "stage": args.stage,
                     "project": checked["project"],
                     "spec": checked["spec"],
-                    "read": [str(specs_dir / name) for name in UPSTREAM_NAMES],
+                    "read": [str(specs_dir / name) for name in (
+                        UPSTREAM_NAMES + ((WALLS_NAME,) if wall_technique is not None else ())
+                    )],
                     "wrote": [str(json_path), str(ms_path)],
                     "placements": len(placements),
                     "opening_cuts": len(cuts),

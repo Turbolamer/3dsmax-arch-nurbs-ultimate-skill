@@ -1,0 +1,9 @@
+{
+  "scope": "Single disposable quad EData candidate; target readback FAILED/INCOMPLETE, not production metadata or acceptance",
+  "script": "Audit/phase16-p3-main-probes-2026-11-03f/edata3.ms",
+  "script_sha256_before_fileIn": "ae7ddb26e911259d873737f80c7a24988e3fe45b9d6a5931d6d745b55e25ff50",
+  "precheck": {"ok":true,"result":"P3_EDATA_PRECHECK|objects=0|selection=0|file=|units=millimeters/1.0|dirty=false|layers=1|oldKey=false","error":null,"request_id":"1bc337c42bf24672b236f092e72bd293","elapsed_ms":0.385},
+  "fileIn": {"ok":true,"result":"P3_EDATA3|ERROR=-- Runtime error: Vertex data support not enabled for specified vertex data channel: 3|outcome=INCOMPLETE|cleanup=true|objects=0|selection=0|dirtyBefore=false|dirtyAfter=false","warnings":[],"error":null,"request_id":"100066434e5449948c1c1ad7bf2d2f5d","elapsed_ms":3.527},
+  "postcheck": {"ok":true,"result":"P3_EDATA_POSTCHECK|objects=0|selection=0|file=|units=millimeters/1.0|dirty=false|layers=1|oldKey=false","error":null,"request_id":"c2e1f8f3117e4f02bc0c71d96347f572","elapsed_ms":0.341},
+  "interpretation": "The target EData read/control did NOT pass. Although transport ok=true, the returned string includes an actual exception (vertex data support not enabled on channel 3); the candidate does not record which individual operation raised it. The failure is not evidence that EData APIs are absent and must not be converted to equality. Exact temporary node cleanup reported success and independent postcheck observed zero nodes. No save/reset/dirty-flag clearing occurred. A separately instrumented fresh probe is required to localize and calibrate this path."
+}

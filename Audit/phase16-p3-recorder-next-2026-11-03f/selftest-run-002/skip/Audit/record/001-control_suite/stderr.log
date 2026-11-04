@@ -1,0 +1,6 @@
+test_control (__main__.Control.test_control) ... skipped 'deliberate skip control'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK (skipped=1)

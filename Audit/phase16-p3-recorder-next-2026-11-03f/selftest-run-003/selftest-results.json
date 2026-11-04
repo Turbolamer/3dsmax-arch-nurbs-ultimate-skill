@@ -1,0 +1,64 @@
+{
+  "controls": [
+    {
+      "control": "pass",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "status": "observed as expected"
+    },
+    {
+      "control": "fail",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "observed as expected"
+    },
+    {
+      "control": "skip",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "observed as expected"
+    },
+    {
+      "control": "xfail",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "observed as expected"
+    },
+    {
+      "control": "unexpected",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "observed as expected"
+    },
+    {
+      "control": "empty",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "observed as expected"
+    },
+    {
+      "control": "mutate",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "observed as expected"
+    },
+    {
+      "control": "policy_drift",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "observed as expected"
+    }
+  ],
+  "additional_checks": [
+    "raw log hashes",
+    "per-suite/end snapshots",
+    "explicit input hash",
+    "no output self-hashing",
+    "no-clobber",
+    "old evidence preserved",
+    "skip/xfail marker parser",
+    "zero-skip metadata",
+    "output prefix refusal",
+    "output/input ancestor overlap refusal"
+  ]
+}

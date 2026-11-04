@@ -1,0 +1,655 @@
+{
+  "status": "input_only_scoped_gates_pass_whole_pipeline_inventory_refused",
+  "validator_sha256": "616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f",
+  "commands": [
+    {
+      "label": "lint",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\scripts\\validate_specs.py",
+        "--dir",
+        "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-f01-input-2026-11-02e\\project",
+        "--json"
+      ],
+      "exit_code": 1,
+      "summary": {
+        "FAIL": 4,
+        "WARN": 0,
+        "SKIP": 23,
+        "PASS": 62
+      },
+      "failures": [
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "FAIL",
+          "location": "massing.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it defined (owner P3), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "FAIL",
+          "location": "nurbs.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it defined (owner P4), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "FAIL",
+          "location": "facade_grids.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it defined (owner P5), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "FAIL",
+          "location": "components_registry.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it defined (owner P5), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+          "cross_file": false
+        }
+      ],
+      "skips": [
+        {
+          "rule": "G-95",
+          "title": "emitted wall stack (runtime)",
+          "severity": "SKIP",
+          "location": "wall pipeline",
+          "path": "",
+          "tolerance": "",
+          "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+          "cross_file": false
+        },
+        {
+          "rule": "G-98",
+          "title": "wall manifest and live geometry (runtime)",
+          "severity": "SKIP",
+          "location": "wall pipeline",
+          "path": "",
+          "tolerance": "",
+          "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+          "cross_file": false
+        },
+        {
+          "rule": "G-99",
+          "title": "emitter and live unit guard (runtime)",
+          "severity": "SKIP",
+          "location": "wall pipeline",
+          "path": "",
+          "tolerance": "",
+          "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+          "cross_file": false
+        },
+        {
+          "rule": "G-100",
+          "title": "script safety and real replay (runtime)",
+          "severity": "SKIP",
+          "location": "wall pipeline",
+          "path": "",
+          "tolerance": "",
+          "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+          "cross_file": false
+        },
+        {
+          "rule": "G-16",
+          "title": "range compliance",
+          "severity": "SKIP",
+          "location": "assumptions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+          "cross_file": false
+        },
+        {
+          "rule": "G-16",
+          "title": "range compliance",
+          "severity": "SKIP",
+          "location": "conflicts_resolved.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+          "cross_file": false
+        },
+        {
+          "rule": "G-21",
+          "title": "polygons are simple and winding is declared",
+          "severity": "SKIP",
+          "location": "dimensions.json::core.footprint_cm",
+          "path": "core.footprint_cm",
+          "tolerance": "",
+          "detail": "no sibling *_ccw flag exists for this ring in 07 section 5.7, so the declared winding cannot be confirmed; ring is CCW",
+          "cross_file": false
+        },
+        {
+          "rule": "G-26",
+          "title": "openings are physically sane",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "openings is empty; nothing to test (07 section 5.11 allows it)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-27",
+          "title": "openings fit their host bay",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "openings is empty; nothing to fit",
+          "cross_file": false
+        },
+        {
+          "rule": "G-28",
+          "title": "openings do not collide or duplicate",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "openings is empty; nothing to collide",
+          "cross_file": false
+        },
+        {
+          "rule": "G-91",
+          "title": "stepped plate containment and co-presence",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "No stepped floor_plates[].footprint_cm or facades[].spans_level_indices declared",
+          "cross_file": false
+        },
+        {
+          "rule": "G-16",
+          "title": "range compliance",
+          "severity": "SKIP",
+          "location": "walls.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+          "cross_file": false
+        },
+        {
+          "rule": "G-86",
+          "title": "form references and precision targets are well-formed and resolve",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "schema_version 1.0; form_references/precision_targets not present",
+          "cross_file": true
+        },
+        {
+          "rule": "G-92",
+          "title": "wall route selection and assembly echo",
+          "severity": "SKIP",
+          "location": "walls.json / assembly.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "poly_surface_shell_v1 selected; assembly is absent or a draft placeholder, echo incomplete",
+          "cross_file": true
+        },
+        {
+          "rule": "G-87",
+          "title": "QA config: qa.json is well-formed closed configuration",
+          "severity": "SKIP",
+          "location": "(qa)",
+          "path": "",
+          "tolerance": "",
+          "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+          "cross_file": true
+        },
+        {
+          "rule": "G-88",
+          "title": "QA coverage joins: targets, checks and inferred mandatory families",
+          "severity": "SKIP",
+          "location": "(qa)",
+          "path": "",
+          "tolerance": "",
+          "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+          "cross_file": true
+        },
+        {
+          "rule": "G-89",
+          "title": "QA tolerances and schedule: separate arithmetic, form, numerical and limits",
+          "severity": "SKIP",
+          "location": "(qa)",
+          "path": "",
+          "tolerance": "",
+          "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+          "cross_file": true
+        },
+        {
+          "rule": "G-90",
+          "title": "QA dependencies and provenance: discriminated JSON and CSV bindings",
+          "severity": "SKIP",
+          "location": "(qa)",
+          "path": "",
+          "tolerance": "",
+          "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+          "cross_file": true
+        },
+        {
+          "rule": "G-96",
+          "title": "wall route exclusivity",
+          "severity": "SKIP",
+          "location": "assembly.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "assembly absent or empty draft; route exclusivity incomplete; output manifest wall_surface.json is missing",
+          "cross_file": true
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "SKIP",
+          "location": "assembly.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "poly assembly output is not produced; G-92/G-96 remain incomplete, but it is not a wall-input precondition",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "SKIP",
+          "location": "materials.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it reserved (owner P7), so no builder reads it yet",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "SKIP",
+          "location": "qa.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; earlier stage / legacy project before S7/P8 QA gate (07 S-4)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "SKIP",
+          "location": "export.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it reserved (owner P9), so no builder reads it yet",
+          "cross_file": false
+        }
+      ]
+    },
+    {
+      "label": "build",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\scripts\\validate_specs.py",
+        "--dir",
+        "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-f01-input-2026-11-02e\\project",
+        "--json",
+        "--build",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 1,
+      "summary": {
+        "FAIL": 4,
+        "WARN": 0,
+        "SKIP": 23,
+        "PASS": 62
+      },
+      "failures": [
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "FAIL",
+          "location": "massing.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it defined (owner P3), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "FAIL",
+          "location": "nurbs.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it defined (owner P4), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "FAIL",
+          "location": "facade_grids.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it defined (owner P5), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "FAIL",
+          "location": "components_registry.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it defined (owner P5), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+          "cross_file": false
+        }
+      ],
+      "skips": [
+        {
+          "rule": "G-95",
+          "title": "emitted wall stack (runtime)",
+          "severity": "SKIP",
+          "location": "wall pipeline",
+          "path": "",
+          "tolerance": "",
+          "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+          "cross_file": false
+        },
+        {
+          "rule": "G-98",
+          "title": "wall manifest and live geometry (runtime)",
+          "severity": "SKIP",
+          "location": "wall pipeline",
+          "path": "",
+          "tolerance": "",
+          "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+          "cross_file": false
+        },
+        {
+          "rule": "G-99",
+          "title": "emitter and live unit guard (runtime)",
+          "severity": "SKIP",
+          "location": "wall pipeline",
+          "path": "",
+          "tolerance": "",
+          "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+          "cross_file": false
+        },
+        {
+          "rule": "G-100",
+          "title": "script safety and real replay (runtime)",
+          "severity": "SKIP",
+          "location": "wall pipeline",
+          "path": "",
+          "tolerance": "",
+          "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+          "cross_file": false
+        },
+        {
+          "rule": "G-16",
+          "title": "range compliance",
+          "severity": "SKIP",
+          "location": "assumptions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+          "cross_file": false
+        },
+        {
+          "rule": "G-16",
+          "title": "range compliance",
+          "severity": "SKIP",
+          "location": "conflicts_resolved.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+          "cross_file": false
+        },
+        {
+          "rule": "G-21",
+          "title": "polygons are simple and winding is declared",
+          "severity": "SKIP",
+          "location": "dimensions.json::core.footprint_cm",
+          "path": "core.footprint_cm",
+          "tolerance": "",
+          "detail": "no sibling *_ccw flag exists for this ring in 07 section 5.7, so the declared winding cannot be confirmed; ring is CCW",
+          "cross_file": false
+        },
+        {
+          "rule": "G-26",
+          "title": "openings are physically sane",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "openings is empty; nothing to test (07 section 5.11 allows it)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-27",
+          "title": "openings fit their host bay",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "openings is empty; nothing to fit",
+          "cross_file": false
+        },
+        {
+          "rule": "G-28",
+          "title": "openings do not collide or duplicate",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "openings is empty; nothing to collide",
+          "cross_file": false
+        },
+        {
+          "rule": "G-91",
+          "title": "stepped plate containment and co-presence",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "No stepped floor_plates[].footprint_cm or facades[].spans_level_indices declared",
+          "cross_file": false
+        },
+        {
+          "rule": "G-16",
+          "title": "range compliance",
+          "severity": "SKIP",
+          "location": "walls.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+          "cross_file": false
+        },
+        {
+          "rule": "G-86",
+          "title": "form references and precision targets are well-formed and resolve",
+          "severity": "SKIP",
+          "location": "dimensions.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "schema_version 1.0; form_references/precision_targets not present",
+          "cross_file": true
+        },
+        {
+          "rule": "G-92",
+          "title": "wall route selection and assembly echo",
+          "severity": "SKIP",
+          "location": "walls.json / assembly.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "poly_surface_shell_v1 selected; assembly is absent or a draft placeholder, echo incomplete",
+          "cross_file": true
+        },
+        {
+          "rule": "G-87",
+          "title": "QA config: qa.json is well-formed closed configuration",
+          "severity": "SKIP",
+          "location": "(qa)",
+          "path": "",
+          "tolerance": "",
+          "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+          "cross_file": true
+        },
+        {
+          "rule": "G-88",
+          "title": "QA coverage joins: targets, checks and inferred mandatory families",
+          "severity": "SKIP",
+          "location": "(qa)",
+          "path": "",
+          "tolerance": "",
+          "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+          "cross_file": true
+        },
+        {
+          "rule": "G-89",
+          "title": "QA tolerances and schedule: separate arithmetic, form, numerical and limits",
+          "severity": "SKIP",
+          "location": "(qa)",
+          "path": "",
+          "tolerance": "",
+          "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+          "cross_file": true
+        },
+        {
+          "rule": "G-90",
+          "title": "QA dependencies and provenance: discriminated JSON and CSV bindings",
+          "severity": "SKIP",
+          "location": "(qa)",
+          "path": "",
+          "tolerance": "",
+          "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+          "cross_file": true
+        },
+        {
+          "rule": "G-96",
+          "title": "wall route exclusivity",
+          "severity": "SKIP",
+          "location": "assembly.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "assembly absent or empty draft; route exclusivity incomplete; output manifest wall_surface.json is missing",
+          "cross_file": true
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "SKIP",
+          "location": "assembly.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "poly assembly output is not produced; G-92/G-96 remain incomplete, but it is not a wall-input precondition",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "SKIP",
+          "location": "materials.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it reserved (owner P7), so no builder reads it yet",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "SKIP",
+          "location": "qa.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; earlier stage / legacy project before S7/P8 QA gate (07 S-4)",
+          "cross_file": false
+        },
+        {
+          "rule": "G-1",
+          "title": "envelope keys present, first, in order",
+          "severity": "SKIP",
+          "location": "export.json",
+          "path": "",
+          "tolerance": "",
+          "detail": "absent; 07 section 4 marks it reserved (owner P9), so no builder reads it yet",
+          "cross_file": false
+        }
+      ]
+    }
+  ],
+  "protected_hashes_before": {
+    "scripts/validate_specs.py": "616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f",
+    "Audit/AGENT_PLAN_poly_surface_shell.md": "37813bb8f6b8d2e445c69a0424d78997f80a3752303ccffebee802e1d84ee672",
+    "Audit/EVIDENCE_2026-10-27.md": "2869308638ba8e87766617a572937a769eb325b0a0699075c64d2cb8452141ad",
+    "examples/dimensions.json": "5f0f0108936457b08149d78790a2f2453edc3f95b8c8abddc550effab3e52f75",
+    "examples/assumptions.json": "1c8d8eb29b5c09d81229058d106a99a84da0d1c9f537c10e990aba938335b986",
+    "examples/conflicts_resolved.json": "6676c4f38c7b2bb40d44828af631fc2b41e20754819d9cbf339b099b63d6f5fc",
+    "references/07-spec-grammar.md": "6c38d3363093822c968c59fbccdff47c097eb57a9a8353e3c79a2b5fe9954258",
+    "Audit/_phase16-p3-contract-2026-11-02e.md": "25a017893a2b42bfa5cd22539a6f8ff8e55d8a0dfc2ef4f92d10cc2c2b934aca",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/assumptions.json": "54c0a86e852c3e3a6cbf3ed0beb6dbad420bda67fa7063d250540a1cb28ffcb1",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/conflicts_resolved.json": "18627ae616e75aa630eba4647aa414d1a888d6fa72dbf921e7c22c9f260cb836",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/dimensions.json": "985bd129c01537c5bb5b0632054fe7f24e53237db0a2a4b9bbc01b544e8dfa26",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/walls.json": "bbd433c76b83a709845c9a20941414bbadc786dbe6ceac907f9259d9876bfa9f",
+    "Audit/phase16-p3-f01-input-2026-11-02e/direction-authority.json": "af3686f8105896cddadcee2ad659badab4e250377ca86853dc9a665bb0a201cb",
+    "Audit/phase16-p3-f01-input-2026-11-02e/fixture-brief.md": "0a4ad6576e9fb77548b485749ae878add07209e8877b4b391a86f44d5e09869e"
+  },
+  "protected_hashes_after": {
+    "scripts/validate_specs.py": "616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f",
+    "Audit/AGENT_PLAN_poly_surface_shell.md": "37813bb8f6b8d2e445c69a0424d78997f80a3752303ccffebee802e1d84ee672",
+    "Audit/EVIDENCE_2026-10-27.md": "2869308638ba8e87766617a572937a769eb325b0a0699075c64d2cb8452141ad",
+    "examples/dimensions.json": "5f0f0108936457b08149d78790a2f2453edc3f95b8c8abddc550effab3e52f75",
+    "examples/assumptions.json": "1c8d8eb29b5c09d81229058d106a99a84da0d1c9f537c10e990aba938335b986",
+    "examples/conflicts_resolved.json": "6676c4f38c7b2bb40d44828af631fc2b41e20754819d9cbf339b099b63d6f5fc",
+    "references/07-spec-grammar.md": "6c38d3363093822c968c59fbccdff47c097eb57a9a8353e3c79a2b5fe9954258",
+    "Audit/_phase16-p3-contract-2026-11-02e.md": "25a017893a2b42bfa5cd22539a6f8ff8e55d8a0dfc2ef4f92d10cc2c2b934aca",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/assumptions.json": "54c0a86e852c3e3a6cbf3ed0beb6dbad420bda67fa7063d250540a1cb28ffcb1",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/conflicts_resolved.json": "18627ae616e75aa630eba4647aa414d1a888d6fa72dbf921e7c22c9f260cb836",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/dimensions.json": "985bd129c01537c5bb5b0632054fe7f24e53237db0a2a4b9bbc01b544e8dfa26",
+    "Audit/phase16-p3-f01-input-2026-11-02e/project/walls.json": "bbd433c76b83a709845c9a20941414bbadc786dbe6ceac907f9259d9876bfa9f",
+    "Audit/phase16-p3-f01-input-2026-11-02e/direction-authority.json": "af3686f8105896cddadcee2ad659badab4e250377ca86853dc9a665bb0a201cb",
+    "Audit/phase16-p3-f01-input-2026-11-02e/fixture-brief.md": "0a4ad6576e9fb77548b485749ae878add07209e8877b4b391a86f44d5e09869e"
+  },
+  "source_location_checked": "Audit/AGENT_PLAN_poly_surface_shell.md lines 670-673",
+  "predictions_not_measurements": {
+    "u_stations_cm": [
+      0,
+      50.0,
+      150.0,
+      230.0,
+      330.0,
+      400
+    ],
+    "v_stations_cm": [
+      0,
+      90.0,
+      210.0,
+      300
+    ],
+    "active_area_cm2": 87000.0,
+    "thickness_product_cm3": 2610000.0,
+    "row_major_face9_center_cm": [
+      280.0,
+      0,
+      150.0
+    ]
+  },
+  "limitations": [
+    "No overall validator PASS",
+    "No emitted output or assembly",
+    "No Max execution or live measurements",
+    "No source-content semantic proof for arbitrary text",
+    "No installation, packaging or git command"
+  ]
+}

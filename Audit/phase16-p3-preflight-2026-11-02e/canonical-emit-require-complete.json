@@ -1,0 +1,77 @@
+{
+  "probes": [
+    {
+      "name": "bridge",
+      "status": "SKIP",
+      "expected": "transport=namedpipe",
+      "actual": "SKIP",
+      "note": "no captured result for 'bridge'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    },
+    {
+      "name": "max_version",
+      "status": "SKIP",
+      "expected": "major=2026",
+      "actual": "SKIP",
+      "note": "no captured result for 'max_version'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    },
+    {
+      "name": "units",
+      "status": "SKIP",
+      "expected": "certified SystemType, scale > 0",
+      "actual": "SKIP",
+      "note": "no captured result for 'units'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    },
+    {
+      "name": "nurbset_present",
+      "status": "SKIP",
+      "expected": "NURBSSet constructs",
+      "actual": "SKIP",
+      "note": "no captured result for 'nurbset_present'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    },
+    {
+      "name": "loft_not_creatable",
+      "status": "SKIP",
+      "expected": "Loft resolves, is not creatable",
+      "actual": "SKIP",
+      "note": "no captured result for 'loft_not_creatable'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    },
+    {
+      "name": "sweep_creatable",
+      "status": "SKIP",
+      "expected": "Sweep() constructs",
+      "actual": "SKIP",
+      "note": "no captured result for 'sweep_creatable'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    },
+    {
+      "name": "sweep_on_shape",
+      "status": "SKIP",
+      "expected": "addModifier(Sweep) throws, mods=0",
+      "actual": "SKIP",
+      "note": "no captured result for 'sweep_on_shape'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    },
+    {
+      "name": "quadpatch_creatable",
+      "status": "SKIP",
+      "expected": "QuadPatch() constructs",
+      "actual": "SKIP",
+      "note": "no captured result for 'quadpatch_creatable'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    },
+    {
+      "name": "plugins_absent",
+      "status": "SKIP",
+      "expected": "forestPack/tyFlow/railClone/phoenixFD all False",
+      "actual": "SKIP",
+      "note": "no captured result for 'plugins_absent'; supply it via --results"
+    },
+    {
+      "name": "materials",
+      "status": "SKIP",
+      "expected": "report OpenPBR/Physical/Standard",
+      "actual": "SKIP",
+      "note": "no captured result for 'materials'; run the MAXScript probe via execute_maxscript and pass the output in --results"
+    }
+  ],
+  "summary": "PASS 0 / FAIL 0",
+  "warn": 0,
+  "skip": 10
+}

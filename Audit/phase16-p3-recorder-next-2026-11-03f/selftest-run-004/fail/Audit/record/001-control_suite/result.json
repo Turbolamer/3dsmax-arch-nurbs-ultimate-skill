@@ -1,0 +1,56 @@
+{
+  "test": "Audit/control_suite.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-004\\fail\\Audit\\control_suite.py",
+    "-v"
+  ],
+  "started_utc": "2026-11-03T17:40:56.015455+00:00",
+  "ended_utc": "2026-11-03T17:40:56.092258+00:00",
+  "seconds": 0.076812,
+  "returncode": 1,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 661,
+    "sha256": "9c8caf09467ec6a203de4ebb1e6ff74a30a556e686d2df192354dc264b8b6712"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 13,
+        "text": "Ran 1 test in 0.000s",
+        "count": 1
+      }
+    ],
+    "ok_summaries": [],
+    "prohibited_or_failed": [
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "FAIL: test_control (__main__.Control.test_control)"
+      },
+      {
+        "stream": "stderr",
+        "line": 15,
+        "text": "FAILED (failures=1)"
+      }
+    ],
+    "qualifier_metadata": [],
+    "issues": [
+      "expected exactly one unittest OK summary",
+      "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+    ],
+    "status": "REFUSED"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

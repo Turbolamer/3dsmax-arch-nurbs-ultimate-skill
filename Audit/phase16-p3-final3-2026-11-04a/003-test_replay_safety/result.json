@@ -1,0 +1,100 @@
+{
+  "test": "Audit/phase16-p3-replay-tests-2026-11-03f/test_replay_safety.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-replay-tests-2026-11-03f\\test_replay_safety.py"
+  ],
+  "started_utc": "2026-11-04T08:14:03.455286+00:00",
+  "ended_utc": "2026-11-04T08:14:03.642262+00:00",
+  "seconds": 0.186985,
+  "returncode": 1,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 843,
+    "sha256": "777138c8ed3d827be25d1864a09f8dd2c98a46408bb93d27ecf8792c358a81d1"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 12443,
+    "sha256": "290a6acfeb2021f032f800a7bb5d61c68d9715944281c260ad15d79caf67d76d"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 131,
+        "text": "Ran 14 tests in 0.096s",
+        "count": 14
+      }
+    ],
+    "ok_summaries": [],
+    "prohibited_or_failed": [
+      {
+        "stream": "stderr",
+        "line": 23,
+        "text": "FAIL: test_actual_barrier_mutation_cannot_be_masked_by_diagnostic (__main__.ActualRuntimeTests.test_actual_barrier_mutation_cannot_be_masked_by_diagnostic)"
+      },
+      {
+        "stream": "stderr",
+        "line": 32,
+        "text": "FAIL: test_incomplete_replay_remains_unconditionally_blocked (__main__.ActualRuntimeTests.test_incomplete_replay_remains_unconditionally_blocked)"
+      },
+      {
+        "stream": "stderr",
+        "line": 41,
+        "text": "FAIL: test_layer_backing_and_gi_are_each_enumerated (__main__.ActualRuntimeTests.test_layer_backing_and_gi_are_each_enumerated) (target='backing_enumerated')"
+      },
+      {
+        "stream": "stderr",
+        "line": 54,
+        "text": "FAIL: test_layer_backing_and_gi_are_each_enumerated (__main__.ActualRuntimeTests.test_layer_backing_and_gi_are_each_enumerated) (target='gi_enumerated')"
+      },
+      {
+        "stream": "stderr",
+        "line": 67,
+        "text": "FAIL: test_layer_backing_identity_uses_exact_roundtrip_not_only_name (__main__.ActualRuntimeTests.test_layer_backing_identity_uses_exact_roundtrip_not_only_name)"
+      },
+      {
+        "stream": "stderr",
+        "line": 78,
+        "text": "FAIL: test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='backing_guarded')"
+      },
+      {
+        "stream": "stderr",
+        "line": 89,
+        "text": "FAIL: test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='gi_guarded')"
+      },
+      {
+        "stream": "stderr",
+        "line": 100,
+        "text": "FAIL: test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='backing_nonmissing')"
+      },
+      {
+        "stream": "stderr",
+        "line": 111,
+        "text": "FAIL: test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='gi_nonmissing')"
+      },
+      {
+        "stream": "stderr",
+        "line": 122,
+        "text": "FAIL: test_replay_branch_contains_no_direct_write_or_mesh_evaluation (__main__.ActualRuntimeTests.test_replay_branch_contains_no_direct_write_or_mesh_evaluation)"
+      },
+      {
+        "stream": "stderr",
+        "line": 133,
+        "text": "FAILED (failures=10)"
+      }
+    ],
+    "qualifier_metadata": [],
+    "issues": [
+      "expected exactly one unittest OK summary",
+      "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+    ],
+    "status": "REFUSED"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

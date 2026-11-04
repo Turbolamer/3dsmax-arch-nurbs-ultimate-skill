@@ -1,0 +1,37 @@
+{
+  "schema": "phase16-p3-next-frozen-recorder-1",
+  "started_utc": "2026-11-03T17:38:06.454448+00:00",
+  "argv": [
+    "C:\\Python314\\python.exe",
+    "Audit/phase16-p3-recorder-next-2026-11-03f/selftest.py",
+    "--out",
+    "Audit/phase16-p3-recorder-next-2026-11-03f/selftest-run-001"
+  ],
+  "root": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-001\\pass",
+  "out": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-001\\pass\\Audit\\record",
+  "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "timeout_seconds_per_suite": 1800.0,
+  "additional_explicit_inputs": [
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-001\\pass\\policy.ms"
+  ],
+  "additional_explicit_suites": [],
+  "suite_plan": [
+    "Audit/test_phase16_p3_control.py"
+  ],
+  "required_final2_test_count_floors": {
+    "test_phase16_p3_control.py": 1
+  },
+  "legacy_fixture_count": 1,
+  "accepted_p2_sources": {
+    "scripts/runtime.py": "f355edc2272062174c2269141b8347e6a4dda17b2625e4031c432258ae0dd89f"
+  },
+  "prior_main03_sha256": {},
+  "acceptance": "NOT_ASSESSED",
+  "complete_phase16_or_p3": false,
+  "limitations": [
+    "Tests are trusted executable programs, not sandboxed.",
+    "Snapshots cannot detect change/revert or arbitrary concurrent races.",
+    "Supply every new non-discovered test and runtime policy/probe source explicitly.",
+    "Output is not a live Max, F01, replay or stage-acceptance assessment."
+  ]
+}

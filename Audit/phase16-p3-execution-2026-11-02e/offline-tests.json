@@ -1,0 +1,46 @@
+{
+  "scope": "OFFLINE_PYTHON_ONLY_NO_MAX_CALLS",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\test_pair_filein.py"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_changed_manifest_refused (__main__.OfflineUtilityTests.test_changed_manifest_refused) ... ok\ntest_changed_script_refused (__main__.OfflineUtilityTests.test_changed_script_refused) ... ok\ntest_cli_generates_and_repeated_output_refuses (__main__.OfflineUtilityTests.test_cli_generates_and_repeated_output_refuses) ... ok\ntest_cli_mismatch_writes_nothing (__main__.OfflineUtilityTests.test_cli_mismatch_writes_nothing) ... ok\ntest_exact_hash_grammar (__main__.OfflineUtilityTests.test_exact_hash_grammar) ... ok\ntest_namedpipe_and_ads_refuse (__main__.OfflineUtilityTests.test_namedpipe_and_ads_refuse) ... ok\ntest_negative_controls_static_only (__main__.OfflineUtilityTests.test_negative_controls_static_only) ... ok\ntest_output_is_exclusive_and_confined (__main__.OfflineUtilityTests.test_output_is_exclusive_and_confined) ... ok\ntest_pair_limit_refuses (__main__.OfflineUtilityTests.test_pair_limit_refuses) ... ok\ntest_quote_escaping (__main__.OfflineUtilityTests.test_quote_escaping) ... ok\ntest_same_file_refuses (__main__.OfflineUtilityTests.test_same_file_refuses) ... ok\ntest_valid_pair_read_only (__main__.OfflineUtilityTests.test_valid_pair_read_only) ... ok\ntest_wrapper_static_flow_not_runtime_proof (__main__.OfflineUtilityTests.test_wrapper_static_flow_not_runtime_proof) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 0.255s\n\nOK\n",
+  "ast_parse": {
+    "pair_filein.py": true,
+    "prepare_controls.py": true,
+    "test_pair_filein.py": true
+  },
+  "before_sha256": {
+    "control_lock_probe.ms": "6a68c2e906060cda6aa6ff0725cb22cabd02e0ccd16c7fbebd586d671e5ddd39",
+    "control_lock_probe_calibrated.json": "7f577fd63698fa27f8b280900d0c5da04b2824b84a9834f8d1f5856acc2a54bb",
+    "control_lock_probe_calibrated.ms": "38bf9d41c8d724c4046d6e385157e2c142edb94466a0864e2c441bdce08d9618",
+    "control_malformed_hash_wrapper.ms": "3f251b1911e08cbcf71f4be1844d62c909d224ab55923cf3eea4d5059438e7d3",
+    "control_mismatch_hash_wrapper.ms": "09ab72ccff312ccd08cab7d3d8cb9ee9826f6328f86ee2efa7abc2dd843d4e7a",
+    "control_pair.json": "6eb0ca08925b20cff94a83f3d2e9b59128ed6f5ad5f43fa71a9f32d40f1d23ed",
+    "control_pair.ms": "f29bf54f8b10aeb6c274077efa989bc07620e7895639e121d58ef58e9cfd3e6a",
+    "control_wrapper.ms": "ec05d50ca149ac6f49111a78ed1c6bf74066da2653b1425087bf0f77cf9bba7c",
+    "controls.json": "04f4525921fcf14c5a65390431973ecd8ed193ea6db93d9f26045dabee72ae90",
+    "pair_filein.py": "2c6a358ccde8dabf8381494a2cefb9bbad57b00b76bae93fe3806da1337ff271",
+    "prepare_controls.py": "a96ccd22a7d641f10018dff88123d2a0ac822856da656ce170e2edf48d8b6a34",
+    "test_pair_filein.py": "596f6410a15c419418a039699bb34406827bfc4e578cee34174d6f061aecde80"
+  },
+  "after_sha256": {
+    "control_lock_probe.ms": "6a68c2e906060cda6aa6ff0725cb22cabd02e0ccd16c7fbebd586d671e5ddd39",
+    "control_lock_probe_calibrated.json": "7f577fd63698fa27f8b280900d0c5da04b2824b84a9834f8d1f5856acc2a54bb",
+    "control_lock_probe_calibrated.ms": "38bf9d41c8d724c4046d6e385157e2c142edb94466a0864e2c441bdce08d9618",
+    "control_malformed_hash_wrapper.ms": "3f251b1911e08cbcf71f4be1844d62c909d224ab55923cf3eea4d5059438e7d3",
+    "control_mismatch_hash_wrapper.ms": "09ab72ccff312ccd08cab7d3d8cb9ee9826f6328f86ee2efa7abc2dd843d4e7a",
+    "control_pair.json": "6eb0ca08925b20cff94a83f3d2e9b59128ed6f5ad5f43fa71a9f32d40f1d23ed",
+    "control_pair.ms": "f29bf54f8b10aeb6c274077efa989bc07620e7895639e121d58ef58e9cfd3e6a",
+    "control_wrapper.ms": "ec05d50ca149ac6f49111a78ed1c6bf74066da2653b1425087bf0f77cf9bba7c",
+    "controls.json": "04f4525921fcf14c5a65390431973ecd8ed193ea6db93d9f26045dabee72ae90",
+    "pair_filein.py": "2c6a358ccde8dabf8381494a2cefb9bbad57b00b76bae93fe3806da1337ff271",
+    "prepare_controls.py": "a96ccd22a7d641f10018dff88123d2a0ac822856da656ce170e2edf48d8b6a34",
+    "test_pair_filein.py": "596f6410a15c419418a039699bb34406827bfc4e578cee34174d6f061aecde80"
+  },
+  "drift": [],
+  "live_status": "UNVERIFIED_ALL_MAXSCRIPT_DOTNET_APIS_LOCKS_FILEIN_AND_CLEANUP"
+}

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Scaffold a project workdir for the 3ds Max architectural/NURBS pipeline.
 
-Creates ``<dir>/<project>/`` holding ``specs/pipeline/*.json`` for every file in
-the 07 section 4 inventory, plus ``specs/recipes/``, ``specs/export/``,
-``snippets/`` and a ``project.json`` manifest. Standard library only, no network.
+Creates ``<dir>/<project>/`` with fresh pipeline specs, or seeds them from an
+examples directory, plus ``specs/recipes/``, ``specs/export/``, ``snippets/``
+and a ``project.json`` manifest. Standard library only, no network.
 
 WHY THIS SCRIPT CANNOT TOUCH 3DS MAX
 ------------------------------------
@@ -17,26 +17,28 @@ risk list forbids.
 
 WHAT A FRESH SCAFFOLD ACTUALLY SATISFIES
 ----------------------------------------
-Every emitted spec file is valid, envelope-complete JSON with the six envelope
-keys in order and every key from 07 section 4 present, so a fresh project passes
-``scripts/validate_specs.py``:
+Every emitted spec file is envelope-complete JSON with the six envelope keys in
+order. A fresh project is deliberately incomplete and must not be built before
+its draft inputs are authored and locked:
 
 * ``dimensions.json`` is a small **internally consistent** single-storey bay, not
   a set of blanks. The footprint, grid, core, levels, roof and facades reconcile,
   so G-16..G-30 and G-32 all evaluate and pass. Its ``status`` is ``draft`` --
   that is the honest state of a project with no brief behind it -- so G-4 reports
-  a WARN in lint mode and a FAIL under ``--build``. That is the only non-PASS row
-  a clean scaffold produces.
+  a WARN in lint mode and a FAIL under ``--build``.
 * ``massing.json`` (P3), ``facade_grids.json`` and ``components_registry.json`` (P5)
-  and ``assembly.json`` (P6) are **computed, not authored**, so what this script
-  writes for them is an empty placeholder with no provenance and a
-  ``source.reference`` that says so. Their status is ``draft``, which is why their
-  stage invariants (G-34..G-40, G-57..G-70, G-71..G-83) report SKIP with a reason
-  instead of failing an empty tree.
+  are **computed, not authored**, so the empty draft placeholders have no
+  provenance. ``assembly.json`` is also an empty draft placeholder; the current
+  builder computes legacy assembly only, not the selected poly route.
 * ``nurbs.json`` (P4) is the exception: it is **hand-authored**. ``build_nurbs.py``
   reads it and emits the normalised spec plus the MAXScript; it refuses when the
   file is absent. The stub is still empty and ``draft``, and its ``source.reference``
   says so -- the distinction matters because there is no generator to go and run.
+* ``walls.json`` is a separate draft domain spec selecting
+  ``closed_inner_contour_shell_v2`` by default (or ``legacy_cells_v1`` /
+  ``poly_surface_shell_v1`` via ``--wall-route``). Its closed v2 storey contour
+  is consistent with dimensions.json levels and facades.
+  A seeded historical example with no wall selector remains legacy.
 * reserved files (P6..P9) carry the envelope plus the key list 07 section 4
   promises for them and are otherwise empty. Per 07 S-4 no builder reads them,
   so their body is reported SKIP rather than validated.
@@ -44,6 +46,22 @@ keys in order and every key from 07 section 4 present, so a fresh project passes
   documented 07 section 5 defaults that a human is most likely to forget are
   recorded as ``assumed`` so they become an ``A-nnn`` audit trail rather than a
   silent value.
+
+SAFETY BOUNDARY
+---------------
+``--force`` does not migrate wall routes or authorize overwriting edited, locked,
+seeded or otherwise unverified walls. Fresh scaffolds record a wall-content hash
+for a later unmodified-draft check; older manifests without that hash fail closed.
+Every used seed is parsed strictly before destination creation, including historical
+no-wall seeds: duplicate keys, lossy/underflowed numbers and excessive nesting are
+refused rather than normalized into apparently clean output. Valid no-selector
+seeds retain their legacy route and existing source re-stamping behavior.
+Preflight detects existing links and hardlinks. Each output is written through an
+exclusively created sibling staging file and replaced only after path/state checks;
+an ordinary staging/write/replace failure does not truncate that destination's old
+bytes. Earlier completed replacements are not rolled back: the project as a whole
+is NOT transactional. Parent-path swaps and hostile concurrent mutation are not
+supported or proven safe. Do not run against a concurrently modified project.
 
 Exit codes
 ----------
@@ -63,10 +81,17 @@ Usage
 from __future__ import annotations
 
 import argparse
+import errno
+import hashlib
 import json
+import math
+import os
 import re
+import stat
 import sys
+import tempfile
 from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
@@ -90,9 +115,9 @@ ENVELOPE_ORDER = (
     "status",
 )
 
-#: The 07 section 4 inventory, in declared order. Everything is scaffolded so a
-#: later stage never has to invent a file shape; ``owner`` is recorded in the
-#: source reference of a reserved file so the reader knows who completes it.
+#: Defined and reserved project files. A fresh project scaffolds all of them;
+#: a historical seed without walls.json stays legacy instead of inventing walls.
+#: ``owner`` is recorded in the source reference of a reserved file.
 INVENTORY: tuple[tuple[str, str, str], ...] = (
     ("dimensions.json", "P2a", "defined"),
     ("conflicts_resolved.json", "P2a", "defined"),
@@ -101,17 +126,16 @@ INVENTORY: tuple[tuple[str, str, str], ...] = (
     ("nurbs.json", "P4", "defined"),
     ("facade_grids.json", "P5", "defined"),
     ("components_registry.json", "P5", "defined"),
+    ("walls.json", "Phase16-P2", "defined"),
     ("assembly.json", "P6", "defined"),
     ("materials.json", "P7", "reserved"),
     ("qa.json", "P8", "defined"),
     ("export.json", "P9", "reserved"),
 )
 
-#: Files ``--from examples`` copies. Every one of them is ``defined`` in 07 section 4, so a
-#: project seeded from the worked example must carry them all -- a missing ``defined`` file is a
-#: FAIL, not a SKIP (07 section 9.6). ``massing.json`` joined this list at P3, ``nurbs.json`` at
-#: P4, and the P5 pair at P5. Their two CSVs are *not* spec files and are never seeded: they are
-#: rebuilt from the two JSONs by ``scripts/facade_tables.py --stage tables``.
+#: Files required when seeding from the historical worked example. Its two
+#: CSVs are not spec files and are rebuilt by scripts/facade_tables.py; a wall
+#: file is copied separately only when the source actually contains one.
 SEEDED_FROM_EXAMPLES: tuple[str, ...] = (
     "dimensions.json",
     "assumptions.json",
@@ -122,6 +146,16 @@ SEEDED_FROM_EXAMPLES: tuple[str, ...] = (
     "components_registry.json",
     "assembly.json",
 )
+
+# Unlike the historical, required example files, walls.json is optional in a
+# seed: its absence is the legacy route, not an invitation to invent a selector.
+POLY_WALL_TECHNIQUE = "poly_surface_shell_v1"
+LEGACY_WALL_TECHNIQUE = "legacy_cells_v1"
+CLOSED_CONTOUR_SHELL_V2_TECHNIQUE = "closed_inner_contour_shell_v2"
+WALL_TECHNIQUES = (CLOSED_CONTOUR_SHELL_V2_TECHNIQUE, LEGACY_WALL_TECHNIQUE, POLY_WALL_TECHNIQUE)
+MAX_SAFE_JSON_INTEGER = (1 << 53) - 1
+MAX_JSON_CONTAINER_DEPTH = 128
+MAX_JSON_FLOAT_TOKEN_LENGTH = 1024
 
 #: Reserved-file top-level keys, verbatim from the 07 section 4 table, with the
 #: container 07 section 8 describes for each. The kind is NOT invented: "array" is
@@ -430,7 +464,8 @@ def scaffold_dimensions(project: str) -> dict[str, Any]:
         },
         "building.net_floor_area_m2": {
             "origin": "derived",
-            "derives_from": ["building.gross_floor_area_m2", "core.footprint_area_m2"],
+            "derives_from": ["building.gross_floor_area_m2", "core.footprint_area_m2",
+                             "core.spans_level_indices"],
         },
         # site -- 07 section 5.4
         "site.footprint_kind": {"origin": "given"},
@@ -831,53 +866,190 @@ def scaffold_components_registry(project: str) -> dict[str, Any]:
     return doc
 
 
-def scaffold_assembly(project: str) -> dict[str, Any]:
-    """The P6 file. Structurally valid, deliberately empty.
+def scaffold_walls(
+    project: str,
+    dimensions: dict[str, Any],
+    wall_route: str = CLOSED_CONTOUR_SHELL_V2_TECHNIQUE,
+) -> dict[str, Any]:
+    """An explicitly selected wall-domain input, matching the chosen wall_route."""
+    if wall_route == CLOSED_CONTOUR_SHELL_V2_TECHNIQUE:
+        doc = envelope(
+            "walls",
+            project,
+            "assumed",
+            f"draft wall-domain scaffold from {GENERATOR}; storey boundary and facade "
+            "segments match scaffold dimensions. Reference face is inner per Contract 20.",
+            "draft",
+        )
+        doc["schema_version"] = "2.0"
+        doc["tolerances"] = dict(dimensions["tolerances"])
+        doc["origin_inputs"] = []
+        doc["origins"] = {}
+        doc["wall_technique"] = CLOSED_CONTOUR_SHELL_V2_TECHNIQUE
+        doc["reference_face"] = "inner"
+        doc["numeric_epsilon_cm"] = 0.001
+        doc["numeric_unit_epsilon"] = 0.0001
+        doc["storeys"] = [
+            {
+                "id": "storey_1",
+                "name": "Ground Floor",
+                "base_z_cm": 0.0,
+                "top_z_cm": LEVEL_HEIGHT_CM,
+                "wall_thickness_cm": 30.0,
+                "reference_face": "inner",
+                "vertices_cm": [list(p) for p in FOOTPRINT_CM],
+                "segments": [
+                    {
+                        "id": "seg_south",
+                        "start_vertex_index": 0,
+                        "end_vertex_index": 1,
+                        "facade_ref": "dimensions.json:facades:F-S",
+                    },
+                    {
+                        "id": "seg_east",
+                        "start_vertex_index": 1,
+                        "end_vertex_index": 2,
+                        "facade_ref": "dimensions.json:facades:F-E",
+                    },
+                    {
+                        "id": "seg_north",
+                        "start_vertex_index": 2,
+                        "end_vertex_index": 3,
+                        "facade_ref": "dimensions.json:facades:F-N",
+                    },
+                    {
+                        "id": "seg_west",
+                        "start_vertex_index": 3,
+                        "end_vertex_index": 0,
+                        "facade_ref": "dimensions.json:facades:F-W",
+                    },
+                ],
+                "openings": [],
+                "topology_budget": {
+                    "max_grid_polygons": 128,
+                    "max_base_active_polygons": 128,
+                    "max_evaluated_triangles": 1024,
+                },
+            }
+        ]
+        return doc
+    elif wall_route == POLY_WALL_TECHNIQUE:
+        doc = envelope(
+            "walls",
+            project,
+            "assumed",
+            "draft wall-domain scaffold from init_project.py; no wall brief or geometry "
+            "has been captured. The reference face and numerical epsilons remain pending.",
+            "draft",
+        )
+        doc["schema_version"] = "1.0"
+        doc["tolerances"] = dict(dimensions["tolerances"])
+        doc["origin_inputs"] = []
+        doc["origins"] = {}
+        doc["wall_technique"] = POLY_WALL_TECHNIQUE
+        doc["reference_face"] = None
+        doc["numeric_epsilon_cm"] = None
+        doc["numeric_unit_epsilon"] = None
+        doc["blocks"] = []
+        doc["wall_runs"] = []
+        doc["openings"] = []
+        doc["upper_returns"] = []
+        return doc
+    elif wall_route == LEGACY_WALL_TECHNIQUE:
+        doc = envelope(
+            "walls",
+            project,
+            "assumed",
+            "draft legacy wall scaffold from init_project.py; legacy cells route selected.",
+            "draft",
+        )
+        doc["schema_version"] = "1.0"
+        doc["tolerances"] = dict(dimensions["tolerances"])
+        doc["origin_inputs"] = []
+        doc["origins"] = {}
+        doc["wall_technique"] = LEGACY_WALL_TECHNIQUE
+        doc["reference_face"] = None
+        doc["numeric_epsilon_cm"] = None
+        doc["numeric_unit_epsilon"] = None
+        doc["blocks"] = []
+        doc["wall_runs"] = []
+        doc["openings"] = []
+        doc["upper_returns"] = []
+        return doc
+    else:
+        raise ValueError(f"unknown wall route {wall_route!r}; choices: {WALL_TECHNIQUES}")
 
-    The same situation as ``massing.json`` two stages later: ``assembly.json`` is
-    **computed, not authored** -- written by ``scripts/place_components.py --stage
-    assembly`` from a locked ``components_registry.json``, ``world_table.csv``,
-    ``massing.json`` and ``dimensions.json``. The stub exists so a fresh project lints
-    clean and so the 07 section 8.5 key order is visible, and it says so in
-    ``source.reference``.
 
-    Empty arrays, not the reserved skeleton's promised keys: ``placements`` /
-    ``opening_cuts`` / ``wall_cells`` / ``scatter`` are real tables and a skeleton of them
-    would be a shape no invariant can vouch for. ``wall_cells`` is here because P6 moved
-    opening cuts off the Boolean modifier -- it was measured unusable -- and onto tiling the
-    wall with solid cells; a stub written before that move omits the key and FAILs G-1.
-    ``layer_map`` is an **empty object** on purpose -- it is the only place a layer is ever
-    declared (07 section 8.5, G-79), so a stub that printed layer names would be claiming a
-    layer assignment the bridge cannot perform.
-
-    Its ``status`` is ``draft``, which is what keeps G-71..G-78 honest: an empty array is
-    still a leaf 07 section 5.2 asks for an ``origins`` entry for, so the stub cannot
-    satisfy the origins coverage rule, and 07 section 9.9 says a draft file is not
-    evaluated.
-    """
-
-    doc: dict[str, Any] = envelope(
-        "assembly",
-        project,
-        "derived",
-        "empty stub written by init_project.py. assembly.json is GENERATED by "
-        "scripts/place_components.py --stage assembly from a locked components_registry.json, "
-        "world_table.csv, massing.json and dimensions.json; do not hand-edit it. Key order "
-        "per references/07-spec-grammar.md section 8.5. defaults.panel_joint_cm arrives with "
-        "the builder from the registry's A-024 and defaults.instance_limit_guard is a refusal "
-        "threshold, so a placeholder declares neither.",
-        "draft",
-    )
-    doc["tolerances"] = dict(TOLERANCES)
-    doc["origin_inputs"] = []
-    doc["origins"] = {}
-    doc["defaults"] = {}
-    doc["layer_map"] = {}
-    doc["placements"] = []
-    doc["opening_cuts"] = []
-    doc["wall_cells"] = []
-    doc["scatter"] = []
-    return doc
+def scaffold_assembly(
+    project: str,
+    wall_route: str = CLOSED_CONTOUR_SHELL_V2_TECHNIQUE,
+) -> dict[str, Any]:
+    """A draft assembly placeholder matching the selected wall route."""
+    if wall_route == CLOSED_CONTOUR_SHELL_V2_TECHNIQUE:
+        doc = envelope(
+            "assembly",
+            project,
+            "derived",
+            "empty v2 assembly placeholder written by init_project.py; not a produced assembly. "
+            "Future assembly inputs include components_registry.json, world_table.csv, "
+            "massing.json, dimensions.json and wall_surface.json.",
+            "draft",
+        )
+        doc["tolerances"] = dict(TOLERANCES)
+        doc["origin_inputs"] = []
+        doc["origins"] = {}
+        doc["defaults"] = {}
+        doc["layer_map"] = {}
+        doc["placements"] = []
+        doc["scatter"] = []
+        doc["wall_technique"] = CLOSED_CONTOUR_SHELL_V2_TECHNIQUE
+        doc["wall_ref"] = "wall_surface.json"
+        return doc
+    elif wall_route == POLY_WALL_TECHNIQUE:
+        doc = envelope(
+            "assembly",
+            project,
+            "derived",
+            "empty poly-route placeholder written by init_project.py; not a produced assembly. "
+            "Future assembly inputs include components_registry.json, world_table.csv, "
+            "massing.json, dimensions.json and wall_surface.json. The existing "
+            "scripts/place_components.py supports closed_inner_contour_shell_v2 and legacy_cells_v1; "
+            "poly_surface_shell_v1 is supported via scripts/build_wall_surface.py.",
+            "draft",
+        )
+        doc["tolerances"] = dict(TOLERANCES)
+        doc["origin_inputs"] = []
+        doc["origins"] = {}
+        doc["defaults"] = {}
+        doc["layer_map"] = {}
+        doc["placements"] = []
+        doc["scatter"] = []
+        doc["wall_technique"] = POLY_WALL_TECHNIQUE
+        doc["wall_ref"] = "wall_surface.json"
+        return doc
+    elif wall_route == LEGACY_WALL_TECHNIQUE:
+        doc = envelope(
+            "assembly",
+            project,
+            "derived",
+            "empty legacy assembly placeholder written by init_project.py; not a produced assembly. "
+            "Legacy assembly inputs include components_registry.json, world_table.csv, "
+            "massing.json and dimensions.json. Place components via scripts/place_components.py.",
+            "draft",
+        )
+        doc["tolerances"] = dict(TOLERANCES)
+        doc["origin_inputs"] = []
+        doc["origins"] = {}
+        doc["defaults"] = {}
+        doc["layer_map"] = {}
+        doc["placements"] = []
+        doc["opening_cuts"] = []
+        doc["wall_cells"] = []
+        doc["scatter"] = []
+        doc["wall_technique"] = LEGACY_WALL_TECHNIQUE
+        return doc
+    else:
+        raise ValueError(f"unknown wall route {wall_route!r}; choices: {WALL_TECHNIQUES}")
 
 
 def scaffold_qa(project: str) -> dict[str, Any]:
@@ -1040,7 +1212,7 @@ def scaffold_reserved(filename: str, project: str, owner: str) -> dict[str, Any]
 
 def render_json(document: dict[str, Any]) -> str:
     """07 section 3.2: UTF-8, LF, exactly one trailing newline."""
-    return json.dumps(document, indent=2, ensure_ascii=False) + "\n"
+    return json.dumps(document, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
 
 
 # --------------------------------------------------------------------------- #
@@ -1051,9 +1223,10 @@ def render_json(document: dict[str, Any]) -> str:
 class Plan:
     """The complete set of directories and files a run intends to write."""
 
-    def __init__(self, root: Path, project: str) -> None:
+    def __init__(self, root: Path, project: str, wall_route: str = CLOSED_CONTOUR_SHELL_V2_TECHNIQUE) -> None:
         self.root = root
         self.project = project
+        self.wall_route = wall_route
         self.directories: list[Path] = [
             root,
             root / "specs",
@@ -1071,27 +1244,56 @@ class Plan:
         return path.relative_to(self.root.parent).as_posix()
 
 
-def build_plan(project: str, root: Path, examples: Optional[Path]) -> Plan:
-    plan = Plan(root, project)
+def build_plan(
+    project: str,
+    root: Path,
+    examples: Optional[Path],
+    wall_route: str = CLOSED_CONTOUR_SHELL_V2_TECHNIQUE,
+) -> Plan:
+    if wall_route not in WALL_TECHNIQUES:
+        raise ValueError(f"invalid wall route {wall_route!r}; choices: {WALL_TECHNIQUES}")
+    plan = Plan(root, project, wall_route=wall_route)
     pipeline = root / "specs" / "pipeline"
 
     if examples is not None:
+        source_walls = examples / "walls.json"
+        source_has_walls = entry_present(source_walls)
+        seed_texts = {
+            filename: (examples / filename).read_text(encoding="utf-8")
+            for filename in SEEDED_FROM_EXAMPLES
+        }
+        if source_has_walls:
+            seed_texts["walls.json"] = source_walls.read_text(encoding="utf-8")
+            validate_seed_projects(seed_texts)
+        seed_documents: dict[str, dict[str, Any]] = {}
         for filename, _, _ in INVENTORY:
             if filename in SEEDED_FROM_EXAMPLES:
-                source = examples / filename
-                document = rewrite_from_example(source.read_text(encoding="utf-8"), project)
+                document = rewrite_from_example(
+                    seed_texts[filename], project,
+                    preserve_source=source_has_walls,
+                )
+                seed_documents[filename] = document
                 plan.add_file(pipeline / filename, "seeded from examples", render_json(document))
+            elif filename == "walls.json" and source_has_walls:
+                document = rewrite_from_example(
+                    seed_texts["walls.json"], project,
+                    preserve_source=True,
+                )
+                seed_documents[filename] = document
+                plan.add_file(pipeline / filename, "seeded wall spec", render_json(document))
             elif filename == "qa.json":
                 plan.add_file(
                     pipeline / filename,
                     "scaffold (draft QA plan)",
                     render_json(scaffold_qa(project)),
                 )
+        validate_seed_route(seed_documents.get("walls.json"), seed_documents["assembly.json"])
     else:
+        dimensions = scaffold_dimensions(project)
         plan.add_file(
             pipeline / "dimensions.json",
             "scaffold",
-            render_json(scaffold_dimensions(project)),
+            render_json(dimensions),
         )
         plan.add_file(
             pipeline / "assumptions.json",
@@ -1101,7 +1303,7 @@ def build_plan(project: str, root: Path, examples: Optional[Path]) -> Plan:
         plan.add_file(
             pipeline / "conflicts_resolved.json",
             "scaffold",
-render_json(scaffold_conflicts(project)),
+            render_json(scaffold_conflicts(project)),
         )
         plan.add_file(
             pipeline / "massing.json",
@@ -1124,9 +1326,16 @@ render_json(scaffold_conflicts(project)),
             render_json(scaffold_components_registry(project)),
         )
         plan.add_file(
+            pipeline / "walls.json",
+            f"scaffold (draft {wall_route} wall domain)",
+            render_json(scaffold_walls(project, dimensions, wall_route=wall_route)),
+        )
+        plan.add_file(
             pipeline / "assembly.json",
-            "stub (generated at build time by place_components.py)",
-            render_json(scaffold_assembly(project)),
+            f"stub (draft {wall_route} assembly; place via place_components.py)"
+            if wall_route in (CLOSED_CONTOUR_SHELL_V2_TECHNIQUE, LEGACY_WALL_TECHNIQUE)
+            else f"stub (draft {wall_route} assembly; build not implemented)",
+            render_json(scaffold_assembly(project, wall_route=wall_route)),
         )
         plan.add_file(
             pipeline / "qa.json",
@@ -1142,15 +1351,23 @@ render_json(scaffold_conflicts(project)),
                 render_json(scaffold_reserved(filename, project, owner)),
             )
 
+    wall_hashes: dict[str, str] = {}
+    if examples is None:
+        for path, _, content in plan.files:
+            if path == pipeline / "walls.json":
+                wall_hashes[path.relative_to(root).as_posix()] = hashlib.sha256(
+                    content.encode("utf-8")
+                ).hexdigest()
     plan.add_file(
         root / "project.json",
         "manifest",
-        render_json(build_manifest(project, root, [p for p, _, _ in plan.files])),
+        render_json(build_manifest(project, root, [p for p, _, _ in plan.files], wall_hashes)),
     )
     return plan
 
 
-def build_manifest(project: str, root: Path, files: Sequence[Path]) -> dict[str, Any]:
+def build_manifest(project: str, root: Path, files: Sequence[Path],
+                   wall_hashes: dict[str, str]) -> dict[str, Any]:
     """The project manifest.
 
     Deliberately records only facts this script can justify: the project id, the
@@ -1158,7 +1375,7 @@ def build_manifest(project: str, root: Path, files: Sequence[Path]) -> dict[str,
     section 11. It records no renderer, no plugin and no scene fact -- the renderer
     is detected at build time and stored in ``materials.json``.
     """
-    return {
+    manifest: dict[str, Any] = {
         "project": project,
         "schema_version": SCHEMA_VERSION,
         "created_at": now_iso(),
@@ -1180,13 +1397,15 @@ def build_manifest(project: str, root: Path, files: Sequence[Path]) -> dict[str,
             "specs/recipes/ and specs/export/ are created empty: 07 section 4 reserves "
             "recipe bodies to P4 and exports to P9.",
         ],
-        # Every file this generator created, project.json included. It is the
-        # ownership record: --force overwrites exactly these paths and nothing
-        # else, so a hand-written file that happens to share a name is refused.
+        # This list is necessary but not sufficient for --force. The separate
+        # digest is recorded only for a fresh, unmodified wall scaffold.
         "files": sorted(
             [path.relative_to(root).as_posix() for path in files] + ["project.json"]
         ),
     }
+    if wall_hashes:
+        manifest["unmodified_wall_scaffold_sha256"] = dict(wall_hashes)
+    return manifest
 
 
 # --------------------------------------------------------------------------- #
@@ -1217,21 +1436,96 @@ def _iter_origin_entries(document: Any) -> list[dict[str, Any]]:
     return [obj for obj in origins.values() if isinstance(obj, dict)]
 
 
-def rewrite_from_example(text: str, project: str) -> dict[str, Any]:
+def parse_seed_json(text: str) -> Any:
+    """Strictly parse every used seed/ownership document, regardless of wall route.
+
+    Ambiguous historical files are intentionally refused, not silently repaired.
+    Decimal round-trip equality is not a claim of exact binary representation.
+    Unlike the validator parser, this copier also bounds floating-token magnitude.
+    """
+    depth = 0
+    quoted = False
+    escaped = False
+    for char in text:
+        if quoted:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                quoted = False
+        elif char == '"':
+            quoted = True
+        elif char in "[{":
+            depth += 1
+            if depth > MAX_JSON_CONTAINER_DEPTH:
+                raise ValueError(
+                    f"JSON nesting exceeds the scaffold safety limit ({MAX_JSON_CONTAINER_DEPTH} containers)"
+                )
+        elif char in "]}":
+            depth -= 1
+
+    def reject_constant(value: str) -> Any:
+        raise ValueError(f"non-finite JSON constant {value!r}")
+
+    def finite_float(value: str) -> float:
+        if len(value) > MAX_JSON_FLOAT_TOKEN_LENGTH:
+            raise ValueError("JSON number exceeds the scaffold numeric token length limit")
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError(f"non-finite JSON number {value!r}")
+        try:
+            unchanged = Decimal(value) == Decimal(str(number))
+        except InvalidOperation:
+            unchanged = False
+        if not unchanged:
+            raise ValueError(f"JSON number {value!r} loses decimal precision when decoded")
+        if abs(number) > MAX_SAFE_JSON_INTEGER:
+            raise ValueError(f"JSON number {value!r} exceeds the exact integer safety range")
+        return number
+
+    def safe_integer(value: str) -> int:
+        if len(value.lstrip("-")) > 16:
+            raise ValueError("JSON integer exceeds the exact integer safety range")
+        number = int(value)
+        if abs(number) > MAX_SAFE_JSON_INTEGER:
+            raise ValueError("JSON integer exceeds the exact integer safety range")
+        return number
+
+    def unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                shown = key if len(key) <= 100 else key[:100] + "..."
+                raise ValueError(f"duplicate JSON object key {shown!r}")
+            result[key] = value
+        return result
+
+    return json.loads(
+        text, parse_constant=reject_constant, parse_float=finite_float,
+        parse_int=safe_integer, object_pairs_hook=unique_pairs,
+    )
+
+
+def rewrite_from_example(
+    text: str, project: str, *, preserve_source: bool = False,
+) -> dict[str, Any]:
     """Re-stamp an example file onto a new project, preserving the audit trail.
 
-    Rewritten: ``project``, ``source.reference`` and ``source.recorded_at``.
+    The project id is rewritten. For an explicit wall seed, ``preserve_source``
+    keeps the complete original source object for *all* seeded specs. Historical
+    no-wall seeds retain their existing source re-stamping behavior.
     Everything else is copied byte-for-byte in value terms -- in particular every
     ``A-nnn`` and ``C-nnn`` id and every ``origin_ref``, which *is* the audit
     trail. The caller asserts that after the rewrite.
     """
-    document = json.loads(text)
+    document = parse_seed_json(text)
     if not isinstance(document, dict):
         raise ValueError("example spec is not a JSON object")
     before_ids, before_refs = collect_ids(document)
     document["project"] = project
     source = document.get("source")
-    if isinstance(source, dict):
+    if isinstance(source, dict) and not preserve_source:
         # A `derived` file must keep naming the spec file it was computed from (07 G-6), so
         # the seeding note is appended to the original reference instead of replacing it.
         original = str(source.get("reference", "")).strip()
@@ -1255,6 +1549,119 @@ def rewrite_from_example(text: str, project: str) -> dict[str, Any]:
     return document
 
 
+def validate_seed_projects(seed_texts: dict[str, str]) -> None:
+    """Check each explicit-wall seed's original project before any rewrite.
+
+    This is not a schema or provenance-content validation. Parsing every seeded
+    document strictly also prevents duplicate project keys from being silently
+    collapsed before comparing their identities.
+    """
+    identities: dict[str, str] = {}
+    for filename, text in seed_texts.items():
+        document = parse_seed_json(text)
+        if not isinstance(document, dict):
+            raise ValueError(f"seed {filename} is not a JSON object")
+        project = document.get("project")
+        if not isinstance(project, str) or not re.fullmatch(r"[a-z0-9][a-z0-9._-]*", project):
+            raise ValueError(f"seed {filename} has an invalid or missing project identity")
+        identities[filename] = project
+    if len(set(identities.values())) != 1:
+        details = ", ".join(f"{name}={value!r}" for name, value in sorted(identities.items()))
+        raise ValueError(f"seed project identities differ before re-stamping: {details}")
+
+
+def validate_route_document(document: dict[str, Any], name: str) -> None:
+    """Check the route document's envelope and wall table shape, not full G-93."""
+    versions = ("1.0", "1.1", "2.0") if name == "walls" else ("1.0", "1.1")
+    source = document.get("source")
+    if (list(document)[:len(ENVELOPE_ORDER)] != list(ENVELOPE_ORDER)
+            or document.get("spec") != name or document.get("schema_version") not in versions
+            or not isinstance(document.get("project"), str) or not document["project"].strip()
+            or document.get("units") != {"length": "cm", "angle": "deg"}
+            or not isinstance(source, dict) or set(source) != {"kind", "reference", "recorded_at"}
+            or source.get("kind") not in ("user_brief", "drawing", "image", "imported", "assumed", "derived")
+            or not all(isinstance(source.get(key), str) and source[key].strip()
+                       for key in ("reference", "recorded_at"))
+            or document.get("status") not in ("draft", "locked", "superseded")):
+        raise ValueError(f"{name}.json has an invalid route document envelope")
+    if name == "walls":
+        technique = document.get("wall_technique")
+        if technique == CLOSED_CONTOUR_SHELL_V2_TECHNIQUE:
+            if document.get("schema_version") != "2.0":
+                raise ValueError(
+                    f"closed_inner_contour_shell_v2 walls.json requires schema_version '2.0', "
+                    f"found {document.get('schema_version')!r}"
+                )
+            keys = set(ENVELOPE_ORDER) | {"tolerances", "origin_inputs", "origins", "wall_technique",
+                "reference_face", "numeric_epsilon_cm", "numeric_unit_epsilon", "storeys"}
+            if (set(document) != keys or not isinstance(document["tolerances"], dict)
+                    or set(document["tolerances"]) != {"linear_cm", "area_m2", "angle_deg"}
+                    or not isinstance(document["origins"], dict)
+                    or any(not isinstance(document[key], list) for key in ("origin_inputs", "storeys"))):
+                raise ValueError("walls.json has an invalid route document shape")
+        elif technique in (LEGACY_WALL_TECHNIQUE, POLY_WALL_TECHNIQUE):
+            if document.get("schema_version") not in ("1.0", "1.1"):
+                raise ValueError(
+                    f"{technique} walls.json requires schema_version '1.0' or '1.1', "
+                    f"found {document.get('schema_version')!r}"
+                )
+            keys = set(ENVELOPE_ORDER) | {"tolerances", "origin_inputs", "origins", "wall_technique",
+                "reference_face", "numeric_epsilon_cm", "numeric_unit_epsilon", "blocks", "wall_runs",
+                "openings", "upper_returns"}
+            if (set(document) != keys or not isinstance(document["tolerances"], dict)
+                    or set(document["tolerances"]) != {"linear_cm", "area_m2", "angle_deg"}
+                    or not isinstance(document["origins"], dict)
+                    or any(not isinstance(document[key], list) for key in
+                           ("origin_inputs", "blocks", "wall_runs", "openings", "upper_returns"))):
+                raise ValueError("walls.json has an invalid route document shape")
+        else:
+            raise ValueError(f"walls.json has invalid or missing wall_technique {technique!r}")
+
+
+def validate_seed_route(walls: Optional[dict[str, Any]], assembly: Optional[dict[str, Any]]) -> None:
+    """Validate the selected route and its echo before any destination is written."""
+    selector = "wall_technique"
+    wall_ref = "wall_ref"
+    if walls is not None:
+        validate_route_document(walls, "walls")
+    if assembly is None:
+        if walls is not None:
+            route = walls.get(selector)
+            if not isinstance(route, str) or route not in WALL_TECHNIQUES:
+                raise ValueError(f"walls.json has invalid or missing wall_technique {route!r}")
+        return
+    validate_route_document(assembly, "assembly")
+    if walls is None:
+        if selector in assembly or wall_ref in assembly:
+            raise ValueError("seed assembly declares a wall selector or wall_ref but walls.json is absent")
+        return
+    route = walls.get(selector)
+    if not isinstance(route, str) or route not in WALL_TECHNIQUES:
+        raise ValueError(f"seed walls.json has invalid or missing wall_technique {route!r}")
+    placeholder = assembly.get("status") == "draft" and all(
+        key not in assembly or assembly[key] in ({}, [])
+        for key in ("origins", "defaults", "layer_map", "origin_inputs", "placements",
+                    "opening_cuts", "wall_cells", "scatter")
+    )
+    if selector in assembly and assembly[selector] != route:
+        raise ValueError("seed assembly wall_technique conflicts with walls.json")
+    if not placeholder and assembly.get(selector) != route:
+        raise ValueError("produced seed assembly must echo walls.json wall_technique")
+    if route == LEGACY_WALL_TECHNIQUE:
+        if wall_ref in assembly:
+            raise ValueError("legacy seed assembly must not declare wall_ref")
+        if not placeholder and any(not isinstance(assembly.get(key), list)
+                                   for key in ("opening_cuts", "wall_cells")):
+            raise ValueError("produced legacy seed assembly requires opening_cuts and wall_cells arrays")
+    else:
+        if wall_ref in assembly and assembly[wall_ref] != "wall_surface.json":
+            raise ValueError(f"{route} seed assembly has an invalid wall_ref")
+        if not placeholder and assembly.get(wall_ref) != "wall_surface.json":
+            raise ValueError(f"produced {route} seed assembly must reference wall_surface.json")
+        if "opening_cuts" in assembly or "wall_cells" in assembly:
+            raise ValueError(f"{route} seed assembly must not declare legacy wall arrays")
+
+
 def resolve_examples(candidate: Path, workdir: Path) -> Optional[Path]:
     """Find the examples directory: as given, then from the repo root, then CWD."""
     repo_root = Path(__file__).resolve().parent.parent
@@ -1265,9 +1672,181 @@ def resolve_examples(candidate: Path, workdir: Path) -> Optional[Path]:
     return None
 
 
+def entry_present(path: Path) -> bool:
+    """Count broken links and other non-files as present, not as a missing route."""
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return False
+    return True
+
+
+def is_link_or_reparse(info: Any) -> bool:
+    return stat.S_ISLNK(info.st_mode) or bool(
+        getattr(info, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+    )
+
+
+def require_safe_path(path: Path, *, directory: bool) -> None:
+    """Reject links present at inspection; concurrent path swaps remain unsafe."""
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return
+    if is_link_or_reparse(info):
+        raise ValueError(f"unsafe symlink or reparse point: {path}")
+    if directory and not stat.S_ISDIR(info.st_mode):
+        raise ValueError(f"not a directory: {path}")
+    if not directory and (not stat.S_ISREG(info.st_mode) or info.st_nlink > 1):
+        raise ValueError(f"not a safe regular output file: {path}")
+
+
+def check_seed_route_locations(examples: Path) -> None:
+    """The seed reads one directory; never ignore an adjacent route declaration."""
+    alternatives = [examples / "pipeline"]
+    if examples.name.casefold() == "pipeline":
+        alternatives.append(examples.parent)
+    for alternate in alternatives:
+        require_safe_path(alternate, directory=True)
+    for directory in (examples, *alternatives):
+        candidate = directory / "wall_surface.json"
+        if entry_present(candidate):
+            raise ValueError(f"{candidate} is a wall manifest; seed import does not copy or validate it")
+    for name in ("walls.json", "assembly.json"):
+        source = examples / name
+        if entry_present(source):
+            require_safe_path(source, directory=False)
+        for alternate in alternatives:
+            candidate = alternate / name
+            if entry_present(candidate):
+                raise ValueError(f"ambiguous seed route: {candidate} is outside the selected seed directory")
+
+
+def check_destination(plan: Plan, workdir: Path, *, legacy_seed: bool) -> None:
+    """Preflight every project-owned path and route before creating any directory."""
+    for directory in (workdir.absolute(), *workdir.absolute().parents):
+        require_safe_path(directory, directory=True)
+    for directory in plan.directories:
+        require_safe_path(directory, directory=True)
+    for path, _, _ in plan.files:
+        require_safe_path(path, directory=False)
+    for name in ("walls.json", "assembly.json"):
+        parent_route = plan.root / "specs" / name
+        if entry_present(parent_route):
+            raise ValueError(f"ambiguous destination route: {parent_route} would coexist with pipeline specs")
+    for directory in (plan.root / "specs", plan.root / "specs" / "pipeline"):
+        manifest = directory / "wall_surface.json"
+        if entry_present(manifest):
+            raise ValueError(f"{manifest} already exists; scaffolding would leave an unvalidated wall manifest")
+    destination_walls = plan.root / "specs" / "pipeline" / "walls.json"
+    if legacy_seed and entry_present(destination_walls):
+        raise ValueError(f"{destination_walls} already exists; a legacy seed would leave a conflicting wall route")
+    # --force is not permission to erase an invalid/ambiguous route selector.
+    # Inspect existing declarations too, before writing any planned file.
+    route_docs: dict[str, dict[str, Any]] = {}
+    for name in ("walls.json", "assembly.json"):
+        path = plan.root / "specs" / "pipeline" / name
+        if entry_present(path):
+            document = parse_seed_json(path.read_text(encoding="utf-8"))
+            if not isinstance(document, dict):
+                raise ValueError(f"existing {path} is not a JSON object")
+            route_docs[name] = document
+    if route_docs:
+        validate_seed_route(route_docs.get("walls.json"), route_docs.get("assembly.json"))
+
+    # A scaffold is not a migration tool. Outputs can exist outside the pipeline
+    # directory, so even an apparently artifact-free route switch is refused.
+    planned_docs = {
+        path.name: parse_seed_json(content)
+        for path, _, content in plan.files
+        if path.parent == plan.root / "specs" / "pipeline"
+        and path.name in ("walls.json", "assembly.json")
+    }
+    if route_docs:
+        old_route = (route_docs["walls.json"]["wall_technique"] if "walls.json" in route_docs
+                     else LEGACY_WALL_TECHNIQUE)
+        new_route = (planned_docs["walls.json"]["wall_technique"] if "walls.json" in planned_docs
+                     else LEGACY_WALL_TECHNIQUE)
+        if old_route != new_route:
+            raise ValueError(
+                f"refusing wall route switch {old_route} -> {new_route}; "
+                "existing scripts or manifests could become stale; preserve them and migrate separately"
+            )
+    # Even on the same route, rewriting specs alongside an existing output can
+    # leave it stale. An orphan output is not evidence of its owning route.
+    for directory in (plan.root, plan.root / "specs", plan.root / "specs" / "pipeline"):
+        for name in ("assembly.ms", "wall_surface.ms", "wall_surface.json"):
+            artifact = directory / name
+            if entry_present(artifact):
+                raise ValueError(
+                    f"refusing to rewrite route specs beside existing output {artifact}; "
+                    "preserve and review it separately"
+                )
+
+
 # --------------------------------------------------------------------------- #
 # Writing
 # --------------------------------------------------------------------------- #
+
+
+def output_file_state(path: Path) -> Optional[tuple[int, ...]]:
+    """Inspect without opening/following the output leaf; not a filesystem lock.
+
+    Parent checks are repeated near commit, but a later hostile directory swap
+    remains outside this single-owner command's guarantee.
+    """
+    for parent in path.absolute().parents:
+        require_safe_path(parent, directory=True)
+    require_safe_path(path, directory=False)
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return None
+    return file_state(info)
+
+
+def file_state(info: Any) -> tuple[int, ...]:
+    return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns,
+            info.st_ctime_ns, info.st_mode, info.st_nlink)
+
+
+def write_staged_file(path: Path, content: str, expected: Optional[tuple[int, ...]]) -> None:
+    """Commit one complete file without opening the destination for truncation.
+
+    mkstemp exclusively creates a regular sibling; all writes use its existing
+    descriptor, not a second path open. A failed write/flush/fsync/replace leaves
+    the old destination intact. No multi-file rollback or crash durability is
+    promised. State checks detect observed changes, not hostile concurrent races.
+    """
+    if output_file_state(path) != expected:
+        raise OSError(errno.EBUSY, "output changed since scaffold preflight", str(path))
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        try:
+            stream = os.fdopen(descriptor, "w", encoding="utf-8", newline="\n")
+        except BaseException:
+            os.close(descriptor)
+            raise
+        with stream:
+            stream.write(content)
+            stream.flush()
+            os.fsync(stream.fileno())
+            staged_state = file_state(os.fstat(stream.fileno()))
+        if output_file_state(path) != expected:
+            raise OSError(errno.EBUSY, "output changed while staging scaffold", str(path))
+        closed_state = output_file_state(temporary)
+        # Windows can update timestamps only when the writer closes. Compare
+        # identity/size/type/link-count here; destination changes use full state.
+        if closed_state is None or any(closed_state[i] != staged_state[i] for i in (0, 1, 2, 5, 6)):
+            raise OSError(errno.EBUSY, "staged scaffold file changed before replacement", str(temporary))
+        os.replace(temporary, path)
+    finally:
+        try:
+            temporary.unlink(missing_ok=True)
+        except OSError as exc:
+            print(f"warning: could not remove owned staging file {temporary}: {exc}; preserve and inspect it",
+                  file=sys.stderr)
 
 
 def render_written_table(rows: Sequence[tuple[str, str]]) -> str:
@@ -1292,13 +1871,43 @@ def existing_creations(root: Path) -> set[str]:
     if not manifest.is_file():
         return set()
     try:
-        payload = json.loads(manifest.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+        payload = parse_seed_json(manifest.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, ValueError, RecursionError):
         return set()
     files = payload.get("files") if isinstance(payload, dict) else None
     if not isinstance(files, list):
         return set()
     return {str(item) for item in files}
+
+
+def require_unmodified_wall_scaffold(plan: Plan) -> None:
+    """Allow --force on walls only for an intact, recorded fresh draft stub.
+
+    Manifests from older versions or seeded projects do not provide this
+    evidence. This content check is not an atomic lock against path changes.
+    """
+    path = plan.root / "specs" / "pipeline" / "walls.json"
+    if not any(target == path for target, _, _ in plan.files) or not entry_present(path):
+        return
+    manifest = plan.root / "project.json"
+    try:
+        payload = parse_seed_json(manifest.read_text(encoding="utf-8"))
+        content = path.read_bytes()
+        current = parse_seed_json(content.decode("utf-8"))
+    except (OSError, UnicodeError, ValueError, RecursionError) as exc:
+        raise ValueError(f"cannot verify existing wall scaffold: {exc}") from exc
+    relative = path.relative_to(plan.root).as_posix()
+    hashes = payload.get("unmodified_wall_scaffold_sha256") if isinstance(payload, dict) else None
+    expected_hash = hashes.get(relative) if isinstance(hashes, dict) else None
+    template = scaffold_walls(plan.project, {"tolerances": TOLERANCES}, wall_route=plan.wall_route)
+    if isinstance(current, dict) and isinstance(current.get("source"), dict):
+        template["source"]["recorded_at"] = current["source"].get("recorded_at")
+    if (not isinstance(expected_hash, str) or
+            hashlib.sha256(content).hexdigest() != expected_hash or current != template):
+        raise ValueError(
+            f"refusing to overwrite {path}: it is not an unchanged recorded fresh draft wall scaffold; "
+            "preserve authored, locked, seeded, edited, or unverifiable walls"
+        )
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -1326,13 +1935,25 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         type=Path,
         default=None,
         help="Seed specs/pipeline from an examples directory instead of scaffolding. "
-        "Ledger ids and origin_refs are preserved; project/source are re-stamped.",
+        "With walls.json, source projects must agree and all seed provenance is preserved; "
+        "historical no-wall example seeds retain their original re-stamping behavior. "
+        "Every used seed must be strict JSON without duplicate keys or lossy numbers.",
+    )
+    parser.add_argument(
+        "--wall-route",
+        "--route",
+        dest="wall_route",
+        choices=WALL_TECHNIQUES,
+        default=None,
+        help=f"Wall modeling technique/route to scaffold (choices: {', '.join(WALL_TECHNIQUES)}; "
+        f"default for fresh projects: {CLOSED_CONTOUR_SHELL_V2_TECHNIQUE}).",
     )
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Overwrite files a previous run of this generator created. Files this "
-        "generator did not create are never touched, even with --force.",
+        help="Overwrite previously recorded paths subject to safety checks. An existing "
+        "walls.json must be an unchanged, hash-recorded fresh draft scaffold; route "
+        "switches and concurrent modification are not supported.",
     )
     parser.add_argument(
         "--dry-run",
@@ -1355,12 +1976,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if workdir.exists() and not workdir.is_dir():
         print(f"error: --dir {workdir} exists and is not a directory", file=sys.stderr)
         return 2
-    if not workdir.exists():
-        try:
-            workdir.mkdir(parents=True, exist_ok=True)
-        except OSError as exc:
-            print(f"error: cannot create --dir {workdir}: {exc.strerror or exc}", file=sys.stderr)
-            return 2
 
     root = workdir / args.project
     if root.exists() and not root.is_dir():
@@ -1386,7 +2001,48 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 )
                 return 2
 
-    plan = build_plan(args.project, root, examples)
+    if args.wall_route is not None and args.wall_route not in WALL_TECHNIQUES:
+        print(
+            f"error: invalid --wall-route {args.wall_route!r}; choices are: {', '.join(WALL_TECHNIQUES)}",
+            file=sys.stderr,
+        )
+        return 2
+
+    if examples is not None:
+        source_walls = examples / "walls.json"
+        source_has_walls = entry_present(source_walls)
+        seed_route = LEGACY_WALL_TECHNIQUE
+        if source_has_walls:
+            try:
+                seed_doc = parse_seed_json(source_walls.read_text(encoding="utf-8"))
+                seed_route = seed_doc.get("wall_technique")
+            except Exception as exc:
+                print(f"error: cannot read seed walls.json: {exc}", file=sys.stderr)
+                return 2
+        if args.wall_route is not None and args.wall_route != seed_route:
+            print(
+                f"error: explicit --wall-route {args.wall_route!r} conflicts with seed route {seed_route!r}; "
+                "no silent fallback or route conversion on seeded projects",
+                file=sys.stderr,
+            )
+            return 2
+        wall_route = seed_route
+    else:
+        wall_route = args.wall_route if args.wall_route is not None else CLOSED_CONTOUR_SHELL_V2_TECHNIQUE
+
+    try:
+        if examples is not None:
+            check_seed_route_locations(examples)
+        plan = build_plan(args.project, root, examples, wall_route=wall_route)
+        source_walls = examples / "walls.json" if examples is not None else None
+        source_has_walls = source_walls is not None and entry_present(source_walls)
+        check_destination(plan, workdir, legacy_seed=examples is not None and not source_has_walls)
+        if args.force:
+            require_unmodified_wall_scaffold(plan)
+        output_states = {path: output_file_state(path) for path, _, _ in plan.files}
+    except (OSError, UnicodeError, ValueError, RecursionError) as exc:
+        print(f"error: cannot prepare scaffold: {exc}", file=sys.stderr)
+        return 2
 
     # ---- refuse to clobber ----
     created_before = existing_creations(root) if root.is_dir() else set()
@@ -1401,9 +2057,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             blocked.append(path)
     if blocked:
         print(
-            "error: refusing to overwrite the following file(s). Re-run with --force only "
-            "if this generator created them (it will not touch a file it did not create, "
-            "and will not overwrite anything at all without --force):",
+            "error: refusing to overwrite the following file(s). --force is limited to "
+            "previously recorded paths and is subject to additional wall and route checks:",
             file=sys.stderr,
         )
         for path in blocked:
@@ -1434,14 +2089,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         for directory in plan.directories:
             directory.mkdir(parents=True, exist_ok=True)
         for path, kind, content in plan.files:
-            path.write_text(content, encoding="utf-8", newline="\n")
+            write_staged_file(path, content, output_states[path])
             rows.append(("write", plan.rel(path), kind))
-    except OSError as exc:
+    except (OSError, ValueError) as exc:
+        failed_path = getattr(exc, "filename", None)
+        reason = getattr(exc, "strerror", None) or str(exc)
         print(
-            f"error: writing failed at {exc.filename}: {exc.strerror or exc}. "
-            "Files already written are left in place; re-run with --force to continue.",
+            f"error: writing failed at {failed_path or root}: {reason}. "
+            "This file was not committed; prior completed replacements are left in place. "
+            "The project is not a whole-project transaction; "
+            "preserve and inspect them before deciding how to recover. "
+            "A --force retry may be refused, especially if project.json was not written.",
             file=sys.stderr,
         )
+        if rows:
+            print("Completed file writes:", file=sys.stderr)
+            for _, name, _ in rows:
+                print(f"  {name}", file=sys.stderr)
         return 2
 
     print(f"init_project  --  {GENERATOR} {GENERATOR_VERSION}")
@@ -1453,10 +2117,32 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print(render_written_table(rows))
     print()
     print(f"{len(plan.files)} file(s) written")
-    print(
-        "next          edit specs/pipeline/dimensions.json, then set status to 'locked' "
-        "and run scripts/validate_specs.py --build"
-    )
+    if examples is None:
+        if wall_route == CLOSED_CONTOUR_SHELL_V2_TECHNIQUE:
+            print(
+                "next          author dimensions.json and walls.json (closed_inner_contour_shell_v2); "
+                "the v2 wall builder emits wall_surface.ms and wall_surface.json"
+            )
+        elif wall_route == POLY_WALL_TECHNIQUE:
+            print(
+                "next          author dimensions.json and walls.json; the poly wall build and "
+                "runtime QA are not implemented"
+            )
+        else:
+            print(
+                "next          edit specs/pipeline/dimensions.json and walls.json, then run "
+                "legacy pipeline stages"
+            )
+    elif source_has_walls:
+        print(
+            "next          validate the seeded wall route; the poly wall build and "
+            "runtime QA are not implemented"
+        )
+    else:
+        print(
+            "next          edit specs/pipeline/dimensions.json, then set status to 'locked' "
+            "and run scripts/validate_specs.py --build"
+        )
     return 0
 
 

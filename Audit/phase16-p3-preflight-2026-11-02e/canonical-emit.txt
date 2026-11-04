@@ -1,0 +1,149 @@
+MAXScript probes - run each via execute_maxscript
+==============================================
+
+-- max_version  (major=2026)
+(
+local v = maxVersion()
+"major=" + ((v[8]) as string) + " full=" + (v as string)
+)
+
+-- units  (certified SystemType, scale > 0)
+(
+local st = undefined
+local ss = undefined
+local out = ""
+try ( st = units.SystemType as string ) catch ( st = "THREW" )
+try ( ss = units.SystemScale as string ) catch ( ss = "THREW" )
+out += "SystemType=" + st + " SystemScale=" + ss
+out
+)
+
+-- nurbset_present  (NURBSSet constructs)
+(
+-- NOTE: do NOT use "get #NURBSSet" to test for this class. It returns
+-- undefined even when the class exists, which makes the probe pass vacuously.
+-- Resolve the identifier and construct it instead.
+local id = undefined
+try (id = execute "NURBSSet") catch ()
+local made = "no-class"
+if id != undefined then
+(
+    try (local o = id(); made = "CREATED:" + ((classOf o) as string))
+    catch (made = "not-creatable")
+)
+made
+)
+
+-- loft_not_creatable  (Loft resolves, is not creatable)
+(
+-- Report the throw and the constructed value SEPARATELY, never folded into one
+-- concatenated string. getCurrentException() does work inside a catch on this
+-- build (measured 2026-10-05, 6 of 6 throw kinds; the old rule that it throws
+-- itself was withdrawn as false), but its return value is exactly the kind of
+-- thing that must not be string-concatenated into a probe result.
+-- Resolve first, construct second, so "the class is absent" and "the class is
+-- present but not creatable" cannot be confused for each other.
+local out = ""
+local id = undefined
+try (id = execute "Loft") catch ()
+local resolved = (id != undefined)
+local threw = false
+local created = false
+if resolved then
+(
+    try (local o = id(); created = true) catch (threw = true)
+)
+out += "resolved=" + (resolved as string)
+if threw then out += " THROWS" else out += " NOTHROW"
+out += " created=" + (created as string)
+out
+)
+
+-- sweep_creatable  (Sweep() constructs)
+(
+local s = Sweep()
+-- No delete: a standalone modifier instance is not a scene node.
+-- "delete s" fails with: No "delete" function for sweep:Sweep
+"OK classOf=" + ((classOf s) as string) + " superclass=" + ((superclassOf s) as string)
+)
+
+-- sweep_on_shape  (addModifier(Sweep) throws, mods=0)
+(
+local s = Rectangle()
+s.width = 40.0
+s.length = 40.0
+local sm = undefined
+local cthrew = false
+try (sm = Sweep()) catch (cthrew = true)
+local athrew = false
+if not cthrew then
+(
+    try (addModifier s sm) catch (athrew = true)
+)
+-- Use the .modifiers PROPERTY. The standalone "modifiers s" function form
+-- fails with: Type error: Call needs function or class, got: undefined
+local mods = 0
+try (mods = s.modifiers.count) catch ()
+local out = "ctor="
+if cthrew then out += "THROWS" else out += "ok"
+out += " attach="
+if athrew then out += "THROWS" else out += "ok"
+out += " mods=" + (mods as string)
+if mods > 0 then
+(
+    local first = "?"
+    try (first = s.modifiers[1].name) catch ()
+    out += " first=" + first
+)
+-- delete s, the shape node (a bare Sweep() would NOT be deletable). Guarded so a
+-- cleanup failure cannot swallow the result string this probe exists to return.
+try (delete s) catch ()
+out
+)
+
+-- quadpatch_creatable  (QuadPatch() constructs)
+(
+local p = QuadPatch()
+local out = "OK classOf=" + ((classOf p) as string) + " superclass=" + ((superclassOf p) as string)
+delete p
+out
+)
+
+-- materials  (report OpenPBR/Physical/Standard)
+(
+local out = ""
+local names = #("OpenPBR", "PhysicalMaterial", "Standard")
+for n in names do
+(
+    local id = undefined
+    try (id = execute n) catch ()
+    if id == undefined then
+    (
+        out += n + "=absent "
+    )
+    else
+    (
+        local made = "notcreatable"
+        try (local mt = id(); made = "ok") catch (made = "notcreatable")
+        out += n + "=" + made + " "
+    )
+)
+out
+)
+
+Non-MAXSCRIPT keys (from typed MCP tools): bridge, plugins_absent
+
+CHECK                STATUS  EXPECTED                                         ACTUAL  NOTE
+-------------------  ------  -----------------------------------------------  ------  ------------------------------------------------
+bridge               SKIP    transport=namedpipe                              SKIP    no captured result for 'bridge'; run the MAXS...
+max_version          SKIP    major=2026                                       SKIP    no captured result for 'max_version'; run the...
+units                SKIP    certified SystemType, scale > 0                  SKIP    no captured result for 'units'; run the MAXSc...
+nurbset_present      SKIP    NURBSSet constructs                              SKIP    no captured result for 'nurbset_present'; run...
+loft_not_creatable   SKIP    Loft resolves, is not creatable                  SKIP    no captured result for 'loft_not_creatable'; ...
+sweep_creatable      SKIP    Sweep() constructs                               SKIP    no captured result for 'sweep_creatable'; run...
+sweep_on_shape       SKIP    addModifier(Sweep) throws, mods=0                SKIP    no captured result for 'sweep_on_shape'; run ...
+quadpatch_creatable  SKIP    QuadPatch() constructs                           SKIP    no captured result for 'quadpatch_creatable';...
+plugins_absent       SKIP    forestPack/tyFlow/railClone/phoenixFD all False  SKIP    no captured result for 'plugins_absent'; supp...
+materials            SKIP    report OpenPBR/Physical/Standard                 SKIP    no captured result for 'materials'; run the M...
+PASS 0 / FAIL 0
+skip 10 - no captured results; rerun with --results to evaluate

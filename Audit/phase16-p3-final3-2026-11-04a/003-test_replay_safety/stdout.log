@@ -1,0 +1,6 @@
+
+OFFLINE input SHA-256 (before): {'scripts\\wall_surface_runtime.py': 'ede037b57bdff66e24ce0b0e970ed1a2e3efede94cc1b23a19114c8b7433237b', 'scripts\\scene_units.py': 'b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2', 'Audit\\phase16-p3-replay-tests-2026-11-03f\\test_replay_safety.py': '833e24821c89a18070eb325401150c41d7d884b38cc6d1a1fed1c5d6b66874ff'}
+
+OFFLINE emitted-source SHA-256: b67b88a3c24393695bf53d268df79b9d9802a456b35efdcb440949a890564122
+
+OFFLINE input SHA-256 (after): {'scripts\\wall_surface_runtime.py': 'ede037b57bdff66e24ce0b0e970ed1a2e3efede94cc1b23a19114c8b7433237b', 'scripts\\scene_units.py': 'b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2', 'Audit\\phase16-p3-replay-tests-2026-11-03f\\test_replay_safety.py': '833e24821c89a18070eb325401150c41d7d884b38cc6d1a1fed1c5d6b66874ff'}

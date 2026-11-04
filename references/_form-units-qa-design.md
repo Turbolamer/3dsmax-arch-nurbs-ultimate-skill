@@ -3,6 +3,13 @@
 **Status: FROZEN — approved by user on 2026-10-10; all 10 A-* decisions APPROVED; Gate 02 PASS.**
 Date: 2026-10-09. Repository: `D:/Rhino/3dsmax-arch-nurbs-ultimate-skill`.
 
+> **Session-policy supersession (2026-11-04):** the frozen body's `L-SESSION` no-Max/planning-only
+> restriction records that earlier planning session, not current authorization. The user has
+> lifted temporary no-Max restrictions; authorized agents may perform necessary live work under
+> the single-operator policy in `agents/max-orchestrator.md` §1.1. Preserve unrelated scene state,
+> never manipulate dirty flags, and retain all measured fatal safeguards. The historical body
+> remains unedited. This notice grants no new architecture acceptance, file ownership or installation.
+
 > **Line-number and path notice (2026-10-28):** the `CHECKPOINT.md:NNN` references throughout this
 > file are point-in-time line numbers from an earlier revision of `CHECKPOINT.md` and had already
 > drifted before 2026-10-28. After the 2026-10-28 checkpoint split, resolve them by **section

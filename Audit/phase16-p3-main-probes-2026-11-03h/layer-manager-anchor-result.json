@@ -1,0 +1,41 @@
+{
+  "scope": "Main-only calibration of independent Layer_Manager ReferenceTarget anchor from rootScene; proving closed reference chain in 3ds Max 2026",
+  "recorded_at": "2026-11-03T22:58:10+03:00",
+  "wire_probes": {
+    "rootscene_refs": {
+      "ok": true,
+      "result": "P3_MANAGER_INDEPENDENT_SOURCE_PROBE|rsClass=Scene|rnClass=MAXRootNode|lmClass=Interface|lmPropCount=2;prop=count;prop=current|numRefsRS=13|ref1=Material_Editor;h=19P|ref2=MaterialLibrary;h=27P|ref3=ProSound;h=209P|ref4=MAXRootNode;h=39P|ref5=RenderEnvironment;h=50P|ref6=NamedSelSetList;h=42P|ref7=MAXTVNode;h=43P|ref8=Grid_Reference;h=45P|ref9=RenderEffects;h=41P|ref10=raytraceShadow;h=218P|ref11=Layer_Manager;h=46P|ref12=TrackSetList;h=49P|ref13=undefined;h=undefined|l0BackingHandle=48P|l0DepsCount=2|l0Dep1=Layer_Manager;h=46P|l0Dep2=Scene;h=36P",
+      "transport": {
+        "transport": "namedpipe",
+        "request_id": "7d488c1438984792b69606c35ed6a191",
+        "client_round_trip_ms": 2.465
+      }
+    },
+    "identity_proof": {
+      "ok": true,
+      "result": "P3_ROOTSCENE_PROVE_IDENTITY|ref4EqRootNode=true|ref11EqDep1=true|l0Dep2EqRootScene=true|ref11Class=Layer_Manager|ref11Handle=46P",
+      "transport": {
+        "transport": "namedpipe",
+        "request_id": "59c4c65aeb7c49dea7a84e6ea403e02a",
+        "client_round_trip_ms": 0.437
+      }
+    },
+    "layer_manager_refs": {
+      "ok": true,
+      "result": "P3_LM_REF1_IS_LAYER0|eq=true|ref1Handle=48P|l0Handle=48P",
+      "transport": {
+        "transport": "namedpipe",
+        "request_id": "35be4eaadd3c41a584c199e75c558648",
+        "client_round_trip_ms": 0.485
+      }
+    }
+  },
+  "proven_facts": {
+    "rootScene_ref4": "Exact equality to rootNode (MAXRootNode, handle 39P)",
+    "rootScene_ref11": "Exact equality to Layer_Manager ReferenceTarget (handle 46P)",
+    "layer0_backing_dep1": "Exact equality to refs.getReference rootScene 11 (Layer_Manager)",
+    "layer0_backing_dep2": "Exact equality to rootScene (Scene)",
+    "layer_manager_ref1": "Exact equality to (LayerManager.getLayer 0).layerAsRefTarg (Base_LayerBase_Layer, handle 48P)"
+  },
+  "interpretation": "The previously missing independent anchor for the Layer_Manager ReferenceTarget is now proven: rootScene is a standard global MAXScript anchor; refs.getReference rootScene 11 directly yields the exact Layer_Manager ReferenceTarget without searching by class name or filtering unknown lists. Furthermore, refs.getReference (refs.getReference rootScene 11) 1 yields the default layer backing target, matching layerAsRefTarg with reference equality. This establishes the complete closed-loop reference authority."
+}

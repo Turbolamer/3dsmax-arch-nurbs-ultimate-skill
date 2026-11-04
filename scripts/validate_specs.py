@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate spec files against references/07-spec-grammar.md (invariants G-1..G-90).
+"""Validate spec files against the spec grammar and quality gates (G-1..G-100).
 
 Pure data validation. Standard library only. Never raises on bad input: one
 malformed file becomes a FAIL row, never a traceback, and the run continues so
@@ -61,20 +61,28 @@ import re
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Callable, Iterable, NamedTuple, Optional, Sequence
 
 try:
-    from scripts import curve_gen
+    from scripts import curve_gen, wall_contour_v2
+    from scripts.wall_cell_coverage import check_wall_cell_coverage
 except ImportError:
     import curve_gen
+    try:
+        import wall_contour_v2
+    except ImportError:
+        wall_contour_v2 = None
+    from wall_cell_coverage import check_wall_cell_coverage
 
 # --------------------------------------------------------------------------- #
 # Constants declared by references/07-spec-grammar.md
 # --------------------------------------------------------------------------- #
 
 SUPPORTED_SCHEMA_MAJOR = 1
-SUPPORTED_SCHEMA_VERSIONS = frozenset({"1.0", "1.1"})
+SUPPORTED_SCHEMA_MAJORS = frozenset({1, 2})
+SUPPORTED_SCHEMA_VERSIONS = frozenset({"1.0", "1.1", "2.0"})
 
 ENVELOPE_ORDER: tuple[str, ...] = (
     "schema_version",
@@ -99,6 +107,18 @@ CONFIDENCES = ("high", "medium", "low")
 #: re-examination points for a spec assumption.
 RECHECK_STAGES = ("P3", "P4", "P5", "P6", "P8")
 NON_CONFLICT_FALLBACK_ID = "R7"
+LEGACY_WALL_ROUTE = "legacy_cells_v1"
+POLY_WALL_ROUTE = "poly_surface_shell_v1"
+CLOSED_CONTOUR_SHELL_V2_ROUTE = "closed_inner_contour_shell_v2"
+WALL_ROUTES = (LEGACY_WALL_ROUTE, POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE)
+WALL_V2_BODY_KEYS = frozenset({
+    "tolerances", "origin_inputs", "origins", "wall_technique", "reference_face",
+    "numeric_epsilon_cm", "numeric_unit_epsilon", "storeys"
+})
+WALL_V2_STOREY_KEYS = frozenset({
+    "id", "name", "base_z_cm", "top_z_cm", "wall_thickness_cm", "reference_face",
+    "vertices_cm", "segments", "openings", "topology_budget"
+})
 
 PROJECT_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)(?:\.(\d+))?$")
@@ -728,6 +748,16 @@ SPEC_INVENTORY: tuple[SpecDef, ...] = (
         has_origins=True,
     ),
     SpecDef(
+        "walls",
+        "Phase16-P2",
+        "defined",
+        ("tolerances", "origin_inputs", "origins", "wall_technique", "reference_face",
+         "numeric_epsilon_cm", "numeric_unit_epsilon", "blocks", "wall_runs",
+         "openings", "upper_returns"),
+        frozenset({"origins"}),
+        has_origins=True,
+    ),
+    SpecDef(
         "assembly",
         "P6",
         "defined",
@@ -872,6 +902,15 @@ RULE_TITLES: dict[str, str] = {
     "G-89": "QA tolerances and schedule: separate arithmetic, form, numerical and limits",
     "G-90": "QA dependencies and provenance: discriminated JSON and CSV bindings",
     "G-91": "stepped plate containment and co-presence",
+    "G-92": "wall route selection and assembly echo",
+    "G-93": "walls schema, geometry, provenance and references",
+    "G-94": "wall opening bounds and non-overlap",
+    "G-95": "emitted wall stack (runtime)",
+    "G-96": "wall route exclusivity",
+    "G-97": "declared wall topology ceilings",
+    "G-98": "wall manifest and live geometry (runtime)",
+    "G-99": "emitter and live unit guard (runtime)",
+    "G-100": "script safety and real replay (runtime)",
 }
 
 #: Rules that read more than one file. Reported grouped by severity, never by file.
@@ -913,6 +952,10 @@ CROSS_FILE_RULES = (
     "G-88",
     "G-89",
     "G-90",
+    "G-92",
+    "G-93",
+    "G-94",
+    "G-96",
 )
 
 
@@ -1193,7 +1236,11 @@ def as_number(value: Any) -> Optional[float]:
     if isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
-        return float(value)
+        try:
+            number = float(value)
+        except (ValueError, OverflowError):
+            return None
+        return number if math.isfinite(number) else None
     return None
 
 
@@ -1427,6 +1474,7 @@ class LoadedFile:
     hygiene: list[tuple[str, str]] = field(default_factory=list)  # (severity, detail)
     fatal: Optional[str] = None
     recipe: bool = False
+    explicit_unlisted: bool = False
 
     @property
     def name(self) -> str:
@@ -1437,17 +1485,97 @@ class LoadedFile:
         return self.fatal is None
 
 
+# Beyond this range the validator's binary-float arithmetic cannot distinguish
+# adjacent JSON integers. The independent Fraction-based spatial oracle may be
+# exact, but its companion historical volume check is not.
+MAX_SAFE_JSON_INTEGER = (1 << 53) - 1
+# Bound the JSON tree before decoding: successful parsing alone does not prove
+# that the recursive unit/origin/ledger walkers can safely inspect it. This is
+# an input resource limit, not a schema rule or a geometry tolerance. Counting
+# containers (including the root) leaves ample stack for the walkers below.
+MAX_JSON_CONTAINER_DEPTH = 128
+
+
+def _check_json_nesting(text: str) -> None:
+    """Bound container depth without recursing or counting quoted brackets.
+
+    This is deliberately not another JSON parser. Syntax, including balanced
+    delimiters and string escapes, remains json.loads' responsibility.
+    """
+    depth = 0
+    quoted = False
+    escaped = False
+    for char in text:
+        if quoted:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                quoted = False
+        elif char == '"':
+            quoted = True
+        elif char in "[{":
+            depth += 1
+            if depth > MAX_JSON_CONTAINER_DEPTH:
+                raise ValueError(
+                    "JSON nesting exceeds the validator safety limit "
+                    f"({MAX_JSON_CONTAINER_DEPTH} containers; 07 G-7)"
+                )
+        elif char in "]}":
+            depth -= 1
+
+
 def strict_json_loads(text: str) -> Any:
-    """Strict reader: rejects NaN / Infinity / -Infinity (07 G-7)."""
+    """Reject excessive nesting, duplicate keys and lossy numeric conversion."""
+    _check_json_nesting(text)
 
     def _reject(name: str) -> Any:
         raise ValueError(f"JSON constant {name} is not allowed (07 G-7)")
 
-    return json.loads(text, parse_constant=_reject)
+    def _unique(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                shown = key if len(key) <= 100 else key[:100] + "..."
+                raise ValueError(f"duplicate JSON object key {shown!r}")
+            result[key] = value
+        return result
+
+    def _finite_float(value: str) -> float:
+        if len(value) > 1024:
+            raise ValueError("JSON number exceeds the numeric token length limit (07 G-7)")
+        shown = value if len(value) <= 100 else value[:100] + "..."
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError(f"JSON number {shown!r} overflows finite float range (07 G-7)")
+        try:
+            unchanged = Decimal(value) == Decimal(str(number))
+        except InvalidOperation:
+            unchanged = False
+        if not unchanged:
+            raise ValueError(f"JSON number {shown!r} loses decimal precision when decoded (07 G-7)")
+        return number
+
+    def _safe_integer(value: str) -> int:
+        # Check the lexical length before int() to avoid Python's integer digit
+        # limit and avoid constructing unbounded integers on hostile input.
+        if len(value.lstrip("-")) > 16:
+            raise ValueError("JSON integer exceeds the exact integer safety range (07 G-7)")
+        number = int(value)
+        if abs(number) > MAX_SAFE_JSON_INTEGER:
+            raise ValueError("JSON integer exceeds the exact integer safety range (07 G-7)")
+        return number
+
+    return json.loads(text, parse_constant=_reject, parse_float=_finite_float, parse_int=_safe_integer,
+                      object_pairs_hook=_unique)
 
 
 def load_spec_file(path: Path, label: str) -> LoadedFile:
     record = LoadedFile(path=path, label=label)
+    if path.stem in ("walls", "assembly") and path.is_symlink():
+        record.fatal = "route-bearing spec must be a regular file, not a symlink"
+        return record
     try:
         record.raw = path.read_bytes()
     except OSError as exc:
@@ -1478,6 +1606,9 @@ def load_spec_file(path: Path, label: str) -> LoadedFile:
     except ValueError as exc:
         record.fatal = str(exc)
         return record
+    except RecursionError:
+        record.fatal = "JSON nesting exceeds the parser safety limit (07 G-7)"
+        return record
 
     record.spec = SPEC_BY_NAME.get(path.stem)
     return record
@@ -1493,6 +1624,11 @@ class Session:
     files: list[LoadedFile]
     build_gate: bool = False
     allow_draft: bool = False
+    wall_route: Optional[str] = None  # resolved once by run_checks; None is invalid
+    # Wall-only provenance checks are relatively expensive. The cache is populated
+    # only after G-31 has completed and belongs to this one immutable lint run.
+    wall_provenance_cache: dict = field(default_factory=dict, repr=False)
+    wall_provenance_incomplete: dict = field(default_factory=dict, repr=False)
 
     def by_name(self, name: str) -> Optional[LoadedFile]:
         for record in self.files:
@@ -1537,6 +1673,10 @@ class Session:
         return self.by_name("assembly")
 
     @property
+    def walls(self) -> Optional[LoadedFile]:
+        return self.by_name("walls")
+
+    @property
     def qa(self) -> Optional[LoadedFile]:
         return self.by_name("qa")
 
@@ -1574,6 +1714,123 @@ class Session:
             FALLBACK_ANGLE_DEG,
             "07 section 9.5 fallback (dimensions.json absent)",
         )
+
+
+def _empty_assembly_draft(doc: Any) -> bool:
+    """Only an untouched draft is not a produced assembly."""
+    if not isinstance(doc, dict) or doc.get("status") != "draft":
+        return False
+    for key in ("origins", "defaults", "layer_map", "origin_inputs", "placements",
+                "opening_cuts", "wall_cells", "scatter"):
+        if key in doc and doc[key] not in ({}, []):
+            return False
+    return True
+
+
+def resolve_wall_route(session: Session, report: Report) -> Optional[str]:
+    """Resolve exactly once; a broken or partial selector is never legacy."""
+    walls_records = [r for r in session.files if not r.recipe and r.path.stem == "walls"]
+    assemblies = [r for r in session.files if not r.recipe and r.path.stem == "assembly"]
+    location = "walls.json / assembly.json"
+    if session.recipes_only:
+        report.skip("G-92", location, "recipe-only session has no wall route")
+        return None
+    if len(walls_records) > 1 or len(assemblies) > 1:
+        report.fail("G-92", location, "duplicate walls.json or assembly.json; route is ambiguous")
+        return None
+    wall = walls_records[0] if walls_records else None
+    assembly = assemblies[0] if assemblies else None
+    if wall is not None and (not wall.ok or not isinstance(wall.doc, dict)):
+        report.fail("G-92", location, "walls.json is unreadable or not an object; no route can be selected")
+        return None
+    if assembly is not None and (not assembly.ok or not isinstance(assembly.doc, dict)):
+        report.fail("G-92", location, "assembly.json is unreadable or not an object; route echo cannot be checked")
+        return None
+    adoc = assembly.doc if assembly else None
+    if wall is None:
+        if adoc is not None and ("wall_technique" in adoc or "wall_ref" in adoc):
+            report.fail("G-92", location, "assembly declares a selector or wall_ref but walls.json is absent")
+            return None
+        return LEGACY_WALL_ROUTE
+    route = wall.doc.get("wall_technique")
+    if not isinstance(route, str) or route not in WALL_ROUTES:
+        report.fail("G-92", location, f"invalid or missing walls.json wall_technique {route!r}")
+        return None
+    if adoc is not None:
+        placeholder = _empty_assembly_draft(adoc)
+        if "wall_technique" in adoc and adoc["wall_technique"] != route:
+            report.fail("G-92", location, "assembly wall_technique conflicts with walls.json")
+            return None
+        if not placeholder and adoc.get("wall_technique") != route:
+            report.fail("G-92", location, "produced assembly must echo walls.json wall_technique")
+            return None
+        if route in (POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE) and not placeholder and adoc.get("wall_ref") != "wall_surface.json":
+            report.fail("G-92", location, f"produced {route} assembly must reference wall_surface.json")
+            return None
+        if route == LEGACY_WALL_ROUTE and "wall_ref" in adoc:
+            report.fail("G-92", location, "legacy assembly must not declare wall_ref")
+            return None
+        if placeholder and "wall_ref" in adoc and (route not in (POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE) or
+                                                     adoc["wall_ref"] != "wall_surface.json"):
+            report.fail("G-92", location, "draft assembly contains an invalid wall_ref")
+            return None
+    return route
+
+
+def report_wall_route(session: Session, report: Report) -> None:
+    """Report route/echo only after route-bearing envelopes and hygiene are checked."""
+    route = session.wall_route
+    if route is None:  # resolution already emitted FAIL or recipe-only SKIP
+        return
+    location = "walls.json / assembly.json"
+    if any(r.path.stem == "dimensions" and not r.ok for r in session.files):
+        report.skip("G-92", location, "dimensions.json is unreadable; project identity and route agreement are incomplete")
+        return
+    wall, assembly = session.walls, session.assembly
+    project_ids = [r.doc.get("project") for r in session.files
+                   if r.ok and not r.recipe and r.spec is not None and isinstance(r.doc, dict)]
+    if (any(not isinstance(value, str) or not PROJECT_ID_RE.fullmatch(value) for value in project_ids)
+            or len(set(project_ids)) != 1):
+        report.skip("G-92", location, "project identity across loaded specs is invalid or inconsistent; route agreement is incomplete")
+        return
+    records = [r for r in (wall, assembly) if r is not None]
+    required = ("G-1", "G-2", "G-3", "G-5", "G-6", "G-7")
+    has_draft_wall = False
+    for record in records:
+        relevant = [f for f in report.findings if f.rule in (*required, "G-4") and
+                    (f.location == record.label or f.location.startswith(record.label + "::"))]
+        status = record.doc.get("status")
+        draft_wall = record is wall and status == "draft" and not session.build_gate
+        has_draft_wall = has_draft_wall or draft_wall
+        status_checked = any(f.rule == "G-4" and
+                             (f.severity == STATUS_PASS or
+                              (draft_wall and f.severity in (STATUS_WARN, STATUS_SKIP)))
+                             for f in relevant)
+        if (not status_checked or (status != "locked" and not draft_wall) or
+                any(f.severity == STATUS_FAIL for f in relevant) or
+                any(not any(f.rule == rule and f.severity == STATUS_PASS for f in relevant)
+                    for rule in required)):
+            report.skip("G-92", location, f"{route} selected, but {record.label} envelope/hygiene or locked-status checks failed or are incomplete")
+            return
+    if wall is None:
+        if assembly is None:
+            report.skip("G-92", location, "no selector and no assembly; historical route is provisional")
+        else:
+            report.ok("G-92", location, "historical no-selector project uses legacy_cells_v1; assembly envelope checked")
+    elif assembly is None or _empty_assembly_draft(assembly.doc):
+        report.skip("G-92", location, f"{route} selected; assembly is absent or a draft placeholder, echo incomplete")
+    elif any(f.rule == "G-93" and f.severity == STATUS_FAIL and
+             (f.location == wall.label or f.location.startswith(wall.label + "::"))
+             for f in report.findings):
+        report.skip("G-92", location, f"{route} selector and echo agree, but the wall declaration has failed G-93")
+    elif has_draft_wall and route != LEGACY_WALL_ROUTE:
+        report.skip("G-92", location, f"{route} selector and echo agree, but draft poly wall input is incomplete")
+    elif not has_draft_wall and not any(f.rule == "G-93" and f.severity == STATUS_PASS and
+                                        f.location == wall.label for f in report.findings):
+        report.skip("G-92", location, f"{route} selector and echo agree, but the wall declaration is not fully checked")
+    else:
+        note = "; draft wall is lint-only and cannot be built" if has_draft_wall else ""
+        report.ok("G-92", location, f"selector and assembly echo agree on {route}{note}; this is not a wall-input, geometry or output PASS")
 
 
 # --------------------------------------------------------------------------- #
@@ -1623,6 +1880,18 @@ def check_envelope(record: LoadedFile, session: Session, report: Report) -> bool
     spec_def = record.spec
     if spec_def is not None:
         expected = list(ENVELOPE_ORDER) + list(spec_def.body_keys)
+        if spec_def.name == "walls" and doc.get("wall_technique") == CLOSED_CONTOUR_SHELL_V2_ROUTE:
+            expected = list(ENVELOPE_ORDER) + sorted(WALL_V2_BODY_KEYS)
+        elif spec_def.name == "assembly" and session.wall_route in (POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE):
+            expected = [k for k in expected if k not in ("opening_cuts", "wall_cells")]
+            if not _empty_assembly_draft(doc):
+                expected += ["wall_technique", "wall_ref"]
+            else:
+                # A not-yet-produced assembly may echo the route; it is not output.
+                expected += [k for k in ("wall_technique", "wall_ref", "opening_cuts", "wall_cells")
+                             if k in doc]
+        elif spec_def.name == "assembly" and "wall_technique" in doc:
+            expected.append("wall_technique")
         absent = [k for k in expected if k not in doc]
         if absent:
             report.fail(
@@ -1634,7 +1903,8 @@ def check_envelope(record: LoadedFile, session: Session, report: Report) -> bool
         if record.path.stem == "dimensions" and doc.get("schema_version") == "1.1":
             extra = [k for k in extra if k not in ("form_references", "precision_targets")]
         if extra:
-            report.warn(
+            severity = report.fail if spec_def.name == "walls" else report.warn
+            severity(
                 "G-1",
                 location,
                 f"undeclared top-level keys not in 07 section 4: {', '.join(extra)}",
@@ -1687,12 +1957,12 @@ def check_envelope(record: LoadedFile, session: Session, report: Report) -> bool
             report.fail("G-3", location, f"schema_version {version!r} is not MAJOR.MINOR[.PATCH]")
         elif version in SUPPORTED_SCHEMA_VERSIONS:
             report.ok("G-3", location, f"schema_version {version} supported")
-        elif int(match.group(1)) != SUPPORTED_SCHEMA_MAJOR:
+        elif int(match.group(1)) not in SUPPORTED_SCHEMA_MAJORS:
             report.fail(
                 "G-3",
                 location,
                 f"schema major {match.group(1)}; validator implements major "
-                f"{SUPPORTED_SCHEMA_MAJOR}; a builder must stop rather than guess",
+                f"{sorted(SUPPORTED_SCHEMA_MAJORS)}; a builder must stop rather than guess",
             )
         else:
             if session_build_gate:
@@ -1721,14 +1991,14 @@ def check_envelope(record: LoadedFile, session: Session, report: Report) -> bool
         )
     elif status == "locked":
         report.ok("G-4", location, "status=locked; downstream stages may consume it")
-    elif session_allow_draft:
-        report.skip("G-4", location, f"status={status}; allowed by --allow-draft")
-    elif session_build_gate:
+    elif session_build_gate and (record.name == "walls" or not session_allow_draft):
         report.fail(
             "G-4",
             location,
             f"status={status}; a builder must refuse to consume this file",
         )
+    elif session_allow_draft:
+        report.skip("G-4", location, f"status={status}; allowed by --allow-draft")
     else:
         report.warn(
             "G-4",
@@ -2273,6 +2543,13 @@ def check_derived_recompute(
             continue
         if not ok:
             continue
+        missing = _formula_missing_dependencies(doc, entry, record_obj.get("derives_from"))
+        if missing:
+            report.fail("G-32", f"{location}::{entry}",
+                        "declared derives_from does not cover documented formula inputs: " +
+                        ", ".join(missing))
+            problems += 1
+            continue
         checked += len(expected_values)
         for label, expected, tol, tol_number in expected_values:
             if not _formula_equal(actual, expected, tol_number):
@@ -2564,6 +2841,91 @@ def _f_facade_bay_width(doc: Any, path: str, linear: float, area: float, angle: 
     if not isinstance(facade, dict):
         return None
     return _grid_bays_for(doc, facade)
+
+
+def _formula_inputs(doc: dict, path: str) -> tuple[str, ...]:
+    """Actual value dependencies of the existing G-32 arithmetic, not formulas
+    invented for previously unsupported paths. Representation selectors such as
+    footprint_kind are schema metadata, not alternative numerical sources.
+    """
+    fixed = {
+        "building.overall_height_cm": ("building.total_height_cm", "roof.parapet_height_cm"),
+        "building.net_floor_area_m2": ("building.gross_floor_area_m2", "core.footprint_area_m2", "core.spans_level_indices"),
+        "site.footprint_area_m2": ("site.footprint_cm",),
+        "site.footprint_width_cm": ("site.footprint_cm",),
+        "site.footprint_depth_cm": ("site.footprint_cm",),
+        "structure.column_x_cm": ("structure.x_bay_cm",),
+        "structure.column_y_cm": ("structure.y_bay_cm",),
+        "structure.interior_column_count": ("structure.column_x_cm", "structure.column_y_cm"),
+        "core.footprint_area_m2": ("core.footprint_cm",),
+        "roof.deck_level_cm": ("building.total_height_cm",),
+    }
+    if path in fixed:
+        return fixed[path]
+    if path == "building.total_height_cm":
+        levels = doc.get("levels")
+        if isinstance(levels, list) and levels:
+            return (f"levels[{len(levels) - 1}].elevation_cm", f"levels[{len(levels) - 1}].height_cm")
+    if path == "building.gross_floor_area_m2":
+        return tuple(f"floor_plates[{i}].gross_area_m2" for i in range(len(doc.get("floor_plates", []))))
+    tokens = split_path(path)
+    if len(tokens) != 3 or not isinstance(tokens[1], int):
+        return ()
+    root, index, member = tokens
+    prefix = f"{root}[{index}]"
+    if root == "levels" and member == "elevation_cm" and index > 0:
+        return (f"levels[{index - 1}].elevation_cm", f"levels[{index - 1}].height_cm")
+    if root == "floor_plates":
+        found, plate = resolve(doc, prefix)
+        if found and isinstance(plate, dict):
+            if "footprint_cm" in plate and member in ("gross_area_m2", "footprint_width_cm", "footprint_depth_cm"):
+                return (prefix + ".footprint_cm",)
+            if member == "gross_area_m2":
+                return ("site.footprint_area_m2",)
+    if root == "facades":
+        if member == "length_cm":
+            return (prefix + ".start_corner_cm", prefix + ".end_corner_cm")
+        if member == "bay_count":
+            return (prefix + ".bay_width_cm",)
+        if member == "bay_width_cm":
+            found, facade = resolve(doc, prefix)
+            name = facade.get("name", "").split("_", 1)[0] if found and isinstance(facade, dict) else ""
+            if name in ("north", "south", "east", "west"):
+                return ("structure.x_bay_cm" if name in ("north", "south") else "structure.y_bay_cm",)
+    return ()
+
+
+def _formula_missing_dependencies(doc: dict, path: str, sources: Any) -> list[str]:
+    """Allow declared ancestors and independently declared derived intermediates.
+
+    Historical total-height declarations list all storey heights. Expand the
+    documented elevation chain to recognize that equivalent dependency closure
+    only when its omitted base is exactly zero. A non-zero base must be declared.
+    This proves dependency coverage, not execution tracing or arbitrary algebra.
+    """
+    declared = [split_path(p) for p in sources if isinstance(p, str) and
+                path_of(split_path(p)) == p] if isinstance(sources, list) else []
+    pending = list(_formula_inputs(doc, path))
+    seen: set[str] = set()
+    missing = []
+    while pending:
+        required = pending.pop()
+        tokens = split_path(required)
+        if any(p and tokens[:len(p)] == p for p in declared):
+            continue
+        if required in seen:
+            continue
+        seen.add(required)
+        if path == "building.total_height_cm" and required == "levels[0].elevation_cm" and resolve(doc, required) == (True, 0):
+            continue
+        origins = doc.get("origins", {})
+        origin = origins.get(required) if isinstance(origins, dict) else None
+        inputs = _formula_inputs(doc, required)
+        if isinstance(origin, dict) and origin.get("origin") == "derived" and inputs:
+            pending.extend(inputs)
+        else:
+            missing.append(required)
+    return sorted(set(missing))
 
 
 DERIVED_FORMULAS: tuple[DerivedFormula, ...] = (
@@ -3048,14 +3410,20 @@ def check_ledger_bijection(
     for owner, label, origins in owned_maps:
         for path, obj in origins.items():
             if isinstance(obj, dict) and obj.get("origin") == origin_value:
-                owned.append((owner, path, label, obj.get("origin_ref" if origin_value == "assumed" else "conflict_ref")))
+                marker_key = "origin_ref" if origin_value == "assumed" or owner == "walls" else "conflict_ref"
+                owned.append((owner, path, label, obj.get(marker_key)))
     marker = "origin_ref" if origin_value == "assumed" else "conflict_ref"
     noun = key[:-1] if key.endswith("s") else key
     for owner, path, label, ref in owned:
-        covered = any(
-            _prefix_cover(path, sub_path, owner, claim_owner) or claim_id == ref
-            for claim_owner, sub_path, _raw, claim_id in claims
-        )
+        if owner == "walls":
+            wall = session.walls
+            reason = _wall_ledger_binding(path, origin_value, ref, wall, session) if wall else "wall unavailable"
+            covered = not reason
+        else:
+            covered = any(
+                _prefix_cover(path, sub_path, owner, claim_owner) or claim_id == ref
+                for claim_owner, sub_path, _raw, claim_id in claims
+            )
         if not covered:
             report.fail(
                 "G-13",
@@ -3263,13 +3631,18 @@ def check_conflicts_complete(record: LoadedFile, session: Session, report: Repor
 
         primary = resolution.get("resulting_value_of")
         if isinstance(primary, str) and dimensions is not None and dimensions.ok:
-            found, actual = resolve(dimensions.doc, primary)
+            wall_primary = ":" in primary and primary.partition(":")[0] in ("walls", "walls.json")
+            if wall_primary:
+                target = resolve_ledger_path(primary, session)
+                found, actual = target.found, target.value
+            else:
+                found, actual = resolve(dimensions.doc, primary)
             if not found:
                 report.fail(
                     "G-14",
                     where,
                     f"resolution.resulting_value_of {primary!r} does not resolve in "
-                    "dimensions.json",
+                    + ("walls.json" if wall_primary else "dimensions.json"),
                 )
                 problems += 1
             elif not deep_equal(resolution.get("chosen_value"), actual):
@@ -4675,7 +5048,12 @@ def check_cross_file(session: Session, report: Report) -> None:
         if not isinstance(resolution, dict):
             continue
         for path in resolution.get("resolved_paths") or []:
-            found, _ = resolve(doc, str(path))
+            # Wall ledger claims use the existing qualified ledger-path grammar;
+            # retain the historical dimensions-only behavior for other claims.
+            if isinstance(path, str) and path.partition(":")[0] in ("walls", "walls.json") and ":" in path:
+                found = resolve_ledger_path(path, session).found
+            else:
+                found, _ = resolve(doc, str(path))
             if not found:
                 report.fail(
                     "G-31",
@@ -4741,6 +5119,8 @@ def check_cross_file(session: Session, report: Report) -> None:
         and isinstance(record.doc, dict)
     ]
     defined_names = {record.spec.name for record in defined_records if record.spec}
+    wall_input_owners: list[str] = []
+    wall_inputs_incomplete = False
     for record in session.files:
         if not record.ok or record.spec is None:
             continue
@@ -4749,7 +5129,18 @@ def check_cross_file(session: Session, report: Report) -> None:
             continue
         for item in inputs:
             text = str(item)
-            hosts = [host for host in defined_records if resolve(host.doc, text)[0]]
+            if record.spec.name == "walls":
+                selected, trace_error = _wall_checked_source(item, record, session, report)
+                hosts = [selected] if selected is not None else []
+                if selected is not None:
+                    wall_input_owners.append(f"{item} -> {selected.name}.json")
+                elif _wall_source(item, _wall_upstream(record, session)) is not None:
+                    report.skip("G-31", f"{record.label}::origin_inputs",
+                                f"path {item!r} exists in its selected source, but transitive validation is incomplete: {trace_error}")
+                    wall_inputs_incomplete = True
+                    continue
+            else:
+                hosts = [host for host in defined_records if resolve(host.doc, text)[0]]
             if hosts:
                 continue
             head = text.split(".", 1)[0].split("[", 1)[0]
@@ -4782,12 +5173,14 @@ def check_cross_file(session: Session, report: Report) -> None:
         )
         problems += 1
 
-    if problems == 0:
+    if problems == 0 and not wall_inputs_incomplete:
+        wall_note = ("; wall input owners: " + "; ".join(sorted(wall_input_owners))
+                     if wall_input_owners else "")
         report.ok(
             "G-31",
             dimensions.label,
             "all cross-file ids and dotted paths resolve; one project id "
-            f"({next(iter(distinct))!r}) across {len(ids)} file(s)",
+            f"({next(iter(distinct))!r}) across {len(ids)} file(s)" + wall_note,
         )
 
 
@@ -11406,9 +11799,11 @@ ASSEMBLY_DRAFT_RULES: tuple[str, ...] = (
 )
 
 
-def check_assembly_rules(record: LoadedFile, session: Session, report: Report) -> None:
+def check_assembly_rules(record: LoadedFile, session: Session, route: Optional[str], report: Report) -> None:
     """07 section 9.9: the ``assembly.json`` rules, guarded one at a time."""
-    if _draft_skip_reason(
+    poly_partial = (route in (POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE) and isinstance(record.doc, dict)
+                    and record.doc.get("status") == "draft" and not _empty_assembly_draft(record.doc))
+    if not poly_partial and _draft_skip_reason(
         record,
         ASSEMBLY_DRAFT_RULES,
         session,
@@ -11421,19 +11816,32 @@ def check_assembly_rules(record: LoadedFile, session: Session, report: Report) -
         return
 
     tols = _p5_tolerances(record, session)
-    guard("G-71", record.label, report, _g71_component_resolution, record, session)
-    guard("G-72", record.label, report, _g72_source_row_join, record, session)
-    guard("G-73", record.label, report, _g73_placement_geometry, record, session, tols)
-    guard("G-74", record.label, report, _g74_node_names, record)
-    guard("G-75", record.label, report, _g75_layer_map, record, session)
-    guard("G-76", record.label, report, _g76_cut_host, record, session, tols)
-    guard("G-77", record.label, report, _g77_opening_bijection, record, session, tols)
+    if route == LEGACY_WALL_ROUTE:
+        guard("G-71", record.label, report, _g71_component_resolution, record, session)
+        guard("G-72", record.label, report, _g72_source_row_join, record, session)
+        guard("G-73", record.label, report, _g73_placement_geometry, record, session, tols)
+        guard("G-74", record.label, report, _g74_node_names, record)
+        guard("G-75", record.label, report, _g75_layer_map, record, session)
+    else:
+        report.skip("G-71", record.label, "legacy-only P5 table rule; v2 placements resolve from opening manifest")
+        report.skip("G-72", record.label, "legacy-only P5 table rule; v2 placements resolve from opening manifest")
+        report.skip("G-73", record.label, "legacy-only P5 table rule; v2 placements resolve from opening manifest")
+        guard("G-74", record.label, report, _g74_node_names, record)
+        report.skip("G-75", record.label, "legacy-only layer_map component join; v2 placements derive from opening manifest")
+    legacy_rules = ("G-76", "G-77", "G-82", "G-83")
+    if route == LEGACY_WALL_ROUTE:
+        guard("G-76", record.label, report, _g76_cut_host, record, session, tols)
+        guard("G-77", record.label, report, _g77_opening_bijection, record, session, tols)
+    else:
+        for rule in legacy_rules:
+            report.skip(rule, record.label, "legacy-only wall rule; poly route or invalid route (G-92)")
     guard("G-78", record.label, report, _g78_scatter, record, session)
     guard("G-79", record.label, report, _g79_no_layer_code, record)
     guard("G-80", record.label, report, _g80_emitted_census, record)
     guard("G-81", record.label, report, _g81_bounded_stack, record)
-    guard("G-82", record.label, report, _g82_wall_tiling_volume, record, session, tols)
-    guard("G-83", record.label, report, _g83_wall_cell_thickness, record, session, tols)
+    if route == LEGACY_WALL_ROUTE:
+        guard("G-82", record.label, report, _g82_wall_tiling, record, session, tols)
+        guard("G-83", record.label, report, _g83_wall_cell_thickness, record, session, tols)
 
 
 # ---- shared assembly readers ------------------------------------------------- #
@@ -11891,6 +12299,14 @@ def _g75_layer_map(record: LoadedFile, session: Session, report: Report) -> None
             where = f"{location}::{table}[{entry.get('id')}]"
             layer = entry.get("layer")
             role = role_of(entry)
+            if role is None and entry.get("kind"):
+                kind_raw = str(entry.get("kind"))
+                if kind_raw == "door":
+                    role = "entrance_door"
+                elif kind_raw == "window":
+                    role = "glazed_panel"
+                elif kind_raw in ("entrance_door", "glazed_panel", "frame_member", "opaque_panel"):
+                    role = kind_raw
             if role is None:
                 report.fail(
                     "G-75",
@@ -12602,16 +13018,79 @@ def box_endpoint_budget_cm3(w: float, h: float, t: float, linear_cm: float) -> f
     return max(upper_diff, lower_diff)
 
 
+def _g82_wall_tiling(
+    record: LoadedFile, session: Session, tols: P5Tolerances, report: Report
+) -> None:
+    """Require both the historical volume budget and an independent spatial oracle.
+
+    An inconclusive small discrepancy remains REVIEW: it is not a spatial PASS.
+    Lint warns and skips this gate; a build refuses it.  The old volume budget is
+    retained and still evaluated independently; no new tolerance is invented.
+    """
+    # In-memory callers can bypass strict_json_loads. The old volume half of
+    # G-82 converts values to floats and cannot safely evaluate arbitrarily
+    # large integers even when the separate spatial oracle accepts Fractions.
+    massing, dimensions = session.by_name("massing"), session.dimensions
+    stack = [record.doc, massing.doc if massing else None, dimensions.doc if dimensions else None]
+    while stack:
+        value = stack.pop()
+        if isinstance(value, dict):
+            stack.extend(value.values())
+        elif isinstance(value, list):
+            stack.extend(value)
+        elif isinstance(value, (int, float)) and not isinstance(value, bool):
+            if abs(value) > MAX_SAFE_JSON_INTEGER:
+                report.fail("G-82", record.label,
+                            "numeric input exceeds the safe range of the historical volume check; coverage was not accepted")
+                return
+    volume = Report()
+    _g82_wall_tiling_volume(record, session, tols, volume)
+    volume_rows = [f for f in volume.findings if f.rule == "G-82"]
+    for finding in volume_rows:
+        if finding.severity != STATUS_PASS:
+            report.add(finding.rule, finding.severity, finding.location, finding.detail, finding.tolerance)
+
+    if massing is None or dimensions is None or not massing.ok or not dimensions.ok:
+        report.skip("G-82", record.label, "spatial wall coverage cannot be evaluated without readable massing and dimensions")
+        return
+    spatial = check_wall_cell_coverage(record.doc, massing.doc, dimensions.doc)
+    if spatial.status == "FAIL":
+        for finding in spatial.findings:
+            if finding.get("severity") == "ERROR":
+                report.fail("G-82", record.label, "spatial coverage " + str(finding))
+        return
+    if spatial.status == "REVIEW":
+        details = "; ".join(str(finding) for finding in spatial.findings)
+        if session.build_gate:
+            report.fail("G-82", record.label, "spatial coverage requires review; build refused: " + details)
+        else:
+            report.warn("G-82", record.label, "spatial coverage requires review: " + details)
+            report.skip("G-82", record.label, "nonzero spatial discrepancies were not accepted as coverage")
+        return
+    if spatial.status != "PASS" or not any(f.severity == STATUS_PASS for f in volume_rows):
+        if not volume_rows:
+            report.skip("G-82", record.label, "no evaluable legacy wall-cell volume or spatial coverage")
+        elif spatial.status != "PASS":
+            report.skip("G-82", record.label, "spatial wall coverage is not applicable; no spatial PASS")
+        return
+    if any(f.severity != STATUS_PASS for f in volume_rows):
+        return
+    report.ok("G-82", record.label,
+              f"legacy host/cell volume identity is within its existing budget and independent "
+              f"3D coverage passed for {len(spatial.checked_hosts)} cut host(s); not a live-scene measurement")
+
+
 def _g82_wall_tiling_volume(
     record: LoadedFile, session: Session, tols: P5Tolerances, report: Report
 ) -> None:
-    """G-82. The cells must tile each host exactly: cells == host minus openings.
+    """The historical G-82 aggregate volume-budget subcheck, not a coverage proof.
 
     This is the rule that replaces "the boolean committed". A Boolean modifier that removed
     nothing left the wall's volume untouched and the build reported success -- measured
     2026-10-05, where the old census read ``cut_count=16`` with an empty modifier stack. A
-    volume identity cannot be satisfied by a cut that did not happen, so it is the check
-    that would have caught it.
+    volume identity can detect some missing cuts, but its aggregate error budget can also
+    hide missing cells and compensating gaps/overlaps. The caller must require spatial
+    coverage separately before reporting a G-82 PASS.
     """
     linear = tols.linear
     cells = _wall_cells(record, report)
@@ -12736,7 +13215,7 @@ def _g82_wall_tiling_volume(
         report.ok(
             "G-82",
             record.label,
-            f"{len(cells)} cell(s) across {len(by_host)} host(s) tile wall-minus-openings exactly",
+            f"{len(cells)} cell(s) across {len(by_host)} host(s) satisfy the aggregate volume identity within its budget",
         )
 
 
@@ -12811,6 +13290,1212 @@ def _g83_wall_cell_thickness(
             record.label,
             f"{checked} cell(s) each carry their wall's full thickness",
         )
+
+
+# --------------------------------------------------------------------------- #
+# Phase 16 P2: data-only straight wall declaration. No scene or emitter claims.
+# --------------------------------------------------------------------------- #
+
+WALL_BLOCK_KEYS = frozenset({"id", "z_range_cm"})
+WALL_RUN_KEYS = frozenset({"id", "block_id", "contour_ref", "start_cm", "end_cm", "outward",
+                           "thickness_cm", "base_z_cm", "top_z_cm", "topology_budget"})
+WALL_OPENING_KEYS = frozenset({"id", "wall_run_id", "kind", "u_range_cm", "sill_cm", "head_cm"})
+WALL_BUDGET_KEYS = frozenset({"max_grid_polygons", "max_base_active_polygons", "max_evaluated_triangles"})
+# Explicit defensive ceilings, not construction tolerances or inferred defaults.
+# The contract must be reconciled with these conservative P2 limits before release.
+WALL_LINEAR_EPSILON_MAX_CM = 1e-2
+WALL_UNIT_EPSILON_MAX = 1e-3
+# S1 through S4 inputs only. Assembly and QA are downstream, ledgers are not
+# geometric source specs, and reserved stubs cannot establish provenance.
+WALL_UPSTREAM_SPECS = ("dimensions", "massing", "nurbs", "facade_grids", "components_registry")
+# Bare provenance paths do not carry a file qualifier. Resolve them by this
+# explicit, stable namespace, never by whichever loaded file happens to match.
+# In particular `facades` belongs to dimensions, the contour authority in P2.
+# Ambiguous `defaults` is deliberately unsupported, not guessed.
+WALL_UPSTREAM_ROOTS = {
+    "dimensions": ("building", "site", "structure", "levels", "core", "floor_plates",
+                   "roof", "facades", "openings", "form_references", "precision_targets",
+                   "raw_source_values", "tolerances"),
+    "massing": ("storeys", "elements", "site_pad", "grouping"),
+    "nurbs": ("sections", "surfaces", "derivatives"),
+    "facade_grids": ("axes", "panels", "panel_types"),
+    "components_registry": ("component_types", "components", "families"),
+}
+
+
+def _wall_number(value: Any) -> Optional[float]:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    try:
+        result = float(value)
+    except (ValueError, OverflowError):
+        return None
+    return result if math.isfinite(result) else None
+
+
+def _wall_pair(value: Any) -> Optional[tuple[float, float]]:
+    if not isinstance(value, list) or len(value) != 2:
+        return None
+    a, b = _wall_number(value[0]), _wall_number(value[1])
+    return (a, b) if a is not None and b is not None else None
+
+
+def _wall_path(path: Any, document: Any) -> bool:
+    """G-9's permissive parser is not a licence for empty or malformed paths."""
+    if not isinstance(path, str) or not path:
+        return False
+    tokens = split_path(path)
+    return bool(tokens) and isinstance(tokens[0], str) and path_of(tokens) == path and resolve(document, path)[0]
+
+
+def _wall_paths_overlap(left: str, right: str) -> bool:
+    """Token-prefix relation, including array elements, never string-prefix guesses."""
+    a, b = split_path(left), split_path(right)
+    return bool(a and b) and (a[:len(b)] == b or b[:len(a)] == a)
+
+
+def _wall_checked_ledger(session: Session, origin: str, project: Any,
+                         report: Report) -> Optional[str]:
+    """An origin ledger is usable only after its envelope and own checks pass."""
+    ledger = session.assumptions if origin == "assumed" else session.conflicts
+    name = "assumptions" if origin == "assumed" else "conflicts_resolved"
+    copies = [r for r in session.files if not r.recipe and r.path.stem == name]
+    if (ledger is None or len(copies) != 1 or not isinstance(ledger.doc, dict)
+            or ledger.doc.get("status") != "locked" or ledger.doc.get("project") != project
+            or any(severity == STATUS_FAIL for severity, _ in ledger.hygiene)):
+        return f"requires one readable locked {name}.json in the same project"
+    checks = ("G-1", "G-2", "G-3", "G-4", "G-5", "G-6", "G-7", "G-11", "G-12", "G-13",
+              "G-15" if origin == "assumed" else "G-14")
+    relevant = [f for f in report.findings if f.rule in checks and
+                (f.location == ledger.label or f.location.startswith(ledger.label + "::"))]
+    # G-31's ledger cross-reference checks run before wall provenance. They are
+    # not included in `checks`, because G-31 has a global PASS, not one per ledger.
+    cross_failures = [f for f in report.findings if f.rule == "G-31" and
+                      f.severity == STATUS_FAIL and
+                      (f.location == ledger.label or f.location.startswith(ledger.label + "::"))]
+    if (cross_failures or any(f.severity == STATUS_FAIL for f in relevant) or
+            any(not any(f.rule == rule and f.severity == STATUS_PASS for f in relevant)
+                for rule in checks)):
+        return f"{name}.json envelope, G-11..15 or G-31 ledger checks failed or are incomplete"
+    return None
+
+
+def _wall_upstream(record: LoadedFile, session: Session,
+                   report: Optional[Report] = None) -> list[LoadedFile]:
+    """Known, locked upstream inputs; reject files whose own checks have failed."""
+    result = []
+    dimensions = session.dimensions
+    for name in WALL_UPSTREAM_SPECS:
+        matches = [r for r in session.files if r.name == name and not r.recipe]
+        if len(matches) != 1:
+            continue
+        other = matches[0]
+        doc = other.doc
+        # Upstream provenance can itself depend on dimensions' assumption or
+        # conflict ledgers. Their own verified gates must be complete first.
+        needed: set[str] = set()
+        for dependency in (dimensions, other):
+            source_doc = dependency.doc if dependency is not None else None
+            origins = source_doc.get("origins") if isinstance(source_doc, dict) else None
+            if not isinstance(origins, dict):
+                continue
+            for entry in origins.values():
+                if not isinstance(entry, dict):
+                    continue
+                if entry.get("origin") in ("assumed", "conflict"):
+                    needed.add(entry["origin"])
+                if entry.get("conflict_ref") is not None:
+                    needed.add("conflict")
+        ledgers_ok = (report is None or all(
+            _wall_checked_ledger(session, kind, record.doc.get("project"), report) is None
+            for kind in needed))
+        if (other.ok and not any(severity == STATUS_FAIL for severity, _ in other.hygiene)
+                and other.spec is not None and other.spec.state == "defined"
+                and isinstance(doc, dict) and doc.get("spec") == name
+                and doc.get("status") == "locked" and doc.get("project") == record.doc.get("project")
+                and doc.get("schema_version") in SUPPORTED_SCHEMA_VERSIONS
+                and doc.get("units") == {"length": "cm", "angle": "deg"}
+                and ledgers_ok
+                and (report is None or not any(
+                    f.severity == STATUS_FAIL and
+                    (f.location == other.label or f.location.startswith(other.label + "::"))
+                    for f in report.findings))):
+            result.append(other)
+    return result
+
+
+def _wall_source(path: Any, upstream: Sequence[LoadedFile]) -> Optional[LoadedFile]:
+    """Resolve a bare path in its one declared upstream owner, with no fallback."""
+    if not isinstance(path, str):
+        return None
+    tokens = split_path(path)
+    if not tokens or path_of(tokens) != path:
+        return None
+    owners = [name for name, roots in WALL_UPSTREAM_ROOTS.items() if tokens[0] in roots]
+    if len(owners) != 1:
+        return None
+    matches = [r for r in upstream if r.name == owners[0]]
+    if len(matches) != 1 or not _wall_path(path, matches[0].doc):
+        return None
+    return matches[0]
+
+
+# Actual stage directions, not a search through every loaded file. Local
+# derives_from paths are permitted; origin_inputs are strictly cross-file.
+WALL_TRACE_UPSTREAM = {
+    "dimensions": (),
+    "massing": ("dimensions",),
+    "nurbs": ("dimensions", "massing"),
+    "facade_grids": ("dimensions", "massing"),
+    "components_registry": ("dimensions", "facade_grids"),
+}
+
+
+def _wall_trace_ledger(path: str, value: dict, record: LoadedFile,
+                       session: Session, report: Report) -> Optional[str]:
+    """Bind an upstream origin to its actual ledger owner, claims and value.
+
+    A conflict can list several consequences with a different primary path and
+    value (e.g. C-003); the primary value must match its own target, not each
+    consequence. The named conflict must nonetheless claim this origin path.
+    """
+    origin, ref = value.get("origin"), value.get("origin_ref")
+    prefix = "A" if origin == "assumed" else "C"
+    if not isinstance(ref, str) or not LEDGER_ID_RE.fullmatch(ref) or not ref.startswith(prefix + "-"):
+        return f"{record.name}.json::{path} has invalid {origin} origin_ref {ref!r}"
+    reason = _wall_checked_ledger(session, origin, record.doc.get("project"), report)
+    if reason:
+        return reason
+    ledger = session.assumptions if origin == "assumed" else session.conflicts
+    key = "assumptions" if origin == "assumed" else "conflicts"
+    entries = ledger.doc.get(key)
+    matches = [e for e in entries if isinstance(e, dict) and e.get("id") == ref] if isinstance(entries, list) else []
+    if len(matches) != 1:
+        return f"{ref} must identify exactly one {key} entry"
+    item = matches[0]
+    resolution = item if origin == "assumed" else item.get("resolution")
+    if not isinstance(resolution, dict):
+        return f"{ref} has no resolution"
+    primary = resolution.get("field_path" if origin == "assumed" else "resulting_value_of")
+    value_key = "value" if origin == "assumed" else "chosen_value"
+    claims = [primary] if origin == "assumed" else resolution.get("resolved_paths")
+    target = resolve_ledger_path(primary, session)
+    target_path = primary.partition(":")[2].strip() if isinstance(primary, str) and ":" in primary else primary
+    target_record = session.by_name(target.owner)
+    if (not target.found or target_record is None or not _wall_path(target_path, target_record.doc)
+            or value_key not in resolution or not deep_equal(resolution[value_key], target.value)):
+        return f"{ref} primary owner, path or ledger value is invalid"
+    if not isinstance(claims, list) or not claims:
+        return f"{ref} has no claimed paths"
+    owned_claims: list[str] = []
+    for claim in claims:
+        resolved = resolve_ledger_path(claim, session)
+        subpath = claim.partition(":")[2].strip() if isinstance(claim, str) and ":" in claim else claim
+        if resolved.found and resolved.owner == record.name and _wall_path(subpath, record.doc):
+            owned_claims.append(subpath)
+    if any(covers(claim, path) for claim in owned_claims):
+        return None
+    leaves = [leaf for leaf in collect_leaves(record.doc, record.spec)
+              if _wall_paths_overlap(path, leaf)]
+    if leaves and all(any(covers(claim, leaf) for claim in owned_claims) for leaf in leaves):
+        return None
+    return f"{ref} does not cover {record.name}.json::{path} with its claimed paths"
+
+
+def _wall_trace_source(path: str, owner: LoadedFile, wall: LoadedFile,
+                       session: Session, report: Report) -> Optional[str]:
+    """Check the declared transitive provenance graph, not the source's truth.
+
+    origin_inputs belong to their stage as a whole. Each reached origin entry
+    contributes edges to its resolved local or permitted upstream inputs. Cycles
+    and incomplete coverage are not evidence; this leaves formulas and physical
+    direction to their independent gates. No historical file is rewritten.
+    """
+    cache_key = (owner.name, path)
+    if cache_key in session.wall_provenance_cache:
+        return session.wall_provenance_cache[cache_key]
+    eligible = {r.name: r for r in _wall_upstream(wall, session, report)}
+    graph: dict[tuple[str, str], set[tuple[str, str]]] = {}
+    pending: list[tuple[str, str]] = []
+    indexes: dict[str, tuple[dict, list[str]]] = {}
+    annotations: list[tuple[tuple[str, str], str]] = []
+    incomplete: set[str] = set()
+
+    def entries_for(host: LoadedFile, source: Any) -> tuple[list[tuple[str, str]], Optional[str]]:
+        if not _wall_path(source, host.doc):
+            return [], f"{host.name}.json path {source!r} is malformed or missing"
+        tokens = split_path(source)
+        # IDs and metadata have no G-9 origin; they still must resolve.
+        if tokens[0] in COVERAGE_EXEMPT_TOP or (isinstance(tokens[-1], str) and
+                                                   is_origin_exempt_key(tokens[-1])):
+            return [], None
+        if host.name not in indexes:
+            origins = host.doc.get("origins")
+            if not isinstance(origins, dict):
+                return [], f"{host.name}.json has no origins map"
+            indexes[host.name] = (origins, collect_leaves(host.doc, host.spec))
+        origins, leaves = indexes[host.name]
+        selected = [leaf for leaf in leaves if _wall_paths_overlap(source, leaf)]
+        matches = [entry for entry in origins if isinstance(entry, str) and _wall_paths_overlap(source, entry)]
+        for leaf in selected:
+            covering = [entry for entry in matches if covers(entry, leaf)]
+            if len(covering) != 1:
+                return [], f"{host.name}.json::{leaf} has {len(covering)} origin entries, expected exactly one"
+        if not matches and selected:
+            return [], f"{host.name}.json::{source} lacks origin coverage"
+        return [(host.name, entry) for entry in matches], None
+
+    def cross_host(reader: LoadedFile, source: Any) -> tuple[Optional[LoadedFile], Optional[str]]:
+        allowed = WALL_TRACE_UPSTREAM[reader.name]
+        # Use the same closed root ownership as the wall, including ambiguity
+        # rejection; never accept a downstream match just because it exists.
+        selected = _wall_source(source, [r for r in eligible.values() if r.name in allowed])
+        if selected is None:
+            return None, f"{reader.name}.json upstream path {source!r} does not resolve in an eligible directed source"
+        return selected, None
+
+    def add_path(host: LoadedFile, source: Any, edges: set[tuple[str, str]]) -> Optional[str]:
+        if host.name not in eligible:
+            return f"{host.name}.json is unavailable, invalid, ambiguous or not locked"
+        nodes, reason = entries_for(host, source)
+        if reason:
+            return reason
+        edges.update(nodes)
+        # Even a metadata-only input requires the supplying file and its own
+        # declared upstream inputs to be eligible.
+        edges.add((host.name, "<origin_inputs>"))
+        pending.extend(nodes)
+        pending.append((host.name, "<origin_inputs>"))
+        return None
+
+    roots: set[tuple[str, str]] = set()
+    reason = add_path(owner, path, roots)
+    while pending and reason is None:
+        name, entry = pending.pop()
+        node = (name, entry)
+        if node in graph:
+            continue
+        graph[node] = set()
+        host = eligible[name]
+        if entry == "<origin_inputs>":
+            inputs = host.doc.get("origin_inputs", [] if name == "dimensions" else None)
+            if not isinstance(inputs, list):
+                reason = f"{name}.json::origin_inputs must be an array"
+                break
+            for source in inputs:
+                selected, reason = cross_host(host, source)
+                if reason is None:
+                    reason = add_path(selected, source, graph[node])
+                if reason:
+                    break
+            continue
+        obj = host.doc["origins"].get(entry)
+        if not _wall_path(entry, host.doc) or not isinstance(obj, dict):
+            reason = f"{name}.json::{entry} has a malformed origin path or entry"
+            break
+        origin = obj.get("origin")
+        if not isinstance(origin, str) or origin not in ORIGIN_VALUES:
+            reason = f"{name}.json::{entry} has invalid origin {origin!r}"
+            break
+        if origin in ("assumed", "conflict"):
+            reason = _wall_trace_ledger(entry, obj, host, session, report)
+        elif obj.get("origin_ref") is not None:
+            reason = f"{name}.json::{entry} forbids origin_ref for {origin}"
+        conflict_ref = obj.get("conflict_ref")
+        if reason is None and conflict_ref is not None:
+            if origin != "derived":
+                reason = (f"{name}.json::{entry} conflict_ref annotates conflict-resolved derived inputs; "
+                          f"it cannot establish linkage for origin={origin!r}")
+            elif not isinstance(conflict_ref, str) or conflict_ref not in _ledger_ids(session.conflicts, "conflicts", "C"):
+                reason = f"{name}.json::{entry} has invalid conflict_ref {conflict_ref!r}"
+            else:
+                reason = _wall_checked_ledger(session, "conflict", host.doc.get("project"), report)
+                if reason is None and origin == "derived":
+                    annotations.append((node, conflict_ref))
+        sources = obj.get("derives_from")
+        if reason is None and origin != "derived" and sources is not None:
+            reason = f"{name}.json::{entry} forbids derives_from for {origin}"
+        if reason is None and origin == "derived":
+            unavailable = [f for f in report.findings if f.rule == "G-32" and
+                           f.severity == STATUS_SKIP and f.location == f"{host.label}::{entry}"]
+            if unavailable:
+                incomplete.add(f"{host.label}::{entry}: G-32 recomputation unavailable")
+            if not isinstance(sources, list) or not sources:
+                reason = f"{name}.json::{entry} requires non-empty derives_from"
+            else:
+                for source in sources:
+                    if _wall_path(source, host.doc):
+                        selected = host
+                    else:
+                        selected, reason = cross_host(host, source)
+                    if reason is None:
+                        # Local sources need not depend on the synthetic
+                        # origin_inputs node again: the origin node already does.
+                        nodes, reason = entries_for(selected, source)
+                        if reason is None:
+                            graph[node].update(nodes)
+                            pending.extend(nodes)
+                            if selected is not host:
+                                graph[node].add((selected.name, "<origin_inputs>"))
+                                pending.append((selected.name, "<origin_inputs>"))
+                    if reason:
+                        reason = f"{name}.json::{entry} derives_from: {reason}"
+                        break
+        graph[node].add((name, "<origin_inputs>"))
+        pending.append((name, "<origin_inputs>"))
+
+    if reason is None:
+        remaining = dict(graph)
+        while remaining:
+            ready = [node for node, edges in remaining.items() if not edges.intersection(remaining)]
+            if not ready:
+                sample = ", ".join(f"{n}.json::{p}" for n, p in sorted(remaining)[:5])
+                reason = f"cyclic transitive provenance involving {sample}"
+                break
+            for node in ready:
+                del remaining[node]
+    if reason is None:
+        for node, conflict_ref in annotations:
+            # origin_inputs are stage-level declarations, not necessarily inputs
+            # of this derived value. They cannot prove this optional annotation.
+            todo = list(graph[node])
+            visited: set[tuple[str, str]] = set()
+            matched = False
+            while todo:
+                dependency = todo.pop()
+                if dependency in visited or dependency[1] == "<origin_inputs>":
+                    continue
+                visited.add(dependency)
+                source = eligible[dependency[0]].doc["origins"][dependency[1]]
+                if source.get("origin") == "conflict" and source.get("origin_ref") == conflict_ref:
+                    matched = True
+                    break
+                todo.extend(graph.get(dependency, ()))
+            if not matched:
+                reason = (f"{node[0]}.json::{node[1]} conflict_ref {conflict_ref} is not bound "
+                          "to any declared transitive conflict-resolved input")
+                break
+    session.wall_provenance_cache[cache_key] = reason
+    session.wall_provenance_incomplete[cache_key] = tuple(sorted(incomplete)) if reason is None else ()
+    return reason
+
+
+def _wall_checked_source(path: Any, wall: LoadedFile, session: Session,
+                         report: Report) -> tuple[Optional[LoadedFile], Optional[str]]:
+    selected = _wall_source(path, _wall_upstream(wall, session, report))
+    if selected is None:
+        return None, f"path {path!r} does not resolve in its uniquely selected eligible locked upstream spec"
+    reason = _wall_trace_source(path, selected, wall, session, report)
+    return (None, reason) if reason else (selected, None)
+
+
+def _wall_ledger_binding(path: str, origin: str, ref: Any, record: LoadedFile,
+                         session: Session, report: Optional[Report] = None) -> Optional[str]:
+    """Bind the *named* ledger entry to this wall owner, target and chosen value."""
+    ledger = session.assumptions if origin == "assumed" else session.conflicts
+    key, prefix = ("assumptions", "A") if origin == "assumed" else ("conflicts", "C")
+    if not isinstance(ref, str) or not LEDGER_ID_RE.fullmatch(ref) or not ref.startswith(prefix + "-"):
+        return f"{origin} requires a well-formed {prefix}-nnn origin_ref"
+    if ledger is None or not isinstance(ledger.doc, dict):
+        return f"{ref} ledger is unavailable"
+    copies = [r for r in session.files if not r.recipe and r.path.stem == ledger.path.stem]
+    if len(copies) != 1 or ledger.doc.get("status") != "locked":
+        return f"{ref} requires one unambiguous locked {ledger.path.name}"
+    if any(severity == STATUS_FAIL for severity, _ in ledger.hygiene):
+        return f"{ref} ledger failed file hygiene"
+    if report is not None:
+        reason = _wall_checked_ledger(session, origin, record.doc.get("project"), report)
+        if reason:
+            return f"{ref} {reason}"
+    entries = ledger.doc.get(key)
+    matches = [e for e in entries if isinstance(e, dict) and e.get("id") == ref] if isinstance(entries, list) else []
+    if len(matches) != 1 or ledger.doc.get("project") != record.doc.get("project"):
+        return f"{ref} must identify exactly one entry in the same project's {key} ledger"
+    entry = matches[0]
+    if origin == "assumed":
+        primary = entry.get("field_path")
+        claims = [primary]
+        has_value = "value" in entry
+        ledger_value = entry.get("value")
+    else:
+        resolution = entry.get("resolution")
+        if not isinstance(resolution, dict):
+            return f"{ref} has no resolution object"
+        primary = resolution.get("resulting_value_of")
+        claims = resolution.get("resolved_paths")
+        has_value = "chosen_value" in resolution
+        ledger_value = resolution.get("chosen_value")
+    if not isinstance(primary, str) or not isinstance(claims, list) or not claims or not has_value:
+        return f"{ref} lacks its primary path, claimed paths or ledger value"
+    resolved = resolve_ledger_path(primary, session)
+    subpath = primary.partition(":")[2].strip() if ":" in primary else primary
+    if (not resolved.found or resolved.owner != "walls" or not _wall_path(subpath, record.doc)
+            or not _wall_paths_overlap(path, subpath)):
+        return f"{ref} primary path must resolve in walls.json and overlap {path!r}"
+    if not deep_equal(ledger_value, resolved.value):
+        return f"{ref} ledger value does not equal its wall target {subpath!r}"
+    claimed_paths = []
+    for claim in claims:
+        if not isinstance(claim, str):
+            return f"{ref} has a non-string ledger claim"
+        target = resolve_ledger_path(claim, session)
+        claim_path = claim.partition(":")[2].strip() if ":" in claim else claim
+        if target.found and target.owner == "walls" and _wall_path(claim_path, record.doc):
+            claimed_paths.append(claim_path)
+    # An element-level origin asserts all of its leaves share this provenance.
+    # A single unrelated/partial descendant cannot establish that assertion.
+    leaves = [leaf for leaf in collect_leaves(record.doc, record.spec) if _wall_paths_overlap(path, leaf)]
+    targets = leaves or [path]
+    if any(not any(split_path(leaf)[:len(split_path(claim))] == split_path(claim)
+                   for claim in claimed_paths) for leaf in targets):
+        return f"{ref} does not cover every wall leaf claimed by {path!r}"
+    return None
+
+
+def _wall_origins(record: LoadedFile, session: Session, report: Report) -> int:
+    doc = record.doc
+    location = record.label
+    errors = 0
+    origins = doc.get("origins")
+    inputs = doc.get("origin_inputs")
+    selected_sources: set[str] = set()
+    incomplete_sources: set[str] = set()
+    if not isinstance(inputs, list):
+        report.fail("G-93", f"{location}::origin_inputs", "must be an array of resolving dotted paths")
+        errors += 1
+    else:
+        for item in inputs:
+            selected, reason = _wall_checked_source(item, record, session, report)
+            if selected is None:
+                report.fail("G-93", f"{location}::origin_inputs", f"path {item!r} has incomplete upstream provenance: {reason}; unknown or ambiguous roots are unsupported")
+                errors += 1
+            else:
+                selected_sources.add(f"{item} -> {selected.name}.json")
+                incomplete_sources.update(session.wall_provenance_incomplete.get((selected.name, item), ()))
+    if not isinstance(origins, dict):
+        report.fail("G-93", f"{location}::origins", "must be a flat path-to-origin object")
+        return errors + 1
+    if doc.get("status") == "draft":
+        # A draft need not be fully covered yet, but overlapping claims are never valid.
+        for leaf in collect_leaves(doc, record.spec):
+            claims = [path for path in origins if covers(path, leaf)]
+            if len(claims) > 1:
+                report.fail("G-9", f"{location}::{leaf}", f"overlapping origin entries: {claims}")
+                errors += 1
+        report.skip("G-9", location, "draft wall provenance is incomplete; present entries are checked")
+    else:
+        count, leaves, entries = _check_origins_coverage(doc, record.spec, location, report, "G-9")
+        errors += count
+    coverage_errors = errors
+    dependencies: dict[str, set[str]] = {path: set() for path in origins}
+    unverified_annotations = False
+    c_ids = _ledger_ids(session.conflicts, "conflicts", "C")
+    for path, value in origins.items():
+        where = f"{location}::{path}"
+        if not _wall_path(path, doc):
+            report.fail("G-9", where, "origin path is malformed or does not resolve")
+            errors += 1
+        if path.split(".")[0].split("[")[0] in COVERAGE_EXEMPT_TOP:
+            report.fail("G-9", where, "origin entry may not annotate envelope, tolerances, origins or origin_inputs")
+            errors += 1
+        if not isinstance(value, dict):
+            report.fail("G-10", where, "origin entry must be an object")
+            errors += 1
+            continue
+        extra = set(value) - {"origin", "origin_ref", "derives_from", "conflict_ref"}
+        if extra:
+            report.fail("G-93", where, f"unknown origin fields: {sorted(extra)}")
+            errors += 1
+        origin = value.get("origin")
+        if not isinstance(origin, str) or origin not in ORIGIN_VALUES:
+            report.fail("G-10", where, f"invalid origin {origin!r}")
+            errors += 1
+            continue
+        ref = value.get("origin_ref")
+        if origin in ("assumed", "conflict"):
+            reason = _wall_ledger_binding(path, origin, ref, record, session, report)
+            if reason:
+                report.fail("G-10", where, reason)
+                errors += 1
+        elif ref is not None:
+            report.fail("G-10", where, f"{origin} forbids origin_ref")
+            errors += 1
+        sources = value.get("derives_from")
+        if origin == "derived":
+            if not isinstance(sources, list) or not sources:
+                report.fail("G-10", where, "derived requires a non-empty derives_from array")
+                errors += 1
+            else:
+                for source in sources:
+                    if _wall_path(source, doc):
+                        if split_path(source)[0] in COVERAGE_EXEMPT_TOP:
+                            report.fail("G-10", where, f"derives_from {source!r} names wall metadata, not a sourced value")
+                            errors += 1
+                            continue
+                        source_leaves = [leaf for leaf in collect_leaves(doc, record.spec)
+                                         if _wall_paths_overlap(source, leaf)]
+                        if not source_leaves or any(not any(covers(p, leaf) for p in origins)
+                                                    for leaf in source_leaves):
+                            report.fail("G-10", where, f"local derives_from {source!r} lacks complete wall origin coverage")
+                            errors += 1
+                        dependencies[path].update(p for p in origins if _wall_paths_overlap(p, source))
+                        selected_sources.add(f"{source} -> walls.json (local)")
+                    else:
+                        selected, reason = _wall_checked_source(source, record, session, report)
+                        if selected is None:
+                            report.fail("G-10", where, f"derives_from path {source!r} has incomplete upstream provenance: {reason}")
+                            errors += 1
+                        else:
+                            selected_sources.add(f"{source} -> {selected.name}.json")
+                            incomplete_sources.update(session.wall_provenance_incomplete.get((selected.name, source), ()))
+                report.skip("G-32", where, "wall-derived formula is not specified; dependency paths do not prove recomputation")
+        elif sources is not None:
+            report.fail("G-10", where, f"{origin} forbids derives_from")
+            errors += 1
+        conflict_ref = value.get("conflict_ref")
+        if conflict_ref is not None and (not isinstance(conflict_ref, str) or conflict_ref not in c_ids):
+            report.fail("G-10", where, f"conflict_ref {conflict_ref!r} does not resolve")
+            errors += 1
+        elif conflict_ref is not None:
+            reason = ("conflict_ref annotates conflict-resolved derived inputs, not " + origin
+                      if origin != "derived" else
+                      _wall_checked_ledger(session, "conflict", doc.get("project"), report))
+            if reason:
+                report.fail("G-10", where, f"conflict_ref {conflict_ref!r}: {reason}")
+                errors += 1
+            elif origin == "derived":
+                # Upstream annotations are traced below _wall_trace_source;
+                # for a wall's own local graph, existence is not proof that the
+                # annotation names one of that derived value's inputs.
+                report.skip("G-10", where, "informational wall conflict_ref exists, but its input linkage was not verified")
+                unverified_annotations = True
+    # Iterative graph elimination avoids recursion limits on large provenance maps.
+    remaining = {path: set(edges) for path, edges in dependencies.items()}
+    while remaining:
+        ready = {path for path, edges in remaining.items() if not edges.intersection(remaining)}
+        if not ready:
+            report.fail("G-10", location, f"cyclic or self-referential wall derives_from: {', '.join(sorted(remaining))}")
+            errors += 1
+            break
+        for path in ready:
+            del remaining[path]
+    if doc.get("status") != "draft" and not coverage_errors and not any(
+            f.rule == "G-9" and f.severity == STATUS_FAIL and
+            (f.location == location or f.location.startswith(location + "::")) for f in report.findings):
+        report.ok("G-9", location, f"{leaves} leaves, {entries} entries, exactly-one coverage")
+    dimensions = session.dimensions
+    dimensions_ready = dimensions is not None and any(
+        source is dimensions for source in _wall_upstream(record, session, report))
+    if incomplete_sources:
+        detail = "reached upstream derived input is incomplete: " + "; ".join(sorted(incomplete_sources))
+        report.skip("G-10", location, detail)
+        if session.build_gate:
+            report.fail("G-93", location + "::origin_inputs", detail + "; build must refuse unverified recomputation")
+            errors += 1
+    if not errors and doc.get("status") != "draft" and dimensions_ready and not unverified_annotations and not incomplete_sources:
+        sources_note = "; ".join(sorted(selected_sources)) if selected_sources else "none"
+        report.ok("G-10", location, "wall origin pairings, ledger target/value and acyclic paths checked; selected upstream: " + sources_note + "; declarations do not prove the inputs were actually read")
+    elif doc.get("status") == "draft":
+        report.skip("G-10", location, "draft provenance checked where present; coverage remains incomplete")
+    elif not errors and unverified_annotations:
+        report.skip("G-10", location, "informational wall conflict_ref input linkage is unverified")
+    elif not errors and not incomplete_sources:
+        report.skip("G-10", location, "required dimensions source or its ledger checks are incomplete")
+    return errors
+
+
+def _wall_contour(ref: Any, session: Session) -> tuple[Optional[dict], str]:
+    if not isinstance(ref, str):
+        return None, "contour_ref must be dimensions.json:facades:<id>"
+    parts = ref.split(":")
+    if len(parts) != 3 or parts[:2] != ["dimensions.json", "facades"] or not parts[2] or parts[2].strip() != parts[2]:
+        return None, "contour_ref must be exactly dimensions.json:facades:<id>"
+    dim = session.dimensions
+    if dim is None or not isinstance(dim.doc, dict) or not isinstance(dim.doc.get("facades"), list):
+        return None, "dimensions.json facades are not available"
+    facades = dim.doc["facades"]
+    if any(not isinstance(item, dict) for item in facades):
+        return None, "dimensions.json facades contains a non-object"
+    hits = [f for f in facades if f.get("id") == parts[2]]
+    if len(hits) != 1:
+        return None, f"contour_ref resolves to {len(hits)} facades, expected exactly one"
+    return hits[0], ""
+
+
+def _check_walls_v2_contract(record: LoadedFile, doc: dict[str, Any], location: str, session: Session, report: Report) -> None:
+    """Validate closed_inner_contour_shell_v2 (schema 2.0) declarations under G-93, G-94, and G-97."""
+    errors = {"G-93": 0, "G-94": 0, "G-97": 0}
+
+    def fail(rule: str, path: str, detail: str) -> None:
+        errors[rule] += 1
+        report.fail(rule, f"{location}::{path}", detail)
+
+    def shape(value: Any, required: frozenset, path: str, rule: str = "G-93") -> bool:
+        if not isinstance(value, dict):
+            fail(rule, path, "must be an object")
+            return False
+        missing, extra = required - set(value), set(value) - required
+        if missing or extra:
+            fail(rule, path, f"closed object: missing {sorted(missing)}, extra {sorted(extra)}")
+        return not missing and not extra
+
+    if doc.get("schema_version") != "2.0":
+        fail("G-93", "schema_version", f"closed_inner_contour_shell_v2 requires schema_version 2.0, found {doc.get('schema_version')!r}")
+    shape(doc.get("units"), frozenset({"length", "angle"}), "units")
+    shape(doc.get("source"), frozenset({"kind", "reference", "recorded_at"}), "source")
+    expected_keys = set(ENVELOPE_ORDER) | set(WALL_V2_BODY_KEYS)
+    if set(doc) != expected_keys:
+        fail("G-93", "(root)", f"closed v2 schema: missing {sorted(expected_keys - set(doc))}, extra {sorted(set(doc) - expected_keys)}")
+
+    tol = doc.get("tolerances")
+    tolerance_keys = frozenset({"linear_cm", "area_m2", "angle_deg"})
+    shape(tol, tolerance_keys, "tolerances")
+    if isinstance(tol, dict):
+        for key in tolerance_keys:
+            n = _wall_number(tol.get(key))
+            if n is None or n < 0:
+                fail("G-93", f"tolerances.{key}", "must be finite and non-negative")
+    dim = session.dimensions
+    if dim is None or not any(r is dim for r in _wall_upstream(record, session, report)):
+        if doc.get("status") == "draft" and not session.build_gate:
+            report.skip("G-93", f"{location}::dimensions.json", "dimensions source is unavailable, invalid, ambiguous or not locked; draft remains incomplete")
+        else:
+            fail("G-93", "dimensions.json", "the required dimensions source is unavailable, invalid, ambiguous or not locked")
+    dim_tol = dim.doc.get("tolerances") if dim and isinstance(dim.doc, dict) else None
+    if not isinstance(dim_tol, dict) or set(dim_tol) != tolerance_keys:
+        fail("G-93", "tolerances", "dimensions.json must supply the three declared tolerances")
+    elif not isinstance(tol, dict) or set(tol) != tolerance_keys or any(
+            _wall_number(tol.get(k)) is None or _wall_number(dim_tol.get(k)) is None or
+            _wall_number(tol.get(k)) != _wall_number(dim_tol.get(k)) for k in tolerance_keys):
+        fail("G-93", "tolerances", "must copy dimensions.json's three finite tolerances exactly")
+
+    draft = doc.get("status") == "draft"
+    face = doc.get("reference_face")
+    if face not in ("inner", "outer") and not (draft and face is None):
+        fail("G-93", "reference_face", "reference_face must be 'inner' or 'outer'; null allowed only in drafts")
+
+    eps: dict[str, Optional[float]] = {}
+    for key in ("numeric_epsilon_cm", "numeric_unit_epsilon"):
+        value = doc.get(key)
+        eps[key] = _wall_number(value)
+        if not (draft and value is None) and (eps[key] is None or eps[key] <= 0):
+            fail("G-93", key, "must be a positive finite number (or null in a draft declaration)")
+            eps[key] = None
+        elif eps[key] is not None and eps[key] > (WALL_LINEAR_EPSILON_MAX_CM if key == "numeric_epsilon_cm" else WALL_UNIT_EPSILON_MAX):
+            maximum = WALL_LINEAR_EPSILON_MAX_CM if key == "numeric_epsilon_cm" else WALL_UNIT_EPSILON_MAX
+            unit = "cm" if key == "numeric_epsilon_cm" else "dimensionless"
+            fail("G-93", key, f"numerical epsilon must be <= {maximum:g} {unit}; it is not a construction tolerance")
+            eps[key] = None
+
+    origin_errors = _wall_origins(record, session, report)
+    if origin_errors:
+        fail("G-93", "origins", f"{origin_errors} provenance error(s); see G-9/G-10/G-93 details")
+
+    storeys = doc.get("storeys")
+    if not isinstance(storeys, list):
+        fail("G-93", "storeys", "must be an array")
+        storeys = []
+    elif not draft and not storeys:
+        fail("G-93", "storeys", "locked v2 requires at least one storey")
+
+    seen_storeys: set[str] = set()
+    total_openings = 0
+    total_budgets = 0
+    if wall_contour_v2 is None:
+        fail("G-93", "walls.json", "wall_contour_v2 module is required for closed_inner_contour_shell_v2 validation")
+        return
+    linear_eps = eps.get("numeric_epsilon_cm") or getattr(wall_contour_v2, "DEFAULT_LINEAR_EPS_CM", 0.001)
+
+    for s_idx, storey in enumerate(storeys):
+        spath = f"storeys[{s_idx}]"
+        if not isinstance(storey, dict):
+            fail("G-93", spath, "must be an object")
+            continue
+        extra_keys = set(storey) - WALL_V2_STOREY_KEYS
+        missing_keys = {"id", "base_z_cm", "top_z_cm", "vertices_cm"} - set(storey)
+        if extra_keys:
+            fail("G-93", spath, f"extra keys in storey: {sorted(extra_keys)}")
+        if missing_keys:
+            fail("G-93", spath, f"missing required keys in storey: {sorted(missing_keys)}")
+
+        s_id = storey.get("id")
+        if not isinstance(s_id, str) or not s_id.strip() or s_id in seen_storeys:
+            fail("G-93", f"{spath}.id", "id must be unique non-empty string")
+        elif s_id:
+            seen_storeys.add(s_id)
+
+        base_z = _wall_number(storey.get("base_z_cm"))
+        top_z = _wall_number(storey.get("top_z_cm"))
+        if base_z is None or top_z is None or top_z <= base_z or not math.isfinite(top_z - base_z):
+            fail("G-93", spath, "base_z_cm and top_z_cm must be finite with base_z_cm < top_z_cm")
+            height = 0.0
+        else:
+            height = top_z - base_z
+
+        thickness = _wall_number(storey.get("wall_thickness_cm"))
+        if thickness is None or thickness <= 0:
+            found_assumption = False
+            thickness_path = f"{spath}.wall_thickness_cm"
+            if session.assumptions and isinstance(session.assumptions.doc, dict):
+                for asm in session.assumptions.doc.get("assumptions", []):
+                    if isinstance(asm, dict) and asm.get("field_path") in (thickness_path, "wall_thickness_cm", f"walls.json:{thickness_path}"):
+                        val = _wall_number(asm.get("value"))
+                        if val is not None and val > 0:
+                            thickness = val
+                            found_assumption = True
+                            break
+            if not found_assumption:
+                fail("G-93", f"{spath}.wall_thickness_cm", "wall thickness is missing or non-positive and not declared in assumptions; builder cannot invent thickness")
+                thickness = None
+
+        verts = storey.get("vertices_cm")
+        norm_contour = None
+        if not isinstance(verts, list) or len(verts) < 3:
+            fail("G-93", f"{spath}.vertices_cm", "requires array of at least 3 vertices")
+        else:
+            try:
+                norm_contour = wall_contour_v2.normalize_contour_ccw(
+                    verts,
+                    segments=storey.get("segments"),
+                    openings=storey.get("openings"),
+                    eps=linear_eps
+                )
+                storey_face = storey.get("reference_face", face)
+                if storey_face == "outer" and thickness is not None:
+                    wall_contour_v2.safe_contour_offset(
+                        norm_contour.vertices,
+                        thickness,
+                        reference_face="outer",
+                        eps=linear_eps
+                    )
+            except wall_contour_v2.ContourError as ce:
+                fail("G-93", f"{spath}.vertices_cm", f"contour geometry error [{ce.code}]: {ce.message}")
+                norm_contour = None
+
+        ops = storey.get("openings", [])
+        if isinstance(ops, list):
+            total_openings += len(ops)
+            seg_intervals: dict[str, list[tuple[float, float, str]]] = {}
+            seg_lengths: dict[str, float] = {}
+            if norm_contour is not None:
+                n_v = len(norm_contour.vertices)
+                for seg in norm_contour.segments:
+                    sid = str(seg.get("id"))
+                    s_i = seg.get("start_vertex_index", 0)
+                    e_i = seg.get("end_vertex_index", (s_i + 1) % n_v)
+                    seg_lengths[sid] = wall_contour_v2.dist2d(norm_contour.vertices[s_i], norm_contour.vertices[e_i])
+
+            seen_op_ids: set[str] = set()
+            for op_idx, op in enumerate(ops):
+                opath = f"{spath}.openings[{op_idx}]"
+                if not isinstance(op, dict):
+                    fail("G-93", opath, "must be an object")
+                    continue
+                op_id = op.get("id")
+                if not isinstance(op_id, str) or not op_id.strip() or op_id in seen_op_ids:
+                    fail("G-93", f"{opath}.id", "id must be unique non-empty string")
+                elif op_id:
+                    seen_op_ids.add(op_id)
+                seg_ref = str(op.get("segment_id"))
+                kind = op.get("kind")
+                if kind not in ("window", "door"):
+                    fail("G-93", f"{opath}.kind", "must be 'window' or 'door'")
+                s_range = op.get("s_range_cm")
+                sill = _wall_number(op.get("sill_cm"))
+                head = _wall_number(op.get("head_cm"))
+                if not (isinstance(s_range, list) and len(s_range) == 2):
+                    fail("G-93", f"{opath}.s_range_cm", "requires [s_min, s_max] pair")
+                else:
+                    s0, s1 = _wall_number(s_range[0]), _wall_number(s_range[1])
+                    if s0 is None or s1 is None or s0 < 0 or s0 >= s1:
+                        fail("G-93", f"{opath}.s_range_cm", "requires 0 <= s_min < s_max")
+                    elif seg_ref in seg_lengths and s1 > seg_lengths[seg_ref] + linear_eps:
+                        fail("G-94", f"{opath}.s_range_cm", f"opening s_max ({s1:g}) exceeds segment length ({seg_lengths[seg_ref]:g})")
+                    elif s0 is not None and s1 is not None:
+                        seg_intervals.setdefault(seg_ref, []).append((s0, s1, opath))
+
+                if sill is None or head is None or sill < 0 or sill >= head:
+                    fail("G-93", opath, "requires 0 <= sill_cm < head_cm")
+                elif height > 0 and head > height + linear_eps:
+                    fail("G-94", opath, f"opening head ({head:g}) exceeds storey height ({height:g})")
+
+            for seg_k, spans in seg_intervals.items():
+                spans.sort()
+                for left, right in zip(spans, spans[1:]):
+                    if right[0] < left[1]:
+                        fail("G-94", right[2], f"opening overlaps {left[2]} on segment {seg_k!r}")
+
+        budget = storey.get("topology_budget")
+        if budget is not None:
+            total_budgets += 1
+            shape(budget, WALL_BUDGET_KEYS, f"{spath}.topology_budget", "G-97")
+            if isinstance(budget, dict):
+                for name in WALL_BUDGET_KEYS:
+                    val = budget.get(name)
+                    if not is_int(val) or val < 0:
+                        fail("G-97", f"{spath}.topology_budget.{name}", "ceiling must be a non-negative integer")
+
+    envelope_bad = any(f.severity == STATUS_FAIL and
+                       (f.location == location or f.location.startswith(location + "::")) and
+                       f.rule in ("G-1", "G-2", "G-3", "G-4", "G-5", "G-6", "G-7")
+                       for f in report.findings)
+    if not errors["G-93"]:
+        if envelope_bad:
+            report.skip("G-93", location, "wall envelope or file hygiene failed; full declaration is not valid")
+        elif doc.get("status") != "locked":
+            report.skip("G-93", location, "non-locked wall declaration checked where provided; incomplete, not production-ready")
+        elif session.wall_route is None or errors["G-97"] or errors["G-94"]:
+            report.skip("G-93", location, "route, topology budget or opening bounds failed; full declaration is incomplete")
+        elif any(f.rule == "G-10" and f.location == location and f.severity == STATUS_SKIP for f in report.findings):
+            report.skip("G-93", location, "wall provenance has an unverified dependency or informational annotation")
+        else:
+            report.ok("G-93", location, "closed v2 schema, declared storeys/contours, safe offset and provenance checked")
+
+    if not errors["G-94"]:
+        if session.wall_route is None:
+            report.skip("G-94", location, "wall route invalid or unresolved; opening rule applicability is unknown")
+        elif errors["G-93"] or envelope_bad:
+            report.skip("G-94", location, "walls schema or joins failed G-93; opening bounds cannot be fully established")
+        elif draft and total_openings == 0:
+            report.skip("G-94", location, "draft has no openings to evaluate")
+        else:
+            report.ok("G-94", location, "declared v2 openings are in bounds and do not overlap in s")
+
+    if not errors["G-97"]:
+        if session.wall_route is None:
+            report.skip("G-97", location, "wall route invalid or unresolved; topology rule applicability is unknown")
+        elif total_budgets == 0:
+            report.skip("G-97", location, "no topology budgets declared on storeys")
+        else:
+            report.ok("G-97", location, "v2 topology ceilings declared only; no geometry or optimization measured")
+
+
+def check_wall_rules(record: LoadedFile, session: Session, report: Report) -> None:
+    """G-93/94/97 validate declarations only, including partially filled drafts."""
+    doc = record.doc
+    if not isinstance(doc, dict):
+        report.fail("G-93", record.label, "walls.json must be an object")
+        for rule in ("G-94", "G-97"):
+            report.skip(rule, record.label, "wall document is not an object")
+        return
+    location = record.label
+    if doc.get("wall_technique") == CLOSED_CONTOUR_SHELL_V2_ROUTE:
+        _check_walls_v2_contract(record, doc, location, session, report)
+        return
+    errors = {"G-93": 0, "G-94": 0, "G-97": 0}
+
+    def fail(rule: str, path: str, detail: str) -> None:
+        errors[rule] += 1
+        report.fail(rule, f"{location}::{path}", detail)
+
+    def shape(value: Any, required: frozenset, path: str, rule: str = "G-93") -> bool:
+        if not isinstance(value, dict):
+            fail(rule, path, "must be an object")
+            return False
+        missing, extra = required - set(value), set(value) - required
+        if missing or extra:
+            fail(rule, path, f"closed object: missing {sorted(missing)}, extra {sorted(extra)}")
+        return not missing and not extra
+
+    if doc.get("schema_version") not in ("1.0", "1.1"):
+        fail("G-93", "schema_version", f"walls.json requires schema_version 1.0 or 1.1, found {doc.get('schema_version')!r}")
+    shape(doc.get("units"), frozenset({"length", "angle"}), "units")
+    shape(doc.get("source"), frozenset({"kind", "reference", "recorded_at"}), "source")
+    expected_keys = set(ENVELOPE_ORDER) | set(SPEC_BY_NAME["walls"].body_keys)
+    if set(doc) != expected_keys:
+        fail("G-93", "(root)", f"closed schema: missing {sorted(expected_keys - set(doc))}, extra {sorted(set(doc) - expected_keys)}")
+    tol = doc.get("tolerances")
+    tolerance_keys = frozenset({"linear_cm", "area_m2", "angle_deg"})
+    shape(tol, tolerance_keys, "tolerances")
+    if isinstance(tol, dict):
+        for key in tolerance_keys:
+            n = _wall_number(tol.get(key))
+            if n is None or n < 0:
+                fail("G-93", f"tolerances.{key}", "must be finite and non-negative")
+    dim = session.dimensions
+    if dim is None or not any(r is dim for r in _wall_upstream(record, session, report)):
+        if doc.get("status") == "draft" and not session.build_gate:
+            report.skip("G-93", f"{location}::dimensions.json", "dimensions source is unavailable, invalid, ambiguous or not locked; draft remains incomplete")
+        else:
+            fail("G-93", "dimensions.json", "the required dimensions source is unavailable, invalid, ambiguous or not locked")
+    dim_tol = dim.doc.get("tolerances") if dim and isinstance(dim.doc, dict) else None
+    if not isinstance(dim_tol, dict) or set(dim_tol) != tolerance_keys:
+        fail("G-93", "tolerances", "dimensions.json must supply the three declared tolerances")
+    elif not isinstance(tol, dict) or set(tol) != tolerance_keys or any(
+            _wall_number(tol.get(k)) is None or _wall_number(dim_tol.get(k)) is None or
+            _wall_number(tol.get(k)) != _wall_number(dim_tol.get(k)) for k in tolerance_keys):
+        fail("G-93", "tolerances", "must copy dimensions.json's three finite tolerances exactly")
+
+    draft = doc.get("status") == "draft"
+    arrays: dict[str, list] = {}
+    for key in ("blocks", "wall_runs", "openings", "upper_returns"):
+        value = doc.get(key)
+        if not isinstance(value, list):
+            fail("G-93", key, "must be an array")
+            arrays[key] = []
+        else:
+            arrays[key] = value
+    if doc.get("wall_technique") == POLY_WALL_ROUTE and not draft:
+        if not arrays["blocks"] or not arrays["wall_runs"]:
+            fail("G-93", "blocks / wall_runs", "locked poly requires at least one block and wall run")
+    face = doc.get("reference_face")
+    legacy = doc.get("wall_technique") == LEGACY_WALL_ROUTE
+    if face != "inner" and not ((draft or legacy) and face is None):
+        fail("G-93", "reference_face", "only inner is supported for poly; null is allowed for drafts or legacy")
+    eps: dict[str, Optional[float]] = {}
+    for key in ("numeric_epsilon_cm", "numeric_unit_epsilon"):
+        value = doc.get(key)
+        eps[key] = _wall_number(value)
+        if not ((draft or legacy) and value is None) and (eps[key] is None or eps[key] <= 0):
+            fail("G-93", key, "must be a positive finite number (or null in a draft or legacy declaration)")
+            eps[key] = None
+        elif eps[key] is not None and eps[key] > (WALL_LINEAR_EPSILON_MAX_CM if key == "numeric_epsilon_cm" else WALL_UNIT_EPSILON_MAX):
+            maximum = WALL_LINEAR_EPSILON_MAX_CM if key == "numeric_epsilon_cm" else WALL_UNIT_EPSILON_MAX
+            unit = "cm" if key == "numeric_epsilon_cm" else "dimensionless"
+            fail("G-93", key, f"numerical epsilon must be <= {maximum:g} {unit}; it is not a construction tolerance")
+            eps[key] = None
+
+    origin_errors = _wall_origins(record, session, report)
+    if origin_errors:
+        fail("G-93", "origins", f"{origin_errors} provenance error(s); see G-9/G-10/G-93 details")
+    blocks: dict[str, tuple[float, float]] = {}
+    seen_blocks: set[str] = set()
+    for i, block in enumerate(arrays["blocks"]):
+        path = f"blocks[{i}]"
+        shape(block, WALL_BLOCK_KEYS, path)
+        if not isinstance(block, dict):
+            continue
+        ident = block.get("id")
+        valid_id = isinstance(ident, str) and bool(ident.strip()) and ident == ident.strip()
+        if not valid_id or ident in seen_blocks:
+            fail("G-93", path + ".id", "id must be a unique non-empty string")
+        else:
+            seen_blocks.add(ident)
+        z = _wall_pair(block.get("z_range_cm"))
+        if z is None or z[0] >= z[1] or (z is not None and not math.isfinite(z[1] - z[0])):
+            fail("G-93", path + ".z_range_cm", "requires finite ordered bounds")
+        elif valid_id and ident not in blocks:
+            blocks[ident] = z
+
+    runs: dict[str, tuple[float, float]] = {}
+    run_rows: list[tuple[str, dict]] = []
+    run_ids: set[str] = set()
+    unit_eps = eps["numeric_unit_epsilon"]
+    linear = _wall_number(tol.get("linear_cm")) if isinstance(tol, dict) else None
+    run_array_complete = all(isinstance(doc.get(key), list) for key in ("wall_runs", "upper_returns"))
+    for key in ("wall_runs", "upper_returns"):
+        for i, run in enumerate(arrays[key]):
+            path = f"{key}[{i}]"
+            shape(run, WALL_RUN_KEYS | ({"adjacent_run_ids"} if key == "upper_returns" else set()), path)
+            if not isinstance(run, dict):
+                run_array_complete = False
+                continue
+            run_rows.append((path, run))
+            ident = run.get("id")
+            valid_id = isinstance(ident, str) and bool(ident.strip()) and ident == ident.strip()
+            if not valid_id or ident in run_ids:
+                fail("G-93", path + ".id", "run/return id must be globally unique and non-empty")
+            else:
+                run_ids.add(ident)
+            block_id = run.get("block_id")
+            if not isinstance(block_id, str) or block_id not in blocks:
+                fail("G-93", path + ".block_id", "must resolve to a valid block")
+            start, end = _wall_pair(run.get("start_cm")), _wall_pair(run.get("end_cm"))
+            length = None
+            if start is None or end is None:
+                fail("G-93", path, "start_cm and end_cm must be finite XY pairs")
+            else:
+                length = math.hypot(end[0] - start[0], end[1] - start[1])
+                if not math.isfinite(length) or length <= 0:
+                    fail("G-93", path, "run length must be finite and positive")
+                    length = None
+            base, top = _wall_number(run.get("base_z_cm")), _wall_number(run.get("top_z_cm"))
+            thickness = _wall_number(run.get("thickness_cm"))
+            if thickness is None or thickness <= 0:
+                fail("G-93", path + ".thickness_cm", "must be finite and positive")
+            height = None
+            if base is None or top is None or top <= base or not math.isfinite(top - base):
+                fail("G-93", path, "base_z_cm and top_z_cm must be finite, strictly ordered")
+            else:
+                height = top - base
+                if isinstance(block_id, str) and block_id in blocks and (base < blocks[block_id][0] or top > blocks[block_id][1]):
+                    fail("G-93", path, "run z interval must lie inside its block")
+            if valid_id and length is not None and height is not None and ident not in runs:
+                runs[ident] = (length, height)
+            outward = _wall_pair(run.get("outward"))
+            if outward is None:
+                fail("G-93", path + ".outward", "must be a finite XY pair")
+            elif not math.isfinite(math.hypot(*outward)) or math.hypot(*outward) == 0:
+                fail("G-93", path + ".outward", "must be a finite non-zero vector even when epsilon is unavailable")
+            elif unit_eps is None:
+                if not draft:
+                    fail("G-93", path + ".outward", "unit epsilon unavailable; vector cannot be verified")
+            elif length is not None:
+                norm = math.hypot(*outward)
+                dot = ((end[0] - start[0]) / length * outward[0] + (end[1] - start[1]) / length * outward[1])
+                if not math.isfinite(norm) or not math.isfinite(dot) or abs(norm - 1.0) > unit_eps or abs(dot) > unit_eps:
+                    fail("G-93", path + ".outward", "must be unit length and perpendicular to the run within numeric_unit_epsilon")
+            facade, reason = _wall_contour(run.get("contour_ref"), session)
+            if facade is None:
+                fail("G-93", path + ".contour_ref", reason)
+            elif start is not None and end is not None and length is not None and linear is not None and linear >= 0:
+                a, b = _wall_pair(facade.get("start_corner_cm")), _wall_pair(facade.get("end_corner_cm"))
+                if a is None or b is None:
+                    fail("G-93", path + ".contour_ref", "facade endpoints must be finite XY pairs")
+                else:
+                    flen = math.hypot(b[0] - a[0], b[1] - a[1])
+                    if not math.isfinite(flen) or flen <= 0:
+                        fail("G-93", path + ".contour_ref", "facade must have a finite positive length")
+                    else:
+                        tx, ty = (b[0] - a[0]) / flen, (b[1] - a[1]) / flen
+                        p = [(point[0] - a[0]) * tx + (point[1] - a[1]) * ty for point in (start, end)]
+                        d = [abs((point[0] - a[0]) * ty - (point[1] - a[1]) * tx) for point in (start, end)]
+                        if not all(math.isfinite(x) for x in p + d) or min(p) < -linear or max(p) > flen + linear or max(d) > linear or p[1] <= p[0]:
+                            fail("G-93", path + ".contour_ref", "directed run must be a forward subsegment of its facade within linear tolerance")
+            budget = run.get("topology_budget")
+            shape(budget, WALL_BUDGET_KEYS, path + ".topology_budget", "G-97")
+            if isinstance(budget, dict):
+                for name in WALL_BUDGET_KEYS:
+                    value = budget.get(name)
+                    if not is_int(value) or value < 0:
+                        fail("G-97", path + ".topology_budget." + name, "ceiling must be a non-negative integer")
+    for path, run in run_rows:
+        if path.startswith("upper_returns["):
+            adjacent = run.get("adjacent_run_ids")
+            if (not isinstance(adjacent, list) or len(adjacent) != 2 or
+                    any(not isinstance(x, str) or x not in run_ids or x == run.get("id") for x in adjacent) or
+                    (len(adjacent) == 2 and adjacent[0] == adjacent[1])):
+                fail("G-93", path + ".adjacent_run_ids", "requires two distinct other run/return IDs")
+
+    opening_ids: set[str] = set()
+    intervals: dict[str, list[tuple[float, float, str]]] = {}
+    for i, op in enumerate(arrays["openings"]):
+        path = f"openings[{i}]"
+        shape(op, WALL_OPENING_KEYS, path)
+        if not isinstance(op, dict):
+            continue
+        ident = op.get("id")
+        if not isinstance(ident, str) or not ident.strip() or ident != ident.strip() or ident in opening_ids:
+            fail("G-93", path + ".id", "opening id must be unique and non-empty")
+        else:
+            opening_ids.add(ident)
+        ref = op.get("wall_run_id")
+        if not isinstance(ref, str) or ref not in runs:
+            fail("G-93", path + ".wall_run_id", "must resolve to a valid run/return")
+        kind = op.get("kind")
+        if not isinstance(kind, str) or kind not in ("window", "door"):
+            fail("G-93", path + ".kind", "must be window or door")
+        u = _wall_pair(op.get("u_range_cm"))
+        sill, head = _wall_number(op.get("sill_cm")), _wall_number(op.get("head_cm"))
+        if u is None or u[0] < 0 or u[0] >= u[1]:
+            fail("G-93", path + ".u_range_cm", "requires finite 0 <= lo < hi")
+            if u is not None and u[0] < 0:
+                fail("G-94", path + ".u_range_cm", "opening starts before run origin")
+        elif isinstance(ref, str) and ref in runs:
+            if u[1] > runs[ref][0]:
+                fail("G-94", path + ".u_range_cm", "opening exceeds run length")
+            intervals.setdefault(ref, []).append((u[0], u[1], path))
+        if sill is None or head is None or sill < 0 or sill >= head:
+            fail("G-93", path, "requires finite 0 <= sill < head")
+            if sill is not None and sill < 0:
+                fail("G-94", path, "opening sill is below run base")
+        elif isinstance(ref, str) and ref in runs and head > runs[ref][1]:
+            fail("G-94", path, "opening head exceeds run height")
+    for ref, spans in intervals.items():
+        spans.sort()
+        for left, right in zip(spans, spans[1:]):
+            if right[0] < left[1]:
+                fail("G-94", right[2], f"opening overlaps {left[2]} on run {ref!r}")
+
+    envelope_bad = any(f.severity == STATUS_FAIL and
+                       (f.location == location or f.location.startswith(location + "::")) and
+                       f.rule in ("G-1", "G-2", "G-3", "G-4", "G-5", "G-6", "G-7")
+                       for f in report.findings)
+    if not errors["G-93"]:
+        if envelope_bad:
+            report.skip("G-93", location, "wall envelope or file hygiene failed; full declaration is not valid")
+        elif doc.get("status") != "locked":
+            report.skip("G-93", location, "non-locked wall declaration checked where provided; incomplete, not production-ready")
+        elif session.wall_route is None or errors["G-97"] or errors["G-94"]:
+            report.skip("G-93", location, "route, topology budget or opening bounds failed; full declaration is incomplete")
+        elif any(f.rule == "G-10" and f.location == location and f.severity == STATUS_SKIP
+                 for f in report.findings):
+            report.skip("G-93", location, "wall provenance has an unverified dependency or informational annotation")
+        else:
+            report.ok("G-93", location, "closed schema, declared geometry and provenance joins checked; selected upstream bindings are reported under G-10; outward sign and physical face require independent evidence")
+    if not errors["G-94"]:
+        if session.wall_route is None:
+            report.skip("G-94", location, "wall route invalid or unresolved; opening rule applicability is unknown")
+        elif errors["G-93"] or envelope_bad:
+            report.skip("G-94", location, "walls schema or joins failed G-93; opening bounds cannot be fully established")
+        elif draft and not arrays["openings"]:
+            report.skip("G-94", location, "draft has no openings to evaluate")
+        else:
+            report.ok("G-94", location, "declared openings are in bounds and do not overlap in u")
+    if not errors["G-97"]:
+        if session.wall_route is None:
+            report.skip("G-97", location, "wall route invalid or unresolved; topology rule applicability is unknown")
+        elif not run_array_complete:
+            report.skip("G-97", location, "run/return collection is malformed; not all topology budgets were assessed")
+        elif not run_rows:
+            report.skip("G-97", location, "no wall runs: no topology budgets to assess")
+        else:
+            report.ok("G-97", location, "topology ceilings declared only; no geometry or optimization measured")
+
+
+def _wall_manifest_path(session: Session) -> Optional[Path]:
+    """Presence includes directories and dangling symlinks, not just readable files."""
+    for record in session.files:
+        parent = record.path.parent
+        candidates = [parent / "wall_surface.json", parent / "pipeline" / "wall_surface.json"]
+        if parent.name == "pipeline":
+            candidates.append(parent.parent / "wall_surface.json")
+        for candidate in candidates:
+            if candidate.exists() or candidate.is_symlink():
+                return candidate
+    return None
+
+
+def check_wall_exclusivity(session: Session, report: Report) -> None:
+    route, assembly = session.wall_route, session.assembly
+    if route is None:
+        report.skip("G-96", "assembly.json", "route invalid or unavailable; G-92 owns selection")
+        return
+    if route == LEGACY_WALL_ROUTE and _wall_manifest_path(session) is not None:
+        report.fail("G-96", "wall_surface.json", "legacy route must not have a wall_surface.json manifest")
+        return
+    if assembly is None or not isinstance(assembly.doc, dict) or _empty_assembly_draft(assembly.doc):
+        detail = "assembly absent or empty draft; route exclusivity incomplete"
+        if route in (POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE):
+            state = "missing" if _wall_manifest_path(session) is None else "present but not validated"
+            detail += f"; output manifest wall_surface.json is {state}"
+        report.skip("G-96", "assembly.json", detail)
+        return
+    doc = assembly.doc
+    problems: list[str] = []
+    if route in (POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE):
+        for key in ("opening_cuts", "wall_cells"):
+            if key in doc:
+                problems.append(f"{key} must be absent, even when empty")
+        for table in ("placements", "scatter"):
+            for row in _assembly_rows(doc, table):
+                name = row.get("node_name")
+                if isinstance(name, str) and name.startswith("WAL_"):
+                    problems.append(f"legacy WAL_ node name in {table}")
+    else:
+        for key in ("opening_cuts", "wall_cells"):
+            if not isinstance(doc.get(key), list):
+                problems.append(f"legacy requires {key} array")
+        if "wall_ref" in doc:
+            problems.append("legacy must not declare wall_ref")
+    if problems:
+        report.fail("G-96", assembly.label, "; ".join(problems))
+    elif route in (POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE):
+        manifest = _wall_manifest_path(session)
+        state = "missing" if manifest is None else "present but not validated"
+        report.skip("G-96", assembly.label, f"static route mixing checks passed; output manifest wall_surface.json is {state}, and full exclusivity awaits the P3 manifest contract (not an input-build precondition)")
+    else:
+        report.ok("G-96", assembly.label, f"{route} assembly declaration is exclusive; manifest contents and live geometry are not verified here")
 
 
 # --------------------------------------------------------------------------- #
@@ -13232,11 +14917,11 @@ def check_g86_form_references(session: Session, report: Report) -> None:
                     problems += 1
 
                 profile = target.get("requirement_profile")
-                if profile not in ("form_precision_v1", "legacy_structure_v1"):
+                if profile not in ("form_precision_v1", "legacy_structure_v1", "closed_inner_contour_shell_v2"):
                     report.fail(
                         "G-86",
                         f"{location}::precision_targets[{i}].requirement_profile",
-                        f"requirement_profile must be 'form_precision_v1' or 'legacy_structure_v1', got {profile!r}",
+                        f"requirement_profile must be 'form_precision_v1', 'legacy_structure_v1', or 'closed_inner_contour_shell_v2', got {profile!r}",
                     )
                     problems += 1
 
@@ -13311,6 +14996,9 @@ QA_TARGET_KINDS: frozenset[str] = frozenset({
     "placement",
     "wall_host",
     "wall_cell",
+    "wall_surface",
+    "wall_run",
+    "wall_opening",
 })
 
 QA_CHECK_KINDS: frozenset[str] = frozenset({
@@ -13322,14 +15010,28 @@ QA_CHECK_KINDS: frozenset[str] = frozenset({
     "QA-V1-FORM",
     "QA-V1-STACK",
     "QA-V1-REPLAY",
+    "QA-V1-DIRECTION",
+    "QA-V1-SOLID",
+    "QA-V1-TOPOLOGY",
+    "QA-V1-SURFACE",
+    "QA-V1-APERTURE",
+    "QA-V1-ENCLOSURE",
 })
 
 QA_TOLERANCE_REFS: frozenset[str] = frozenset({
     "exact",
     "placement_v1",
     "wall_box_v1",
+    "wall_poly_v1",
     "form_v1",
     "replay_v1",
+    "surface_v1",
+    "aperture_v1",
+    "solid_v1",
+    "enclosure_v1",
+    "topology_v1",
+    "wall_shell_v2",
+    "closed_shell_v2",
 })
 
 QA_OPERATIONAL_LIMIT_KEYS: tuple[str, ...] = (
@@ -13407,11 +15109,11 @@ def check_qa_rules(session: Session, report: Report) -> None:
             problems_87 += 1
 
     profile = doc.get("profile")
-    if profile not in ("form_precision_v1", "legacy_structure_v1"):
+    if profile not in ("form_precision_v1", "legacy_structure_v1", "wall_surface_v1", "wall_poly_shell_v1", "poly_surface_shell_v1", "closed_inner_contour_shell_v2"):
         report.fail(
             "G-87",
             f"{location}::profile",
-            f"profile {profile!r} must be 'form_precision_v1' or 'legacy_structure_v1'",
+            f"profile {profile!r} must be 'form_precision_v1', 'legacy_structure_v1', or 'closed_inner_contour_shell_v2'",
         )
         problems_87 += 1
 
@@ -13909,14 +15611,48 @@ def guard(rule: str, location: str, report: Report, fn: Callable[..., None], *ar
 
 
 def run_checks(session: Session, report: Report) -> None:
+    session.wall_provenance_cache.clear()
+    session.wall_provenance_incomplete.clear()
+    unreadable_dimensions = any(r.path.stem == "dimensions" and not r.ok and not r.recipe
+                                for r in session.files)
+    session.wall_route = resolve_wall_route(session, report)
+    for rule in ("G-95", "G-98", "G-99", "G-100"):
+        report.skip(rule, "wall pipeline", "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending")
+    if session.walls is None:
+        for rule in ("G-93", "G-94", "G-97"):
+            report.skip(rule, "walls.json", "wall document is absent or unreadable; no declaration to inspect")
+    if any(r.path.stem == "assembly" and not r.ok and not r.recipe for r in session.files):
+        for rule in ASSEMBLY_DRAFT_RULES:
+            report.skip(rule, "assembly.json", "assembly is unreadable; dependent gate was not evaluated")
     for record in session.files:
+        if record.spec is None and not record.explicit_unlisted and record.fatal is None:
+            report.skip("G-7", record.label, "unlisted sibling was not read; JSON hygiene was not assessed")
+            continue
         guard("G-7", record.label, report, check_file_hygiene, record)
         if record.fatal is not None:
+            continue
+        if record.explicit_unlisted:
+            report.fail("G-1", record.label, "explicit --file is not a recognized spec; JSON hygiene was checked, but no spec contract applies")
             continue
         guard("G-1", record.label, report, check_envelope, record, session)
         guard("G-8", record.label, report, check_unit_lint, record)
         guard("G-16", record.label, report, check_ranges, record)
         guard("G-17", record.label, report, check_geometry, record, session)
+        if unreadable_dimensions and record.spec is not None:
+            # These multi-file stages consume dimensions. Checking hundreds of
+            # their references against a missing document manufactures cascades,
+            # not independent defects. Preserve per-rule visibility as SKIP.
+            dependent_rules = {
+                "massing": MASSING_DRAFT_RULES + ("G-39",),
+                "nurbs": NURBS_DRAFT_RULES,
+                "facade_grids": FACADE_DRAFT_RULES,
+                "components_registry": COMPONENT_DRAFT_RULES,
+                "assembly": ASSEMBLY_DRAFT_RULES,
+            }.get(record.spec.name, ())
+            if dependent_rules:
+                for rule in dependent_rules:
+                    report.skip(rule, record.label, "dimensions.json is unreadable; dependent stage was not evaluated")
+                continue
         if record.spec is not None and record.spec.name == "dimensions":
             guard("G-9", record.label, report, check_origins_coverage, record)
             guard("G-10", record.label, report, check_origin_pairing, record, session)
@@ -13929,30 +15665,49 @@ def run_checks(session: Session, report: Report) -> None:
         if record.spec is not None and record.spec.name == "components_registry":
             guard("G-65", record.label, report, check_component_rules, record, session)
         if record.spec is not None and record.spec.name == "assembly":
-            guard("G-71", record.label, report, check_assembly_rules, record, session)
-
+            guard("G-71", record.label, report, check_assembly_rules, record, session, session.wall_route)
     assumptions = session.assumptions
     if assumptions is not None and assumptions.ok and isinstance(assumptions.doc, dict):
         guard("G-11", assumptions.label, report, check_ledger_ids, assumptions, "assumptions", "A")
-        guard("G-12", assumptions.label, report, check_ledger_matches_spec, assumptions,
-              "assumptions", session)
-        guard("G-13", assumptions.label, report, check_ledger_bijection, assumptions,
-              "assumptions", "assumed", session)
-        guard("G-15", assumptions.label, report, check_assumptions_complete, assumptions, session)
+        if unreadable_dimensions:
+            for rule in ("G-12", "G-13", "G-15"):
+                report.skip(rule, assumptions.label, "dimensions.json is unreadable; ledger bindings were not evaluated")
+        else:
+            guard("G-12", assumptions.label, report, check_ledger_matches_spec, assumptions,
+                  "assumptions", session)
+            guard("G-13", assumptions.label, report, check_ledger_bijection, assumptions,
+                  "assumptions", "assumed", session)
+            guard("G-15", assumptions.label, report, check_assumptions_complete, assumptions, session)
 
     conflicts = session.conflicts
     if conflicts is not None and conflicts.ok and isinstance(conflicts.doc, dict):
         guard("G-11", conflicts.label, report, check_ledger_ids, conflicts, "conflicts", "C")
-        guard("G-12", conflicts.label, report, check_ledger_matches_spec, conflicts,
-              "conflicts", session)
-        guard("G-13", conflicts.label, report, check_ledger_bijection, conflicts,
-              "conflicts", "conflict", session)
-        guard("G-14", conflicts.label, report, check_conflicts_complete, conflicts, session)
+        if unreadable_dimensions:
+            for rule in ("G-12", "G-13", "G-14"):
+                report.skip(rule, conflicts.label, "dimensions.json is unreadable; ledger bindings were not evaluated")
+        else:
+            guard("G-12", conflicts.label, report, check_ledger_matches_spec, conflicts,
+                  "conflicts", session)
+            guard("G-13", conflicts.label, report, check_ledger_bijection, conflicts,
+                  "conflicts", "conflict", session)
+            guard("G-14", conflicts.label, report, check_conflicts_complete, conflicts, session)
 
+    # Form-reference validation can invalidate dimensions as an upstream source.
+    guard("G-86", "(form-references)", report, check_g86_form_references, session)
+    # Cross-file checks can invalidate an upstream source; assess them before
+    # crediting a wall that reads it, independently of the file listing order.
     guard("G-31", "(cross-file)", report, check_cross_file, session)
     guard("G-33", "(tolerances)", report, check_tolerances_declared, session)
-    guard("G-86", "(form-references)", report, check_g86_form_references, session)
+
+    # Wall provenance may use S1-S4 inputs and ledgers regardless of file
+    # ordering. Their checks must run first, not after a purported G-93 PASS.
+    for record in session.files:
+        if record.ok and record.spec is not None and record.spec.name == "walls":
+            guard("G-93", record.label, report, check_wall_rules, record, session)
+
+    guard("G-92", "(wall-route)", report, report_wall_route, session)
     guard("G-87", "(qa)", report, check_qa_rules, session)
+    guard("G-96", "(wall-route)", report, check_wall_exclusivity, session)
     guard("G-1", "(inventory)", report, check_inventory, session)
 
 
@@ -13979,6 +15734,18 @@ def check_inventory(session: Session, report: Report) -> None:
                 f"absent; this run targets a recipe template library (every loaded file is a "
                 f"recipe), and a template is not a project, so {spec.name} is not expected",
             )
+            continue
+        if spec.name == "walls":
+            # G-92 already fails an orphan selector or unreadable wall document.
+            if any(r.path.stem == "walls" and not r.recipe for r in session.files):
+                continue
+            if session.wall_route == LEGACY_WALL_ROUTE:
+                report.skip("G-1", "walls.json", "absent; historical no-selector legacy project")
+            else:
+                report.skip("G-1", "walls.json", "absent; wall route cannot be resolved (G-92)")
+            continue
+        if spec.name == "assembly" and session.wall_route in (POLY_WALL_ROUTE, CLOSED_CONTOUR_SHELL_V2_ROUTE):
+            report.skip("G-1", "assembly.json", f"{session.wall_route} assembly output is not produced; G-92/G-96 remain incomplete, but it is not a wall-input precondition")
             continue
         if spec.state == "defined" and spec.name == "qa":
             report.skip(
@@ -14016,15 +15783,19 @@ def label_for(path: Path, root: Path) -> str:
 
 
 def discover(directory: Path, report: Optional[Report] = None) -> list[Path]:
-    """Collect the pipeline spec files in ``directory`` and its ``pipeline/`` child."""
+    """Collect specs from either side of the parent/pipeline boundary."""
     found: list[Path] = []
     search_dirs = [directory]
+    if directory.name == "pipeline":
+        search_dirs.append(directory.parent)
     pipeline = directory / "pipeline"
     if pipeline.is_dir():
         search_dirs.insert(0, pipeline)
     for search in search_dirs:
         for path in sorted(search.glob("*.json")):
-            if path.is_file():
+            # A dangling link or directory named walls.json is a broken selector,
+            # not absence authorising the implicit legacy route.
+            if path.is_file() or path.name in ("walls.json", "assembly.json"):
                 found.append(path)
     seen: set[Path] = set()
     unique: list[Path] = []
@@ -14036,7 +15807,8 @@ def discover(directory: Path, report: Optional[Report] = None) -> list[Path]:
 
 
 def load_session(
-    paths: Sequence[Path], root: Path, report: Report, require_dimensions: bool = True
+    paths: Sequence[Path], root: Path, report: Report, require_dimensions: bool = True,
+    explicit_file: Optional[Path] = None,
 ) -> Session:
     records: list[LoadedFile] = []
     for path in paths:
@@ -14047,6 +15819,11 @@ def load_session(
                 loaded = load_spec_file(path, record.label)
                 loaded.spec = SPEC_BY_NAME[schema]
                 loaded.recipe = True
+                records.append(loaded)
+                continue
+            if explicit_file is not None and path.absolute() == explicit_file.absolute():
+                loaded = load_spec_file(path, record.label)
+                loaded.explicit_unlisted = True
                 records.append(loaded)
                 continue
             records.append(record)
@@ -14150,8 +15927,10 @@ def render_report(
         f"/ WARN {counts[STATUS_WARN]} / SKIP {counts[STATUS_SKIP]}"
     )
     lines.append(summary)
-    if counts[STATUS_FAIL]:
-        lines.append("exit 1 -- at least one FAIL row")
+    total_fails = report.counts()[STATUS_FAIL]
+    if total_fails:
+        lines.append(f"exit 1 -- {total_fails} FAIL row(s) across all rules" +
+                     (" (some may be hidden by the rule filter)" if rule_filter else ""))
     else:
         lines.append("exit 0 -- no FAIL rows" + (" (WARN present)" if counts[STATUS_WARN] else ""))
     return "\n".join(lines)
@@ -14201,9 +15980,8 @@ def render_json(
             status: sum(1 for f in findings if f["severity"] == status)
             for status in _SEVERITY_ORDER
         },
-        "exit_code": 1
-        if any(f["severity"] == STATUS_FAIL for f in findings)
-        else 0,
+        # --rule filters displayed findings, not the checks or process status.
+        "exit_code": 1 if report.counts()[STATUS_FAIL] else 0,
     }
     return json.dumps(payload, indent=2, ensure_ascii=False)
 
@@ -14217,7 +15995,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     global session_build_gate, session_allow_draft
 
     parser = argparse.ArgumentParser(
-        description="Validate spec files against references/07-spec-grammar.md (G-1..G-83).",
+        description="Validate spec files against the grammar and quality gates (G-1..G-100).",
     )
     parser.add_argument(
         "--dir",
@@ -14285,10 +16063,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if not target.is_file():
             print(f"error: --file {target} does not exist or is not a file", file=sys.stderr)
             return 2
-        root = target.parent
+        root = target.parent.parent if target.parent.name == "pipeline" else target.parent
         siblings = discover(root)
-        paths = [target] + [p for p in siblings if p.resolve() != target.resolve()]
-        session = load_session(paths, root, report)
+        # Do not resolve symlinks here: two paths to one route file remain an
+        # ambiguous duplicate, and a route symlink itself must be inspected.
+        paths = [target] + [p for p in siblings if p.absolute() != target.absolute()]
+        session = load_session(paths, root, report, explicit_file=target)
     else:
         root = args.dir
         if not root.is_dir():

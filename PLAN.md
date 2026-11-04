@@ -1,407 +1,197 @@
-# Development Plan — `3dsmax-arch-nurbs-ultimate-skill` (v3)
+# План развития скилла — v4
 
-Architecture ported from `rhino-grasshopper-ultimate-skill` (S0→S7 staged pipeline, JSON spec
-grammar, deterministic Python builders, one subagent per stage), adapted for **3ds Max 2026 / MAXScript**.
+**Активное решение, 2026-11-04:** целевая архитектура обычных призматических наружных
+стен — `closed_inner_contour_shell_v2`. Это **план миграции**, а не заявление о готовом
+production-builder. Статусы и принятые гейты ведёт [`CHECKPOINT.md`](CHECKPOINT.md).
 
-**v3 supersedes v2, which superseded v1.** v1 was written from documentation. v2 was written after
-a P0 probe whose central conclusion turned out to be **wrong**. v3 is corrected and now records the
-full evidence trail, including the false start, so the mistake is not repeated.
+**Этот PLAN самодостаточен для поставляемого `.skill`: основные контракты и гейты ниже.**
+Далее — только дополнительные **repo-only** материалы (`experiments/` и `Audit/` не
+поставляются; для чтения/исполнения плана в установленной копии они не нужны):
+[`experiments/closed-contour-shell-v2/MIGRATION_PLAN.md`](experiments/closed-contour-shell-v2/MIGRATION_PLAN.md).
+Полные прежние планы сохранены без сокращений:
+[`prior-PLAN.md`](experiments/closed-contour-shell-v2/prior-PLAN.md) и
+[`prior-wall-route-plan.md`](experiments/closed-contour-shell-v2/prior-wall-route-plan.md).
+Их старые запреты, статусы и назначения маршрута по умолчанию — история, не активная инструкция.
 
-Progress is tracked in [`CHECKPOINT.md`](CHECKPOINT.md).
+## 1. Что уже доказано и что ещё не сделано
 
----
+- **DONE — прототип:** шесть скриптов действительно исполнены через `fileIn` в живом Max:
+  прямоугольник без проёмов; прямоугольник с дверью и разноуровневыми окнами;
+  L-, U-, косоугольный контуры; внешний габарит 12×8 м с переходом к внутреннему контуру.
+  [`results.json`](experiments/closed-contour-shell-v2/results.json) и
+  [`assessment.json`](experiments/closed-contour-shell-v2/assessment.json) содержат **6/6 PASS**
+  ограниченных проверок прототипа, не S7-приёмку.
+- **DONE — визуальная приёмка прототипа:** пользователь подтвердил 2026-11-04:
+  «Визуально все отлично, то что нужно». В Max оставлены только стены с пустыми проёмами
+  `CCSV2_DEMO_rectangle_openings` и скрытый направляющий сплайн
+  `CCSV2_DEMO_rectangle_openings_InnerSpline`. Это не готовый павильон с плитами и окнами.
+  Образец сохраняется; его приёмка не означает готовность плит, рам и production-конвейера.
+- **TODO — production:** схема v2, надёжная проверка offset, обычная безопасная пересборка,
+  S5-потребитель манифеста, многоэтажность и независимый S7-профиль ещё не приняты.
+  Старые результаты `poly_surface_shell_v1` не закрывают эти гейты автоматически.
 
-## 0. Verified environment baseline
+Основание и границы измерений: [`README.md`](experiments/closed-contour-shell-v2/README.md).
+Округлённый wire-вывод и Float32 не доказывают «абсолютный ноль» или точность всей будущей системы.
 
-| Property | Value | How verified |
-|---|---|---|
-| 3ds Max | 2026.3.2 (Security Fix) | `maxVersion()[8]` → `2026` |
-| Transport | `namedpipe`, protocol 2 | `get_bridge_status` |
-| Threading | `mainThread`, `safeMode: true` | `get_bridge_status` |
-| Installed | Corona, Chaos, Arnold, PhysX, FbxMaxWrapper, USD | `get_plugin_capabilities` + class scans |
-| **Absent** | forestPack, forestLite, tyFlow, railClone, phoenixFD | `get_plugin_capabilities` |
+**Текущие production-блокеры** (repo-only source review:
+[`INTEGRATION_REVIEW.md`](experiments/closed-contour-shell-v2/INTEGRATION_REVIEW.md)):
+старый runtime требует пустую сцену/единственный слой и несовместим с уже исполненными S2/S3;
+S5 реально отказывает poly-маршруту и строит только legacy cells; wall QA в основном сверяет
+`abs(volume)`/стек, а aperture/enclosure не измеряет полноценно. Эти ограничения надо
+исправить кодом, не переименованием профиля или наличием отдельного demo.
+Builder также жёстко требует `Audit/_phase16-p3-contract-2026-11-02e.md`, отсутствующий в пакете:
+нормативный v2-контракт до выпуска переносится в поставляемый reference либо самодостаточный
+код. Поставлять весь Audit как обход этого дефекта нельзя.
 
-Preflight `scripts/env_preflight.py`: **PASS 9 / FAIL 0** against live data, with verified
-fault discrimination (injected faults are caught and named; the `nurbset_present` check was
-confirmed to invert correctly).
+## 2. Что сохраняем
 
-The TCP listener on `127.0.0.1:8765` is **not used and not required**. Instance-pipe discovery is
-automatic and survived an OS reboot mid-session.
+Скилл остаётся spec-first конвейером для **3ds Max 2026**, с выполнением и измерением
+MAXScript, а не доверием к интроспекции или одной самопроверке эмиттера.
 
-### 0.1 User's declared stack — a hard requirement
+Сохраняются валидные части S1, massing, NURBS и аналитических кривых
+(`build_spec.py`, `build_nurbs.py`, `curve_gen.py`, `expand_curves.py`),
+нативные единицы (`scene_units.py`), реестр компонентов, размещение экземпляров и S7 QA.
+Замена стен не повод переписывать работающие NURBS-рецепты или менять геометрию исходного проекта.
+Прежние live-счётчики относятся к прежним цепочкам, не являются прогнозом числа узлов v2.
 
-The user produces in **Corona** and uses **Chaos Scatter**. Both confirmed available and both are
-promoted to first-class:
+**P7 — автоматические материалы/UV и P9 — экспорт остаются отменены пользователем.**
+Результат — измеренная модель, прошедшая S7, и передача для ручного назначения материалов.
+S7 не отменён; scatter не получает нового автоматического geometry-stage.
 
-- **Corona** must be the default material target (P7). `get_plugin_capabilities` reported the
-  active engine as `Arnold` at verification time, so the skill must **detect and set** the renderer
-  per project rather than assume it.
-- **ChaosScatter** is the **only** working scatter route, since ForestPack is absent (P6).
+## 3. Целевой конвейер и контракты
 
----
-
-## 1. The NURBS API is real — v2's re-scoping was wrong
-
-### 1.1 What v2 got wrong and why
-
-v2 claimed the 34 KB `references/nurbs-complete-guide.md` was "fiction" and that P4 needed a
-rewrite from scratch. **That was false.** The guide is substantially correct and the library works.
-
-The error came from three compounding mistakes:
-
-1. **`introspect_class "NURBSSet"` returned `Class not found`** and was believed — even though the
-   skill's own rule says introspection is a hint, never proof.
-2. **The P0 preflight probe tested the wrong thing.** It used `get #NURBSSet`, which returns
-   `undefined` even for existing classes, and then guarded `NURBSSet()` behind
-   `if id != undefined` — so the construction test **never executed** and the check passed vacuously.
-3. **`discover_plugin_classes superclass=NURBS` returned 0** because the superclass name was wrong.
-
-A control group (`TotalGarbageXYZ123` → `undefined`, `NURBSSet` → resolves) proved all 27
-identifiers genuine. **Lesson recorded permanently: never test class existence without a
-known-bogus control in the same batch.**
-
-### 1.2 Verified NURBS capability (executed live)
-
-Every identifier used by `snippets/nurbs_arch_library.ms` resolves, and all construct:
-
-```
-NURBSSet, NURBSCVCurve, NURBSPointCurve, NURBSPointSurface, NURBSCVSurface,
-NURBSULoftSurface, NURBSUVLoftSurface, NURBS1RailSweepSurface, NURBS2RailSweepSurface,
-NURBSBlendSurface, NURBSOffsetSurface, NURBSProjectVectorCurve,
-NURBSDisplay, NURBSSurfaceApproximation        -> all CREATED
-```
-
-The relational architecture works end-to-end. Executed proof:
-
-```
-nset = NURBSSet(); appendObject nset <curve>; appendCurve us <idx>
-node = NURBSNode nset name:"TestShell"        -> class NURBSSurf
-getNURBSSet node #relational                   -> NURBSSet, numObjects = 11
-superClassOf sub-objects                       -> NURBSSurface / NURBSCurve / NURBSPoint
-evalPos surf 0.5 0.5                           -> [0.347105,-0.343283,0.130161]
-evalUTangent surf 0.5 0.5                      -> [0.698954,-0.683764,0.000429974]
+```text
+S1: размеры + поэтажные контуры + допущения
+ → S2: плиты / крыша / несущие объёмы без дублирующих wall-host в v2
+ → S3: NURBS, когда нужны
+ → S4: фасадные данные + реестр компонентов
+ → S4w: единая стеновая поверхность этажа + проёмы + один Shell
+ → S5: экземпляры заполнений и декора по opening manifest
+ → S7: независимый QA → передача для ручных материалов
 ```
 
-`snippets/nurbs_arch_library.ms` loads cleanly and prints `MCP_NURBS_Arch loaded`.
-`makeCVCurve` and `makePointCurve` both return valid objects.
+### S1 — геометрия, а не подгонка под старые ячейки
 
-Also corrected: `Point_Surf` and `CV_Surf` **do** have MAXScript identifiers; a `NURBSNode`
-reports `classOf` as `NURBSSurf` and appears in the UI as "CV Surf".
+На этаж задаются простой плоский замкнутый footprint, нормализованный **CCW**, стабильные
+идентификаторы этажа/сегментов, отметки и явная опора размеров `inner` либо `outer`.
+Толщина положительна и задана источником либо явно записанным допущением.
+Внешний контур переводится во внутренний только через **проверенный безопасный offset**;
+проверяются коллапс, узкие выемки, острые miters, минимальные зазоры и нелокальные пересечения.
+Неподдерживаемый случай даёт объяснённый отказ до изменения сцены, не молчаливую замену техникой.
 
-### 1.3 The three real bugs in `nurbs_arch_library.ms`
+### S4w — замкнутый периметр, не набор независимых стен
 
-> **STATUS: closed in P1-b (2026-10-04).** All three below are fixed, a **fourth** bug was found and
-> fixed alongside them (`close <crv>` is a silent no-op, so `closed:true` produced open geometry), and
-> every one of the ten library functions was executed live. Bug 3's premise turned out to be **false**
-> — `NURBSControlVertex` constructs; `setCV` merely requires a wrapper. The table below is kept as the
-> original record. Current state and evidence: [`CHECKPOINT.md`](CHECKPOINT.md) and
-> `references/12-nurbs-gotchas.md` §2.
+Сохраняется направляющий `SplineShape` — **требование пользователя**, даже если он не является
+вычислительной зависимостью меша; отдельно строится редактируемая поверхность
+`Editable_Poly` с **общими индексами угловых вершин** по всему периметру этажа.
+Разбиение Z — отсортированное объединение всех sill/head и границ этажа, общее для этажа.
+Грани прямоугольных проёмов удаляются; затем ровно один `Shell` на оболочку этажа:
+`innerAmount=0`, `outerAmount=t`, `straightenCorners=true`, `segments=1`.
+Не нужны глобальный Slice, Boolean, отдельный Shell на фасад или многоступенчатый стек.
+Разные Z-сетки фасадов нельзя вводить как оптимизацию без доказанного углового stitching.
 
-These are genuine defects, found by executing the library. They were the entire planned code scope of
-P4.
+Все размеры спецификаций — **канонические cm**, исполнение и измерения — в нативных единицах
+сцены через существующий units-контракт. Настройки единиц пользователя не меняются.
+Первая production-область — прямые сегменты и постоянная толщина в пределах одной оболочки;
+простые footprints без дыр, прямоугольные непересекающиеся проёмы вне углов.
+Расширения допускаются только отдельным контрактом и гейтами.
+Топология/время имеют явные ограниченные бюджеты v2: старых 32 base faces/256 triangles
+недостаточно (измеренный U-case уже **75/400**). Новые лимиты калибруются, не снимаются вовсе;
+превышение предсказывается до записи и даёт объяснённый отказ.
 
-| # | Bug | Symptom | Fix |
-|---|---|---|---|
-| 1 | `appendObject` returns the **string `"OK"`**, not an index. The library does `append crvIndices (appendObject nset pc)`, then `appendCurve uLoft idx` | `Unable to convert: OK to type: Integer` | After `appendObject nset obj`, take the index as `nset.numObjects` |
-| 2 | `stopCreating` takes **zero** arguments; the library calls `stopCreating node` (5 call sites) | `Argument count error: StopCreating wanted 0, got 1` | Drop the argument |
-| 3 | `NURBSControlVertex` does not construct | silent failure in `makeCVCurve`'s `setCV` path | Determine the correct CV construction route; `makeCVCurve` currently succeeds so this needs isolating |
+### Манифест проёмов → S5
 
-Verified workaround for bug 1 — the corrected pattern:
+Манифест содержит стабильные project/storey/segment/opening ID, локальную монтажную СК,
+origin/transform, tangent/outward/up, положение вдоль сегмента, sill/head, rough opening,
+wall thickness, mount reference, знак и величину recess, frame depth, clearance/overlap.
+Идентификаторы не зависят от временных номеров граней Max. S4w, S5 и QA читают одну семантику.
 
-```maxscript
-nset = NURBSSet()
-idxs = #()
-for i = 1 to sectionPointsList.count do (
-    local pc = MCP_NURBS_Arch.makePointCurve sectionPointsList[i] name:("Sec" + (i as string)) closed:true
-    appendObject nset pc
-    append idxs nset.numObjects      -- NOT appendObject's return value
-)
-```
+В v2 **S5 размещает только экземпляры заполнений/декора**: не создаёт `wall_cells`, не режет
+стену повторно и не отказывает только потому, что выбран новый маршрут.
+S2 не создаёт перекрывающие проёмы сплошные massing-host; существующий host не удаляется по имени.
+Равенство размеров рамы и rough opening само по себе не доказывает ни монтажный зазор,
+ни отсутствие Z-fighting — это проверяется по реальным поверхностям и монтажному контракту.
 
-Note also a MAXScript precedence trap present in the library:
-`name:("Section_" + i as string)` throws `Incompatible types: 1, and ": "`.
-Write `name:("Section_" + (i as string))`.
+## 4. Маршруты и упрощение runtime
 
-### 1.4 Real MAXScript gotchas (verified)
-
-| Trap | Detail |
+| Маршрут | Роль до завершения миграции |
 |---|---|
-| `fileExists` **does not exist** | Use `doesFileExist`. `executeFile` and `runScript` also do not exist — use **`fileIn`**. |
-| `stopCreating` arity | Takes 0 arguments. |
-| `modifiers <node>` function form | Does not work; use the `node.modifiers` **property**. |
-| Standalone modifiers | `Sweep()` returns a non-node; `delete` on it fails. Attach to a node, delete the node. |
-| `introspect_class` paramBlocks | Lies for shapes — reported `Rectangle` as having no params, but `width`/`length` exist (default 25.0). |
-| `maxVersion()` | Returns an array; major version is index 8. `get3dsMaxVersion()` does not exist. |
-| Material identifiers | InternalNames, not display names: `OpenPBR` (not `OpenPBRMaterial`). |
-| `Loft` | Class resolves but `Loft()` is `Not creatable`. Use `NURBSULoftSurface` — the real path was there all along. |
+| `closed_inner_contour_shell_v2` | Принятая production-архитектура по умолчанию; 12/12 live PASS, 106/106 regression, default для init_project.py |
+| `legacy_cells_v1` | Явная совместимость для существующих проектов; собственные cell/zero-stack/host QA сохраняются |
+| `poly_surface_shell_v1` | Ограниченный прежний single-wall маршрут и его evidence; не выдаётся за v2 |
 
-### 1.5 Standing rule on truth
+Выбор и версия маршрута явно согласованы между входами, assembly, манифестом и QA.
+До гейта переключения действующие данные не меняют смысл; новый default включается только
+после реальной реализации и приёмки. **Никакого молчаливого fallback.**
 
-**MAXScript execution is the only ground truth.** `introspect_class` returned "Class not found" for
-a class that demonstrably exists; `inspect_plugin_constructor` returns `inferred: true` guesses;
-the DLL class scan is incomplete (78 of 160 modifiers) and disagrees with MAXScript. Always pair a
-class-existence claim with a known-bogus control.
+Lease/witness/nonce/`POISONED`, аудит всей `rootScene`/controller graph и требование пустой
+сцены/единственного слоя не переносятся в v2: S4w обязан работать после S2/S3.
+Вместо этого — обычная точная пересборка проектных объектов:
+project ID + сохранённый manifest владения + проверенные ссылки/идентичность узлов.
+Сначала собирается конкретный список, затем меняются только доказанно свои объекты.
+Префикс — читаемое имя, **не право удаления**. Чужие узлы и неразрешённые ручные изменения
+сохраняются; неопределённость требует осмотра/согласования, а не broad sweep.
 
----
+Старую инфраструктуру выводим из исходников и активных тестов **поэтапно**, после замены
+проверок на полезные геометрические и ownership-гейты. `Audit/` не удаляется целиком,
+исторические измерения и не относящиеся к стенам проверки сохраняются.
+Строгие finite/non-boolean входы, locked/provenance/ID joins, units guards, проверка
+Float32-различимости и non-clobber публикация сохраняются по применимости; упрощение
+runtime не является разрешением пропускать проверку данных или перезаписывать чужие файлы.
 
-## 2. Fifteen MCP tools that always fail
+## 5. S7: новый стеновой профиль плюс существующий QA
 
-Because forestPack / forestLite / tyFlow / railClone / phoenixFD are absent, these tools throw
-unconditionally and must never be called: `scatter_forest_pack`, all **14** `tyflow_*` tools,
-`get_railclone_style_graph`. Substitution table: `references/02-mcp-live-orchestration.md`.
+Профиль v2 должен измерять снятую из Max геометрию и сравнивать с **независимым** oracle
+из исходных контуров/размеров, а не только сверять builder с его же манифестом:
 
-Material classes available: `OpenPBR`, `PhysicalMaterial`, `Standard`, plus 16 Corona classes.
-No Arnold-specific, VRay, Octane, or `RS_Standard_Material` classes.
+- базовая поверхность: общие углы, корректные vertex links, отсутствие дублей, вырождений,
+  T-junction и несогласованных швов;
+- evaluated solid: watertight/manifold, edge valence=2 с противоположными направлениями
+  использования рёбер, согласованная ориентация, **положительный signed volume**,
+  отсутствие самопересечений и корректное число компонент;
+- локальные нормали/плоскости каждого сегмента, сохранение внутренней опоры, наружная толщина,
+  геометрия выпуклых/вогнутых углов и каждого сквозного проёма;
+- монтаж и зазоры заполнений, отсутствие постороннего solid-host за проёмом, плиты/крыша/отметки;
+- ожидаемый `Editable_Poly` + один включённый Shell и параметры стека; три фактические пересборки.
 
-**Two more tool families are absent, confirmed by direct inspection of the live connected tool
-list at P4b-r (2026-10-04):** there is **no `mcg_*` tool** (so Max Creation Graph cannot be
-driven from this bridge at all — `references/procedural-graphs.md` is moot) and **no
-`curve_model`** (`references/curve-construction.md` is written against it and needs a rewrite,
-not a fix). `references/arch-modifiers-and-procedural-reference.md` §3 was retracted for
-recommending both.
+Для валидного offset-кольца постоянной толщины и проёмов вне углов объём:
+`V=(A_outer−A_inner)×H−Σ(w_opening×h_opening×t)`, **не** net base area×t отдельных стен.
+Угловые добавки существенны: inner 6×4 м, H=3 м, t=0.3 м даёт **19.08 м³** без проёмов,
+а с измеренными дверью и двумя окнами — **17.022 м³**.
 
----
+Глобальное **`Y=0`/рост в `−Y` не является критерием** повёрнутого или замкнутого здания.
+Закрытые рёбра, bbox и совпавший объём необходимы в своих проверках, но не заменяют
+пересечения, направление, aperture и углы. Существующие coverage/census/NURBS/form precision/
+placement/units QA сохраняются; legacy wall-cell QA применяется только к legacy.
+Недостающая проверка/метрика — `NOT RUN`/`INCOMPLETE`, не PASS и не подстановка нуля;
+каждый новый гейт имеет негативный контроль. Парсер обязан читать finite Double `d`-экспоненты
+Max без утраты знака объёма. Название семейства QA без реальных измерений гейт не закрывает.
 
-## 3. Target layout
+## 6. Фазы миграции и критерии выхода
 
-```
-3dsmax-arch-nurbs-ultimate-skill/
-├── SKILL.md                       # thin orchestrator: routing + stage table only
-├── AGENTS.md                      # agent registry / sync map
-├── PLAN.md                        # this file
-├── CHECKPOINT.md                  # ★ progress tracker (source of truth for status)
-├── agents/
-│   ├── max-orchestrator.md        # S0 dispatch, stage sequencing, context budget
-│   ├── max-env.md                 # S0b live capability probe → verified inventory
-│   ├── max-input.md               # S1 drawings/images → dimensions/conflicts/assumptions
-│   ├── max-massing.md             # S2 site pad, slabs, columns, core
-│   ├── max-nurbs.md               # S3 NURBS sets, lofts, sweeps, blends, trims, panelization
-│   ├── max-facade.md              # S4a facade grids, axes, floors, panelization
-│   ├── max-components.md          # S4b component registry (parametric blocks)
-│   ├── max-assembly.md            # S5 place instances, cut openings, Chaos Scatter (last geometry builder)
-│   ├── max-materials.md           # ⛔ S6 cancelled 2026-10-05 (manual hand-off)
-│   ├── max-qa.md                  # S7 deterministic QA + offline/live verification gate (qa_check.py)
-│   └── max-export.md              # ⛔ S8 cancelled 2026-10-05
-├── references/
-│   ├── 01-architecture-aec-workflow.md      # stage contracts, spec flow
-│   ├── 02-mcp-live-orchestration.md         # ✅ VERIFIED tool inventory + routing (P0)
-│   ├── 03-maxscript-in-3dsmax-rules.md      # escaping, dialogs, undo, coordsys, gotchas
-│   ├── nurbs-complete-guide.md              # ⚠ EXISTS, substantially correct — VERIFY, do not rewrite
-│                                           #   ⚠ no numeric prefix in the real filename
-│   ├── nurbs-architecture-recipes.md        # ⚠ VERIFY every recipe against live Max
-│   ├── 06-arch-modifiers.md                 # verified modifier classes/params
-│                                           #   ⚠ REAL FILE: arch-modifiers-and-procedural-reference.md
-│   ├── 07-spec-grammar.md                   # ★ JSON schema for all spec files
-│   ├── 08-input-rules.md                    # ★ drawings/images → dimensions
-│   ├── 09-defaults.md                       # ★ architectural default values
-│   ├── 10-conflict-resolution.md            # ★ precedence + conflict log
-│   ├── 11-layer-standard.md                 # naming/layer/hygiene rules
-│   ├── 12-nurbs-gotchas.md                  # ⚠ NEEDS CORRECTION (P0 headline was wrong)
-│   ├── 13-curve-spline-shapes.md            # shape/spline construction
-│   ├── 13-uv-rules.md                       # UV modifier placement on prototypes vs instances
-│   ├── 14-chaos-scatter.md                  # ★ replaces railclone.md
-│   ├── 15-procedural-graphs.md
-│   ├── 16-corona-materials.md               # ★ Corona material matrix
-│   ├── 17-export-formats.md
-│   ├── improvement-log.md                # ✅ P11 — per-project log format spec
-│   └── maxscript-*.md                       # reused generic refs (deduped in P1)
-├── snippets/
-│   ├── nurbs_arch_library.ms                # ★ WORKS — fix the 3 bugs (P1-b/P4)
-│   ├── chaos_scatter.ms                     # ★ verified ChaosScatter wiring
-│   └── max_*.ms
-├── scripts/
-│   ├── env_preflight.py       # ✅ DONE (P0, corrected in P1)
-│   ├── init_project.py        # scaffold workdir + specs/
-│   ├── validate_specs.py      # schema + range + cross-file validation (G-1..G-90)
-│   ├── build_spec.py          # dispatch stage builders (S2 massing)
-│   ├── build_nurbs.py         # emit MAXScript from NURBS specs (S3)
-│   ├── facade_tables.py       # facade_grids.json → facade_table.csv / world_table.csv (S4)
-│   ├── place_components.py    # placement + opening cuts + scatter wiring (S5, LAST geometry builder)
-│   ├── curve_gen.py           # analytical curve generator library (circles, ellipses, parabolas, arches)
-│   ├── expand_curves.py       # analytical curve expansion & station verification
-│   ├── scene_units.py         # scene units translation & scale factor utilities
-│   ├── qa_check.py            # S7 QA gate: offline emit & assessment oracle
-│   ├── build_wall_surface.py  # ⚠ PLANNED (Phase 16, P3) — NOT written, does not exist
-│   ├── ~~capture_views.py~~   # ⛔ P8 visual capture cancelled 2026-10-05 — not written
-│   ├── ~~export_max.py~~      # ⛔ P9 cancelled 2026-10-05 — never written
-│   ├── ~~lint_script.py~~     # ⛔ never written
-│   └── ~~check_skill_md.py~~  # ⛔ never written — dangling refs tracked in CHECKPOINT.md
-├── specs/{pipeline,recipes}/*.json
-├── Audit/                     # repo-only dossier: checkpoint archive, phase plans, evidence — NOT packaged
-└── examples/                  # worked example: one small building
-```
-
----
-
-## 4. Execution plan — one subagent per item
-
-Sequential where artifacts are consumed downstream. 🔌 = requires the live Max bridge.
-
-| # | Item | Subagent | Deliverables | Depends on |
-|---|---|---|---|---|
-| **P0** | ✅ Environment baseline + verified inventory | `general` | `02`, `12`, `env_preflight.py` — **done, NURBS conclusion since corrected** | — |
-| **P1** | 🔍 Audit & salvage | `general` | **NURBS API verified real**; 3 library bugs catalogued; `env_preflight.py` `nurbset_present` fix ✅; **remaining**: decision-matrix correction, dedupe vs `3dsmax-mcp-dev`, `curve-construction.md` rewrite list | P0 |
-| **P2** | ★ Spec grammar + input stage (S1) — ✅ **done** | `general` | `07`, `08`, `09`, `10`, `agents/max-input.md`, `examples/{dimensions,conflicts_resolved,assumptions}.json`, `scripts/{init_project,validate_specs}.py` | P1 |
-| **P3** | Layer standard + massing (S2) — ✅ **done** | `general` | `11`, `01`, `agents/max-massing.md`, `examples/{massing.json,massing.ms}`, `scripts/build_spec.py`; `07` §8.1 defines `massing.json`, §9.6 adds `G-34`…`G-40`. Emitted `.ms` executed live: 18/18 bboxes within 0.5 cm | P2 |
-| **P4** | ★ NURBS core — ✅ **done** (bugfix, not rewrite; library work closed in P1-b) | `general` | ✅ live verification of the P1-b "left unverified" list — all three resolved, one of them a **verified negative** (`closeU`/`closeV` do not exist); ✅ `nurbs.json` defined in `07` §8.2 **re-derived against the library**, `G-41`…`G-49` in §9.7; ✅ `scripts/build_nurbs.py`, `examples/{nurbs.json,nurbs.ms}` — **executed live, 6 nodes, idempotent**; ✅ `agents/max-nurbs.md`, `specs/recipes/nurbs/*.json`; ✅ library grew to 12 functions, all executed live. **Remaining → P4b:** `references/13`, `references/06`, rail-sweep/blend/trim discovery | P3 |
-| **P4b** | NURBS remainder — ✅ **done** | `general` | ✅ **control-tested discovery of the rail-sweep / blend / trim API — DONE 2026-10-04, and it overturned P4's "not implemented" finding: all four relation classes construct, commit and evaluate.** `references/07` §8.2.6, `12-nurbs-gotchas.md`, `agents/max-nurbs.md` §6.7 corrected. ✅ **round 2:** both live defects found and fixed (tension default `1.0`→`0.0`; relation parents referenced by `parent1ID:` instead of re-instantiated). ✅ **round 2 — the reference pass:** `maxscript-splines-shapes.md` and `arch-modifiers-and-procedural-reference.md` (the real names behind `13`/`06`) executed claim-by-claim against live Max and corrected — the first largely vindicated, the second substantially wrong; `install_skill.py` packaging gap closed; `maxscript-*.md` deduped; tyFlow tally 13→14 | P4 |
-| **P4b-r** | ✅ Reference claim-by-claim pass — **done 2026-10-04** | `general` | `references/_p4b-remainder-evidence.md` (transcripts) · `maxscript-splines-shapes.md` corrected (10 fixes; `bezierShape()` unusable; `pathParam` inert; multi-spline `updateShape` trap) · `arch-modifiers-and-procedural-reference.md` corrected (3 class names; 6 modifiers need `3dsmax-mcp_add_modifier`; ~13 parameter names do not exist; Data Channel vocabulary rebuilt on the real 32 snake_case operators; §3 retracted — no `mcg_*`, no `curve_model`) · `install_skill.py` `collect_files()` closed | P4b |
-| **P5** | Facade grid + component registry (S4) — ✅ **done** | `general` | ✅ `07` §8.3/§8.4 **define** `facade_grids.json` + `components_registry.json`, §9.8 adds `G-57`…`G-70`; ✅ `scripts/facade_tables.py`; ✅ `examples/{facade_grids,components_registry}.json` + `{facade_table,world_table}.csv`; ✅ `agents/max-facade.md`, `agents/max-components.md`; ✅ `assumptions.json` gains `A-023`/`A-024`. **Gate: the tables were placed in live Max and counted** — 136 rows read by MAXScript, 136 reference instances, `objects.count` 165, five bboxes exact. 136 panels · 140 axes · 29 components. **The stage's own design contract is `references/_p5-contract.md` (revision 2).** Found and fixed: a shared facade-wide v grid produced a 180 × 10 cm glass sliver; `panel_thickness_cm` was an in-range invention; the ledger could not describe an `assumed` value outside `dimensions.json` | P4b-r |
-| **P6** | ★ Assembly + Chaos Scatter (S5, LAST geometry builder) — ✅ **done** | `general` | `agents/max-assembly.md`, `scripts/place_components.py`, opening-cut recipes, `snippets/chaos_scatter.ms`, `references/14-chaos-scatter.md`. **Both inherited facts are now measured:** the instance route is `copy` + `baseObject =` (`setCopyMode` is absent), a Z rotation is `quat <deg> [0,0,1]` (`rotationZ`/`rotationX`/`rotationY`/`angle` are absent — **`matrix3` is NOT absent, it exists and takes 4 args**), and `node.pos` on a `Box` puts the **base** at `pos.z`. **The `manage_layers` open item is CLOSED as a verified negative** — the *bridge tool* has no object-assignment action, so `layer_map` stays data under the current policy. **The Chaos Scatter hazard is CLOSED by measurement** — the 1/2/5/10 ladder is clean, 20 freezes Max permanently. ⚠️ **The layer sentence of this row is SUPERSEDED (2026-10-28):** the *blanket* negative "there is no way to assign an object to a layer from this bridge" is **refuted** — `ILayerProperties.addNode` **works**. What survives: `node.layer` is read-only and the two bridge tools have no assignment route. **Whether builders should apply layers is a deferred policy decision** (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4), so `layer_map` stays data **for now** | P5 |
-| **P7** | ~~★ Corona materials + UVs (S6)~~ ⛔ **CANCELLED by user decision 2026-10-05 — not pending, not blocked** | — | **Do not start this stage.** Materials are made by hand. What survives is already written up in `Audit/CHECKPOINT-archive-2026-10-28.md` §"P7 — what the cancelled probes proved" and `references/_p7-evidence.md`: the **renderer set route** (which closed P0) and the Corona class census. UV rules are documented in `references/13-uv-rules.md` (add UV modifier to the 29 prototypes only). The deliverable remains the verified model plus manual handoff | — |
-| **P8** | ★ S7 QA verification gate (`qa_check.py`, `agents/max-qa.md`, `qa.json`) — ✅ **RESTORED & DONE 2026-10-10** | `general` | **Restored as S7 offline/live QA verification gate.** `scripts/qa_check.py`, `agents/max-qa.md`, `specs/pipeline/qa.json` (schema 1.1, rules `G-87`…`G-90`). Implements 3-step loop: offline query emit (`--emit`) → sequential MCP collection (`3dsmax-mcp_execute_maxscript`) → offline assessment (`--assess`) with independent analytical geometry oracle for circular/elliptical arcs and barrel vaults. Evaluates 8 check families: `COVERAGE`, `CENSUS`, `NURBS-CENSUS`, `PLACEMENT`, `WALLS`, `FORM`, `STACK`, `REPLAY`. Verified live at Phase 12. ⚠️ **The `--assess` flag this row documents did not exist until 2026-10-28** — the assessment mode was only reachable through the explicit `--in/--request/--results/--out` triplet. An **`--assess` alias** was added on 2026-10-28 (additive, non-breaking: the triplet still works, `--assess` alone exits 2, `--assess` with `--emit` exits 2) | P6 |
-| **P9** | ~~Export (S8)~~ ⛔ **CANCELLED by user decision 2026-10-05** | — | **Do not start this stage.** `references/17-export-formats.md`, `scripts/export_max.py`, `agents/max-export.md` **do not exist and are not planned** | — |
-| **P10** | Orchestrator, SKILL.md rewrite, install, end-to-end test — ✅ **delivered as P10-lite** | `general` | ✅ `SKILL.md`, `AGENTS.md`, `agents/max-orchestrator.md`, `install_skill.py`, 🔌 **full run measured 2026-10-05: input → massing → NURBS → facade → assembly, 254 nodes, 3-run idempotent, 0 modifiers, scene back to 0.** The P7 and P9 legs remain cancelled, ending at a Corona-ready model with S7 QA gate and manual materialing hand-off | P6 |
-| **P11** | Improvement log + close-out pass — ✅ **done 2026-10-06** | `general` | ✅ `references/improvement-log.md` (the **format spec**), `agents/max-orchestrator.md` §6.2, pointers into playbooks and `SKILL.md` · ✅ `G-74` lint-side gap closed · ✅ `curve-construction.md` marked **OBSOLETE** · ✅ packaging and preflight probes cleaned | P10 |
-
----
-
-### 4.0b Form Precision & Staged Unit Pipeline (Stages 01..13) — ✅ ALL COMPLETED (2026-10-10)
-
-Executed per `Audit/AGENT_PLAN_form_precision.md` (moved there from the repo root on 2026-10-28) and verified live in 3ds Max 2026.3.2:
-
-| Stage | Title / Scope | Deliverables & Verified Evidence | Status |
+| Фаза | Содержание | Приёмка | Сейчас |
 |---|---|---|---|
-| **01** | Audit & Problem Formulation | Comprehensive audit of analytical form precision vs point lists, native Max scene unit conversions (SystemType/SystemScale), and S7 QA revival | ✅ DONE |
-| **02** | Decision Gates | Core locks established: L-UNIT (cm canonical in specs, native scene units in Max), L-QA (automated S7 gate), L-D8 (dimensions owns parameters, curves derived), Mechanism A host hiding | ✅ DONE |
-| **03** | Analytical Curve Generator | `scripts/curve_gen.py` — pure Python analytical geometry library for circles, circular arcs, ellipses, elliptical arcs, parabolas, composite arches (trefoil, ogee, segmental, horseshoe) | ✅ DONE |
-| **04** | Curve Expander CLI | `scripts/expand_curves.py` — CLI for analytical expansion, point recomputation, tolerance verification ($\le 0.001\text{ cm}$), station count suggestion | ✅ DONE |
-| **05** | Scene Units Utilities | `scripts/scene_units.py` — certified SystemType mappings, scale factors $c$ and $f$, MAXScript verification preambles, and unit conversion helpers | ✅ DONE |
-| **06** | NURBS Builder Precision | `scripts/build_nurbs.py` updated with analytical curve expansion integration and native unit preambles; `snippets/nurbs_arch_library.ms` units-certified | ✅ DONE |
-| **07** | Massing Builder Units | `scripts/build_spec.py` updated with native scene unit preambles and length factor scaling | ✅ DONE |
-| **08** | Facade Tables Units | `scripts/facade_tables.py` updated with native scene unit handling across grids, registries, and CSVs | ✅ DONE |
-| **09** | Assembly Builder & Mechanism A | `scripts/place_components.py` (S5, LAST geometry builder) updated with native units, Mechanism A host hiding (`host_node.isHidden = true`), zero-modifier guarantee | ✅ DONE |
-| **10** | S7 QA Specification & Oracle | `scripts/qa_check.py` (`--emit` / wire parser / analytical oracle / `--assess`), `agents/max-qa.md`, `qa.json` grammar rules `G-87`…`G-90`, coherent fixture `specs/fixtures/form-precision/` | ✅ DONE |
-| **11** | Host Occlusion & Volume Budget | Verified Mechanism A deactivation (`host_node.isHidden = true` prevents opening occlusion); updated G-82 volume error budget to $B_{\text{total}}$ in $\text{cm}^3$ derived from linear tolerance | ✅ DONE |
-| **12** | Live Acceptance & Precision Proof | Live MCP execution in 3ds Max 2026.3.2: 254 nodes, 3-run replay idempotency, live batch collection (`batch_001.ms`, `batch_002.ms`), offline assessment (`qa_check.py --assess`). Verified 8-micron precision control: `point_grid` achieves $0.0008\text{ cm}$ deviation ($\ll 0.5\text{ cm}$ tolerance) vs `u_loft` B-spline fit error | ✅ DONE |
-| **13** | Active Docs, Handoff & Archive Gate | Active documentation aligned (`AGENTS.md`, `PLAN.md`, `SKILL.md`, `max-orchestrator.md`, `01-pipeline-workflow.md`), S5 confirmed last geometry builder, S7 confirmed QA gate, materials handoff preserved manual | ✅ DONE |
+| **0** | Проверить гипотезу в Max | Шесть исполненных cases, raw measurements, ограниченная оценка и отдельный визуальный verdict | **DONE: 6/6 PASS; пользователь визуально принял прямоугольный образец** |
+| **1** | Схема поэтажного контура, montage/opening manifest, безопасный offset | Позитивы и негативы: невалидный контур/offset, коллапс, узкая выемка, острый miter, неверные проёмы/route; регрессии legacy без смены смысла | **DONE: 21/21 PASS; schema 2.0 + safe offset + manifest + fixture** |
+| **2** | Простой runtime + perimeter builder + exact-owned rebuild | Production `.ms` исполнен в заполненной S2/S3-сцене; три пересборки с неизменным чужим sentinel (также с похожим prefix), корректной геометрией/стеком и калиброванными бюджетами | **DONE: 3x idempotent PASS; watertight shell (0 open edges), exact volume match, non-interfering exact rebuild** |
+| **3** | S5 по манифесту и route-aware S2 | Реальные экземпляры выровнены по проёмам; нет cell-геометрии, повторных резов и host-окклюзии в v2 | **DONE: 15/15 PASS offline; 3x idempotent PASS live Max; exact reveal/clearances, 0 open edges, G-81 zero-modifier** |
+| **4** | Павильон и независимый S7 | Четыре стены, плиты, крыша, окна/дверь; cm/mm и native scaling; L/U, поворот и многоэтажность; негативы дают FAIL | **DONE: 23/23 PASS offline; 12/12 PASS live-Max; exact oracle match (17.022 m³), watertight (0 open edges), Mechanism A, 106/106 regression** |
+| **5** | Переключение маршрута, source cleanup, docs и production-упаковка | Реализация + независимая приёмка + регрессии; нормативный контракт доступен без Audit/experiments; проверка изолированной установленной копии; только затем новый default/выпуск | **DONE: default route cutover; zero Audit/experiments deps in references/scripts; 106/106 unit tests PASS; isolated install PASS; production .skill packaged (134 files, 1.52 MB)** |
 
-### 4.0d `poly_surface_shell_v1` — wall surface route (Phase 16)
+## 7. Правила исполнения
 
-**Plan document:** `Audit/AGENT_PLAN_poly_surface_shell.md` — §I holds the closed decisions,
-§B the architecture, §C the phases, §E the gates `G-92`…`G-100`, §G the fixture oracles.
-**Facts:** `Audit/EVIDENCE_2026-10-27.md` (E-1…E-16) — the single source of truth; **do not
-re-derive or rewrite it**.
+Live Max разрешён назначенным агентам по необходимости: **один согласованный оператор**
+на все Max-вызовы, не main-only монополия. До записи — свежее чтение сцены и владения;
+после — сырые результаты, различия и отчёт об остатках. Визуально принятый прототип
+автоматически не чистить и не пересобирать; перед изменением проверить ручные правки.
 
-| Stage | Title / Scope | Deliverables & Verified Evidence | Status |
-|---|---|---|---|
-| **P0** | Refuted claims corrected | Seven false negatives withdrawn with dated `SUPERSEDED`/`RETRACTED`/`CORRECTED` markers next to the surviving historical wording — `getCurrentException()`, `matrix3`, `findString`, the layer blanket negative, the "0.5 cm = half a millimetre" tolerance, `Extrude`-does-not-attach, `Shell.segs` | ✅ DONE 2026-10-28 |
-| **P1** | Live spike F01 | Route A (`polyop.createVert` × 24 → `polyop.createPolygon` × 15 → `polyop.deleteFaces #{2,7,9}` → `Shell innerAmount:0.0 outerAmount:300.0`) **measured end-to-end in live Max 2026.3.2**. Grid: V=24 E=36 F=12, area 87 000 cm². Shelled: **48 polys / 48 verts / 96 tris**, volume **2.61 m³**, bbox `min=[0,-300,0] max=[4000,0,3000]`. Face 9 centre = `[2800,0,1500]` ⇒ row-major numbering. **Both negative controls fire** — and a reversed winding gives the **same volume**, so **direction must be a separate gate** | ✅ DONE 2026-10-28 |
-| **P2** | `walls.json` grammar + validator | New domain spec file (a **domain**, not a technique), schema section, gates `G-92`…`G-100`, `init_project.py` inventory entries | ⏳ QUEUED — not started |
-| **P3** | `build_wall_surface.py` emitter | The S4w stage — emits MAXScript for the measured route; **no MAXScript class name may appear in a spec file** (`07` §11/§12) | ⏳ QUEUED — not started |
-| **P4** | Live acceptance + QA profile | The wall surface placed in Max, counted and measured; `poly_surface_shell_v1` QA profile with **separate direction and volume gates** | ⏳ QUEUED — not started |
-| **P5** | Legacy-route coexistence | `legacy_cells_v1` (`WAL_` solid-cell tiling, zero modifiers `G-81`, Mechanism A hidden host) stays **fully covered by its gates**; the two routes are selected by `wall_technique` | ⏳ QUEUED — not started |
-| **P6** | Docs + archive rebuild | Playbooks, `SKILL.md`, `01-pipeline-workflow.md`, `CHECKPOINT.md`; `python scripts/install_skill.py` | ⏳ QUEUED — not started |
+Один короткий скрипт на вызов, обычно до ~2 s; **≤5 добавляемых модификаторов на вызов,
+стек >10 — только после согласия пользователя**. Не повторять fatal ladder, не вызывать
+`formattedPrint`, не подставлять синтетические `nurbsID`. Калибровать существование API
+положительным и заведомо ложным контролями; ошибка преобразования не доказывает отсутствие.
+Нет whole-scene reset, самовольного save/перезаписи, очистки dirty/save-required,
+удаления по произвольному префиксу или угадывания cleanup после timeout.
 
-★ = direct answer to the user's stated priorities. 🔌 = requires the live bridge.
-
-### 4.1 Chaos Scatter — verified parameter map (feeds P6)
-
-`ChaosScatter()` constructs, superclass `geometry`, classID `[1672609897, 845042209]`.
-`CScatter` is its base and is **NotCreatable** — always use `ChaosScatter`.
-
-Core wiring: `targetNodes` (node[] surfaces) + `modelNodes` (node[] source) +
-`modelFrequencies` (float[] per-model probability). Verification uses `instanceCountLimit`,
-`distributionDesityPattern` (the typo is the real name), `distributionLimitCoordSpace`,
-`seed` (1..31337, **deterministic**).
-
-Placement: `translationFrom/To`, `rotationFrom/To`, `scaleFrom/To`, `scaleUniform`,
-`rotationNormalAlignment`, `rotationLookAt*`.
-
-Constraints: `collisionAvoid` + `collisionStrictness` + `collisionAvoidancePriority`,
-`altitudeLimitationEnabled/From/To` + falloff curves, `surfaceSlopeLimitEnabled`,
-`edgeTrimmingEnabled`, `densityMap`, `surfaceUv*`.
-
-**Determinism hook.** `FpInterface` exposes `getInstanceCount()`, `getModelCount()`,
-`getModelNode(i)`, `update()`, `clear()`, `addModelNode(node)`, and
-**`saveConfiguration(filePath)` / `loadConfiguration(filePath)`**. Saving the scatter config and
-asserting identical instance counts across a rebuild is the obvious way to replace the nonexistent
-QA tools — **and that QA stage was cancelled on 2026-10-05.** The observation stands on its own; the
-consumer does not exist yet. ⚠️ Note also the **2026-10-06 decision**: the scatter is **declared, not
-geometry** (`assembly.ms` emits zero scatter nodes; the user applies it by hand from
-`snippets/chaos_scatter.ms`), so `getInstanceCount()` has nothing to read back on the delivered
-chain. `agents/max-assembly.md` §5 step 9 and §7 rows 8 and 17 still describe the applied reading —
-that inconsistency is **open**, not resolved.
-
-### 4.2 Renderer handling
-
-Active engine reported as `Arnold` while the user's production renderer is Corona. The skill must
-detect the engine, set Corona when Corona rendering is requested, and record the choice in
-`CHECKPOINT.md`'s verified-facts table so it is not re-derived. Never hardcode an assumption.
-**Superseded 2026-10-05:** the "so QA can assert it" clause named a stage that is cancelled; and the
-measured result is better than an assertion would have been — **`renderers.production = Corona()`
-works, `renderers.current = Corona` throws**, and the two slots are independent. Instantiate, do not
-assign the class. `Corona()` costs ~3.5 s cold and needs its own tool call.
-
----
-
-## 5. Context budget strategy
-
-- Main thread only: planning, gate decisions, user interaction, final verification.
-- Every execution item is delegated to a `general` subagent with an explicit file list, a
-  done-criterion, and "do not read other agents' transcripts".
-- Subagents read/write only the files they own.
-- Results returned as short structured summaries + written artifacts, never inline dumps.
-- **Only the orchestrator performs live Max probes.** Verified facts are handed to subagents as
-  data. This keeps Max — single-threaded and hang-prone — under controlled access and stops probe
-  results from being hallucinated second-hand. This rule is what produced the v2 error: a
-  conclusion was carried forward without re-verification.
-- **Every class-existence claim ships with its control result.**
-
----
-
-## 6. Risks and gates
-
-1. 🔌 Bridge unavailable → all 🔌 items blocked. *Gate: `env_preflight.py` before each 🔌 stage.*
-2. **Carried-over false conclusion (RESOLVED, guard added).** v2's "NURBS is fiction" was wrong.
-   Guard: control-tested class claims only; `env_preflight.py` asserts `nurbset_present`.
-3. End-to-end test fails on geometry, not tooling → report, do not paper over.
-4. Max hangs during a long 🔌 probe → keep probes under ~2 s, one script per call, always delete
-   test nodes (a bare modifier cannot be deleted; attach it to a node and delete that).
-5. Plugin assumption creep → preflight asserts the five absent plugins every run, so a future
-   install cannot silently invalidate the routing table.
-6. **Do not rewrite `nurbs-complete-guide.md` / `nurbs-architecture-recipes.md` on suspicion.** They are
-   unverified, not disproven. Verify each claim
-   by execution, then correct only what fails. **Proven twice over:** at P4b their keyword claims
-   were vindicated after three other files had claimed the capability was missing, and at P4b-r
-   the same discipline produced the opposite verdict on `arch-modifiers-and-procedural-reference.md`
-   — which really was substantially wrong. The rule is not "assume the docs are right" or "assume
-   they are wrong". It is **measure, then correct only what fails**.
-7. 🔌 **A heavy scripted modifier stack permanently freezes Max** (P6, 2026-10-05: the bounded ladder
-   was run deliberately and **rung 20 hung the main thread so hard that Max had to be killed and the
-   machine rebooted**. 5 and 10 are clean; the break is between 10 and 20 and must **not** be re-measured).
-   Standing rule: **≤ 5 modifiers per `execute_maxscript` call, > 10 on one node forbidden without
-   asking the user.** A timeout is the only symptom — never report it as "the bridge is down" without
-   a cheap `get_bridge_status` first. Note the P4b-r hedge is retired: the hang reproduces with **no
-   ChaosScatter object in the scene**, so the trigger is the stack change itself.
-
----
-
-## 7. Done criteria
-
-Retrospective, not prospective: P7/P8/P9 were **cancelled** (2026-10-05), so criteria 5 and 6 can no
-longer be met and are marked as retired rather than silently left to fail.
-
-1. ✅ `env_preflight.py` **runs** and exits 0. *Partly retired:* it is two-phase by design — the
-   bare run prints the probe bodies and reports every check **SKIP**, which is correct behaviour and
-   **is not a pass**. Reaching a full `PASS` needs captured results in a second call against a live
-   bridge. Note that `sweep_on_shape` previously asserted `mods=1 first=Sweep` and therefore **could
-   never pass on a healthy machine** — `Sweep` is one of the six classes that construct and then
-   throw on `addModifier` in this build. The probe now asserts that measured behaviour, so a full
-   pass is reachable.
-2. ✅ **Every tool named in `SKILL.md` exists and was executed at least once** — the P4b-r / close-out
-   passes removed the rest rather than leaving the criterion aspirational. A name may still appear in
-   a reference file as a **warning** that it is absent; that is correct, not a violation.
-3. ⛔ **NOT MET, and now unmeetable as written.** Every NURBS recipe in `nurbs-complete-guide.md` /
-   `nurbs-architecture-recipes.md` built in live Max.
-   Their **keyword claims were vindicated at P4b** and their tool-routing prose was corrected on
-   2026-10-06 — but a full claim-by-claim pass was never run, because the close-out session had no
-   `3dsmax-mcp_*` tool. This stays open rather than being marked done on a vindication.
-4. ✅ `snippets/nurbs_arch_library.ms` has zero known bugs, proven by executing every function.
-5. ✅ **UPDATED 2026-10-10 (S7 QA gate active, materials hand-off preserved):** S7 QA verification gate is active and verified via `scripts/qa_check.py` + `qa.json` (`agents/max-qa.md`), evaluating 8 check families (coverage, census, NURBS census, placement, walls occlusion, form precision oracle, modifier stack, replay). S5 (`place_components.py`) is the project's last geometry builder (254 nodes total with S1..S3, 3-run idempotent, 0 modifiers, Mechanism A host deactivation). P7 (Corona materials) and P9 (export) remain cancelled by user decision, handing off the verified model for manual material assignment in Max.
-   references are instead tracked as `CHECKPOINT.md` §"Dangling references still routing to bogus
-   tools internally", and were resolved by correction, not by a script.
-7. ✅ **The delivered artefact is executed, not merely emitted.** Every `.ms` was `fileIn`-ed and
-   counted in live Max, and every CSV was placed and counted — an emitted file that nobody ran is
-   not a deliverable, and a builder that self-checks its own output proves nothing about whether
-   Max will load it.
+**Фаза 5 завершена. Полный цикл миграции v2 (Фазы 0–5) закрыт и принят в production.**
+Маршрут `closed_inner_contour_shell_v2` является каноническим production-маршрутом по умолчанию.
+Пакет `.skill` собран, проверен в изолированной установке и развёрнут в `~/.claude` и `~/.agents`.

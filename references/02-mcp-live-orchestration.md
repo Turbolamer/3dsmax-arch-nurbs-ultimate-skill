@@ -45,6 +45,23 @@ the new PID; the fix for a stale cache is to restart the `3dsmax-mcp` MCP server
 `threadMode: mainThread` means every MAXScript evaluation runs on Max's main thread. Long scripts
 block the UI and freeze the viewport. See routing rule 3.
 
+### 1.3 Current authorization and single live operator (2026-11-04)
+
+The user has lifted temporary no-Max/read-only/offline-only stops imposed while busy.
+**Authorized agents, including delegated workers, may use Max as needed for the assigned task.**
+The old main-only/orchestrator-only rule is superseded, not historical evidence. Follow
+`agents/max-orchestrator.md` §1.1: one designated live operator at a time, no overlapping Max
+calls by other agents, short sequential operations and raw evidence handoff. This is coordination,
+not a bridge locking/token API. A real `USER_BUSY` response or blocked dialog still requires a
+pause; authorization is not permission to interrupt an active interactive operation.
+
+Inspect current scene state and establish exact temporary-fixture ownership before writes.
+Never delete/reset/save unrelated scene content or manipulate the dirty/save-required flag.
+Clean up only proven-owned objects; legacy global sweeps apply solely to admitted disposable
+fixtures. Unknown identity/timeout means inspect and report, not inferred rollback or retries.
+The measured fatal stack ladder, `formattedPrint` and synthetic `nurbsID` prohibitions remain.
+New architecture under test stays unaccepted until its own evidence gates actually pass.
+
 ---
 
 ## 2. Capability probe results (verified)
@@ -602,10 +619,11 @@ One more, in the same family because it produces a baffling type error:
    issuing many small calls; do not run a per-vertex MAXScript loop over large meshes (build a
    Data Channel modifier or use `add_data_channel` instead).
 
-4. **Every MAXScript snippet must be idempotent and must not leave test objects behind.** Delete
-   what it creates unless the object is a deliverable. Use a unique prefix for probe objects and
-   `try ... catch` cleanup so a mid-script failure does not leave debris in the scene. A probe that
-   pollutes the scene poisons every later measurement.
+4. **Every MAXScript snippet must account for its owned test objects.** Keep exact created-object
+   references and clean up only proven-owned temporary objects unless they are deliverables.
+   A unique prefix helps attribution but does not prove ownership. Guard cleanup and report
+   residue; a timeout does not prove `catch` ran, and unknown identity forbids broad sweeps/retries.
+   Admit name-deleting legacy/idempotent recipes only after checking ownership (§1.3).
 
 5. **Class existence is established only by MAXScript construction, with a bogus control in the same
    batch.** `get_plugin_capabilities`, `introspect_class`, `discover_plugin_classes` and
@@ -615,6 +633,10 @@ One more, in the same family because it produces a baffling type error:
 6. **Before calling any tool, confirm it is a `3dsmax-mcp_*` tool and that its name appears in
    section 4.** A schema error from an unrecognised name almost always means a Rhino-side tool, not
    a broken bridge. See section 5.
+
+7. **Obtain the orchestrator's live-operator slot before any Max call.** Authorized delegates may
+   execute necessary probes and gates; no other agent calls Max concurrently. Preserve unrelated
+   content and dirty state as required by §1.3. Do not turn permission into an acceptance claim.
 
 ---
 

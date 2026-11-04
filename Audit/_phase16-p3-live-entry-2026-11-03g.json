@@ -1,0 +1,20 @@
+{
+  "scope": "Main-only successive read-only observations before operator ownership decision; observations are not deletion authority",
+  "initial": {
+    "ok": true,
+    "result": "P3_FRESH_READONLY|objects=1|selection=1|path=|file=|units=millimeters|scale=1.0|dirty=false|layers=1|oldKey=false|bogusKey=false|bounded=1|node1=Box001;handle=2024P;class=Editable_mesh;base=Box;mods=1;parent=undefined;children=0;layer=0|selectedBounded=1|selected1=Box001;handle=2024P;class=Editable_mesh|layerBounded=1|layer0=0;handle=48P;nodesERR",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "78d5956e2b474cc494623886edfafeb8", "protocol_version": 2, "client_round_trip_ms": 1.486, "fallback_error": null},
+    "elapsed_ms": 1.53
+  },
+  "detail": {
+    "ok": true,
+    "result": "P3_FRESH_READONLY_DETAIL|objects=1|selection=1|dirty=false|path=|file=|units=millimeters|scale=1.0|oldKeyPresent=false;oldKeyGetError=-- Runtime error: Specified global variable does not exist: #__P3W_2a27162292203d7e9f982ae655c3a5b20af18a9044b039a105222a09bdf7eff7|positiveRoot=true|positiveUnits=true|bogus=false|nodeBound=1|node1=Box001;handle=2024P;class=Editable_mesh;base=Box;selectedERR=-- Type error: Call needs function or class, got: undefined;modCount=1;modBound=1;modifier1=Shell:2044P|layers=1|layerBound=1|layer0=0;backing=48P;getNumNodes=1;nodesOK=true;memberCount=1;member1=Box001:2024P",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "769b4008278448f6a966ce09bdf25010", "protocol_version": 2, "client_round_trip_ms": 1.084, "fallback_error": null},
+    "elapsed_ms": 1.106
+  },
+  "interpretation": "At these two read-only observations one node and one selected node were observed. The separately enumerated selected object had the displayed name and handle. Direct isSelected was undefined and selectedERR is retained; selection membership was observed by enumerating selection in the initial call, not by that failed API. Initial l.nodes.count was an invalid membership read and nodesERR is retained; the later l.nodes &members plus getNumNodes read reported one member. Main03 isGlobal false is accompanied by two positive globals, a bogus global, and failed direct get. Displayed names/handles do not prove origin or establish deletion authority. No scene mutations, selection changes, reset, save, flag clearing, registry changes or backup access were performed by main."
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\test_phase16_spatial_independent.py", line 276, in test_direct_api_cannot_recover_json_fraction_after_rounding
+    self.assertEqual(actual.status, "REVIEW")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'REVIEW'
+- PASS
++ REVIEW
+

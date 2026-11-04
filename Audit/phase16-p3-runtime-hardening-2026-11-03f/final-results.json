@@ -1,0 +1,30 @@
+{
+  "scope": "offline Python/source tests only; no MAXScript execution",
+  "before": {
+    "scripts/wall_surface_runtime.py": "123c567e45643b0f536dc4d0ad0d443a4f365b4bd6d32bfff8e969052f20761f",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "9b932dfcd50a81f617348dea7fabba20acee667675733ac1eb0658e6e1a34534",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-edit.py.bin": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15"
+  },
+  "after": {
+    "scripts/wall_surface_runtime.py": "123c567e45643b0f536dc4d0ad0d443a4f365b4bd6d32bfff8e969052f20761f",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "9b932dfcd50a81f617348dea7fabba20acee667675733ac1eb0658e6e1a34534",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-edit.py.bin": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15"
+  },
+  "stable": true,
+  "results": [
+    {
+      "suite": "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py",
+      "exit_code": 0,
+      "stdout": "final-1.stdout.log",
+      "stderr": "final-1.stderr.log"
+    },
+    {
+      "suite": "Audit/test_phase16_p3_runtime.py",
+      "exit_code": 1,
+      "stdout": "final-2.stdout.log",
+      "stderr": "final-2.stderr.log"
+    }
+  ]
+}

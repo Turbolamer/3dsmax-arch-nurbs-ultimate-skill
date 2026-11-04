@@ -1,0 +1,6 @@
+test_control (__main__.Control.test_control) ... expected failure
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK (expected failures=1)

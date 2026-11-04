@@ -1,5 +1,12 @@
 # P5 contract — `facade_grids.json`, `components_registry.json`, `facade_tables.py`
 
+> **Operational update (2026-11-04):** the former agents-must-not-touch-Max restriction is
+> superseded by `agents/max-orchestrator.md` §1.1. An authorized delegate may run necessary
+> probes and the live gate in the single designated operator slot, using short sequential calls.
+> Preserve unrelated content and dirty state; cleanup only proven-owned temporary fixtures.
+> Historical example counts/recipes below describe disposable fixtures, not permission to clear
+> a user scene. Current procedural corrections live in `agents/max-facade.md` / `max-components.md`.
+
 **This file is the authority for stage P5.** It exists because three files must not drift:
 `references/07-spec-grammar.md` (§8.3, §8.4, §9.8), `scripts/validate_specs.py` (`G-57`…`G-70`),
 `scripts/facade_tables.py`. Where an implementation wants a different key name, a different id
@@ -548,7 +555,7 @@ Obligations:
 6. `init_project.py` gains a **real stub** for both files (not the reserved skeleton — the massing
    stub pattern: a `draft` placeholder), seeded by `--from examples`.
 
-## 9. The live gate (orchestrator performs it — agents must not touch the bridge)
+## 9. The live gate (orchestrator or authorized designated operator)
 
 The P3/P4/P4b guard, table-shaped. **An emitted CSV is not done until it has been placed in Max and
 counted.**

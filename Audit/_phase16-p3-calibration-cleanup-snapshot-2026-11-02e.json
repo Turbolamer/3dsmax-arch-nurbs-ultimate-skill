@@ -1,0 +1,10 @@
+{
+  "scope": "Independent fresh read-only census after conversion and native-Box calibration cleanup; not wall production",
+  "wire": {
+    "ok": true,
+    "result": {"classCounts": {}, "frozenCount": 0, "hiddenCount": 0, "layers": [], "materials": {}, "modifiers": {}, "objectCount": 0, "rootCount": 0, "roots": []},
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "8a11116f9b754ab593941b241924967c", "protocol_version": 2, "client_round_trip_ms": 0.121, "fallback_error": null},
+    "elapsed_ms": 0.202
+  }
+}

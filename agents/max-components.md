@@ -16,7 +16,7 @@
 | Stage · Input | **S4b** (`PLAN.md` §4 row P5, `01` §3 "S4b") · `specs/pipeline/facade_grids.json` and `specs/pipeline/dimensions.json`, plus `assumptions.json` for the two `A-nnn` entries it declares |
 | Output | `components_registry.json` (`07` §8.4), then `facade_table.csv` and `world_table.csv` (columns: contract §6) |
 | Geometry produced | `component_types[]` · `components[]` — one block per distinct `(kind, width, height)` class · `families[]` — the resolution index. **No placements, no grid arithmetic, no MAXScript** |
-| 3ds Max calls | One, and it is **the orchestrator's**: the prototype half of S4a's §7 gate, which this stage shares. **No probes** (§1.2) |
+| 3ds Max calls | The prototype half of S4a's §7 gate, coordinated by the orchestrator and delegable to an authorized worker. Necessary calibrated probes follow §1.2 |
 | Consumer · Precondition | S5 `assembly.json`, which resolves each panel to a block · S4a complete and locked (`07` §8.3, `G-57`…`G-64`) |
 | Blocked by | A `facade_grids.json` that is not `locked`. Full stop (§2.2) |
 | Findings | See `agents/max-orchestrator.md` §6.2. If this session produced a real finding — a measured value outside `tolerances.linear_cm`, a panel class the registry cannot carry, or a `(kind, width, height)` that is legal but wrong on site — record it in `<project>/IMPROVEMENTS.md`. **A session with no findings writes nothing and creates no file.** Format: `references/improvement-log.md` |
@@ -32,18 +32,22 @@ grid is expected to hold 110–130 panels and those resolve to a few dozen block
 | Axes, panels, panel kinds, the partition itself | **S4a** | `facade_grids.json` (`07` §8.3). A registry that recomputes the grid is a second source of truth |
 | Placements, transforms, `instance_mode`, opening **cuts**, `layer_map` | **S5** | `assembly.json` (`07` §8.5). The registry is blocks; it places nothing |
 | A material, a renderer, a UV rule | **nobody — S6 was cancelled 2026-10-05** | **Applied by hand by the user**; the hand-off is `agents/max-orchestrator.md` §5. `materials.json` is a **reserved stub**, not a deliverable and not a gate. `glazed_panel` is a **block**, not a glass (`07` §8.3.6) |
-| Reveal depths, glazing build-ups, a frame profile | **nobody — S6/S7 were cancelled 2026-10-05** | A component's `parameters` and `variants` are where the **data** would live — S4b declares the four, nothing more, and no later stage reads them |
+| Reveal depths, glazing build-ups, a frame profile | **nobody — S6 cancelled; S7 QA verifies geometry** | A component's `parameters` and `variants` are where the **data** would live — S4b declares the four, nothing more, and no later stage reads them |
 | Layer **application** to any node | **nobody — permanently** *(the current policy of this skill, not an impossibility — see the correction)* | **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the previous wording — *"**There is no way to assign an object to a layer from this bridge. Nine routes are ruled out and this is final, not an open question**"* — is **refuted**. Two facts must be separated: **(a) reading `node.layer` is read-only** — the setter throws `Property is read-only: layer`; **(b) the layer interface method `ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node` (Phase 14, `CHECKPOINT.md` §"Design consequences of the layer finding"). The nine measured routes still prove the **two bridge tools** have no assignment route (`manage_layers`' vocabulary is exactly `{list, create, delete}`; `set_object_property` with `property=layer` dies on the same read-only assignment, with a `property=pos` positive control succeeding in the same batch) — they are a routing survey, not a proof of impossibility (`agents/max-assembly.md` §6.3). **Layer is data** (`07` §8.1.3); **no builder emits layer code** (`G-79`); **the user applies it in the Layer dialog today** — that is the *current policy* of this skill. **Whether the builders should apply layers is a separate policy decision, deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4; the refuted claim must not be replaced by an "always apply layers automatically" claim |
 | A panel naming a component | **nobody** | The dependency is **one-way**: registry → grid. A reverse reference is a cycle and a `G-31` failure (§6.8) |
 
-### 1.2 The one-MCP rule
+### 1.2 Coordinated live execution and necessary probes
 
-**You may not touch the bridge.** S4b emits no MAXScript and no table of its own; the live gate is S4a's
-§7 and the orchestrator performs it.
+S4b emits no MAXScript and no table of its own; it shares S4a's §7 live gate.
+**An authorized S4b worker may execute that gate and necessary calibrated probes.** The former
+blanket bridge/probe ban is superseded by `agents/max-orchestrator.md` §1.1. Obtain the single
+live-operator slot, use short sequential calls, inspect current state and preserve unrelated
+content. Do not reset/save unrelated scene state or manipulate the dirty flag. Cleanup targets
+only proven-owned temporary fixtures; old empty-scene gates do not authorize global sweeps.
 
 | Allowed | Forbidden |
 |---|---|
-| `3dsmax-mcp_get_scene_info` / `_get_scene_snapshot` to confirm the scene is empty **before** the gate | **Any exploratory probe.** A fact not in `CHECKPOINT.md` §"Verified facts" is escalated for an orchestrator probe, never opened by S4b |
+| Current scene inspection, the shared prototype gate and necessary probes with known-positive/bogus controls in the designated operator slot | Unscheduled/overlapping Max calls, uncontrolled mutations or deletion of unowned scene objects |
 | `3dsmax-mcp_delete_objects` on gate nodes, in the same call | Every tool in `01` §1.2 — the absent-plugin group, and the Rhino-server name collisions enumerated in `AGENTS.md` §"MCP tool-name collisions" and `02` §5 |
 | `3dsmax-mcp_manage_layers` actions `list` and `create` — the eight names in `07` §8.1.4, nothing else | **`3dsmax-mcp_manage_layers` **object assignment** — and it is not "unknown": the action **does not exist**. The vocabulary is **exactly `{list, create, delete}`**, 40+ candidates rejected; with the eight MAXScript and tool routes that is **nine ruled out in total**. **Nobody solves this — the user applies layers in the Layer dialog** (`agents/max-assembly.md` §6.3). **Scope (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the vocabulary claim is about the **typed tool only**. It does **not** mean layer assignment is impossible from MAXScript — `ILayerProperties.addNode` works, so "nobody solves this" must be read as "nobody solves this *for this stage*", not "no route exists" |
 | `3dsmax-mcp_capture_viewport` for a human-facing record, after measuring | `3dsmax-mcp_introspect_class` / `_introspect_instance` / `_inspect_plugin_class` as **proof** — they lie (`AGENTS.md`, §"The one rule that matters most") |
@@ -52,7 +56,8 @@ grid is expected to hold 110–130 panels and those resolve to a few dozen block
 > confirmed at P4b-r). A registry that would need either is a missing **tool**, not a missing block kind
 > — record it (§10.2), never hand-model it as if it were a `kind`.
 
-Executing the shared gate on an already-computed CSV is **not** a probe (`01` §6).
+Executing the shared gate on an already-computed CSV and probing a capability are different
+tasks; either may be assigned under §1.2, and neither proves the other was done.
 
 ---
 
@@ -325,7 +330,7 @@ glass (`07` §8.3.6, §12).
 ## 7. The 3ds Max step — the live gate's prototype half
 
 **`facade_tables.py` emits no MAXScript, so there is no `fileIn` here. The consumer of the registry is
-live Max, and the gate is mandatory.** The gate is S4a's §7 and the orchestrator performs it; **this
+live Max, and the gate is mandatory.** The gate is S4a's §7 and the orchestrator or its designated operator performs it; **this
 stage's half is the prototype census**, because a registry that names blocks nobody ever measured is
 exactly the quiet failure `G-68` exists to prevent.
 
@@ -419,7 +424,7 @@ S4b resolves; it does not design, and it escalates anything it cannot build hone
 | **A component kind that would have to name a material or a renderer** — "the glass", "Corona glass", a named shader | §12's standing rule: a spec file may not name a class, tool, modifier or plugin. `glazed_panel` is a block; the `material_role` stays a role the **user** applies by hand (**CORRECTED 2026-10-06:** this cell used to say "P7 resolves roles to materials"; **P7/S6 was cancelled on 2026-10-05**) | **`07`'s owner** |
 | **A size class that groups panels whose `serves_panel_kinds` flags disagree** — one block that would have to be glazed and opaque at once | `G-67` FAILs it, and the correct fix is two components, not one with a loosened flag | **S4a**, with both groups named |
 | **A `P6`-flagged `A-023` / `A-024` that would change the geometry** — a real joint width or panel depth from the client | You declare the adoption; P6 is the recheck stage. Report, do not re-pick (§6.1) | the user, naming the `A-nnn`; the orchestrator |
-| **Any fact not in `CHECKPOINT.md` §"Verified facts"** — including whether rotation after creation works (§7) | §1.2: S4b escalates for an orchestrator probe, it does not open one | the orchestrator |
+| **Any fact not in `CHECKPOINT.md` §"Verified facts"** — including whether rotation after creation works (§7) | Remains UNVERIFIED until a necessary calibrated probe is scheduled under §1.2; an authorized S4b worker may execute it | the orchestrator for scheduling; the owning spec stage for changes |
 
 ### 10.2 How to ask
 
@@ -480,7 +485,7 @@ G-65..G-70: <n> PASS / <n> SKIP — <for each SKIP, the reason; G-69 SKIPs when 
 BUILDER: scripts/facade_tables.py --stage components -> exit <n> · <n> panels in / <n> (kind,width,height) classes / <n> components (<by kind>) / <n> families · parameters order width,height,thickness,joint = stable
 DEFAULTS: panel_thickness_cm = <n> cm (A-023, D-CL-05 range 2..8) · joint_width_cm = <n> cm (A-024, D-FM-10 range 1..4) · both recheck_stage P6 · ledger bijection holds = <yes/no> · third assumed value = none
 FAULTS: G-65..G-69 fault-injected on a temp copy — <n>/<n> fired as expected · G-68 by deleting one component: build refused = <yes/no>, named <n> panel ids
-LIVE: prototypes placed in 3ds Max by the orchestrator · P = <n> distinct component_ref == prototypes = <yes/no> · worst |measured - expected| over all P = <n> cm (tolerance linear_cm = <n> cm) · instances N = <n>, M = <n>, objects.count == prototypes + M = <yes/no> · rotation applied = <yes / THREW: …> · scene after = <n>
+LIVE: prototypes placed by <authorized operator> · P = <n> distinct component_ref == prototypes = <yes/no> · worst |measured - expected| over all P = <n> cm (tolerance linear_cm = <n> cm) · instances N = <n>, M = <n>, owned census == prototypes + M = <yes/no> · rotation applied = <yes / THREW: …> · owned residue / entry-state differences = <details>
 P6-RECHECK: A-023 A-024 — both named, values match defaults; either would change the geometry = <yes/no>
 ESCALATED: <n> — <one line each: the topic, the question, whether it is answered>
 OBJECTIONS: <one line per defect in a file you do not own, naming file and section, or "none">

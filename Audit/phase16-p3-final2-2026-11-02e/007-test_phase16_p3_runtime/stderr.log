@@ -1,0 +1,47 @@
+test_absolute_caps_are_explicit (__main__.PlanTests.test_absolute_caps_are_explicit) ... ok
+test_analytic_diagonal_not_axis_assumed (__main__.PlanTests.test_analytic_diagonal_not_axis_assumed) ... ok
+test_bad_opening_boundaries_refused (__main__.PlanTests.test_bad_opening_boundaries_refused) ... ok
+test_caps_not_relaxed_by_declaration (__main__.PlanTests.test_caps_not_relaxed_by_declaration) ... ok
+test_door_no_sill_strip (__main__.PlanTests.test_door_no_sill_strip) ... ok
+test_duplicate_facade_identity_refused (__main__.PlanTests.test_duplicate_facade_identity_refused) ... ok
+test_duplicate_opening_identity_and_foreign_run_refused (__main__.PlanTests.test_duplicate_opening_identity_and_foreign_run_refused) ... ok
+test_f01_predictions_are_labelled_not_measured (__main__.PlanTests.test_f01_predictions_are_labelled_not_measured) ... ok
+test_f01_station_grid (__main__.PlanTests.test_f01_station_grid) ... ok
+test_facade_conflict_refused (__main__.PlanTests.test_facade_conflict_refused) ... ok
+test_invalid_budget_not_bool (__main__.PlanTests.test_invalid_budget_not_bool) ... ok
+test_invalid_vectors_refused (__main__.PlanTests.test_invalid_vectors_refused) ... ok
+test_lower_declared_budget_honored (__main__.PlanTests.test_lower_declared_budget_honored) ... ok
+test_near_stations_refused_not_snapped (__main__.PlanTests.test_near_stations_refused_not_snapped) ... ok
+test_near_unit_vector_not_used_as_skew_offset (__main__.PlanTests.test_near_unit_vector_not_used_as_skew_offset) ... ok
+test_opening_order_does_not_change_geometry (__main__.PlanTests.test_opening_order_does_not_change_geometry) ... ok
+test_pure_and_deterministic (__main__.PlanTests.test_pure_and_deterministic) ... ok
+test_reversed_outward_changes_winding_not_volume (__main__.PlanTests.test_reversed_outward_changes_winding_not_volume) ... ok
+test_shared_slots_not_duplicate_geometric_vertices (__main__.PlanTests.test_shared_slots_not_duplicate_geometric_vertices) ... ok
+test_touching_and_overlapping_openings_refused (__main__.PlanTests.test_touching_and_overlapping_openings_refused) ... ok
+test_unsupported_subset_refused (__main__.PlanTests.test_unsupported_subset_refused) ... ok
+test_zero_or_invalid_dimension_refused (__main__.PlanTests.test_zero_or_invalid_dimension_refused) ... ok
+test_all_emitted_helpers_are_p3_prefixed (__main__.SourceTests.test_all_emitted_helpers_are_p3_prefixed) ... ok
+test_catches_only_bare_rethrow_not_explicit_arguments (__main__.SourceTests.test_catches_only_bare_rethrow_not_explicit_arguments) ... ok
+test_cleanup_exact_current_attempt_refs_only (__main__.SourceTests.test_cleanup_exact_current_attempt_refs_only) ... ok
+test_deterministic_emission_and_no_input_writes (__main__.SourceTests.test_deterministic_emission_and_no_input_writes) ... ok
+test_expected_units_closed_and_canonical (__main__.SourceTests.test_expected_units_closed_and_canonical) ... ok
+test_explicit_arm_and_struct_exact_witness (__main__.SourceTests.test_explicit_arm_and_struct_exact_witness) ... ok
+test_float32_indistinguishable_thickness_refused (__main__.SourceTests.test_float32_indistinguishable_thickness_refused) ... ok
+test_float32_indistinguishable_world_vertices_refused (__main__.SourceTests.test_float32_indistinguishable_world_vertices_refused) ... ok
+test_full_baseline_guards_are_explicit (__main__.SourceTests.test_full_baseline_guards_are_explicit) ... ok
+test_invalid_namespace_and_identity (__main__.SourceTests.test_invalid_namespace_and_identity) ... ok
+test_missing_registry_refuses_not_auto_arms (__main__.SourceTests.test_missing_registry_refuses_not_auto_arms) ... ok
+test_no_dangerous_operations_or_name_recovery (__main__.SourceTests.test_no_dangerous_operations_or_name_recovery) ... ok
+test_no_stringified_geometry_fingerprint (__main__.SourceTests.test_no_stringified_geometry_fingerprint) ... ok
+test_registry_publication_only_after_baseline (__main__.SourceTests.test_registry_publication_only_after_baseline) ... ok
+test_returned_ids_not_assumed_row_major_ids (__main__.SourceTests.test_returned_ids_not_assumed_row_major_ids) ... ok
+test_same_factor_different_pair_remains_distinct (__main__.SourceTests.test_same_factor_different_pair_remains_distinct) ... ok
+test_snapshot_memory_disposal_in_success_and_error (__main__.SourceTests.test_snapshot_memory_disposal_in_success_and_error) ... ok
+test_tampered_plan_predictions_or_cells_refuse (__main__.SourceTests.test_tampered_plan_predictions_or_cells_refuse) ... ok
+test_units_guard_before_constructor_or_registry (__main__.SourceTests.test_units_guard_before_constructor_or_registry) ... ok
+test_unproven_metadata_never_yields_noop_pass (__main__.SourceTests.test_unproven_metadata_never_yields_noop_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 0.044s
+
+OK

@@ -1,0 +1,22 @@
+REPAIR_D_SOURCE {'place_components.py': '4f9735ffbf9d59f6e858bed5d6390342db8230b50a036e462d894c00d07b91ac', 'scene_units.py': 'b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2'}
+test_both_replace_failures_are_controlled_and_restore_exact_existing_bytes (__main__.BuilderRepairD.test_both_replace_failures_are_controlled_and_restore_exact_existing_bytes) ... ok
+test_first_staging_fsync_and_unlink_failure_names_retained_path_and_both_errors (__main__.BuilderRepairD.test_first_staging_fsync_and_unlink_failure_names_retained_path_and_both_errors) ... REPAIR_D_STAGING_CLEANUP refusing to write output pair: refusing to stage C:\Users\Turbolamer\AppData\Local\Temp\opencode\p16-builder-repair-d-case-axckf6oy\output\assembly.json: INJECTED first staging fsync; cleanup failed: INJECTED first staging unlink; retained staging file C:\Users\Turbolamer\AppData\Local\Temp\opencode\p16-builder-repair-d-case-axckf6oy\output\.assembly.json.tmp.mdanb4yg; any replaced outputs restored to their prior bytes
+ok
+test_historical_duplicate_inputs_refuse_all_modes_and_preserve_sentinels (__main__.BuilderRepairD.test_historical_duplicate_inputs_refuse_all_modes_and_preserve_sentinels) ... ok
+test_input_replacement_during_commit_rolls_back_installed_output (__main__.BuilderRepairD.test_input_replacement_during_commit_rolls_back_installed_output) ... ok
+test_parent_replacement_with_ordinary_directory_refuses (__main__.BuilderRepairD.test_parent_replacement_with_ordinary_directory_refuses) ... ok
+test_parent_swap_after_first_replace_does_not_redirect_rollback_or_cleanup (__main__.BuilderRepairD.test_parent_swap_after_first_replace_does_not_redirect_rollback_or_cleanup) ... ok
+test_parent_traversal_alias_is_intentionally_refused_before_any_write (__main__.BuilderRepairD.test_parent_traversal_alias_is_intentionally_refused_before_any_write) ... REPAIR_D_ALIAS alias_input=False staging=0 replacements=0; refusing to write: directory C:\Users\Turbolamer\AppData\Local\Temp\opencode\p16-builder-repair-d-case-e8f2rpa3\alias\..\output contains parent traversal '..'; use an input/output path without parent traversal.
+REPAIR_D_ALIAS alias_input=True staging=0 replacements=0; refusing to write: directory C:\Users\Turbolamer\AppData\Local\Temp\opencode\p16-builder-repair-d-case-e8f2rpa3\alias\..\output contains parent traversal '..'; use an input/output path without parent traversal.
+ok
+test_positive_existing_and_missing_pair_noop_and_nested_new_output (__main__.BuilderRepairD.test_positive_existing_and_missing_pair_noop_and_nested_new_output) ... ok
+test_raw_oserror_at_main_boundary_is_controlled (__main__.BuilderRepairD.test_raw_oserror_at_main_boundary_is_controlled) ... ok
+test_rollback_failure_is_not_falsely_reported_as_preservation (__main__.BuilderRepairD.test_rollback_failure_is_not_falsely_reported_as_preservation) ... ok
+test_route_replacement_after_guard_capture_refuses_before_writing (__main__.BuilderRepairD.test_route_replacement_after_guard_capture_refuses_before_writing) ... ok
+test_second_replace_failure_removes_only_newly_created_first_entry (__main__.BuilderRepairD.test_second_replace_failure_removes_only_newly_created_first_entry) ... ok
+test_second_staging_fsync_failure_changes_no_outputs_and_leaks_no_temps (__main__.BuilderRepairD.test_second_staging_fsync_failure_changes_no_outputs_and_leaks_no_temps) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.770s
+
+OK

@@ -1,0 +1,18 @@
+{
+  "scope": "Tiny calibrated name-resolution plus single empty-mesh conversion only; not universal persistent identity proof",
+  "name_resolution": {
+    "ok": true,
+    "result": "P3_IDENTITY_READ|getHandleByAnim:threw=false,undef=false,class=Primitive|getAnimByHandle:threw=false,undef=false,class=Primitive|isValidNode:threw=false,undef=false,class=Primitive|getUserPropBuffer:threw=false,undef=false,class=NodeGeneric|refs.dependents:threw=false,undef=false,class=Primitive|TotalGarbageP3_fn:threw=false,undef=true,class=UndefinedClass|1+1:threw=false,undef=false,class=Integer",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "77e91d0104e140e2a47b96abefb6ad99", "protocol_version": 2, "client_round_trip_ms": 0.615, "fallback_error": null},
+    "elapsed_ms": 0.639
+  },
+  "conversion": {
+    "ok": true,
+    "result": "P3_CONVERSION_ID|handle=1933P|oldValid=true|returnValid=true|handleValid=true|returnClass=Editable_Poly|returnHandle=1933P|handleClass=Editable_Poly|sameReturn=true|objectsAfter=0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "efa7d27ded14480b98075c0ae8aa9607", "protocol_version": 2, "client_round_trip_ms": 14.345, "fallback_error": null},
+    "elapsed_ms": 14.386
+  },
+  "interpretation": "Before mutation checked empty unnamed saveRequired=false mm/1. Created exactly one temp Editable_Mesh, bound original handle, convertTo returned actual valid Editable_Poly, getAnimByHandle original handle returned same valid node; exact references cleaned, objectsAfter=0. Historical conversion-warning evidence is not rewritten: old reference valid here does not establish all cases. Scene save-required state may now reflect temp edits; no reset/save/clearing save flag was attempted."
+}

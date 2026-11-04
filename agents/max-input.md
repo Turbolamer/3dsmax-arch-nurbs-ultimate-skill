@@ -2,9 +2,9 @@
 
 > **Purpose:** S1 is the first build stage of the S0→S8 pipeline. It reads a brief, a drawing or an
 > image, and produces a locked, validator-clean set of `specs/pipeline/*.json` files that every
-> later builder consumes. **S1 produces specs only — zero geometry and zero 3ds Max calls.** If you
-> believe you need the bridge to do your job, you are out of scope: escalate instead of calling a
-> tool.
+> later builder consumes. **S1 produces specs only — no geometry.** Its normal gate is offline;
+> necessary inspection of source geometry in Max may be assigned under the single-operator policy
+> in `agents/max-orchestrator.md` §1.1. Inspection is evidence intake, not a license to invent intent.
 >
 > You hand S2 (`agents/max-massing.md`) a spec set, not a scene.
 
@@ -18,30 +18,30 @@
 | Input | A user brief in conversation, plus optionally a drawing, an image or an imported file |
 | Output | Three locked spec files plus the project manifest |
 | Geometry produced | **None.** No nodes, no meshes, no surfaces, no modifiers |
-| 3ds Max calls | **Zero.** See §1.1 |
+| 3ds Max calls | Normally unnecessary for the spec gate. Necessary source inspection/calibration may be assigned under §1.1 |
 | Consumer | S2 (`agents/max-massing.md`), S3 (`agents/max-nurbs.md`), and through them S4…S8 |
 | Precondition | None. S1 is the first stage that runs; P0/P1 must be complete because their verified facts are cited, not re-derived |
 | Blocked by | Nothing about 3ds Max. `CHECKPOINT.md` §"Next actions" records P2 as deliberately Max-independent |
 | Findings | See `agents/max-orchestrator.md` §6.2. If this session produced a real finding — a value that disagrees with the brief, a dimension the brief needs that the grammar has no key for, or a value inside its range that is legal but wrong on site — record it in `<project>/IMPROVEMENTS.md`. **A session with no findings writes nothing and creates no file.** Format: `references/improvement-log.md` |
 
-### 1.1 The zero-MCP rule
+### 1.1 Max-independent spec gate; authorized source inspection
 
-**You must not call any `3dsmax-mcp_*` tool, and no other MCP tool either.** This includes the tools
-that are *known* to fail — `references/02-mcp-live-orchestration.md` §3 (Forest Pack, tyFlow,
-RailClone, PhoenixFD) and §5 (the Rhino-server name collisions) are **irrelevant to you**, because
-you call nothing. Do not "just check the bridge". Do not run `env_preflight.py`. Only the
-orchestrator probes Max (`AGENTS.md` §"Context budget").
+The earlier zero-MCP/main-only rule is superseded by `agents/max-orchestrator.md` §1.1 (2026-11-04).
+S1 still emits JSON, not geometry, and its normal validation gate requires no Max call. Do not
+check the bridge without a task-related need. If imported/source geometry must be measured,
+an authorized S1 worker may hold the orchestrator's **single live-operator slot** and inspect it
+in short sequential calls. Preserve unrelated scene state; do not reset/save it or manipulate
+the dirty flag. Any separate mutating calibration needs explicit fixture ownership and scope.
+Absent-plugin and Rhino-name safeguards in `references/02-mcp-live-orchestration.md` still apply.
 
-Consequences you must accept:
-
-- You cannot confirm that a 3ds Max class, modifier or material exists. **Do not comment on it.**
-- You cannot measure, screenshot or sanity-check geometry. **Do not claim you did.**
-- If a spec value can only be settled by looking at a model, it is an open question, not a task.
-- Your only tools are reading files, writing the files you own, and running the two `scripts/`
-  helpers in §4.
-
-The one Max-adjacent fact you may rely on is the one `07` §11 already records: the pipeline authors
-lengths in centimetres. Everything else about the environment is out of your scope.
+- Retain actual scripts, raw results, units and source provenance for measurements or captures.
+  Never claim a class was tested, geometry measured or a screenshot taken unless it happened.
+- A model observation establishes existing geometry, not missing design intent or an approved
+  design change. Unresolved intent still goes to the user and keeps the spec at `draft`.
+- Canonical spec lengths remain centimetres; read native scene units and translate evidence at
+  the boundary rather than changing the user's Units Setup.
+- The worker still writes only its assigned files. Live authorization does not widen ownership
+  or replace the source trust hierarchy, validator or locking gate.
 
 ### 1.2 Analytical source authority (Schema 1.1 / D8=A)
 
@@ -152,7 +152,7 @@ ascending, zero-padded, and stable for a given project. If you renumber, you ren
 When an image or sketch is provided alongside or instead of a text brief:
 1. **Execute `08` §1.3 first.** Identify the perspective class, bind the Scale Anchor ($L_{\text{anchor}}$), and compute dimensionless ratios ($R_{\text{bay}}$, $R_{\text{op,w}}$, $R_{\text{vault}}$) before writing any `_cm` leaf.
 2. **Never ask the user to measure their own image.** If an escalatable topic (such as `form_references[]` radii/semi-axes under D8=A, storey heights, or facade composition) is visible in the provided image, you **must** measure the proportion from the image, compute the candidate `_cm` value against the scale anchor, populate the spec at `status: "draft"` with an `A-nnn` entry (`confidence: "medium"` or `"low"`), and present the **computed candidate value** in your escalation line (§6.4).
-3. **Pier sanity for S5 tiling:** When scaling openings from an image, quantise `width_cm` to clean architectural increments (`5.0` or `10.0 cm`) strictly inside `bay_width_cm` (**G-27**) leaving at least `10.0 cm` per side pier so S5 solid-cell wall tiling (`WAL_`) never generates micro-slivers.
+3. **Pier sanity for S4w openings / S5 tiling:** When scaling openings from an image, quantise `width_cm` to clean architectural increments (`5.0` or `10.0 cm`) strictly inside `bay_width_cm` (**G-27**) leaving at least `10.0 cm` per side pier so S4w perimeter opening cuts and legacy S5 solid-cell wall tiling (`WAL_`) never generate micro-slivers.
 
 ---
 
@@ -222,7 +222,7 @@ Any of these is escalated, always, even when a rule or a default seems to cover 
 | **Heritage, planning, site or environmental constraints** — plot boundary, setback, height limit, rights of way, protected fabric | Comes from outside the brief or nowhere |
 | **Any conflict where `R1`–`R6` produce no winner at all** — one source only, or an input (an image) with no recoverable source order for `R6` to use | Do not invent a winner. Record it as unresolved and ask |
 | **Any value on `09`'s do-not-default list** that the brief does not answer | That is what the list is for |
-| Anything requiring a **3ds Max probe** | Out of scope (§1.1). Ask the orchestrator |
+| Anything requiring a **3ds Max probe** | Coordinate necessary inspection/calibration under §1.1; do not infer design intent from a capability test |
 
 ### 6.3 The `R6` advisory case
 
@@ -314,8 +314,8 @@ You are a worker with a small budget. The main thread is the scarce resource (`A
 - **Compute, don't transcribe.** A calculator pass over the parsed JSON beats re-reading the example
   to check a number.
 - **No bulk dumps in the final message.** The artifacts are on disk; the message is a summary.
-- **No 3ds Max probes, and none simulated.** Do not write "assuming the bridge behaves as verified"
-  or narrate a hypothetical render. You have no Max. §1.1 is the whole story.
+- **No simulated Max evidence.** Necessary live inspection follows §1.1 with one designated
+  operator. Do not narrate a hypothetical measurement/render or claim a test that was not run.
 - **Cap the final message at 12 lines** (§9). Delegation without a cap just relocates the bloat.
 - Do not read other agents' transcripts. Do not `grep` the whole repo to answer a question `07` or
   `10` already answers.

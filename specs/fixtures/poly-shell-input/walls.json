@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.1",
+  "spec": "walls",
+  "project": "pavilion-01",
+  "units": {"length": "cm", "angle": "deg"},
+  "source": {
+    "kind": "user_brief",
+    "reference": "Synthetic offline test brief: facade segments F-S, F-N and F-W denote the wall inner reference faces. All wall sizes, openings, direction vectors, budgets and epsilons are test inputs.",
+    "recorded_at": "2026-11-02T00:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {"linear_cm": 0.5, "area_m2": 0.05, "angle_deg": 0.01},
+  "origin_inputs": ["facades[0]", "facades[1]", "facades[3]"],
+  "origins": {
+    "wall_technique": {"origin": "given"},
+    "reference_face": {"origin": "given"},
+    "numeric_epsilon_cm": {"origin": "given"},
+    "numeric_unit_epsilon": {"origin": "given"},
+    "blocks[0]": {"origin": "given"},
+    "blocks[1]": {"origin": "given"},
+    "wall_runs[0]": {"origin": "given"},
+    "wall_runs[1]": {"origin": "given"},
+    "openings[0]": {"origin": "given"},
+    "openings[1]": {"origin": "given"},
+    "upper_returns[0]": {"origin": "given"}
+  },
+  "wall_technique": "poly_surface_shell_v1",
+  "reference_face": "inner",
+  "numeric_epsilon_cm": 0.001,
+  "numeric_unit_epsilon": 0.000001,
+  "blocks": [
+    {"id": "BLK-001", "z_range_cm": [0.0, 420.0]},
+    {"id": "BLK-002", "z_range_cm": [420.0, 820.0]}
+  ],
+  "wall_runs": [
+    {
+      "id": "RUN-001",
+      "block_id": "BLK-001",
+      "contour_ref": "dimensions.json:facades:F-S",
+      "start_cm": [0.0, 0.0],
+      "end_cm": [1800.0, 0.0],
+      "outward": [0.0, -1.0],
+      "thickness_cm": 30.0,
+      "base_z_cm": 0.0,
+      "top_z_cm": 420.0,
+      "topology_budget": {
+        "max_grid_polygons": 64,
+        "max_base_active_polygons": 64,
+        "max_evaluated_triangles": 512
+      }
+    },
+    {
+      "id": "RUN-002",
+      "block_id": "BLK-001",
+      "contour_ref": "dimensions.json:facades:F-N",
+      "start_cm": [0.0, 900.0],
+      "end_cm": [1800.0, 900.0],
+      "outward": [0.0, 1.0],
+      "thickness_cm": 30.0,
+      "base_z_cm": 0.0,
+      "top_z_cm": 420.0,
+      "topology_budget": {
+        "max_grid_polygons": 64,
+        "max_base_active_polygons": 64,
+        "max_evaluated_triangles": 512
+      }
+    }
+  ],
+  "openings": [
+    {
+      "id": "OP-001",
+      "wall_run_id": "RUN-001",
+      "kind": "window",
+      "u_range_cm": [135.0, 315.0],
+      "sill_cm": 90.0,
+      "head_cm": 270.0
+    },
+    {
+      "id": "OP-002",
+      "wall_run_id": "RUN-001",
+      "kind": "door",
+      "u_range_cm": [575.0, 775.0],
+      "sill_cm": 0.0,
+      "head_cm": 260.0
+    }
+  ],
+  "upper_returns": [
+    {
+      "id": "RET-001",
+      "block_id": "BLK-001",
+      "contour_ref": "dimensions.json:facades:F-W",
+      "start_cm": [0.0, 0.0],
+      "end_cm": [0.0, 900.0],
+      "outward": [-1.0, 0.0],
+      "thickness_cm": 30.0,
+      "base_z_cm": 380.0,
+      "top_z_cm": 420.0,
+      "topology_budget": {
+        "max_grid_polygons": 64,
+        "max_base_active_polygons": 64,
+        "max_evaluated_triangles": 512
+      },
+      "adjacent_run_ids": ["RUN-001", "RUN-002"]
+    }
+  ]
+}

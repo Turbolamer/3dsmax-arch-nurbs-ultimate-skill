@@ -1,0 +1,22 @@
+test_candidate_statuses_are_incomplete_only (__main__.IndependentLayerAuditTests.test_candidate_statuses_are_incomplete_only) ... ok
+test_finding_manager_witness_is_not_bound_to_actual_layer_manager (__main__.IndependentLayerAuditTests.test_finding_manager_witness_is_not_bound_to_actual_layer_manager) ... ok
+test_finding_nested_gi_is_value_profile_only_without_identity_marker (__main__.IndependentLayerAuditTests.test_finding_nested_gi_is_value_profile_only_without_identity_marker) ... ok
+test_finding_old_comparator_cannot_enforce_fresh_snapshot_provenance (__main__.IndependentLayerAuditTests.test_finding_old_comparator_cannot_enforce_fresh_snapshot_provenance) ... ok
+test_finding_old_emitter_pins_old_reader_not_p31_reader (__main__.IndependentLayerAuditTests.test_finding_old_emitter_pins_old_reader_not_p31_reader) ... ok
+test_finding_old_reader_snapshot_keeps_live_reference_objects (__main__.IndependentLayerAuditTests.test_finding_old_reader_snapshot_keeps_live_reference_objects) ... ok
+test_finding_p31_get_num_nodes_is_not_in_measured_membership_control (__main__.IndependentLayerAuditTests.test_finding_p31_get_num_nodes_is_not_in_measured_membership_control) ... ok
+test_finding_p31_has_no_global_scene_census_guard (__main__.IndependentLayerAuditTests.test_finding_p31_has_no_global_scene_census_guard) ... ok
+test_finding_reader_does_not_admit_units_selection_or_file_context (__main__.IndependentLayerAuditTests.test_finding_reader_does_not_admit_units_selection_or_file_context) ... ok
+test_frozen_candidate_hashes_are_reproducible (__main__.IndependentLayerAuditTests.test_frozen_candidate_hashes_are_reproducible) ... ok
+test_lexical_delimiter_smoke_is_not_a_parse_or_filein_result (__main__.IndependentLayerAuditTests.test_lexical_delimiter_smoke_is_not_a_parse_or_filein_result) ... ok
+test_model_equal_mutate_restore_is_fail_closed_and_detached (__main__.IndependentLayerAuditTests.test_model_equal_mutate_restore_is_fail_closed_and_detached) ... ok
+test_model_rejects_stale_replacement_foreign_members_and_dependencies (__main__.IndependentLayerAuditTests.test_model_rejects_stale_replacement_foreign_members_and_dependencies) ... ok
+test_model_rejects_unknown_missing_wrong_nonfinite_and_nested_fields (__main__.IndependentLayerAuditTests.test_model_rejects_unknown_missing_wrong_nonfinite_and_nested_fields) ... ok
+test_original_suite_does_not_kill_in_memory_finite_guard_mutant (__main__.IndependentLayerAuditTests.test_original_suite_does_not_kill_in_memory_finite_guard_mutant) ... ok
+test_p31_structural_suite_does_not_kill_in_memory_type_guard_mutant (__main__.IndependentLayerAuditTests.test_p31_structural_suite_does_not_kill_in_memory_type_guard_mutant) ... ok
+test_profile_counts_and_types_match_raw_measured_evidence (__main__.IndependentLayerAuditTests.test_profile_counts_and_types_match_raw_measured_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.027s
+
+OK

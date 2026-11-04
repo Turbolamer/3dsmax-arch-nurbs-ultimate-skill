@@ -1,0 +1,11 @@
+{
+  "purpose": "Translated geometry control: prevent measurement double objectTransform",
+  "wire": {
+    "ok": true,
+    "result": "P3_SNAPSHOT_SPACE|meshMin=[95,190,300]|meshMax=[105,210,330]|nodeMin=[95,190,300]|nodeMax=[105,210,330]|worldMatch=true|after=0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "b482e8fe7f45422aae0818fbb5973997", "protocol_version": 2, "client_round_trip_ms": 1.521, "fallback_error": null},
+    "elapsed_ms": 1.54
+  },
+  "interpretation": "One translated Box native dimensions10/20/30 pos100/200/300. Raw snapshotAsMesh getVert min/max equal world node bounds without objectTransform. Exact mesh+node refs cleaned; final census0. Confirms standing world-space rule; identity-transform F01 alone would mask erroneous second transform."
+}

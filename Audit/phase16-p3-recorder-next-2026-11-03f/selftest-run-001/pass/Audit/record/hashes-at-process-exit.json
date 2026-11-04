@@ -1,0 +1,77 @@
+{
+  "captured_utc": "2026-11-03T17:38:06.568281+00:00",
+  "files": {
+    "Audit/test_phase16_p3_control.py": {
+      "state": "FILE",
+      "sha256": "391687330e0239bb80072f1f6a3eabd5e20175f43b8c29cbe140c4c228843391",
+      "size": 138
+    },
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\recorder.py": {
+      "state": "FILE",
+      "sha256": "af2d9ac6cad8573ebb60c07636fa2c98dec846c7bf95671550a83a6add182a78",
+      "size": 26735
+    },
+    "f01/direction-authority.json": {
+      "state": "FILE",
+      "sha256": "5cefa4e5e686f86b8d76d5d56542807c474a2ca8bb67a969e29842e8d7b6daa8",
+      "size": 197
+    },
+    "f01/project/walls.json": {
+      "state": "FILE",
+      "sha256": "a1f15924654e182112879c77b3c72430504050b30109705d71d475cb3483b441",
+      "size": 16
+    },
+    "fixture.dat": {
+      "state": "FILE",
+      "sha256": "ef17a3ce8721761413ceac766901ada457f76ef13dfeac0982ffc65ddf21bdc1",
+      "size": 20
+    },
+    "old-run-one/evidence.json": {
+      "state": "FILE",
+      "sha256": "6db01a10280e16e2efe401af2f503705f15abedaba249bfc215d2560ec7889be",
+      "size": 13
+    },
+    "old-run-two/evidence.json": {
+      "state": "FILE",
+      "sha256": "d0b582a3d1957ee3dd555aee857110d56b22b992e2563280ad647eeeaf0cb1ab",
+      "size": 13
+    },
+    "package.skill": {
+      "state": "FILE",
+      "sha256": "f9f3fab76f3c183495cff769624df7f5674f52ddea74a770c58e78ef96a49ea6",
+      "size": 23
+    },
+    "policy.ms": {
+      "state": "FILE",
+      "sha256": "a4266416b9a7cda8f29ea85442a046ddc24471586403f3caecb7a685cc51f6d0",
+      "size": 24
+    },
+    "prior.json": {
+      "state": "FILE",
+      "sha256": "ab05aa427ba74935df50e6891e2233e0f667844eee41139d73cfcabddc40c83e",
+      "size": 18
+    },
+    "scripts/runtime.py": {
+      "state": "FILE",
+      "sha256": "f355edc2272062174c2269141b8347e6a4dda17b2625e4031c432258ae0dd89f",
+      "size": 9
+    },
+    "source.md": {
+      "state": "FILE",
+      "sha256": "0ad70f2f723588a6958988b91c87a164786430805d62351f5cf3352817585fa3",
+      "size": 22
+    }
+  },
+  "git": {
+    "command": [
+      "fake_git_control"
+    ],
+    "returncode": 0,
+    "head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "stderr": ""
+  },
+  "discovered_suites": [
+    "Audit/test_phase16_p3_control.py"
+  ],
+  "inventory_errors": []
+}

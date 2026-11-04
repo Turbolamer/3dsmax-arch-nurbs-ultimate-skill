@@ -1,11 +1,20 @@
 # 01 — Pipeline Workflow: Stage Map & Contracts (S0 → S7)
 
-> **Updated 2026-10-10 (Form Precision & Staged Unit Pipeline):**
+> **Updated 2026-11-04 (Accepted Production Architecture `closed_inner_contour_shell_v2`):**
 > The active architecture pipeline runs **S0 → S5 (geometry)**, verified by **S7 (QA gate)**,
 > followed by **manual material assignment hand-off**.
-> - **S5 (`scripts/place_components.py`) is the FINAL geometry builder.** It emits zero modifiers (`G-81`) and applies Mechanism A host wall hiding (`host_node.isHidden = true`).
-> - **S7 (`scripts/qa_check.py`) is the automated QA verification gate.** It evaluates coverage, census, analytical form precision oracle, wall host hiding, modifier stack, and replay idempotency.
+> - **S4w (`scripts/build_wall_v2.py`) is the perimeter wall builder** for the accepted production architecture `closed_inner_contour_shell_v2`. It generates a continuous `Editable_Poly` perimeter ribbon per floor with rough openings excised, applies exactly 1 outward `Shell` modifier (`straightenCorners=true`), and preserves a hidden reference `SplineShape` guide (`_InnerSpline`).
+> - **S5 (`scripts/place_components.py`) is the FINAL geometry builder.** It mounts component assemblies via the S4w opening manifest, emits zero modifiers (`G-81`), and applies Mechanism A host wall hiding (`host_node.isHidden = true`).
+> - **Legacy routes (`legacy_cells_v1`, `poly_surface_shell_v1`) are preserved** as explicit options without silent fallback.
+> - **S7 (`scripts/qa_check.py`) is the automated QA verification gate.** It evaluates coverage, census, analytical form precision oracle, solid watertightness (`openEdges == 0`), wall host hiding, modifier stack, and replay idempotency.
 > - **S6 / P7 (materials + UVs) and S8 / P9 (export) remain cancelled by user decision.** Materials and UVs are applied by hand; the deliverable is a verified live 3ds Max scene.
+
+> **Live-access update (2026-11-04):** temporary no-Max/read-only/offline-only stops and main-only
+> probe routing are superseded. Authorized agents may use Max when necessary for assigned work,
+> with **one live operator at a time** coordinated by `agents/max-orchestrator.md` §1.1. Use short
+> sequential calls, preserve unrelated scene content, never reset/save unrelated state or manipulate
+> dirty flags, and clean up only proven-owned temporary fixtures. Fatal stack, `formattedPrint`
+> and synthetic `nurbsID` safeguards remain. Permission does not accept a new architecture under test.
 
 ---
 
@@ -39,27 +48,33 @@ brief
  └─ S1  dimensions.json ─┬─ assumptions.json ─┬─ conflicts_resolved.json      [hand-authored, locked]
                          │
                          ├─> S2  build_spec.py ────> massing.json + massing.ms ──> 27 nodes
+                         │                           (slabs, columns, roof, site pad)
                          │
                          ├─> S3  build_nurbs.py ───> nurbs.json  + nurbs.ms     ──> 10 nodes
                          │      (analytical curve expansion via curve_gen.py / expand_curves.py)
                          │
-                         └─> S4  facade_tables.py > facade_grids.json
-                                            └────> components_registry.json
-                                                     facade_table.csv
-                                                     world_table.csv         ──> 136 panels / 29 blocks
-                                                              │
-                            S2 massing.json ──────────────────-┤
-                            S1 dimensions.json ────────────────┤
-                                                              ▼
-                               S5  place_components.py ─> assembly.json + assembly.ms ──> 244/254 nodes
-                               [LAST GEOMETRY BUILDER]                  │
-                               (Mechanism A host hiding, 0 modifiers)   │
-                                                                        ▼
-                                                   S7  qa_check.py  (--emit -> MCP collect -> --assess)
-                                                   [QA VERIFICATION GATE: coverage, census, form, walls]
-                                                                        │
-                                                                        ▼
-                                                       Manual Material Assignment Hand-off
+                         ├─> S4  facade_tables.py > facade_grids.json
+                         │                  └────> components_registry.json
+                         │                           facade_table.csv
+                         │                           world_table.csv         ──> 136 panels / 29 blocks
+                         │                                    │
+                         ├─> S4w build_wall_v2.py ─> walls.json ───────────────> wall_surface.json
+                         │   [PRODUCTION WALL ARCHITECTURE:                     + wall_surface.ms
+                         │    closed_inner_contour_shell_v2]                    (perimeter poly + 1 Shell,
+                         │                                                       _InnerSpline guide)
+                         │                                                               │
+                         │   S2 massing.json ────────────────────────────────────────────┤
+                         │   S1 dimensions.json ─────────────────────────────────────────┤
+                         │                                                               ▼
+                         └─> S5  place_components.py ─────────────────────────> assembly.json + assembly.ms
+                             [LAST GEOMETRY BUILDER]                                     │
+                             (mounts via S4w manifest; Mechanism A host hiding; 0 mods)   │
+                                                                                         ▼
+                                                    S7  qa_check.py  (--emit -> MCP collect -> --assess)
+                                                    [QA VERIFICATION GATE: coverage, census, form, solid, walls]
+                                                                                         │
+                                                                                         ▼
+                                                        Manual Material Assignment Hand-off
 ```
 
 ### Spec File Registry
@@ -73,10 +88,11 @@ brief
 | 5 | `nurbs.json` | **S3** (`agents/max-nurbs.md`) | S1, S2 specs | Relational NURBS curves, surfaces, approximations |
 | 6 | `facade_grids.json` | **S4a** (`agents/max-facade.md`) | S1, S2 specs | Elevation bay grids, mullions, panel types |
 | 7 | `components_registry.json` | **S4b** (`agents/max-components.md`) | S4a specs | Parametric block definitions, geometry profiles |
-| 8 | `assembly.json` | **S5** (`agents/max-assembly.md`) | S1, S2, S4 specs, CSVs | Instance placements, tiled walls (`wall_cells`), scatter declarations |
-| 9 | `qa.json` | **S7** (`agents/max-qa.md`) | S1..S5 specs | Verification check plan, targets, tolerances, limits (`G-87`..`G-90`) |
-| 10 | ~~`materials.json`~~ | Reserved stub | — | Manual hand-off; stage cancelled by user decision |
-| 11 | ~~`export.json`~~ | Reserved stub | — | Manual hand-off; stage cancelled by user decision |
+| 8 | `walls.json` | **S4w** (`references/10-wall-generation-pipeline.md`) | S1 specs | Floor boundaries, rough openings, wall thickness (v2.0) |
+| 9 | `assembly.json` | **S5** (`agents/max-assembly.md`) | S1, S2, S4, S4w specs, CSVs | Instance placements via manifest, legacy cells, scatter declarations |
+| 10 | `qa.json` | **S7** (`agents/max-qa.md`) | S1..S5 specs | Verification check plan, targets, tolerances, limits (`G-87`..`G-90`) |
+| 11 | ~~`materials.json`~~ | Reserved stub | — | Manual hand-off; stage cancelled by user decision |
+| 12 | ~~`export.json`~~ | Reserved stub | — | Manual hand-off; stage cancelled by user decision |
 
 ---
 
@@ -91,7 +107,7 @@ brief
 - **Reads:** Architectural brief, raster drawings, reference imagery.
 - **Gate:** `python scripts/validate_specs.py --dir specs/pipeline --build` exits 0; all three files `status: "locked"`.
 - **Refuses when:** Dimensions contain unspecified default inventions, or open conflict records exist.
-- **Tools:** Zero MCP calls. Pure offline stage.
+- **Tools:** The spec gate is offline; necessary source-model inspection/calibration may be assigned under `agents/max-orchestrator.md` §1.1. This is not an agent-wide MCP ban.
 
 ### S2 — Prismatic Massing (`agents/max-massing.md`)
 - **Reads:** `dimensions.json` (locked).
@@ -110,20 +126,47 @@ brief
 - **Outputs:** `facade_grids.json`, `components_registry.json`, `facade_table.csv`, `world_table.csv`.
 - **Gate:** MAXScript reads 136 CSV rows; places 136 reference instances referencing 29 component prototypes; `objects.count` == 165.
 
-### S5 — Assembly & Wall Tiling (FINAL Geometry Builder) (`agents/max-assembly.md`)
-- **Reads:** `dimensions.json`, `massing.json`, `components_registry.json`, `world_table.csv`.
+### S4w — Closed-Contour Perimeter Shell v2 (Production Wall Architecture) (`references/10-wall-generation-pipeline.md`, `references/20-closed-contour-shell-v2-contract.md`)
+- **Reads:** `dimensions.json` (storeys, footprints, levels), `walls.json` schema 2.0.
+- **Builder:** `python scripts/build_wall_v2.py --in <specs> --out <specs>`.
+- **Outputs:** `wall_surface.json`, `wall_surface.ms`.
+- **Gate:**
+  - Preserves non-rendering guide `SplineShape` (`_InnerSpline`).
+  - Emits single continuous `Editable_Poly` perimeter ribbon per floor with shared vertex indices at corner seams and rough openings cut before thickness.
+  - Applies exactly **one outward `Shell` modifier** (`innerAmount=0`, `outerAmount=thickness`, `straightenCorners=true`, `segments=1`).
+  - Verified 100% solid watertight manifold (`openEdges == 0`) matching analytical volume oracle.
+  - Emits structured **Opening Manifest** with local orthonormal transformation matrices for S5 mounting.
+
+### S5 — Assembly & Component Placement (FINAL Geometry Builder) (`agents/max-assembly.md`)
+- **Reads:** `dimensions.json`, `massing.json`, `components_registry.json`, `world_table.csv`, and S4w opening manifest.
 - **Builder:** `python scripts/place_components.py --stage assembly --in <specs> --out <specs>`.
 - **Outputs:** `assembly.json`, `assembly.ms`.
 - **Gate:**
-  - `fileIn massing.ms` then `fileIn assembly.ms` ×3 → `objects.count` == 244 (254 with NURBS), strictly idempotent.
+  - `fileIn massing.ms`, `fileIn wall_surface.ms`, then `fileIn assembly.ms` ×3 → strictly idempotent.
   - **Zero modifiers (`G-81`):** `addModifier` count in emitted script is exactly 0.
-  - **Mechanism A host hiding:** Massing host walls (`EL_014`..`EL_021`) deactivated via `host_node.isHidden = true`, preventing active collisions with opening apertures and discrete `WAL_` solid cells.
-  - **$B_{\text{total}}$ Volume Budget:** G-82 volume propagation error budget verified in $\text{cm}^3$ ($|\text{cell\_volume} - \text{expected}| \le B_{\text{total}}$).
+  - **Mechanism A host hiding:** Massing host walls (`EL_014`..`EL_021`) deactivated via `host_node.isHidden = true`, preventing active collisions with rough openings and component placements.
+  - **Mounts by manifest:** Component frames mounted into rough openings with specified reveals and clearances.
+  - **Preserved Legacy Route (`legacy_cells_v1`):** Emits discrete solid `WAL_` cells without modifiers, checked against $B_{\text{total}}$ volume budget (`G-82`).
+  - **Route Invariant:** Unknown or invalid selectors fail closed; no silent fallback permitted between routes.
 
 ### S7 — QA Verification Gate (`agents/max-qa.md`, `scripts/qa_check.py`)
 - **Reads:** All pipeline specs, `qa.json` (`G-87`..`G-90`), live Max scene.
 - **Role:** Strictly read-only verification gate. Emits zero geometry.
 - **Workflow:**
+  1. **Emit:** `python scripts/qa_check.py --in <specs> --emit <run_dir> --run-id <run_id> [--calibration-cert <cert>]`. Generates canonical `qa-request.json`, `qa-run-context.json`, and sequential query batch files (`batch_001.ms`, etc.). Exit 0 = `READY`.
+  2. **MCP Collect:** Execute query batches sequentially via `3dsmax-mcp_execute_maxscript`, saving wire stdout to `<run_dir>/results.json`.
+  3. **Assess:** `python scripts/qa_check.py --in <specs> --request <run_dir>/qa-request.json --results <run_dir>/results.json --out <run_dir>`.
+- **Verification Families:**
+  - `QA-V1-SOLID`: signed tetrahedral volume $> 0$, exactly 0 open edges (`openEdges == 0`), analytical volume oracle match.
+  - `QA-V1-TOPOLOGY`: base class `Editable_Poly`, modifier stack count == 1 (`Shell`), 0 duplicate vertices, valid seam valence.
+  - `QA-V1-SURFACE`: surface deviation evaluated by analytical geometry oracle against exact mathematical formulas ($\le 0.5\text{ cm}$).
+  - `QA-V1-COVERAGE`: all target solids and surfaces observed.
+  - `QA-V1-CENSUS` & `QA-V1-NURBS-CENSUS`: massing and NURBS object counts match spec.
+  - `QA-V1-PLACEMENT`: placed component positions match predicted coordinates.
+  - `QA-V1-WALLS`: Mechanism A verified (`host_node.isHidden == true` prevents opening occlusion).
+  - `QA-V1-STACK`: zero-modifier invariant verified across placement nodes (`G-81`).
+  - `QA-V1-REPLAY`: idempotency across repeated runs.
+- **Gate:** Exit 0 on complete PASS only; exit 1 on FAIL/ERROR/INCOMPLETE.
   1. **Emit:** `python scripts/qa_check.py --in <specs> --emit <run_dir> --run-id <run_id> [--calibration-cert <cert>]`. Generates canonical `qa-request.json`, `qa-run-context.json`, and sequential query batch files (`batch_001.ms`, etc.). Exit 0 = `READY`.
   2. **MCP Collect:** Execute query batches sequentially via `3dsmax-mcp_execute_maxscript`, saving wire stdout to `<run_dir>/results.json`.
   3. **Assess:** `python scripts/qa_check.py --in <specs> --request <run_dir>/qa-request.json --results <run_dir>/results.json --out <run_dir>`.

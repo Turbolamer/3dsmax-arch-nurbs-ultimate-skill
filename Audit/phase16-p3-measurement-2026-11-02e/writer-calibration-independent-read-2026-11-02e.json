@@ -1,0 +1,14 @@
+{
+  "schema_version": "p3-writer-independent-read-1",
+  "status": "BYTES_HASH_JSON_UTF8_NO_BOM_VERIFIED",
+  "source_path": "Audit\\_phase16-p3-writer-calibration-2026-11-02e.json",
+  "sha256": "51eca5564e30fcc80979e30679fd1f05410d08ae59b76508183bf6b2a9b06b0a",
+  "bytes": 41,
+  "utf8_no_bom": true,
+  "parsed": {
+    "calibration": "AéЖ",
+    "line": "one\ntwo"
+  },
+  "frozen_source_hashes_match": true,
+  "scope": "Current file independently read offline by measurement author; same-path repeat live behavior is main-reported in sibling transcription. No Max calls or F01 acceptance."
+}

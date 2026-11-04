@@ -1,0 +1,18 @@
+{
+  "scope": "Real generated unit-control attempt failed for unrelated compiler collision; no unit PASS",
+  "wrapper_wire": {
+    "ok": false, "result": null, "warnings": [],
+    "error": {"type": "MAXScriptError", "message": "-- Runtime error: UNIT_CONTROL_FAIL|wrong refusal reason; NOT target unit guard"},
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "159d041918a74ffab691421a3833c05f", "protocol_version": 2, "client_round_trip_ms": 15.451, "fallback_error": null},
+    "elapsed_ms": 15.563
+  },
+  "actual_error_diagnostic_wire": {
+    "ok": true,
+    "result": "P3_UNIT_ACTUAL_DIAGNOSTIC|threw=true|reason=-- Cannot assign to read-only variable: freeze|objects=0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "27f87b2fd27b4a3ab24099070b5e53a9", "protocol_version": 2, "client_round_trip_ms": 3.521, "fallback_error": null},
+    "elapsed_ms": 3.54
+  },
+  "verdict": "FAILED_UNRELATED_COMPILE_COLLISION_NOT_UNIT_GUARD",
+  "action": "Runtime owner assigned unique local helper names; generated fn freeze conflicts with built-in read-only variable. Preserve failed artifact/control; regenerate separate run after source repair. No scene nodes created."
+}

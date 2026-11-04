@@ -1,0 +1,9 @@
+{
+  "scope": "Single disposable quad VData reader calibration only; not emitted wall, full metadata comparison or replay",
+  "script": "Audit/phase16-p3-main-probes-2026-11-03f/vdata11.ms",
+  "script_sha256_before_fileIn": "1551988805e2011ae860e8f7f5c3e31a70edf64885c9cadcb66ce71f5ed38416",
+  "precheck": {"ok":true,"result":"P3_VDATA_PRECHECK|objects=0|selection=0|file=|units=millimeters/1.0|dirty=false|layers=1|oldKey=false","error":null,"request_id":"d24a275cb36f404397c0f24fce23c0e1","elapsed_ms":0.432},
+  "fileIn": {"ok":true,"result":"P3_VDATA11|positive=true|bogusAbsent=true|bogusThrows=true|wrongTypeThrows=true|beforeChannels=0|afterChannels=11|supported=true|first=0.375|repeat=0.375|edited=0.625|geometryUnchanged=true|outcome=BOUNDED_VDATA_OBSERVED_NOT_ACCEPTANCE|cleanup=true|objects=0|selection=0|dirtyBefore=false|dirtyAfter=false","warnings":[],"error":null,"request_id":"357e0c335a8f4ac79ddafb8e5f17e5f7","elapsed_ms":10.572},
+  "postcheck": {"ok":true,"result":"P3_VDATA_POSTCHECK|objects=0|selection=0|file=|units=millimeters/1.0|dirty=false|layers=1|layer0=0|oldKey=false","error":null,"request_id":"bce6f8be68de465db4fc8c7e55d1c91b","elapsed_ms":0.435},
+  "interpretation": "The controlled owned quad showed repeatable support/value readings and distinguished a channel-11 addition and a 0.375-to-0.625 value edit while vertex/face counts and the first vertex coordinates were unchanged. Positive/bogus/wrong-type controls discriminated. The exact created node was deleted, zero nodes observed afterward; no handle-only adoption. Both dirty observations were false; main did not save/reset/clear the flag. This did not execute the production comparator and does not prove domain-wide VData, EData, maps, native metadata, specified normals, controller/dependency safety, or F01. A bridge timeout or constructor/cleanup identity ambiguity would not be a pass."
+}

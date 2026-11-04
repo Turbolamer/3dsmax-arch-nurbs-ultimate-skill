@@ -1,0 +1,11 @@
+{
+  "normal_end": true,
+  "captured_utc": "2026-11-02T21:27:30.582616+00:00",
+  "recording_status": "FAILED",
+  "source_drift": [
+    "Audit/_phase16-p3-status-draft-2026-11-02e.md"
+  ],
+  "baseline_problems": [],
+  "acceptance": "NOT_ASSESSED",
+  "note": "Best-effort atexit evidence only; no kill/crash durability guarantee. This later snapshot can invalidate the earlier verdict; inspect both. The Python returncode has already been selected before atexit."
+}

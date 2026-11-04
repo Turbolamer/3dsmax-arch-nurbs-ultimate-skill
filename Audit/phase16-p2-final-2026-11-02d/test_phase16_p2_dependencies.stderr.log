@@ -1,0 +1,70 @@
+test_assembly_project_mismatch_fails_g31_and_blocks_g92 (__main__.Dependencies.test_assembly_project_mismatch_fails_g31_and_blocks_g92) ... 
+[unchanged historical legacy route] exit=0 G-31=PASS G-92=PASS
+
+[assembly project mismatch] exit=1 G-31=FAIL G-92=SKIP
+ok
+test_assumed_source_draft_ledger_never_passes_wall (__main__.Dependencies.test_assumed_source_draft_ledger_never_passes_wall) ... 
+[assumption locked control] exit=0 G-4=PASS G-15=PASS G-31=PASS G-93=PASS
+
+[assumed source: draft ledger] exit=1 G-4=WARN G-15=PASS G-93=FAIL
+ok
+test_assumed_source_empty_reason_fails_g15_and_blocks_wall (__main__.Dependencies.test_assumed_source_empty_reason_fails_g15_and_blocks_wall) ... 
+[assumption locked control] exit=0 G-4=PASS G-15=PASS G-31=PASS G-93=PASS
+
+[assumed source: empty reason] exit=1 G-4=PASS G-15=FAIL G-93=FAIL
+ok
+test_assumed_source_locked_positive (__main__.Dependencies.test_assumed_source_locked_positive) ... 
+[assumption locked control] exit=0 G-4=PASS G-15=PASS G-31=PASS G-93=PASS
+ok
+test_conflict_source_draft_ledger_never_passes_wall (__main__.Dependencies.test_conflict_source_draft_ledger_never_passes_wall) ... 
+[conflict locked control] exit=0 G-4=PASS G-14=PASS G-31=PASS G-93=PASS
+
+[conflict source: draft ledger] exit=1 G-4=WARN G-14=PASS G-93=FAIL
+ok
+test_conflict_source_locked_positive (__main__.Dependencies.test_conflict_source_locked_positive) ... 
+[conflict locked control] exit=0 G-4=PASS G-14=PASS G-31=PASS G-93=PASS
+ok
+test_conflict_source_missing_rejection_fails_g14_and_blocks_wall (__main__.Dependencies.test_conflict_source_missing_rejection_fails_g14_and_blocks_wall) ... 
+[conflict locked control] exit=0 G-4=PASS G-14=PASS G-31=PASS G-93=PASS
+
+[conflict source: missing rejection] exit=1 G-4=PASS G-14=FAIL G-93=FAIL
+ok
+test_conflicting_route_blocks_g94_pass (__main__.Dependencies.test_conflicting_route_blocks_g94_pass) ... 
+[matching draft route control] exit=0 G-92=SKIP G-93=PASS G-94=PASS G-97=PASS
+
+[conflicting assembly route] exit=1 G-92=FAIL G-94=SKIP G-97=SKIP
+ok
+test_conflicting_route_blocks_g97_pass (__main__.Dependencies.test_conflicting_route_blocks_g97_pass) ... 
+[matching draft route control] exit=0 G-92=SKIP G-93=PASS G-94=PASS G-97=PASS
+
+[conflicting assembly route] exit=1 G-92=FAIL G-94=SKIP G-97=SKIP
+ok
+test_historical_route_positive (__main__.Dependencies.test_historical_route_positive) ... 
+[unchanged historical legacy route] exit=0 G-31=PASS G-92=PASS
+ok
+test_invalid_unlisted_file_never_reports_g7_pass (__main__.Dependencies.test_invalid_unlisted_file_never_reports_g7_pass) ... 
+[valid non-inventory --file] exit=1 G-7=PASS
+  control: other FAILs G-1@pipeline/unlisted_control.json
+
+[invalid non-inventory --file] exit=1 G-7=FAIL
+ok
+test_invalid_upstream_form_reference_fails_g86_and_blocks_wall (__main__.Dependencies.test_invalid_upstream_form_reference_fails_g86_and_blocks_wall) ... 
+[well-formed upstream form reference] exit=0 G-86=PASS G-93=PASS
+
+[invalid upstream form reference] exit=1 G-86=FAIL G-93=FAIL
+ok
+test_matching_draft_route_positive_for_opening_and_budget_checks (__main__.Dependencies.test_matching_draft_route_positive_for_opening_and_budget_checks) ... 
+[matching draft route control] exit=0 G-92=SKIP G-93=PASS G-94=PASS G-97=PASS
+ok
+test_upstream_form_reference_positive (__main__.Dependencies.test_upstream_form_reference_positive) ... 
+[well-formed upstream form reference] exit=0 G-86=PASS G-93=PASS
+ok
+test_valid_unlisted_file_positive (__main__.Dependencies.test_valid_unlisted_file_positive) ... 
+[valid non-inventory --file] exit=1 G-7=PASS
+  control: other FAILs G-1@pipeline/unlisted_control.json
+ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 27.844s
+
+OK

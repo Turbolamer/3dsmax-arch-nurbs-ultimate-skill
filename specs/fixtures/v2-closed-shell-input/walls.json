@@ -1,0 +1,79 @@
+{
+  "schema_version": "2.0",
+  "spec": "walls",
+  "project": "pavilion-01",
+  "units": {"length": "cm", "angle": "deg"},
+  "source": {
+    "kind": "user_brief",
+    "reference": "V2 closed inner contour shell test fixture with ground storey and openings matching the live visual approved specimen.",
+    "recorded_at": "2026-11-04T00:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {"linear_cm": 0.5, "area_m2": 0.05, "angle_deg": 0.01},
+  "origin_inputs": ["facades[0]", "facades[1]", "facades[3]"],
+  "origins": {
+    "wall_technique": {"origin": "given"},
+    "reference_face": {"origin": "given"},
+    "numeric_epsilon_cm": {"origin": "given"},
+    "numeric_unit_epsilon": {"origin": "given"},
+    "storeys[0]": {"origin": "given"}
+  },
+  "wall_technique": "closed_inner_contour_shell_v2",
+  "reference_face": "inner",
+  "numeric_epsilon_cm": 0.001,
+  "numeric_unit_epsilon": 0.0001,
+  "storeys": [
+    {
+      "id": "storey_1",
+      "name": "Ground Floor",
+      "base_z_cm": 0.0,
+      "top_z_cm": 300.0,
+      "wall_thickness_cm": 30.0,
+      "reference_face": "inner",
+      "vertices_cm": [
+        [0.0, 0.0],
+        [600.0, 0.0],
+        [600.0, 400.0],
+        [0.0, 400.0]
+      ],
+      "segments": [
+        {"id": "seg_south", "start_vertex_index": 0, "end_vertex_index": 1, "facade_ref": "dimensions.json:facades:F-S"},
+        {"id": "seg_east", "start_vertex_index": 1, "end_vertex_index": 2, "facade_ref": "dimensions.json:facades:F-E"},
+        {"id": "seg_north", "start_vertex_index": 2, "end_vertex_index": 3, "facade_ref": "dimensions.json:facades:F-N"},
+        {"id": "seg_west", "start_vertex_index": 3, "end_vertex_index": 0, "facade_ref": "dimensions.json:facades:F-W"}
+      ],
+      "openings": [
+        {
+          "id": "OP-001",
+          "segment_id": "seg_south",
+          "kind": "door",
+          "s_range_cm": [100.0, 200.0],
+          "sill_cm": 0.0,
+          "head_cm": 210.0,
+          "component_ref": "components_registry.json:components:DOOR-01"
+        },
+        {
+          "id": "OP-002",
+          "segment_id": "seg_south",
+          "kind": "window",
+          "s_range_cm": [320.0, 500.0],
+          "sill_cm": 90.0,
+          "head_cm": 210.0
+        },
+        {
+          "id": "OP-003",
+          "segment_id": "seg_east",
+          "kind": "window",
+          "s_range_cm": [100.0, 300.0],
+          "sill_cm": 110.0,
+          "head_cm": 240.0
+        }
+      ],
+      "topology_budget": {
+        "max_grid_polygons": 128,
+        "max_base_active_polygons": 128,
+        "max_evaluated_triangles": 1024
+      }
+    }
+  ]
+}

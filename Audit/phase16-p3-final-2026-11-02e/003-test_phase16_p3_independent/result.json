@@ -1,0 +1,183 @@
+{
+  "test": "Audit/test_phase16_p3_independent.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_independent.py",
+    "-v"
+  ],
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "started_utc": "2026-11-02T21:25:33.599066+00:00",
+  "ended_utc": "2026-11-02T21:27:30.088077+00:00",
+  "seconds": 116.488998,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 16443,
+    "sha256": "e19109c6ffbb6350e2a5cd8e5eefa268749234246a7b7666ccadb56b5f66a73f"
+  },
+  "source_drift": [
+    "Audit/_phase16-p3-status-draft-2026-11-02e.md"
+  ],
+  "baseline_problems": [],
+  "observations": {
+    "summary_lines": [
+      {
+        "stream": "stderr",
+        "line": 27,
+        "text": "Ran 22 tests in 116.346s"
+      },
+      {
+        "stream": "stderr",
+        "line": 29,
+        "text": "OK"
+      },
+      {
+        "stream": "stderr",
+        "line": 33,
+        "text": "INDEPENDENT_P3_DRIFT []"
+      },
+      {
+        "stream": "stderr",
+        "line": 34,
+        "text": "INDEPENDENT_P3_RESULT {\"tests\": 22, \"failures\": 0, \"errors\": 0, \"skips\": 0, \"events\": 131, \"drift\": []}"
+      }
+    ],
+    "qualifier_lines": [
+      {
+        "stream": "stderr",
+        "line": 34,
+        "text": "INDEPENDENT_P3_RESULT {\"tests\": 22, \"failures\": 0, \"errors\": 0, \"skips\": 0, \"events\": 131, \"drift\": []}"
+      }
+    ],
+    "test_lines": [
+      {
+        "stream": "stderr",
+        "line": 3,
+        "text": "test_01_real_f01_source_and_deterministic_actual_output (__main__.IndependentEmitter.test_01_real_f01_source_and_deterministic_actual_output) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "test_02_numeric_raw_json_refusals_have_clean_control (__main__.IndependentEmitter.test_02_numeric_raw_json_refusals_have_clean_control) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 5,
+        "text": "test_03_closed_schema_duplicates_and_status_route_refusals (__main__.IndependentEmitter.test_03_closed_schema_duplicates_and_status_route_refusals) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "test_04_authority_closed_binding_source_hash_missing_and_flip (__main__.IndependentEmitter.test_04_authority_closed_binding_source_hash_missing_and_flip) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 7,
+        "text": "test_05_wall_flip_refuses_against_unchanged_physical_authority (__main__.IndependentEmitter.test_05_wall_flip_refuses_against_unchanged_physical_authority) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 8,
+        "text": "test_06_provenance_missing_unknown_and_derived_without_oracle (__main__.IndependentEmitter.test_06_provenance_missing_unknown_and_derived_without_oracle) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 9,
+        "text": "test_07_known_formula_bad_arithmetic_and_dependency_refuse (__main__.IndependentEmitter.test_07_known_formula_bad_arithmetic_and_dependency_refuse) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 10,
+        "text": "test_08_larger_real_fixture_whole_request_refuses (__main__.IndependentEmitter.test_08_larger_real_fixture_whole_request_refuses) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 11,
+        "text": "test_09_all_declared_topology_budgets_are_enforced (__main__.IndependentEmitter.test_09_all_declared_topology_budgets_are_enforced) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 12,
+        "text": "test_10_cli_namespace_units_scale_injection_and_no_overrides (__main__.IndependentEmitter.test_10_cli_namespace_units_scale_injection_and_no_overrides) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 13,
+        "text": "test_11_public_output_existing_pair_private_victim_unchanged (__main__.IndependentEmitter.test_11_public_output_existing_pair_private_victim_unchanged) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 14,
+        "text": "test_12_runtime_direct_clean_float32_near_stations_and_operation_caps (__main__.IndependentEmitter.test_12_runtime_direct_clean_float32_near_stations_and_operation_caps) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 15,
+        "text": "test_13_publisher_real_no_replace_late_collision_and_private_bytes (__main__.IndependentEmitter.test_13_publisher_real_no_replace_late_collision_and_private_bytes) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 16,
+        "text": "test_14_publisher_second_write_failure_has_no_partial_pair (__main__.IndependentEmitter.test_14_publisher_second_write_failure_has_no_partial_pair) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 17,
+        "text": "test_15_publisher_private_stage_substitution_is_retained_not_deleted (__main__.IndependentEmitter.test_15_publisher_private_stage_substitution_is_retained_not_deleted) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 18,
+        "text": "test_16_real_render_then_observed_input_or_authority_source_drift_refuses (__main__.IndependentEmitter.test_16_real_render_then_observed_input_or_authority_source_drift_refuses) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 19,
+        "text": "test_17_raw_consumed_upstream_and_authority_size_limits (__main__.IndependentEmitter.test_17_raw_consumed_upstream_and_authority_size_limits) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 20,
+        "text": "test_18_output_parent_alias_and_hardlinked_input_preserve_private_victims (__main__.IndependentEmitter.test_18_output_parent_alias_and_hardlinked_input_preserve_private_victims) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 21,
+        "text": "test_19_oversized_actual_source_and_actual_script_pair_are_refused (__main__.IndependentEmitter.test_19_oversized_actual_source_and_actual_script_pair_are_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 22,
+        "text": "test_20_explicit_arm_separation_binding_and_invalid_nonce_refusals (__main__.IndependentEmitter.test_20_explicit_arm_separation_binding_and_invalid_nonce_refusals) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 23,
+        "text": "test_21_two_individually_small_artifacts_still_enforce_pair_two_mib (__main__.IndependentEmitter.test_21_two_individually_small_artifacts_still_enforce_pair_two_mib) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 24,
+        "text": "test_22_publisher_direct_total_two_mib_contract (__main__.IndependentEmitter.test_22_publisher_direct_total_two_mib_contract) ... ok"
+      }
+    ],
+    "observed_counts_not_totals": [
+      {
+        "stream": "stderr",
+        "line": 27,
+        "kind": "unittest_ran",
+        "value": 22
+      }
+    ],
+    "interpretation": "Literal observations only; no assertion/coverage/acceptance inference."
+  },
+  "disposition": "QUALIFIERS_REQUIRE_REVIEW",
+  "acceptance": "NOT_ASSESSED"
+}

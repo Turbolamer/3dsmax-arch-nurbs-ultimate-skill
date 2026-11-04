@@ -1,0 +1,21 @@
+{
+  "command_from_repo_root": "python -B Audit/phase16-p3-cleanup-model-2026-11-03g/test_cleanup_model.py",
+  "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "actual_argv": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "Audit\\phase16-p3-cleanup-model-2026-11-03g\\test_cleanup_model.py"
+  ],
+  "exit_code": 0,
+  "source_sha256_before": {
+    "reference_model.py": "901ec8467b31845ced61ad1e289bc9801a9a351d4c433d1da7dd68a5cfcbe3ac",
+    "test_cleanup_model.py": "10fde1f2216e5aff0272ce72a345149a52f8375150eb743ca91d535e6392d729"
+  },
+  "source_sha256_after": {
+    "reference_model.py": "901ec8467b31845ced61ad1e289bc9801a9a351d4c433d1da7dd68a5cfcbe3ac",
+    "test_cleanup_model.py": "10fde1f2216e5aff0272ce72a345149a52f8375150eb743ca91d535e6392d729"
+  },
+  "source_stable": true,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "56eb32f1cf737a660421483d47a730754a40f9e12b6aa8d87f133ad026b3c2b6"
+}

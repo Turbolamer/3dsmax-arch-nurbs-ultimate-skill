@@ -1,0 +1,39 @@
+test_assumption_id_must_match_owner_and_path (__main__.Provenance.test_assumption_id_must_match_owner_and_path) ... ok
+test_assumption_ledger_value_must_equal_wall_value (__main__.Provenance.test_assumption_ledger_value_must_equal_wall_value) ... ok
+test_conflict_chosen_value_must_match_wall_value (__main__.Provenance.test_conflict_chosen_value_must_match_wall_value) ... ok
+test_conflict_id_must_match_owner_and_path (__main__.Provenance.test_conflict_id_must_match_owner_and_path) ... ok
+test_derived_can_use_a_real_upstream_value (__main__.Provenance.test_derived_can_use_a_real_upstream_value) ... ok
+test_element_marker_cycle_detected (__main__.Provenance.test_element_marker_cycle_detected) ... ok
+test_element_self_dependency_through_descendant_is_a_cycle (__main__.Provenance.test_element_self_dependency_through_descendant_is_a_cycle) ... ok
+test_origin_inputs_cannot_be_sourced_from_downstream_assembly (__main__.Provenance.test_origin_inputs_cannot_be_sourced_from_downstream_assembly) ... ok
+test_origin_inputs_must_not_resolve_only_in_walls (__main__.Provenance.test_origin_inputs_must_not_resolve_only_in_walls) ... ok
+test_self_dependency_rejected_by_g10 (__main__.Provenance.test_self_dependency_rejected_by_g10) ... ok
+test_two_node_cycle_rejected_by_g10 (__main__.Provenance.test_two_node_cycle_rejected_by_g10) ... ok
+test_unrelated_assumption_without_wall_claim_cannot_pass (__main__.Provenance.test_unrelated_assumption_without_wall_claim_cannot_pass) ... ok
+test_unrelated_conflict_id_cannot_prove_wall_origin (__main__.Provenance.test_unrelated_conflict_id_cannot_prove_wall_origin) ... ok
+test_dangling_walls_symlink_cannot_fall_back_to_legacy (__main__.RoutingAndCli.test_dangling_walls_symlink_cannot_fall_back_to_legacy) ... ok
+test_directory_named_walls_cannot_fall_back_to_legacy (__main__.RoutingAndCli.test_directory_named_walls_cannot_fall_back_to_legacy) ... ok
+test_duplicate_route_key_in_validator_reports_g7 (__main__.RoutingAndCli.test_duplicate_route_key_in_validator_reports_g7) ... ok
+test_json_filtered_rule_exit_matches_unfiltered_process (__main__.RoutingAndCli.test_json_filtered_rule_exit_matches_unfiltered_process) ... ok
+test_parent_pipeline_duplicate_visible_to_dir_and_file (__main__.RoutingAndCli.test_parent_pipeline_duplicate_visible_to_dir_and_file) ... ok
+test_seed_duplicate_route_key_rejected_before_writing (__main__.RoutingAndCli.test_seed_duplicate_route_key_rejected_before_writing) ... ok
+test_seed_float_overflow_rejected_before_writing (__main__.RoutingAndCli.test_seed_float_overflow_rejected_before_writing) ... ok
+test_dimensionless_epsilon_bound_without_vector_mutation (__main__.ScopeAndGeometry.test_dimensionless_epsilon_bound_without_vector_mutation) ... ok
+test_draft_zero_outward_with_unavailable_epsilon (__main__.ScopeAndGeometry.test_draft_zero_outward_with_unavailable_epsilon) ... ok
+test_envelope_failure_cannot_coexist_with_g93_pass (__main__.ScopeAndGeometry.test_envelope_failure_cannot_coexist_with_g93_pass) ... ok
+test_g97_does_not_pass_when_one_run_is_not_an_object (__main__.ScopeAndGeometry.test_g97_does_not_pass_when_one_run_is_not_an_object) ... ok
+test_g97_does_not_pass_when_returns_are_not_an_array (__main__.ScopeAndGeometry.test_g97_does_not_pass_when_returns_are_not_an_array) ... ok
+test_json_finite_float_overflow_is_not_an_accepted_wall_number (__main__.ScopeAndGeometry.test_json_finite_float_overflow_is_not_an_accepted_wall_number) ... ok
+test_json_overflow_cannot_hide_in_unreferenced_ledger_value (__main__.ScopeAndGeometry.test_json_overflow_cannot_hide_in_unreferenced_ledger_value) ... ok
+test_linear_epsilon_must_be_numerical_not_a_building_scale (__main__.ScopeAndGeometry.test_linear_epsilon_must_be_numerical_not_a_building_scale) ... ok
+test_off_contour_reaches_g93_without_normal_error (__main__.ScopeAndGeometry.test_off_contour_reaches_g93_without_normal_error) ... ok
+test_opening_outside_run_reaches_g94_without_g93_failure (__main__.ScopeAndGeometry.test_opening_outside_run_reaches_g94_without_g93_failure) ... ok
+test_opposite_unit_normal_is_only_a_syntactic_control (__main__.ScopeAndGeometry.test_opposite_unit_normal_is_only_a_syntactic_control) ... ok
+test_outward_cannot_hide_behind_excessive_unit_epsilon (__main__.ScopeAndGeometry.test_outward_cannot_hide_behind_excessive_unit_epsilon) ... ok
+test_parallel_outward_with_available_epsilon (__main__.ScopeAndGeometry.test_parallel_outward_with_available_epsilon) ... ok
+test_zero_outward_with_available_epsilon (__main__.ScopeAndGeometry.test_zero_outward_with_available_epsilon) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 82.907s
+
+OK

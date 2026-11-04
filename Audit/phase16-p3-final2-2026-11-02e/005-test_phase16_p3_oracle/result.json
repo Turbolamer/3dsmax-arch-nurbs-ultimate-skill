@@ -1,0 +1,380 @@
+{
+  "test": "Audit/test_phase16_p3_oracle.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_oracle.py",
+    "-v"
+  ],
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "started_utc": "2026-11-02T21:33:32.579318+00:00",
+  "ended_utc": "2026-11-02T21:33:32.947605+00:00",
+  "seconds": 0.368272,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 7983,
+    "sha256": "cede6a6b1d7eea7fa35a0950c9fc83a8cd24148504ca4deb7262134f122f856f"
+  },
+  "source_drift": [],
+  "baseline_problems": [],
+  "observations": {
+    "summary_lines": [
+      {
+        "stream": "stderr",
+        "line": 68,
+        "text": "Ran 65 tests in 0.262s"
+      },
+      {
+        "stream": "stderr",
+        "line": 70,
+        "text": "OK"
+      }
+    ],
+    "qualifier_lines": [],
+    "test_lines": [
+      {
+        "stream": "stderr",
+        "line": 1,
+        "text": "test_actual_budget_checked_on_duplicate_geometry (__main__.OracleTests.test_actual_budget_checked_on_duplicate_geometry) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 2,
+        "text": "test_actual_indices_need_not_be_row_major (__main__.OracleTests.test_actual_indices_need_not_be_row_major) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 3,
+        "text": "test_actual_plan_exact_coordinates_and_outside (__main__.OracleTests.test_actual_plan_exact_coordinates_and_outside) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "test_bad_index_fails (__main__.OracleTests.test_bad_index_fails) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 5,
+        "text": "test_boolean_coordinate_refused (__main__.OracleTests.test_boolean_coordinate_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "test_capture_budget_bool_fails (__main__.OracleTests.test_capture_budget_bool_fails) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 7,
+        "text": "test_closed_equal_volume_wrong_opening_locations_fail (__main__.OracleTests.test_closed_equal_volume_wrong_opening_locations_fail) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 8,
+        "text": "test_declared_and_mesh_wrong_same_sign_cannot_supply_physical_truth (__main__.OracleTests.test_declared_and_mesh_wrong_same_sign_cannot_supply_physical_truth) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 9,
+        "text": "test_diagonal_alternative_is_valid (__main__.OracleTests.test_diagonal_alternative_is_valid) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 10,
+        "text": "test_directed_facade_subsegment_checked (__main__.OracleTests.test_directed_facade_subsegment_checked) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 11,
+        "text": "test_door_alone_not_artificially_given_threshold (__main__.OracleTests.test_door_alone_not_artificially_given_threshold) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 12,
+        "text": "test_duplicate_actual_vertex_not_welded (__main__.OracleTests.test_duplicate_actual_vertex_not_welded) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 13,
+        "text": "test_duplicate_triangles_fail_even_with_no_boundary_edges (__main__.OracleTests.test_duplicate_triangles_fail_even_with_no_boundary_edges) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 14,
+        "text": "test_equal_area_window_solid_swap_fails_coverage (__main__.OracleTests.test_equal_area_window_solid_swap_fails_coverage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 15,
+        "text": "test_existing_independent_adapter_is_compatible_with_core (__main__.OracleTests.test_existing_independent_adapter_is_compatible_with_core) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 16,
+        "text": "test_explicit_mm_adapter_one_based (__main__.OracleTests.test_explicit_mm_adapter_one_based) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 17,
+        "text": "test_f01_authority_adapter_does_not_copy_wrong_wall_openings (__main__.OracleTests.test_f01_authority_adapter_does_not_copy_wrong_wall_openings) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 18,
+        "text": "test_f01_authority_adapter_refuses_changed_actual_source (__main__.OracleTests.test_f01_authority_adapter_refuses_changed_actual_source) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 19,
+        "text": "test_f01_authority_adapter_refuses_opposite_physical_claim (__main__.OracleTests.test_f01_authority_adapter_refuses_opposite_physical_claim) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 20,
+        "text": "test_f01_closed_authority_adapter_reads_actual_plan (__main__.OracleTests.test_f01_closed_authority_adapter_reads_actual_plan) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 21,
+        "text": "test_f01_exact_analytical_reference (__main__.OracleTests.test_f01_exact_analytical_reference) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 22,
+        "text": "test_f01_literal_source_disagrees_even_with_matching_source_hash (__main__.OracleTests.test_f01_literal_source_disagrees_even_with_matching_source_hash) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 23,
+        "text": "test_full_actual_schema_triangle_only_checks_run_but_incomplete (__main__.OracleTests.test_full_actual_schema_triangle_only_checks_run_but_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 24,
+        "text": "test_full_schema_does_not_mutate_capture (__main__.OracleTests.test_full_schema_does_not_mutate_capture) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 25,
+        "text": "test_full_schema_does_not_transform_snapshot_again (__main__.OracleTests.test_full_schema_does_not_transform_snapshot_again) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 26,
+        "text": "test_full_schema_equal_factor_different_unit_pair_fails (__main__.OracleTests.test_full_schema_equal_factor_different_unit_pair_fails) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 27,
+        "text": "test_full_schema_grid_identity_mismatch_refused (__main__.OracleTests.test_full_schema_grid_identity_mismatch_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 28,
+        "text": "test_full_schema_missing_expected_units_incomplete (__main__.OracleTests.test_full_schema_missing_expected_units_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 29,
+        "text": "test_full_schema_property_read_issues_not_dropped (__main__.OracleTests.test_full_schema_property_read_issues_not_dropped) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 30,
+        "text": "test_full_schema_short_path_envelope_incomplete_not_pass (__main__.OracleTests.test_full_schema_short_path_envelope_incomplete_not_pass) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 31,
+        "text": "test_full_schema_summary_echo_not_used (__main__.OracleTests.test_full_schema_summary_echo_not_used) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 32,
+        "text": "test_full_window_face_left_in_base_fails_coverage (__main__.OracleTests.test_full_window_face_left_in_base_fails_coverage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 33,
+        "text": "test_independent_f01_capture_pass (__main__.OracleTests.test_independent_f01_capture_pass) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 34,
+        "text": "test_malformed_objects_fail_without_internal_exception (__main__.OracleTests.test_malformed_objects_fail_without_internal_exception) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 35,
+        "text": "test_missing_authority_is_incomplete (__main__.OracleTests.test_missing_authority_is_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 36,
+        "text": "test_missing_authority_source_binding_is_incomplete (__main__.OracleTests.test_missing_authority_source_binding_is_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 37,
+        "text": "test_missing_capture_binding_is_incomplete (__main__.OracleTests.test_missing_capture_binding_is_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 38,
+        "text": "test_missing_evaluated_polygons_is_incomplete (__main__.OracleTests.test_missing_evaluated_polygons_is_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 39,
+        "text": "test_missing_evidence_is_incomplete (__main__.OracleTests.test_missing_evidence_is_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 40,
+        "text": "test_missing_measurement_stage_is_incomplete (__main__.OracleTests.test_missing_measurement_stage_is_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 41,
+        "text": "test_missing_triangles_is_incomplete_not_echo_pass (__main__.OracleTests.test_missing_triangles_is_incomplete_not_echo_pass) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 42,
+        "text": "test_multiple_runs_incomplete_not_subset_extraction (__main__.OracleTests.test_multiple_runs_incomplete_not_subset_extraction) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 43,
+        "text": "test_nan_coordinate_refused (__main__.OracleTests.test_nan_coordinate_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 44,
+        "text": "test_no_mutation_of_locked_sources_or_captures (__main__.OracleTests.test_no_mutation_of_locked_sources_or_captures) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 45,
+        "text": "test_no_openings_is_supported_not_missing_void_pass (__main__.OracleTests.test_no_openings_is_supported_not_missing_void_pass) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 46,
+        "text": "test_one_flipped_triangle_fails_integrity (__main__.OracleTests.test_one_flipped_triangle_fails_integrity) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 47,
+        "text": "test_opening_source_mismatch_fails_despite_well_formed_wall (__main__.OracleTests.test_opening_source_mismatch_fails_despite_well_formed_wall) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 48,
+        "text": "test_operational_limit_is_not_pass (__main__.OracleTests.test_operational_limit_is_not_pass) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 49,
+        "text": "test_overflow_is_clean_failure_not_exception (__main__.OracleTests.test_overflow_is_clean_failure_not_exception) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 50,
+        "text": "test_overlap_refused (__main__.OracleTests.test_overlap_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 51,
+        "text": "test_predicted_budget_cannot_auto_increase (__main__.OracleTests.test_predicted_budget_cannot_auto_increase) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 52,
+        "text": "test_reflected_same_positive_volume_fails_physical_direction (__main__.OracleTests.test_reflected_same_positive_volume_fails_physical_direction) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 53,
+        "text": "test_reversed_base_winding_fails_normals (__main__.OracleTests.test_reversed_base_winding_fails_normals) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 54,
+        "text": "test_solid_wall_no_holes_closed_is_not_sufficient (__main__.OracleTests.test_solid_wall_no_holes_closed_is_not_sufficient) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 55,
+        "text": "test_source_bytes_mismatch_is_refused (__main__.OracleTests.test_source_bytes_mismatch_is_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 56,
+        "text": "test_source_locator_mismatch_is_refused (__main__.OracleTests.test_source_locator_mismatch_is_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 57,
+        "text": "test_stale_authority_binding_fails (__main__.OracleTests.test_stale_authority_binding_fails) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 58,
+        "text": "test_top_touching_opening_incomplete (__main__.OracleTests.test_top_touching_opening_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 59,
+        "text": "test_touching_openings_incomplete (__main__.OracleTests.test_touching_openings_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 60,
+        "text": "test_translated_diagonal_wall_general_physical_frame (__main__.OracleTests.test_translated_diagonal_wall_general_physical_frame) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 61,
+        "text": "test_triangle_hole_fails (__main__.OracleTests.test_triangle_hole_fails) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 62,
+        "text": "test_unreviewed_authority_incomplete (__main__.OracleTests.test_unreviewed_authority_incomplete) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 63,
+        "text": "test_vertex_pinch_not_just_open_edge_count (__main__.OracleTests.test_vertex_pinch_not_just_open_edge_count) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 64,
+        "text": "test_window_alone_has_two_boundary_components (__main__.OracleTests.test_window_alone_has_two_boundary_components) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 65,
+        "text": "test_wrong_scale_fails (__main__.OracleTests.test_wrong_scale_fails) ... ok"
+      }
+    ],
+    "observed_counts_not_totals": [
+      {
+        "stream": "stderr",
+        "line": 68,
+        "kind": "unittest_ran",
+        "value": 65
+      }
+    ],
+    "interpretation": "Literal observations only; no assertion/coverage/acceptance inference."
+  },
+  "disposition": "EXECUTED_REQUIRES_REVIEW",
+  "acceptance": "NOT_ASSESSED"
+}

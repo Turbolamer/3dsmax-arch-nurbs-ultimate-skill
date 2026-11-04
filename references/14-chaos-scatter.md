@@ -30,7 +30,7 @@
 | `FpInterface` exposes `getInstanceCount()`, `getModelCount()`, `getModelNode(i)`, `update()`, `clear()`, `addModelNode(node)`, **`saveConfiguration(f)` / `loadConfiguration(f)`** | ✅ executed | `PLAN.md` §4.1; `CHECKPOINT.md` |
 | The property is spelled **`distributionDesityPattern`** — **the typo is the real name** | ✅ executed | `SKILL.md`; `02` §2.4. The spec file uses the corrected spelling; **the builder emits the typo** |
 | The parameter map in §2 | ✅ executed property by property | `PLAN.md` §4.1 |
-| Chaos Scatter **sub-object wiring semantics** — e.g. profile binding, exactly what `addModelNode` does to an existing model list, edge-case behaviour of `distributionLimitCoordSpace` | ❌ **UNVERIFIED** | `CHECKPOINT.md` §"Unverified". **Escalate for an orchestrator probe; never assume** |
+| Chaos Scatter **sub-object wiring semantics** — e.g. profile binding, exactly what `addModelNode` does to an existing model list, edge-case behaviour of `distributionLimitCoordSpace` | ❌ **UNVERIFIED** | `CHECKPOINT.md` §"Unverified". **Coordinate a necessary calibrated probe under `agents/max-orchestrator.md` §1.1; an authorized delegate may execute it. Never assume** |
 
 > **`introspect_class` returns false negatives.** `introspect_class "CScatter"`-style probing is not how
 > any claim here was established, and it must never be used as proof (`AGENTS.md` §"The one rule that
@@ -252,11 +252,11 @@ Not a Chaos Scatter matter, but it lands on this file because scatter rows carry
 **SUPERSEDED (2026-10-27) — the blanket negative is refuted.** This section used to be headed
 *"Layer attribution is impossible from this bridge — and that is final"*. It is **refuted**:
 **`ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node`
-(verified in Phase 14, `CHECKPOINT.md` §"Design consequences of the layer finding"; `Audit/EVIDENCE_2026-10-27.md` §E-7). The
+(verified in Phase 14, `CHECKPOINT.md` §"Design consequences of the layer finding"; historical measurement §E-7). The
 routes below still stand, and they still show that the **two bridge tools** have no
 layer-assignment route and that **reading `node.layer` is read-only** — a routing survey, not a proof
-of impossibility. Whether the builders should apply layers is a separate policy decision,
-**deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4.
+of impossibility. Whether the builders should apply layers is a separate policy decision
+(archival note: poly surface shell plan §I.4).
 
 **Nine routes are ruled out** (`references/_p6-contract.md` §1.1,
 `CHECKPOINT.md` §"Design consequences of the layer finding (P3 decision, closed at P6)"):
@@ -318,7 +318,7 @@ MCPChaosScatter.census (getNodeByName "SCT_001")      -- (instances, models, ind
 | The property is **`distributionDesityPattern`** | `distributionDensityPattern` silently does not bind | Emit the typo. Guard with `isProperty` |
 | `CScatter` is **NotCreatable** | `CScatter()` throws | Always `ChaosScatter()` |
 | `try { } catch { }` | **Parse error** in this dialect | `try ( ) catch ( )` |
-| ~~`getCurrentException()` inside a `catch`~~ **RETRACTED 2026-10-05, re-confirmed 2026-10-27** | It **works** — 6 of 6 throw kinds returned a real message, with a non-throw control proving the catch was not entered | Call it freely. Prefer `local threw = false` / `catch ( threw = true )` only when a boolean verdict is all you need (`Audit/EVIDENCE_2026-10-27.md`) |
+| ~~`getCurrentException()` inside a `catch`~~ **RETRACTED 2026-10-05, re-confirmed 2026-10-27** | It **works** — 6 of 6 throw kinds returned a real message, with a non-throw control proving the catch was not entered | Call it freely. Prefer `local threw = false` / `catch ( threw = true )` only when a boolean verdict is all you need (historical measurement 2026-10-27) |
 | `("x" + i as string)` | Throws on precedence | `("x" + (i as string))` |
 | `for o in objects do delete o` | **Silently skips entries** — 24 orphans at P5 | Collect names, delete by name, **run twice** |
 | `stopCreating <node>` | Wrong arity → `Argument count error: StopCreating wanted 0` | `stopCreating` takes **0** args |
@@ -326,7 +326,7 @@ MCPChaosScatter.census (getNodeByName "SCT_001")      -- (instances, models, ind
 | A standalone modifier | Not a node; **cannot be deleted** | Attach it to a node and delete the node |
 | `fileExists` · `executeFile` · `runScript` | Absent names | `doesFileExist` · `fileIn` |
 | `setCopyMode` · `rotationZ` / `rotationX` / `rotationY` · `angle` | Absent in this build | `copy` + `baseObject =` · `quat <deg> [0,0,1]` |
-| ~~`matrix3` · `findString`~~ **CORRECTED (2026-10-27) — they were on the absent list above; both EXIST** | `matrix3` takes **4 args** (three rows + a translation row): `matrix3 [1,0,0] [0,1,0] [0,0,1] [0,0,0]` → `classOf` **`Matrix3`**. Passing **9** numbers is an *arity* error (`Argument count error: Matrix3 wanted 4, got 9`) — read as absence, which is how the name got retracted. `findString "hello world" "o w"` → **5** (1-based); a real miss (`"zz"`) returns `undefined` (`Audit/EVIDENCE_2026-10-27.md` §E-10; `CHECKPOINT.md` §"Incident log 2026-10-05 (P10-lite)") | Use them as written. `substring s 1 n` stays available as an alternative to `findString` — **not** the only option |
+| ~~`matrix3` · `findString`~~ **CORRECTED (2026-10-27) — they were on the absent list above; both EXIST** | `matrix3` takes **4 args** (three rows + a translation row): `matrix3 [1,0,0] [0,1,0] [0,0,1] [0,0,0]` → `classOf` **`Matrix3`**. Passing **9** numbers is an *arity* error (`Argument count error: Matrix3 wanted 4, got 9`) — read as absence, which is how the name got retracted. `findString "hello world" "o w"` → **5** (1-based); a real miss (`"zz"`) returns `undefined` (historical measurement §E-10; `CHECKPOINT.md` §"Incident log 2026-10-05 (P10-lite)") | Use them as written. `substring s 1 n` stays available as an alternative to `findString` — **not** the only option |
 | `node.pos` on a `Box` | **Base** sits at `pos.z` (geometry centres on x/y) | `pos.z = cz − height/2` to centre |
 
 ---
@@ -346,7 +346,7 @@ MCPChaosScatter.census (getNodeByName "SCT_001")      -- (instances, models, ind
 | **AP-9 · Reading a timeout as "the bridge is down"** | §3.1 rule 5. `3dsmax-mcp_get_bridge_status` first. A recoverable hang burns the call but the scene is alive |
 | **AP-10 · Naming `geometry_qa`, `contact_check` or `scene_qa`** as the verification | Those tools do not exist — **and no QA stage exists either** (P8 cancelled 2026-10-05). The read-back, once the user has applied the scatter by hand, is `FpInterface` + `getInstanceCount()` (§5) |
 | **AP-11 · Asserting instance count against a number the spec never declared** | Record the number that came back. Only `instance_count_limit` is a declared bound, and it is a cap, not an expectation |
-| **AP-12 · Emitting layer code for a scatter row** because it declares `layer: "99_DEBUG"`** | §6.2. The nine routes are ruled out, so layer is data and the build **FAILs** (`G-79`) — that is the **stage policy**, not an impossibility: `ILayerProperties.addNode` works (`Audit/EVIDENCE_2026-10-27.md` §E-7), and whether the builders may apply layers is **deferred** (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) |
+| **AP-12 · Emitting layer code for a scatter row** because it declares `layer: "99_DEBUG"`** | §6.2. The nine routes are ruled out, so layer is data and the build **FAILs** (`G-79`) — that is the **stage policy**, not an impossibility: `ILayerProperties.addNode` works (historical measurement §E-7), and whether the builders may apply layers is a separate policy decision (archival note: poly surface shell plan §I.4) |
 | **AP-13 · `fileIn`-ing a snippet that mutates the scene on load** | `snippets/chaos_scatter.ms` creates nothing at file scope by contract (§7). A load-time mutation cannot be undone by a failed build |
 | **AP-14 · Assuming `addModelNode` semantics** | **UNVERIFIED** (§1). Bind `modelNodes` wholesale and assert with `getModelNode(i)` |
 | **AP-15 · Concluding a rebuild is non-deterministic from one `n1 != n2`** | Run the full §5.1 protocol, and check `3dsmax-mcp_get_bridge_status` for a hang before believing it |

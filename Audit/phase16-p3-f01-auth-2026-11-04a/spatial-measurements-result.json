@@ -1,0 +1,53 @@
+{
+  "scope": "Independent spatial measurements of authentic F01 wall in 3ds Max 2026.3.2",
+  "recorded_at": "2026-11-04T11:23:43+03:00",
+  "node_name": "P3_F01_AUTH__wall",
+  "handle": "3044P",
+  "measurements": {
+    "census": 1,
+    "stack": [
+      {
+        "class": "Shell",
+        "innerAmount": 0.0,
+        "outerAmount": 300.0,
+        "segments": 1
+      }
+    ],
+    "base": "Editable_Poly",
+    "bounds_mm": {
+      "min": [0.0, -300.0, 0.0],
+      "max": [4000.0, 0.0, 3000.0],
+      "span_x": 4000.0,
+      "span_y": 300.0,
+      "span_z": 3000.0
+    },
+    "thickness_mm": 300.0,
+    "inner_face": {
+      "plane": "Y = 0.0",
+      "all_base_vertices_y_zero": true,
+      "max_y_deviation": 0.0,
+      "direction": "outward in -Y, from Y=0 to Y=-300"
+    },
+    "openings": {
+      "stations_x_mm": [0.0, 500.0, 1500.0, 2300.0, 3300.0, 4000.0],
+      "stations_z_mm": [0.0, 900.0, 2100.0, 3000.0],
+      "door": {"x": [500.0, 1500.0], "z": [0.0, 2100.0]},
+      "window": {"x": [2300.0, 3300.0], "z": [900.0, 2100.0]}
+    },
+    "topology": {
+      "base_vertices": 24,
+      "base_faces": 12,
+      "active_faces": 12,
+      "dead_faces": 0,
+      "eval_triangles": 96,
+      "eval_vertices": 48
+    },
+    "volume": {
+      "evaluated_mesh_volume_mm3": 2.61e9,
+      "evaluated_mesh_volume_m3": 2.61,
+      "analytical_prediction_m3": 2.61,
+      "match": true
+    }
+  },
+  "interpretation": "Spatial measurements independently verify that the authentic F01 wall matches all analytical predictions: exact 2.61 m³ volume, exact 96 evaluated triangles, 12 base quads with 2 cutouts, inner face located on Y=0.0 with 0.0 deviation, Shell outer growth of 300 mm in -Y, census=1, and stack containing strictly 1 Shell modifier."
+}

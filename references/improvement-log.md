@@ -177,7 +177,7 @@ Two entries, the second of which is the failure mode this format exists to preve
 - **Measured:** `massing.ms` node `SP_GROUND_PAD` measures `z 400…-300` against a
   `SP-001` slab at `z -300…0`. Overlap **40 mm** on the full 4200 × 3600 footprint.
   `tolerances.linear_cm` is 0.5 cm — **5 mm, not 0.5 mm** (the earlier text "`tolerances.linear_cm`
-  is 5" stated no unit — SUPERSEDED 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-8).
+  is 5" stated no unit — SUPERSEDED 2026-10-27, historical measurement §E-8).
 - **Evidence:** `node.min` / `node.max` on both nodes in Max, after `fileIn massing.ms`.
 - **Proposed:** raise `SP_GROUND_PAD` to `z 440…-300`, or lower its `thickness_cm` in
   `dimensions.json`. **Owner: S1** — `thickness_cm` is a `dimensions.json` key.
@@ -190,15 +190,15 @@ Two entries, the second of which is the failure mode this format exists to preve
 - **Kind:** already-in-CHECKPOINT (see below)
 - **Severity:** note
 - **Measured:** assigning a material to `PROTO_CMP_014` — **0 of 10** `PLC_` instances
-  inherited it. Assigning to each instance — 10 of 10 set. Negative control: the other 28
-  prototypes leaked 0.
+inherited it. Assigning to each instance — 10 of 10 set. Negative control: the other 28
+prototypes leaked 0.
 - **Evidence:** this is already a **pack-level verified fact**, not a project finding.
 - **Proposed:** none. Recorded here only because it is the single most common wrong
   assumption at the hand-off, and the next session on this project will hit it.
-- **Status:** open — informational. See `Audit/CHECKPOINT-archive-2026-10-28.md` §"P10-lite", the material table.
+- **Status:** open — informational. See CHECKPOINT archive §"P10-lite", the material table.
 ```
 
-> **Correction — 2026-10-27 (measured, `Audit/EVIDENCE_2026-10-27.md` §E-8).** The example
+> **Correction — 2026-10-27 (measured, historical record §E-8).** The example
 > above stated the linear tolerance without its unit, and that is exactly how **0.5 cm** came
 > to be read as **half a millimetre**. **`linear_cm: 0.5` is 0.5 cm = 5 mm, not 0.5 mm.**
 > **The tolerance itself is not changed here** — the value stays `0.5`. What has to be kept

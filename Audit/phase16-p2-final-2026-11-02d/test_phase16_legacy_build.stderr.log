@@ -1,0 +1,17 @@
+Offline source snapshot: place_components.py=4f9735ffbf9d59f6, validate_specs.py=616050417380f587, scene_units.py=b31e703f8364d08d, curve_gen.py=4e304cfe558988b9, wall_cell_coverage.py=d8d1e930808465f3
+test_ambiguous_output_route_and_poly_reference_are_refused (__main__.LegacyBuildBoundary.test_ambiguous_output_route_and_poly_reference_are_refused) ... ok
+test_builder_refuses_each_invalid_locked_wall_input (__main__.LegacyBuildBoundary.test_builder_refuses_each_invalid_locked_wall_input) ... ok
+test_conflicting_output_wall_document_is_not_just_same_selector (__main__.LegacyBuildBoundary.test_conflicting_output_wall_document_is_not_just_same_selector) ... ok
+test_empty_explicit_output_has_no_undocumented_side_effects (__main__.LegacyBuildBoundary.test_empty_explicit_output_has_no_undocumented_side_effects)
+Until a separate-out policy is approved, refusal must leave no files. ... ok
+test_explicit_legacy_locked_builds_with_matching_output_walls (__main__.LegacyBuildBoundary.test_explicit_legacy_locked_builds_with_matching_output_walls) ... ok
+test_hardlinked_output_cannot_modify_another_file (__main__.LegacyBuildBoundary.test_hardlinked_output_cannot_modify_another_file) ... ok
+test_historical_empty_out_matches_old_builder_when_git_available (__main__.LegacyBuildBoundary.test_historical_empty_out_matches_old_builder_when_git_available) ... ok
+test_invalid_locked_wall_inputs_reach_target_g93 (__main__.LegacyBuildBoundary.test_invalid_locked_wall_inputs_reach_target_g93) ... ok
+test_nonlocked_walls_never_build_even_with_allow_draft (__main__.LegacyBuildBoundary.test_nonlocked_walls_never_build_even_with_allow_draft) ... ok
+test_symlinked_output_cannot_modify_another_file (__main__.LegacyBuildBoundary.test_symlinked_output_cannot_modify_another_file) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 175.181s
+
+OK

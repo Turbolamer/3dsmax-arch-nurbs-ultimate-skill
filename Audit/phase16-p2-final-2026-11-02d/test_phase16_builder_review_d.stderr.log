@@ -1,0 +1,24 @@
+REVIEW_D_SOURCE {"curve_gen.py": "4e304cfe558988b9a4d285df57ea34668ec9352f68bb18a83bab10a63208b55c", "place_components.py": "4f9735ffbf9d59f6e858bed5d6390342db8230b50a036e462d894c00d07b91ac", "scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2", "validate_specs.py": "616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f", "wall_cell_coverage.py": "d8d1e930808465f3340e2ed2e4cc04e45b46d033cc14ebc57ecb66a61b6ece4e"}
+REVIEW_D_HISTORICAL {"place_components.py": "c0bda8dbff0beba6ff4f38cfb8535ea744e56024ffd81cf16cbfb9c926fa99af", "scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2"}
+REVIEW_D_FIXTURE_MANIFEST 0b51e0bb532b6d5daf33a995744e7ea7bbb567769d68310d7f07703349765efa
+test_actual_historical_near_tolerance_boundary (__main__.BuilderReviewD.test_actual_historical_near_tolerance_boundary) ... ok
+test_actual_historical_no_opening_builder_already_refuses (__main__.BuilderReviewD.test_actual_historical_no_opening_builder_already_refuses) ... ok
+test_actual_historical_unsupported_nonrectangle_is_new_refusal (__main__.BuilderReviewD.test_actual_historical_unsupported_nonrectangle_is_new_refusal) ... ok
+test_existing_directory_symlink_is_rejected_before_writes (__main__.BuilderReviewD.test_existing_directory_symlink_is_rejected_before_writes) ... ok
+test_explicit_output_empty_matching_conflicting_and_same_missing_outputs (__main__.BuilderReviewD.test_explicit_output_empty_matching_conflicting_and_same_missing_outputs) ... ok
+test_first_file_replace_failure_leaves_both_sentinels_and_no_temps (__main__.BuilderReviewD.test_first_file_replace_failure_leaves_both_sentinels_and_no_temps) ... REVIEW_D_IO_FIRST traceback=False
+ok
+test_late_leaf_hardlink_is_replaced_without_truncating_external_file (__main__.BuilderReviewD.test_late_leaf_hardlink_is_replaced_without_truncating_external_file) ... ok
+test_locked_and_nonlocked_explicit_all_flag_modes_same_and_separate (__main__.BuilderReviewD.test_locked_and_nonlocked_explicit_all_flag_modes_same_and_separate) ... ok
+test_mid_build_snapshot_change_is_refused_before_output (__main__.BuilderReviewD.test_mid_build_snapshot_change_is_refused_before_output) ... ok
+test_safety_final_directory_substitution_must_not_overwrite_victim (__main__.BuilderReviewD.test_safety_final_directory_substitution_must_not_overwrite_victim) ... ok
+test_safety_final_wall_substitution_must_not_commit_mixed_route (__main__.BuilderReviewD.test_safety_final_wall_substitution_must_not_commit_mixed_route) ... ok
+test_safety_second_file_io_failure_must_not_leave_partial_pair (__main__.BuilderReviewD.test_safety_second_file_io_failure_must_not_leave_partial_pair) ... ok
+test_semantically_equal_but_different_wall_bytes_are_refused (__main__.BuilderReviewD.test_semantically_equal_but_different_wall_bytes_are_refused) ... ok
+test_single_target_g93_calibrated_and_refusal_preserves_sentinels (__main__.BuilderReviewD.test_single_target_g93_calibrated_and_refusal_preserves_sentinels) ... ok
+REVIEW_D_FINAL_SOURCE {"curve_gen.py": "4e304cfe558988b9a4d285df57ea34668ec9352f68bb18a83bab10a63208b55c", "place_components.py": "4f9735ffbf9d59f6e858bed5d6390342db8230b50a036e462d894c00d07b91ac", "scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2", "validate_specs.py": "616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f", "wall_cell_coverage.py": "d8d1e930808465f3340e2ed2e4cc04e45b46d033cc14ebc57ecb66a61b6ece4e"}
+
+----------------------------------------------------------------------
+Ran 14 tests in 81.157s
+
+OK

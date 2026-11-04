@@ -1,0 +1,920 @@
+{
+  "grammar": "references/07-spec-grammar.md",
+  "schema_major_supported": 1,
+  "rule_filter": null,
+  "warnings_as_errors": false,
+  "build_gate": false,
+  "allow_draft": false,
+  "targets": [
+    "assumptions.json",
+    "conflicts_resolved.json",
+    "dimensions.json",
+    "walls.json"
+  ],
+  "unreadable": [],
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01,
+    "source": "dimensions.json tolerances"
+  },
+  "findings": [
+    {
+      "rule": "G-95",
+      "title": "emitted wall stack (runtime)",
+      "severity": "SKIP",
+      "location": "wall pipeline",
+      "path": "",
+      "tolerance": "",
+      "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+      "cross_file": false
+    },
+    {
+      "rule": "G-98",
+      "title": "wall manifest and live geometry (runtime)",
+      "severity": "SKIP",
+      "location": "wall pipeline",
+      "path": "",
+      "tolerance": "",
+      "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+      "cross_file": false
+    },
+    {
+      "rule": "G-99",
+      "title": "emitter and live unit guard (runtime)",
+      "severity": "SKIP",
+      "location": "wall pipeline",
+      "path": "",
+      "tolerance": "",
+      "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+      "cross_file": false
+    },
+    {
+      "rule": "G-100",
+      "title": "script safety and real replay (runtime)",
+      "severity": "SKIP",
+      "location": "wall pipeline",
+      "path": "",
+      "tolerance": "",
+      "detail": "JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending",
+      "cross_file": false
+    },
+    {
+      "rule": "G-7",
+      "title": "file hygiene",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "UTF-8 no BOM, LF endings, one trailing newline, strict JSON",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "envelope keys first, in order",
+      "cross_file": false
+    },
+    {
+      "rule": "G-2",
+      "title": "spec matches filename",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "spec == \"assumptions\"",
+      "cross_file": false
+    },
+    {
+      "rule": "G-3",
+      "title": "schema_version major is supported",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "schema_version 1.0 supported",
+      "cross_file": false
+    },
+    {
+      "rule": "G-4",
+      "title": "status is known, and only locked builds",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "status=locked; downstream stages may consume it",
+      "cross_file": false
+    },
+    {
+      "rule": "G-5",
+      "title": "units are cm and deg",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "units are cm and deg",
+      "cross_file": false
+    },
+    {
+      "rule": "G-6",
+      "title": "source is well formed",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "source kind=derived, reference names assumptions.json, recorded_at parses",
+      "cross_file": false
+    },
+    {
+      "rule": "G-8",
+      "title": "unit suffix lint",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "every length-looking key carries a unit suffix (hard tokens 12, heuristic 18, 51 exempt names)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-16",
+      "title": "range compliance",
+      "severity": "SKIP",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+      "cross_file": false
+    },
+    {
+      "rule": "G-7",
+      "title": "file hygiene",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "UTF-8 no BOM, LF endings, one trailing newline, strict JSON",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "envelope keys first, in order",
+      "cross_file": false
+    },
+    {
+      "rule": "G-2",
+      "title": "spec matches filename",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "spec == \"conflicts_resolved\"",
+      "cross_file": false
+    },
+    {
+      "rule": "G-3",
+      "title": "schema_version major is supported",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "schema_version 1.0 supported",
+      "cross_file": false
+    },
+    {
+      "rule": "G-4",
+      "title": "status is known, and only locked builds",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "status=locked; downstream stages may consume it",
+      "cross_file": false
+    },
+    {
+      "rule": "G-5",
+      "title": "units are cm and deg",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "units are cm and deg",
+      "cross_file": false
+    },
+    {
+      "rule": "G-6",
+      "title": "source is well formed",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "source kind=derived, reference names conflicts_resolved.json, recorded_at parses",
+      "cross_file": false
+    },
+    {
+      "rule": "G-8",
+      "title": "unit suffix lint",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "every length-looking key carries a unit suffix (hard tokens 12, heuristic 18, 51 exempt names)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-16",
+      "title": "range compliance",
+      "severity": "SKIP",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+      "cross_file": false
+    },
+    {
+      "rule": "G-7",
+      "title": "file hygiene",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "UTF-8 no BOM, LF endings, one trailing newline, strict JSON",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "envelope keys first, in order",
+      "cross_file": false
+    },
+    {
+      "rule": "G-2",
+      "title": "spec matches filename",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "spec == \"dimensions\"",
+      "cross_file": false
+    },
+    {
+      "rule": "G-3",
+      "title": "schema_version major is supported",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "schema_version 1.0 supported",
+      "cross_file": false
+    },
+    {
+      "rule": "G-4",
+      "title": "status is known, and only locked builds",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "status=locked; downstream stages may consume it",
+      "cross_file": false
+    },
+    {
+      "rule": "G-5",
+      "title": "units are cm and deg",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "units are cm and deg",
+      "cross_file": false
+    },
+    {
+      "rule": "G-6",
+      "title": "source is well formed",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "source kind=derived, reference names dimensions.json, recorded_at parses",
+      "cross_file": false
+    },
+    {
+      "rule": "G-8",
+      "title": "unit suffix lint",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "every length-looking key carries a unit suffix (hard tokens 12, heuristic 18, 51 exempt names)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-16",
+      "title": "range compliance",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "32 ranged values in range (range checks are exact)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-17",
+      "title": "levels ordered bottom to top",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "1 levels ordered bottom to top",
+      "cross_file": false
+    },
+    {
+      "rule": "G-18",
+      "title": "level chaining",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "single-storey project; the chain has no step to close",
+      "cross_file": false
+    },
+    {
+      "rule": "G-19",
+      "title": "total height equals the top of the chain",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "0.5 cm (dimensions.json tolerances)",
+      "detail": "total height 300 cm is the top of the chain",
+      "cross_file": false
+    },
+    {
+      "rule": "G-20",
+      "title": "overall height includes the parapet",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "0.5 cm (dimensions.json tolerances)",
+      "detail": "overall height includes the 90 cm parapet",
+      "cross_file": false
+    },
+    {
+      "rule": "G-21",
+      "title": "polygons are simple and winding is declared",
+      "severity": "PASS",
+      "location": "dimensions.json::site.footprint_cm",
+      "path": "site.footprint_cm",
+      "tolerance": "0.5 cm (dimensions.json tolerances)",
+      "detail": "4 distinct vertices, simple ring, winding matches footprint_ccw",
+      "cross_file": false
+    },
+    {
+      "rule": "G-21",
+      "title": "polygons are simple and winding is declared",
+      "severity": "SKIP",
+      "location": "dimensions.json::core.footprint_cm",
+      "path": "core.footprint_cm",
+      "tolerance": "",
+      "detail": "no sibling *_ccw flag exists for this ring in 07 section 5.7, so the declared winding cannot be confirmed; ring is CCW",
+      "cross_file": false
+    },
+    {
+      "rule": "G-22",
+      "title": "core is inside the building",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "0.5 cm (dimensions.json tolerances)",
+      "detail": "4 core vertices inside or on the footprint ring",
+      "cross_file": false
+    },
+    {
+      "rule": "G-23",
+      "title": "core sits on the structural grid",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "0.5 cm (dimensions.json tolerances)",
+      "detail": "all core vertices on grid lines X['0', '400'] Y['0', '300', '600']",
+      "cross_file": false
+    },
+    {
+      "rule": "G-24",
+      "title": "grid spans the footprint",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "0.5 cm (dimensions.json tolerances)",
+      "detail": "grid spans 400 x 600 cm exactly, all bays positive, all column lines strictly inside",
+      "cross_file": false
+    },
+    {
+      "rule": "G-25",
+      "title": "facades close",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "0.5 cm (dimensions.json tolerances)",
+      "detail": "1 facades close on footprint vertices; bay sums equal lengths",
+      "cross_file": false
+    },
+    {
+      "rule": "G-26",
+      "title": "openings are physically sane",
+      "severity": "SKIP",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "openings is empty; nothing to test (07 section 5.11 allows it)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-27",
+      "title": "openings fit their host bay",
+      "severity": "SKIP",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "openings is empty; nothing to fit",
+      "cross_file": false
+    },
+    {
+      "rule": "G-28",
+      "title": "openings do not collide or duplicate",
+      "severity": "SKIP",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "openings is empty; nothing to collide",
+      "cross_file": false
+    },
+    {
+      "rule": "G-29",
+      "title": "area arithmetic is consistent",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "0.05 m2 (dimensions.json tolerances)",
+      "detail": "areas reconcile: 24 gross, 12 net over 1 plate(s)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-30",
+      "title": "roof is consistent",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "0.5 cm (dimensions.json tolerances)",
+      "detail": "roof deck agrees with total height; core spans resolve",
+      "cross_file": false
+    },
+    {
+      "rule": "G-91",
+      "title": "stepped plate containment and co-presence",
+      "severity": "SKIP",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "No stepped floor_plates[].footprint_cm or facades[].spans_level_indices declared",
+      "cross_file": false
+    },
+    {
+      "rule": "G-9",
+      "title": "origins covers the value tree, exactly once",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "49 leaves, 50 entries, exactly-one coverage",
+      "cross_file": true
+    },
+    {
+      "rule": "G-10",
+      "title": "origin / origin_ref pairing",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "50 entries: origin/origin_ref pairing valid, 16 derived with resolving derives_from",
+      "cross_file": true
+    },
+    {
+      "rule": "G-32",
+      "title": "derived values recompute",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "16 derived values recomputed from their formulas",
+      "cross_file": true
+    },
+    {
+      "rule": "G-7",
+      "title": "file hygiene",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "UTF-8 no BOM, LF endings, one trailing newline, strict JSON",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "envelope keys first, in order",
+      "cross_file": false
+    },
+    {
+      "rule": "G-2",
+      "title": "spec matches filename",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "spec == \"walls\"",
+      "cross_file": false
+    },
+    {
+      "rule": "G-3",
+      "title": "schema_version major is supported",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "schema_version 1.1 supported",
+      "cross_file": false
+    },
+    {
+      "rule": "G-4",
+      "title": "status is known, and only locked builds",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "status=locked; downstream stages may consume it",
+      "cross_file": false
+    },
+    {
+      "rule": "G-5",
+      "title": "units are cm and deg",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "units are cm and deg",
+      "cross_file": false
+    },
+    {
+      "rule": "G-6",
+      "title": "source is well formed",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "source kind=user_brief, recorded_at parses",
+      "cross_file": false
+    },
+    {
+      "rule": "G-8",
+      "title": "unit suffix lint",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "every length-looking key carries a unit suffix (hard tokens 12, heuristic 18, 51 exempt names)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-16",
+      "title": "range compliance",
+      "severity": "SKIP",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "07 declares no numeric range for this file; a key with no declared range is unbounded",
+      "cross_file": false
+    },
+    {
+      "rule": "G-11",
+      "title": "ledger ids are unique and well formed",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "1 A- ids, unique, well formed, ascending",
+      "cross_file": true
+    },
+    {
+      "rule": "G-12",
+      "title": "ledger entries match the spec",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "1 ledger values equal the spec value at their field_path",
+      "cross_file": true
+    },
+    {
+      "rule": "G-13",
+      "title": "ledger bijection",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "1 claim(s) over 1 assumed origins, 1/1 entries consumed; bijection holds both ways",
+      "cross_file": true
+    },
+    {
+      "rule": "G-15",
+      "title": "assumption entries are complete",
+      "severity": "PASS",
+      "location": "assumptions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "1 assumption entries complete",
+      "cross_file": true
+    },
+    {
+      "rule": "G-11",
+      "title": "ledger ids are unique and well formed",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "0 C- ids, unique, well formed, ascending",
+      "cross_file": true
+    },
+    {
+      "rule": "G-12",
+      "title": "ledger entries match the spec",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "0 ledger values equal the spec value at their field_path",
+      "cross_file": true
+    },
+    {
+      "rule": "G-13",
+      "title": "ledger bijection",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "0 claim(s) over 0 conflict origins, 0/0 entries consumed; bijection holds both ways",
+      "cross_file": true
+    },
+    {
+      "rule": "G-14",
+      "title": "conflict entries are complete",
+      "severity": "PASS",
+      "location": "conflicts_resolved.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "0 conflict entries complete (empty conflicts array is a valid result)",
+      "cross_file": true
+    },
+    {
+      "rule": "G-86",
+      "title": "form references and precision targets are well-formed and resolve",
+      "severity": "SKIP",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "schema_version 1.0; form_references/precision_targets not present",
+      "cross_file": true
+    },
+    {
+      "rule": "G-31",
+      "title": "cross-file references resolve",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "all cross-file ids and dotted paths resolve; one project id ('phase16-p3-f01') across 4 file(s); wall input owners: facades[0] -> dimensions.json; levels[0] -> dimensions.json; tolerances -> dimensions.json",
+      "cross_file": true
+    },
+    {
+      "rule": "G-33",
+      "title": "tolerances are declared",
+      "severity": "PASS",
+      "location": "dimensions.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "linear 0.5 cm, area 0.05 m2, angle 0.01 deg declared",
+      "cross_file": true
+    },
+    {
+      "rule": "G-9",
+      "title": "origins covers the value tree, exactly once",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "27 leaves, 9 entries, exactly-one coverage",
+      "cross_file": true
+    },
+    {
+      "rule": "G-10",
+      "title": "origin / origin_ref pairing",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "wall origin pairings, ledger target/value and acyclic paths checked; selected upstream: facades[0] -> dimensions.json; levels[0] -> dimensions.json; tolerances -> dimensions.json; declarations do not prove the inputs were actually read",
+      "cross_file": true
+    },
+    {
+      "rule": "G-93",
+      "title": "walls schema, geometry, provenance and references",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "closed schema, declared geometry and provenance joins checked; selected upstream bindings are reported under G-10; outward sign and physical face require independent evidence",
+      "cross_file": true
+    },
+    {
+      "rule": "G-94",
+      "title": "wall opening bounds and non-overlap",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "declared openings are in bounds and do not overlap in u",
+      "cross_file": true
+    },
+    {
+      "rule": "G-97",
+      "title": "declared wall topology ceilings",
+      "severity": "PASS",
+      "location": "walls.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "topology ceilings declared only; no geometry or optimization measured",
+      "cross_file": false
+    },
+    {
+      "rule": "G-92",
+      "title": "wall route selection and assembly echo",
+      "severity": "SKIP",
+      "location": "walls.json / assembly.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "poly_surface_shell_v1 selected; assembly is absent or a draft placeholder, echo incomplete",
+      "cross_file": true
+    },
+    {
+      "rule": "G-87",
+      "title": "QA config: qa.json is well-formed closed configuration",
+      "severity": "SKIP",
+      "location": "(qa)",
+      "path": "",
+      "tolerance": "",
+      "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+      "cross_file": true
+    },
+    {
+      "rule": "G-88",
+      "title": "QA coverage joins: targets, checks and inferred mandatory families",
+      "severity": "SKIP",
+      "location": "(qa)",
+      "path": "",
+      "tolerance": "",
+      "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+      "cross_file": true
+    },
+    {
+      "rule": "G-89",
+      "title": "QA tolerances and schedule: separate arithmetic, form, numerical and limits",
+      "severity": "SKIP",
+      "location": "(qa)",
+      "path": "",
+      "tolerance": "",
+      "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+      "cross_file": true
+    },
+    {
+      "rule": "G-90",
+      "title": "QA dependencies and provenance: discriminated JSON and CSV bindings",
+      "severity": "SKIP",
+      "location": "(qa)",
+      "path": "",
+      "tolerance": "",
+      "detail": "qa.json is absent; QA configuration has not been scaffolded or run",
+      "cross_file": true
+    },
+    {
+      "rule": "G-96",
+      "title": "wall route exclusivity",
+      "severity": "SKIP",
+      "location": "assembly.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "assembly absent or empty draft; route exclusivity incomplete; output manifest wall_surface.json is missing",
+      "cross_file": true
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "FAIL",
+      "location": "massing.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "absent; 07 section 4 marks it defined (owner P3), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "FAIL",
+      "location": "nurbs.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "absent; 07 section 4 marks it defined (owner P4), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "FAIL",
+      "location": "facade_grids.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "absent; 07 section 4 marks it defined (owner P5), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "FAIL",
+      "location": "components_registry.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "absent; 07 section 4 marks it defined (owner P5), so a builder reads it and its absence is a FAIL, not a SKIP (07 section 9.6)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "SKIP",
+      "location": "assembly.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "poly assembly output is not produced; G-92/G-96 remain incomplete, but it is not a wall-input precondition",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "SKIP",
+      "location": "materials.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "absent; 07 section 4 marks it reserved (owner P7), so no builder reads it yet",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "SKIP",
+      "location": "qa.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "absent; earlier stage / legacy project before S7/P8 QA gate (07 S-4)",
+      "cross_file": false
+    },
+    {
+      "rule": "G-1",
+      "title": "envelope keys present, first, in order",
+      "severity": "SKIP",
+      "location": "export.json",
+      "path": "",
+      "tolerance": "",
+      "detail": "absent; 07 section 4 marks it reserved (owner P9), so no builder reads it yet",
+      "cross_file": false
+    }
+  ],
+  "summary": {
+    "FAIL": 4,
+    "WARN": 0,
+    "SKIP": 23,
+    "PASS": 62
+  },
+  "exit_code": 1
+}

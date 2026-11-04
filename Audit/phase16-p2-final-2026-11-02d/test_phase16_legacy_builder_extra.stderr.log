@@ -1,0 +1,17 @@
+extra-test source snapshot: place_components.py=4f9735ffbf9d59f6e858bed5d6390342db8230b50a036e462d894c00d07b91ac, validate_specs.py=616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f, wall_cell_coverage.py=d8d1e930808465f3340e2ed2e4cc04e45b46d033cc14ebc57ecb66a61b6ece4e, scene_units.py=b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2, curve_gen.py=4e304cfe558988b9a4d285df57ea34668ec9352f68bb18a83bab10a63208b55c
+test_equivalent_decimal_spelling_preserves_historical_output (__main__.ExtraLegacyBuilderTests.test_equivalent_decimal_spelling_preserves_historical_output) ... ok
+test_explicit_draft_superseded_and_g93_same_and_separate_refuse (__main__.ExtraLegacyBuilderTests.test_explicit_draft_superseded_and_g93_same_and_separate_refuse) ... ok
+test_explicit_same_separate_empty_matching_and_conflicting (__main__.ExtraLegacyBuilderTests.test_explicit_same_separate_empty_matching_and_conflicting) ... ok
+test_historical_same_and_separate_out_match_old_bytes (__main__.ExtraLegacyBuilderTests.test_historical_same_and_separate_out_match_old_bytes) ... ok
+test_json_number_roundtrip_has_positive_and_negative_controls (__main__.ExtraLegacyBuilderTests.test_json_number_roundtrip_has_positive_and_negative_controls) ... ok
+test_json_precision_refusal_preserves_both_routes_and_sentinels (__main__.ExtraLegacyBuilderTests.test_json_precision_refusal_preserves_both_routes_and_sentinels) ... ok
+test_no_openings_is_na_and_historical_self_check_already_refuses (__main__.ExtraLegacyBuilderTests.test_no_openings_is_na_and_historical_self_check_already_refuses) ... ok
+test_registry_dependency_provenance_controls (__main__.ExtraLegacyBuilderTests.test_registry_dependency_provenance_controls) ... ok
+test_review_and_unsupported_geometry_not_promoted_to_pass (__main__.ExtraLegacyBuilderTests.test_review_and_unsupported_geometry_not_promoted_to_pass) ... ok
+test_safe_integer_boundary_and_oversized_float_tokens_on_both_routes (__main__.ExtraLegacyBuilderTests.test_safe_integer_boundary_and_oversized_float_tokens_on_both_routes) ... ok
+test_unprintable_oracle_diagnostic_is_a_refusal (__main__.ExtraLegacyBuilderTests.test_unprintable_oracle_diagnostic_is_a_refusal) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 47.140s
+
+OK

@@ -1,0 +1,9 @@
+{
+  "strict_harness_exit": 1,
+  "strict_skips": 21,
+  "strict_unittest_failure": false,
+  "xfail_count": 1,
+  "xfail_final_assertion_confirmed": true,
+  "source_drift": [],
+  "note": "21 missing produced/runtime fixture checks and one already-rounded API limitation remain NOT PASS."
+}

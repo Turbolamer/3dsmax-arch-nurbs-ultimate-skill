@@ -1,0 +1,19 @@
+test_candidate_detaches_both_sides_and_validates_before_comparison (__main__.CandidateTests.test_candidate_detaches_both_sides_and_validates_before_comparison) ... ok
+test_each_gi_field_and_each_nested_interface (__main__.CandidateTests.test_each_gi_field_and_each_nested_interface) ... ok
+test_each_interface_and_backing_field_is_in_payload (__main__.CandidateTests.test_each_interface_and_backing_field_is_in_payload) ... ok
+test_emitter_rejects_file_injection_or_byte_change (__main__.CandidateTests.test_emitter_rejects_file_injection_or_byte_change) ... ok
+test_exact_guards_and_no_backing_recursion (__main__.CandidateTests.test_exact_guards_and_no_backing_recursion) ... ok
+test_exact_membership_and_root_manager_dependencies (__main__.CandidateTests.test_exact_membership_and_root_manager_dependencies) ... ok
+test_helper_is_local_and_emitted_in_wrapper_with_fail_closed_stubs (__main__.CandidateTests.test_helper_is_local_and_emitted_in_wrapper_with_fail_closed_stubs) ... ok
+test_malformed_or_failed_read_never_equal (__main__.CandidateTests.test_malformed_or_failed_read_never_equal) ... ok
+test_missing_and_unknown_every_profile_including_gi (__main__.CandidateTests.test_missing_and_unknown_every_profile_including_gi) ... ok
+test_name_injection_is_detached_data_not_authority_or_code (__main__.CandidateTests.test_name_injection_is_detached_data_not_authority_or_code) ... ok
+test_profiles_match_independently_transcribed_evidence (__main__.CandidateTests.test_profiles_match_independently_transcribed_evidence) ... ok
+test_repeat_and_detached_snapshots_not_live_aliases (__main__.CandidateTests.test_repeat_and_detached_snapshots_not_live_aliases) ... ok
+test_replacement_handle_mismatch_and_current_name_not_authority (__main__.CandidateTests.test_replacement_handle_mismatch_and_current_name_not_authority) ... ok
+test_wrong_types_nan_infinity_and_unknown_nested_value (__main__.CandidateTests.test_wrong_types_nan_infinity_and_unknown_nested_value) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.011s
+
+OK

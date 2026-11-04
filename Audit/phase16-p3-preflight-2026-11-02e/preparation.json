@@ -1,0 +1,151 @@
+{
+  "status": "OFFLINE_PREPARATION_ONLY_NO_MAX_CALLS",
+  "source_hashes_before": {
+    "scripts/env_preflight.py": "a60103393d11828d7e40547aa02e15c85ac67645c0f507b03694fa447e6b099e",
+    "scripts/scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2"
+  },
+  "source_hashes_after": {
+    "scripts/env_preflight.py": "a60103393d11828d7e40547aa02e15c85ac67645c0f507b03694fa447e6b099e",
+    "scripts/scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2"
+  },
+  "source_drift": false,
+  "canonical_checks": [
+    {
+      "name": "bridge",
+      "source": "mcp",
+      "severity": "warn",
+      "body": null,
+      "classification": "TYPED_EVIDENCE_MAIN_ONLY"
+    },
+    {
+      "name": "max_version",
+      "source": "maxscript",
+      "severity": "warn",
+      "body": "canonical/max_version.ms",
+      "sha256": "5501de79e15ebbe2c4dd8e5a32797c3f8087788dae4ab49979e5397262ec5686",
+      "classification": "STRICT_READ_ONLY",
+      "provenance": "Exact CheckSpec.script bytes; emitted, NOT executed in Max"
+    },
+    {
+      "name": "units",
+      "source": "maxscript",
+      "severity": "fail",
+      "body": "canonical/units.ms",
+      "sha256": "ba05338a14c3127d308d8684120ad3c5901973431dd5cd11589b9d00111eb61f",
+      "classification": "STRICT_READ_ONLY",
+      "provenance": "Exact CheckSpec.script bytes; emitted, NOT executed in Max"
+    },
+    {
+      "name": "nurbset_present",
+      "source": "maxscript",
+      "severity": "fail",
+      "body": "canonical/nurbset_present.ms",
+      "sha256": "20827c4bb176f3d0add767ab329d75e2fc5b03e9c9d47f6d760a9b06faba915d",
+      "classification": "TRANSIENT_NON_NODE_CONSTRUCTION",
+      "provenance": "Exact CheckSpec.script bytes; emitted, NOT executed in Max"
+    },
+    {
+      "name": "loft_not_creatable",
+      "source": "maxscript",
+      "severity": "fail",
+      "body": "canonical/loft_not_creatable.ms",
+      "sha256": "078941b6d05195ae3c87237ea3fa567b4ab96ed39ba9ee282db7b29d763aaeb2",
+      "classification": "CONDITIONAL_SCENE_MUTATION_IF_BASELINE_CHANGES",
+      "provenance": "Exact CheckSpec.script bytes; emitted, NOT executed in Max"
+    },
+    {
+      "name": "sweep_creatable",
+      "source": "maxscript",
+      "severity": "fail",
+      "body": "canonical/sweep_creatable.ms",
+      "sha256": "7804ebb409b31a0a9cc74c205dba23cfc05c873ace9dbb70228dfa6752ba60cf",
+      "classification": "TRANSIENT_NON_NODE_CONSTRUCTION",
+      "provenance": "Exact CheckSpec.script bytes; emitted, NOT executed in Max"
+    },
+    {
+      "name": "sweep_on_shape",
+      "source": "maxscript",
+      "severity": "fail",
+      "body": "canonical/sweep_on_shape.ms",
+      "sha256": "c024c9fb3f1fd830f0df62a7ec65484be81f4d0df576e5cd645204f115562829",
+      "classification": "SCENE_MUTATION",
+      "provenance": "Exact CheckSpec.script bytes; emitted, NOT executed in Max"
+    },
+    {
+      "name": "quadpatch_creatable",
+      "source": "maxscript",
+      "severity": "fail",
+      "body": "canonical/quadpatch_creatable.ms",
+      "sha256": "9c1c07c7f362fbaaa1aedffa73dad11755ee67817779d99ad76ed4bc322fd2f0",
+      "classification": "SCENE_MUTATION",
+      "provenance": "Exact CheckSpec.script bytes; emitted, NOT executed in Max"
+    },
+    {
+      "name": "plugins_absent",
+      "source": "mcp",
+      "severity": "fail",
+      "body": null,
+      "classification": "TYPED_EVIDENCE_MAIN_ONLY"
+    },
+    {
+      "name": "materials",
+      "source": "maxscript",
+      "severity": "info",
+      "body": "canonical/materials.ms",
+      "sha256": "13b5580d034b0cdc1b8cdea22fe30706948826e45feeee71c7d7eeffe6c805b6",
+      "classification": "TRANSIENT_NON_NODE_CONSTRUCTION_OUT_OF_SCOPE",
+      "provenance": "Exact CheckSpec.script bytes; emitted, NOT executed in Max"
+    }
+  ],
+  "offline_commands": [
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "scripts/env_preflight.py"
+      ],
+      "exit_code": 0,
+      "stdout": "canonical-emit.txt",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "scripts/env_preflight.py",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "canonical-emit.json",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "scripts/env_preflight.py",
+        "--json",
+        "--require-complete"
+      ],
+      "exit_code": 1,
+      "stdout": "canonical-emit-require-complete.json",
+      "stderr": ""
+    }
+  ],
+  "offline_reference_only": {
+    "source": "Audit/_phase16-p3-live-entry-2026-11-02e.json",
+    "interpretation": "Main's entry supplied by brief; not a new capture, not an overall preflight PASS",
+    "units_text_normalization": "SystemType=millimeters SystemScale=1.0",
+    "canonical_units_evaluator_accepts": true,
+    "c_cm_per_native": 0.1,
+    "f_native_per_cm": 10.0
+  },
+  "modified_bodies_live_executed": false,
+  "strict_readonly_recommended": [
+    "canonical/max_version.ms",
+    "canonical/units.ms",
+    "modified/01_native_units_readonly.ms"
+  ],
+  "optional_scene_measurement": "modified/02_native_box_roundtrip.ms",
+  "class_api_rechecks_recommended": false
+}

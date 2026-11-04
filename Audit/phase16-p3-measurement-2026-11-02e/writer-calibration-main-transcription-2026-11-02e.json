@@ -1,0 +1,32 @@
+{
+  "schema_version": "p3-writer-calibration-main-transcription-1",
+  "origin": "Normalized transcription of coordinator's reported live calls; this author made no Max call",
+  "source_path": "Audit/_phase16-p3-writer-calibration-2026-11-02e.json",
+  "first_call": {
+    "request_id": "8fe959bf429d470e948306f375c724e4",
+    "elapsed_ms": 3.925,
+    "envelope_parsed": true,
+    "status": "WRITTEN_NOT_VERIFIED",
+    "reported_sha256": "51eca5564e30fcc80979e30679fd1f05410d08ae59b76508183bf6b2a9b06b0a",
+    "reported_bytes": 41,
+    "reported_expected_bytes": 41,
+    "main_independently_verified": ["file bytes", "SHA-256", "JSON", "UTF-8 text including AéЖ and escaped newline"]
+  },
+  "same_exact_path_repeat": {
+    "request_id": "9b3b0a8cb7684b9ebeea528f25ab2fca",
+    "elapsed_ms": 2.1,
+    "tool_ok": false,
+    "error_kind": "ToolError",
+    "reported_error": ".NET runtime exception: file already exists",
+    "incomplete_json_envelope_returned": false,
+    "main_independent_existing_file_bytes_unchanged": true,
+    "verdict": "TARGETED_NO_OVERWRITE_REFUSAL_WITH_BRIDGE_ERROR_NOT_NORMALIZED_JSON"
+  },
+  "qualifications": [
+    "Corrected Integer64 writer success envelope actually parsed; prior 3516L invalid measurement envelope remains historical failure",
+    "Exclusive evidence preservation worked, but catch wrapper did not normalize existing-file exception into INCOMPLETE JSON",
+    "No full measurement rerun or F01 produced-wall acceptance implied",
+    "P3MeasurementOutput may remain set after repeat exception; main alone will inspect/clear its own global",
+    "Finalized measurement sources stay frozen; no code change requested or performed"
+  ]
+}

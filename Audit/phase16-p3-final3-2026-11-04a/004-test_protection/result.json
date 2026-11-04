@@ -1,0 +1,70 @@
+{
+  "test": "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-runtime-hardening-2026-11-03f\\test_protection.py"
+  ],
+  "started_utc": "2026-11-04T08:14:04.136673+00:00",
+  "ended_utc": "2026-11-04T08:14:04.232364+00:00",
+  "seconds": 0.095701,
+  "returncode": 1,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 7667,
+    "sha256": "0cebca8ab6a71ddff39adc732086d4091b871f03e213de9dadf10e3dd0ac52cb"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 72,
+        "text": "Ran 21 tests in 0.008s",
+        "count": 21
+      }
+    ],
+    "ok_summaries": [],
+    "prohibited_or_failed": [
+      {
+        "stream": "stderr",
+        "line": 24,
+        "text": "FAIL: test_arm_cleanup_requires_exact_published_instance_and_reports_failure (__main__.ProtectiveSourceTests.test_arm_cleanup_requires_exact_published_instance_and_reports_failure)"
+      },
+      {
+        "stream": "stderr",
+        "line": 37,
+        "text": "FAIL: test_replay_branch_and_create_entry_have_no_guard_bypass (__main__.ProtectiveSourceTests.test_replay_branch_and_create_entry_have_no_guard_bypass)"
+      },
+      {
+        "stream": "stderr",
+        "line": 54,
+        "text": "FAIL: test_replay_is_incomplete_before_node_inspection_or_mutation (__main__.ProtectiveSourceTests.test_replay_is_incomplete_before_node_inspection_or_mutation)"
+      },
+      {
+        "stream": "stderr",
+        "line": 63,
+        "text": "FAIL: test_temporary_precreate_guard_precedes_every_scene_or_lease_mutation (__main__.ProtectiveSourceTests.test_temporary_precreate_guard_precedes_every_scene_or_lease_mutation)"
+      },
+      {
+        "stream": "stderr",
+        "line": 74,
+        "text": "FAILED (failures=4)"
+      }
+    ],
+    "qualifier_metadata": [],
+    "issues": [
+      "expected exactly one unittest OK summary",
+      "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+    ],
+    "status": "REFUSED"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

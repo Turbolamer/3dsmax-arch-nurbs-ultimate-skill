@@ -1,0 +1,77 @@
+{
+  "test": "Audit/control_suite.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-002\\skip\\Audit\\control_suite.py",
+    "-v"
+  ],
+  "started_utc": "2026-11-03T17:38:35.809689+00:00",
+  "ended_utc": "2026-11-03T17:38:35.887195+00:00",
+  "seconds": 0.077515,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 198,
+    "sha256": "eb5a51e53ae91b046329e956cf818e52d779ba0131e1059852451b7be2152142"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "Ran 1 test in 0.000s",
+        "count": 1
+      }
+    ],
+    "ok_summaries": [
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "OK (skipped=1)"
+      }
+    ],
+    "prohibited_or_failed": [
+      {
+        "stream": "stderr",
+        "line": 1,
+        "text": "test_control (__main__.Control.test_control) ... skipped 'deliberate skip control'"
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "OK (skipped=1)",
+        "kind": "skipped",
+        "count": 1
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "OK (skipped=1)",
+        "reason": "unrecognized unittest OK qualifier"
+      }
+    ],
+    "qualifier_metadata": [
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "OK (skipped=1)",
+        "kind": "skipped",
+        "count": 1
+      }
+    ],
+    "issues": [
+      "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+    ],
+    "status": "REFUSED"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

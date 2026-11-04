@@ -1,0 +1,265 @@
+{
+  "test": "Audit/test_phase16_p3_runtime.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_runtime.py",
+    "-v"
+  ],
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "started_utc": "2026-11-02T21:33:34.158547+00:00",
+  "ended_utc": "2026-11-02T21:33:34.302198+00:00",
+  "seconds": 0.143635,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 4846,
+    "sha256": "fa6c32920e451d1730e70b883a321203499ee39a2cb7b43e656a7b0b285f32f1"
+  },
+  "source_drift": [],
+  "baseline_problems": [],
+  "observations": {
+    "summary_lines": [
+      {
+        "stream": "stderr",
+        "line": 45,
+        "text": "Ran 42 tests in 0.044s"
+      },
+      {
+        "stream": "stderr",
+        "line": 47,
+        "text": "OK"
+      }
+    ],
+    "qualifier_lines": [],
+    "test_lines": [
+      {
+        "stream": "stderr",
+        "line": 1,
+        "text": "test_absolute_caps_are_explicit (__main__.PlanTests.test_absolute_caps_are_explicit) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 2,
+        "text": "test_analytic_diagonal_not_axis_assumed (__main__.PlanTests.test_analytic_diagonal_not_axis_assumed) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 3,
+        "text": "test_bad_opening_boundaries_refused (__main__.PlanTests.test_bad_opening_boundaries_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "test_caps_not_relaxed_by_declaration (__main__.PlanTests.test_caps_not_relaxed_by_declaration) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 5,
+        "text": "test_door_no_sill_strip (__main__.PlanTests.test_door_no_sill_strip) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "test_duplicate_facade_identity_refused (__main__.PlanTests.test_duplicate_facade_identity_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 7,
+        "text": "test_duplicate_opening_identity_and_foreign_run_refused (__main__.PlanTests.test_duplicate_opening_identity_and_foreign_run_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 8,
+        "text": "test_f01_predictions_are_labelled_not_measured (__main__.PlanTests.test_f01_predictions_are_labelled_not_measured) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 9,
+        "text": "test_f01_station_grid (__main__.PlanTests.test_f01_station_grid) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 10,
+        "text": "test_facade_conflict_refused (__main__.PlanTests.test_facade_conflict_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 11,
+        "text": "test_invalid_budget_not_bool (__main__.PlanTests.test_invalid_budget_not_bool) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 12,
+        "text": "test_invalid_vectors_refused (__main__.PlanTests.test_invalid_vectors_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 13,
+        "text": "test_lower_declared_budget_honored (__main__.PlanTests.test_lower_declared_budget_honored) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 14,
+        "text": "test_near_stations_refused_not_snapped (__main__.PlanTests.test_near_stations_refused_not_snapped) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 15,
+        "text": "test_near_unit_vector_not_used_as_skew_offset (__main__.PlanTests.test_near_unit_vector_not_used_as_skew_offset) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 16,
+        "text": "test_opening_order_does_not_change_geometry (__main__.PlanTests.test_opening_order_does_not_change_geometry) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 17,
+        "text": "test_pure_and_deterministic (__main__.PlanTests.test_pure_and_deterministic) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 18,
+        "text": "test_reversed_outward_changes_winding_not_volume (__main__.PlanTests.test_reversed_outward_changes_winding_not_volume) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 19,
+        "text": "test_shared_slots_not_duplicate_geometric_vertices (__main__.PlanTests.test_shared_slots_not_duplicate_geometric_vertices) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 20,
+        "text": "test_touching_and_overlapping_openings_refused (__main__.PlanTests.test_touching_and_overlapping_openings_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 21,
+        "text": "test_unsupported_subset_refused (__main__.PlanTests.test_unsupported_subset_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 22,
+        "text": "test_zero_or_invalid_dimension_refused (__main__.PlanTests.test_zero_or_invalid_dimension_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 23,
+        "text": "test_all_emitted_helpers_are_p3_prefixed (__main__.SourceTests.test_all_emitted_helpers_are_p3_prefixed) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 24,
+        "text": "test_catches_only_bare_rethrow_not_explicit_arguments (__main__.SourceTests.test_catches_only_bare_rethrow_not_explicit_arguments) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 25,
+        "text": "test_cleanup_exact_current_attempt_refs_only (__main__.SourceTests.test_cleanup_exact_current_attempt_refs_only) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 26,
+        "text": "test_deterministic_emission_and_no_input_writes (__main__.SourceTests.test_deterministic_emission_and_no_input_writes) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 27,
+        "text": "test_expected_units_closed_and_canonical (__main__.SourceTests.test_expected_units_closed_and_canonical) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 28,
+        "text": "test_explicit_arm_and_struct_exact_witness (__main__.SourceTests.test_explicit_arm_and_struct_exact_witness) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 29,
+        "text": "test_float32_indistinguishable_thickness_refused (__main__.SourceTests.test_float32_indistinguishable_thickness_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 30,
+        "text": "test_float32_indistinguishable_world_vertices_refused (__main__.SourceTests.test_float32_indistinguishable_world_vertices_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 31,
+        "text": "test_full_baseline_guards_are_explicit (__main__.SourceTests.test_full_baseline_guards_are_explicit) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 32,
+        "text": "test_invalid_namespace_and_identity (__main__.SourceTests.test_invalid_namespace_and_identity) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 33,
+        "text": "test_missing_registry_refuses_not_auto_arms (__main__.SourceTests.test_missing_registry_refuses_not_auto_arms) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 34,
+        "text": "test_no_dangerous_operations_or_name_recovery (__main__.SourceTests.test_no_dangerous_operations_or_name_recovery) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 35,
+        "text": "test_no_stringified_geometry_fingerprint (__main__.SourceTests.test_no_stringified_geometry_fingerprint) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 36,
+        "text": "test_registry_publication_only_after_baseline (__main__.SourceTests.test_registry_publication_only_after_baseline) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 37,
+        "text": "test_returned_ids_not_assumed_row_major_ids (__main__.SourceTests.test_returned_ids_not_assumed_row_major_ids) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 38,
+        "text": "test_same_factor_different_pair_remains_distinct (__main__.SourceTests.test_same_factor_different_pair_remains_distinct) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 39,
+        "text": "test_snapshot_memory_disposal_in_success_and_error (__main__.SourceTests.test_snapshot_memory_disposal_in_success_and_error) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 40,
+        "text": "test_tampered_plan_predictions_or_cells_refuse (__main__.SourceTests.test_tampered_plan_predictions_or_cells_refuse) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 41,
+        "text": "test_units_guard_before_constructor_or_registry (__main__.SourceTests.test_units_guard_before_constructor_or_registry) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 42,
+        "text": "test_unproven_metadata_never_yields_noop_pass (__main__.SourceTests.test_unproven_metadata_never_yields_noop_pass) ... ok"
+      }
+    ],
+    "observed_counts_not_totals": [
+      {
+        "stream": "stderr",
+        "line": 45,
+        "kind": "unittest_ran",
+        "value": 42
+      }
+    ],
+    "interpretation": "Literal observations only; no assertion/coverage/acceptance inference."
+  },
+  "disposition": "EXECUTED_REQUIRES_REVIEW",
+  "acceptance": "NOT_ASSESSED"
+}

@@ -1,0 +1,24 @@
+{
+  "02_poly_state": {
+    "ok": true,
+    "result": "dead=#(#{}, #{}, #{})\nflags=#(0, 0, 1)\nface=#(#(1, 2, 3, 4), 1, 0)\nmaps=0\nmap -2 support=false\nmap -1 support=false\nvdata=0\nedata=0\ncontroller=true;keys=-1\nglobalMissing=false\nexactRefStillValid=false",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "948f5df63b5a4e8fb4e97c2ae722c641", "protocol_version": 2, "client_round_trip_ms": 10.437, "fallback_error": null},
+    "elapsed_ms": 10.463
+  },
+  "01_registry_properties_initial": {
+    "ok": true,
+    "result": "PROBE_ERROR -- Type error: Call needs function or class, got: undefined\nexactRefStillValid=false",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "78df323904484c888a0488f6349838e7", "protocol_version": 2, "client_round_trip_ms": 3.431, "fallback_error": null},
+    "elapsed_ms": 3.457
+  },
+  "03_registry_roundtrip_initial": {
+    "ok": true,
+    "result": "PROBE_ERROR -- Runtime error: Specified global variable does not exist: #__P3_RuntimeProbe_b2818628e9c542f099ac91c637f5ed21\nexactRefStillValid=false",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "a6e08f77bde048fc8dcb76895eef8dd8", "protocol_version": 2, "client_round_trip_ms": 3.501, "fallback_error": null},
+    "elapsed_ms": 3.526
+  },
+  "interpretation": "02 tiny quad probe operations executed as listed; keys=-1 on static transform controller. 01 FAILED despite transport ok and cleaned exact node: Type error is NOT class absence or passing state probe. Main suspects case-insensitive local shell shadowing Shell constructor, assigned author diagnosis. 03 FAILED because globalVars.set did not create a fresh undeclared global; not absence of globalVars. Both require author correction and targeted retest. No produced wall acceptance."
+}

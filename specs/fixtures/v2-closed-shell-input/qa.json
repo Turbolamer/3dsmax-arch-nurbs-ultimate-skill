@@ -1,0 +1,231 @@
+{
+  "schema_version": "1.1",
+  "spec": "qa",
+  "project": "pavilion-01",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "assumed",
+    "reference": "v2 closed shell test pavilion QA plan",
+    "recorded_at": "2026-11-04T00:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01,
+    "numerical": {
+      "policy": "separate_bounds_v1",
+      "solver_distance_cm": 0.001,
+      "wire_length_cm": 0.0001,
+      "wire_angle_deg": 0.001,
+      "unit_factor_relative": 1e-06,
+      "volume_roundoff_cm3": 0.01
+    },
+    "volume": {
+      "policy": "box_endpoint_propagation_v1",
+      "endpoint_tolerance_ref": "tolerances.linear_cm"
+    }
+  },
+  "origin_inputs": [],
+  "origins": {},
+  "profile": "closed_inner_contour_shell_v2",
+  "dependencies": [
+    {
+      "id": "DEP_DIMENSIONS",
+      "format": "json",
+      "spec": "dimensions",
+      "schema_version": "1.0",
+      "file": "dimensions.json"
+    },
+    {
+      "id": "DEP_MASSING",
+      "format": "json",
+      "spec": "massing",
+      "schema_version": "1.0",
+      "file": "massing.json"
+    },
+    {
+      "id": "DEP_WALLS",
+      "format": "json",
+      "spec": "walls",
+      "schema_version": "2.0",
+      "file": "walls.json"
+    },
+    {
+      "id": "DEP_WALL_SURFACE",
+      "format": "json",
+      "spec": "wall_surface",
+      "schema_version": "2.0",
+      "file": "wall_surface.json"
+    },
+    {
+      "id": "DEP_COMPONENTS_REGISTRY",
+      "format": "json",
+      "spec": "components_registry",
+      "schema_version": "1.0",
+      "file": "components_registry.json"
+    },
+    {
+      "id": "DEP_ASSEMBLY",
+      "format": "json",
+      "spec": "assembly",
+      "schema_version": "1.0",
+      "file": "assembly.json"
+    }
+  ],
+  "scope": {
+    "registry_ref": "dimensions.json",
+    "targets": [
+      {
+        "id": "TGT_PROJECT",
+        "kind": "project",
+        "role": "project",
+        "node_names": []
+      },
+      {
+        "id": "WS_storey_1",
+        "kind": "wall_surface",
+        "role": "wall_surface",
+        "node_names": [
+          "WS_storey_1"
+        ]
+      },
+      {
+        "id": "PLC_001",
+        "kind": "placement",
+        "role": "placement",
+        "node_names": [
+          "PLC_001"
+        ]
+      },
+      {
+        "id": "PLC_002",
+        "kind": "placement",
+        "role": "placement",
+        "node_names": [
+          "PLC_002"
+        ]
+      },
+      {
+        "id": "PLC_003",
+        "kind": "placement",
+        "role": "placement",
+        "node_names": [
+          "PLC_003"
+        ]
+      },
+      {
+        "id": "EL_001",
+        "kind": "massing_element",
+        "role": "massing_element",
+        "node_names": [
+          "EL_001"
+        ]
+      },
+      {
+        "id": "EL_002",
+        "kind": "massing_element",
+        "role": "massing_element",
+        "node_names": [
+          "EL_002"
+        ]
+      }
+    ]
+  },
+  "check_plan": [
+    {
+      "id": "CHK_COVERAGE",
+      "kind": "QA-V1-COVERAGE",
+      "target_ref": "TGT_PROJECT",
+      "tolerance_ref": "exact"
+    },
+    {
+      "id": "CHK_SOLID",
+      "kind": "QA-V1-SOLID",
+      "target_ref": "WS_storey_1",
+      "tolerance_ref": "solid_v1"
+    },
+    {
+      "id": "CHK_TOPOLOGY",
+      "kind": "QA-V1-TOPOLOGY",
+      "target_ref": "WS_storey_1",
+      "tolerance_ref": "topology_v1"
+    },
+    {
+      "id": "CHK_SURFACE",
+      "kind": "QA-V1-SURFACE",
+      "target_ref": "WS_storey_1",
+      "tolerance_ref": "surface_v1"
+    },
+    {
+      "id": "CHK_APERTURE_01",
+      "kind": "QA-V1-APERTURE",
+      "target_ref": "PLC_001",
+      "tolerance_ref": "aperture_v1"
+    },
+    {
+      "id": "CHK_APERTURE_02",
+      "kind": "QA-V1-APERTURE",
+      "target_ref": "PLC_002",
+      "tolerance_ref": "aperture_v1"
+    },
+    {
+      "id": "CHK_APERTURE_03",
+      "kind": "QA-V1-APERTURE",
+      "target_ref": "PLC_003",
+      "tolerance_ref": "aperture_v1"
+    },
+    {
+      "id": "CHK_PLACEMENT_01",
+      "kind": "QA-V1-PLACEMENT",
+      "target_ref": "PLC_001",
+      "tolerance_ref": "placement_v1"
+    },
+    {
+      "id": "CHK_PLACEMENT_02",
+      "kind": "QA-V1-PLACEMENT",
+      "target_ref": "PLC_002",
+      "tolerance_ref": "placement_v1"
+    },
+    {
+      "id": "CHK_PLACEMENT_03",
+      "kind": "QA-V1-PLACEMENT",
+      "target_ref": "PLC_003",
+      "tolerance_ref": "placement_v1"
+    },
+    {
+      "id": "CHK_CENSUS_EL1",
+      "kind": "QA-V1-CENSUS",
+      "target_ref": "EL_001",
+      "tolerance_ref": "exact"
+    },
+    {
+      "id": "CHK_CENSUS_EL2",
+      "kind": "QA-V1-CENSUS",
+      "target_ref": "EL_002",
+      "tolerance_ref": "exact"
+    }
+  ],
+  "sampling": {
+    "policy": "domain_grid_v1",
+    "version": "1",
+    "grid_u": 5,
+    "grid_v": 5,
+    "landmarks_policy": "barrel_landmarks_v1",
+    "selected_frame": 0
+  },
+  "limits": {
+    "max_rows_per_batch": 25,
+    "max_targets": 50,
+    "max_samples": 200,
+    "max_calls": 50,
+    "max_batch_seconds": 2.0,
+    "max_total_seconds": 60.0,
+    "max_solver_iterations": 100,
+    "max_response_bytes": 1048576
+  },
+  "capture_plan": []
+}

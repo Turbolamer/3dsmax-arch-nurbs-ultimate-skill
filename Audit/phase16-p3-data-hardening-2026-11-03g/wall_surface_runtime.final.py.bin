@@ -1,0 +1,1079 @@
+"""Bounded P3.1 wall planning and MAXScript source emission (not live QA).
+
+``build_plan`` consumes already input-gated, locked domain documents. It repeats
+the geometric/subset checks needed by this runtime; it does not replace the
+provenance/formula/direction-authority gate owned by build_wall_surface.py.
+All plan coordinates and predictions are centimetres. ``generate_script`` also
+checks the actual Float32 scene representation, without merging/snapping stations.
+
+The generated file refuses unsupported baseline states and replay never replaces
+anything. Its pre-evaluation safety is INCOMPLETE, however, as described below.
+Its helper functions are LOCAL to a fileIn wrapper, not definitions sent to the raw bridge.
+No API existence or emitted-source test here constitutes live execution evidence.
+
+The main-owned harness must retain an independently witnessed lease instance and
+detached expected nonce/context across the entire admitted lifecycle. A wall
+reading its own registry is not an independent witness. Timeouts, interrupted
+construction and a lost/replaced witness require inspection, never automatic
+recovery. COMMITTED is a construction-only marker in the current P3.1 contract,
+not replay or geometry acceptance; replay still unconditionally refuses.
+
+STOP: An unconditional temporary INCOMPLETE_PRECREATE guard refuses construction
+after entry checks and before scene or lease mutation. The retained construction
+path is not proof of safety. Main must explicitly remove this gate only after
+independent verification of witness, layer, controller/stack/dependency, cleanup
+and native-metadata safety, followed by review and genuine calibrated tests.
+"""
+
+from __future__ import annotations
+
+from collections import Counter
+from copy import deepcopy
+import hashlib
+import json
+import math
+import re
+import struct
+from typing import Any
+
+try:
+    from .scene_units import SYSTEM_TYPE_FACTORS
+except ImportError:
+    from scene_units import SYSTEM_TYPE_FACTORS
+
+
+OPERATIONAL_CAPS = {"grid_polygons": 32, "grid_vertices": 64,
+                    "evaluated_triangles": 256, "openings": 6,
+                    "nodes": 1, "modifiers": 1}
+ROUTE = "poly_surface_shell_v1"
+PLAN_VERSION = "p3-wall-runtime-plan-1"
+
+# MAXScript names are case-insensitive; even a local fn named `freeze` attempts
+# to assign the read-only built-in. Prefix EVERY emitted helper, not only the
+# first measured collision. Token-aware substitution leaves strings/comments and
+# all geometry/baseline expressions unchanged.
+_RUNTIME_HELPERS = {
+    "require": "p3RequireState", "unitsGuard": "p3UnitsGuard",
+    "same": "p3SameState", "exactRef": "p3ExactRef",
+    "freeze": "p3FreezeState", "properties": "p3ReadProperties",
+    "referenceSet": "p3ReferenceSet", "graphSnapshot": "p3GraphSnapshot",
+    "polySnapshot": "p3PolySnapshot", "evaluatedSnapshot": "p3EvaluatedSnapshot",
+    "nodeSnapshot": "p3NodeSnapshot", "censusGuard": "p3CensusGuard",
+    "environmentSnapshot": "p3EnvironmentSnapshot",
+}
+
+
+def _prefix_runtime_helpers(source: str) -> str:
+    tokens = r'"(?:\\.|[^"\\])*"|--[^\n]*|\b[A-Za-z_][A-Za-z0-9_]*\b'
+    return re.sub(tokens, lambda match: _RUNTIME_HELPERS.get(match.group(0), match.group(0)), source)
+
+
+def _number(value: Any, where: str, *, positive: bool = False) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{where}: finite number required")
+    try:
+        result = float(value)
+    except (OverflowError, ValueError) as exc:
+        raise ValueError(f"{where}: number outside supported range") from exc
+    if not math.isfinite(result) or (result == 0 and value != 0):
+        raise ValueError(f"{where}: nonfinite/underflow number")
+    if isinstance(value, int) and int(result) != value:
+        raise ValueError(f"{where}: integer loses precision")
+    if positive and result <= 0:
+        raise ValueError(f"{where}: positive number required")
+    return result
+
+
+def _pair(value: Any, where: str) -> list[float]:
+    if not isinstance(value, list) or len(value) != 2:
+        raise ValueError(f"{where}: two-element array required")
+    return [_number(v, where) for v in value]
+
+
+def _id(value: Any, where: str) -> str:
+    if not isinstance(value, str) or not value or len(value) > 160:
+        raise ValueError(f"{where}: nonempty bounded string required")
+    if any(ord(c) < 32 or ord(c) == 127 or 0xD800 <= ord(c) <= 0xDFFF for c in value):
+        raise ValueError(f"{where}: control/surrogate character refused")
+    return value
+
+
+def _rows(doc: dict, key: str) -> list[dict]:
+    result = doc.get(key)
+    if not isinstance(result, list) or not all(isinstance(x, dict) for x in result):
+        raise ValueError(f"{key}: object array required")
+    return result
+
+
+def _stations(values: list[float], epsilon: float, label: str) -> list[float]:
+    result = sorted(set(values))  # ONLY exact equality; never tolerance merging.
+    if any(b - a < epsilon for a, b in zip(result, result[1:])):
+        raise ValueError(f"{label}: distinct near-stations refused; no snapping")
+    return result
+
+
+def _finite_tree(value: Any) -> None:
+    if isinstance(value, dict):
+        for child in value.values():
+            _finite_tree(child)
+    elif isinstance(value, list):
+        for child in value:
+            _finite_tree(child)
+    elif isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("plan arithmetic overflow/nonfinite result")
+
+
+def _canonical(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, ensure_ascii=True, allow_nan=False,
+                      separators=(",", ":"))
+
+
+def build_plan(walls: dict, dimensions: dict) -> dict:
+    """Return the complete deterministic ONE-wall operational plan, or refuse.
+
+    ``vertex_slots`` are indices into a Python plan, NOT Max vertex IDs. The
+    emitted runtime builds its own slot -> actually-returned-ID table.
+    """
+    if not isinstance(walls, dict) or not isinstance(dimensions, dict):
+        raise ValueError("walls and dimensions must be objects")
+    for doc, spec in ((walls, "walls"), (dimensions, "dimensions")):
+        if doc.get("spec") != spec or doc.get("status") != "locked":
+            raise ValueError(f"{spec}: locked matching spec required")
+        if not isinstance(doc.get("units"), dict) or doc["units"].get("length") != "cm":
+            raise ValueError(f"{spec}: canonical cm required")
+    project = _id(walls.get("project"), "project")
+    if dimensions.get("project") != project:
+        raise ValueError("project mismatch")
+    if walls.get("wall_technique") != ROUTE or walls.get("reference_face") != "inner":
+        raise ValueError("explicit poly route and inner reference required")
+    blocks, runs = _rows(walls, "blocks"), _rows(walls, "wall_runs")
+    if len(blocks) != 1 or len(runs) != 1 or walls.get("upper_returns") != []:
+        raise ValueError("P3.1 requires one complete block/run and no upper returns")
+    run = runs[0]
+    run_id = _id(run.get("id"), "run.id")
+    if run.get("block_id") != _id(blocks[0].get("id"), "block.id"):
+        raise ValueError("wall block identity mismatch")
+    if run.get("adjacent_run_ids") not in (None, []):
+        raise ValueError("standalone run cannot have adjacent runs")
+    start, end = _pair(run.get("start_cm"), "start_cm"), _pair(run.get("end_cm"), "end_cm")
+    outward = _pair(run.get("outward"), "outward")
+    epsilon = _number(walls.get("numeric_epsilon_cm"), "numeric_epsilon_cm", positive=True)
+    unit_epsilon = _number(walls.get("numeric_unit_epsilon"), "numeric_unit_epsilon", positive=True)
+    if epsilon > 0.01 or unit_epsilon > 0.001:
+        raise ValueError("numeric epsilon exceeds accepted input ceiling")
+    thickness = _number(run.get("thickness_cm"), "thickness_cm", positive=True)
+    base, top = (_number(run.get(key), key) for key in ("base_z_cm", "top_z_cm"))
+    height = top - base
+    length = math.hypot(end[0] - start[0], end[1] - start[1])
+    if not math.isfinite(length) or length < epsilon or height < epsilon or thickness < epsilon:
+        raise ValueError("wall length/height/thickness degenerate or below numeric epsilon")
+    if _pair(blocks[0].get("z_range_cm"), "block.z_range_cm") != [base, top]:
+        raise ValueError("standalone block range must equal the complete run range")
+    tangent = [(end[i] - start[i]) / length for i in range(2)]
+    norm = math.hypot(*outward)
+    if abs(norm - 1) > unit_epsilon or abs(sum(a*b for a, b in zip(tangent, outward))) > unit_epsilon:
+        raise ValueError("outward must be a unit perpendicular")
+    normal = [tangent[1], -tangent[0]]
+    if sum(a*b for a, b in zip(normal, outward)) < 0:
+        normal = [-v for v in normal]
+        reverse = True
+    else:
+        reverse = False
+    contour = run.get("contour_ref")
+    if not isinstance(contour, str) or not contour.startswith("dimensions.json:facades:"):
+        raise ValueError("only dimensions facade contours supported")
+    facade_id = contour[len("dimensions.json:facades:"):]
+    facades = [f for f in _rows(dimensions, "facades") if f.get("id") == facade_id]
+    if len(facades) != 1:
+        raise ValueError("facade identity must resolve exactly once")
+    facade = facades[0]
+    if _pair(facade.get("start_corner_cm"), "facade.start") != start or _pair(facade.get("end_corner_cm"), "facade.end") != end:
+        raise ValueError("facade does not match complete wall endpoints")
+    if abs(_number(facade.get("length_cm"), "facade.length") - length) > epsilon:
+        raise ValueError("facade length mismatch")
+    openings = _rows(walls, "openings")
+    if len(openings) > OPERATIONAL_CAPS["openings"]:
+        raise ValueError("operational openings ceiling exceeded")
+    parsed = []
+    seen = set()
+    for opening in openings:
+        ident = _id(opening.get("id"), "opening.id")
+        if ident in seen or opening.get("wall_run_id") != run_id:
+            raise ValueError("opening identity duplicate or foreign run")
+        seen.add(ident)
+        lo, hi = _pair(opening.get("u_range_cm"), "opening.u_range_cm")
+        sill, head = (_number(opening.get(key), key) for key in ("sill_cm", "head_cm"))
+        if not (0 < lo < hi < length and 0 <= sill < head < height):
+            raise ValueError("opening must be internal in u and below top; sill may be zero")
+        if opening.get("kind") not in ("door", "window"):
+            raise ValueError("only rectangular door/window declarations supported")
+        parsed.append({"id": ident, "u_range_cm": [lo, hi], "sill_cm": sill, "head_cm": head})
+    parsed.sort(key=lambda x: (x["u_range_cm"], x["id"]))
+    if any(a["u_range_cm"][1] >= b["u_range_cm"][0] for a, b in zip(parsed, parsed[1:])):
+        raise ValueError("opening u intervals must be strictly separated")
+    us = _stations([0.0, length] + [x for o in parsed for x in o["u_range_cm"]], epsilon, "u")
+    vs = _stations([0.0, height] + [o[k] for o in parsed for k in ("sill_cm", "head_cm")], epsilon, "v")
+    vertex_count, grid_count = len(us) * len(vs), (len(us)-1) * (len(vs)-1)
+    if vertex_count > 64 or grid_count > 32:
+        raise ValueError("operational grid ceiling exceeded")
+    vertices = [[start[0] + tangent[0]*u, start[1] + tangent[1]*u, base+v] for v in vs for u in us]
+    cells = []
+    active_edges: Counter[tuple[int, int]] = Counter()
+    area = 0.0
+    for j in range(len(vs)-1):
+        for i in range(len(us)-1):
+            slots = [j*len(us)+i+1, j*len(us)+i+2, (j+1)*len(us)+i+2, (j+1)*len(us)+i+1]
+            if reverse:
+                slots.reverse()
+            owner = [o["id"] for o in parsed if o["u_range_cm"][0] <= us[i] and us[i+1] <= o["u_range_cm"][1]
+                     and o["sill_cm"] <= vs[j] and vs[j+1] <= o["head_cm"]]
+            if len(owner) > 1:
+                raise ValueError("ambiguous opening cell")
+            cells.append({"u_index": i, "v_index": j, "vertex_slots": slots,
+                          "opening_id": owner[0] if owner else None})
+            if not owner:
+                area += (us[i+1]-us[i])*(vs[j+1]-vs[j])
+                for a, b in zip(slots, slots[1:]+slots[:1]):
+                    active_edges[tuple(sorted((a, b)))] += 1
+    active_count = sum(c["opening_id"] is None for c in cells)
+    if not active_count or any(count not in (1, 2) for count in active_edges.values()):
+        raise ValueError("empty or non-manifold base plan")
+    boundary = sum(count == 1 for count in active_edges.values())
+    triangles = 4*active_count + 2*boundary
+    budget = run.get("topology_budget")
+    if not isinstance(budget, dict):
+        raise ValueError("topology_budget required")
+    for key, count in (("max_grid_polygons", grid_count), ("max_base_active_polygons", active_count),
+                       ("max_evaluated_triangles", triangles)):
+        if isinstance(budget.get(key), bool) or not isinstance(budget.get(key), int) or budget[key] < count:
+            raise ValueError(f"{key}: insufficient or invalid declared ceiling")
+    if triangles > 256:
+        raise ValueError("operational evaluated triangle ceiling exceeded")
+    outside = [[p[0]+normal[0]*thickness, p[1]+normal[1]*thickness, p[2]] for p in vertices]
+    corners = vertices + outside
+    result = {"schema_version": PLAN_VERSION, "project": project, "wall_technique": ROUTE,
+              "subset": "single_standalone_straight_inner_wall", "wall_run_id": run_id,
+              "contour_ref": contour, "start_cm": start, "end_cm": end,
+              "base_z_cm": base, "top_z_cm": top, "thickness_cm": thickness,
+              "length_cm": length, "height_cm": height, "outward": outward,
+              "geometric_normal": normal, "numeric_epsilon_cm": epsilon,
+              "numeric_unit_epsilon": unit_epsilon, "openings": parsed,
+              "grid": {"u_cm": us, "v_cm": vs, "vertices_cm": vertices, "cells": cells},
+              "declared_budgets": deepcopy(budget), "operational_caps": dict(OPERATIONAL_CAPS),
+              "predictions": {"label": "offline_predictions_not_measurements",
+                  "grid_vertices": vertex_count, "grid_edges": (len(us)-1)*len(vs)+(len(vs)-1)*len(us),
+                  "grid_polygons": grid_count, "removed_grid_polygons": grid_count-active_count,
+                  "base_active_polygons": active_count, "base_active_edges": len(active_edges),
+                  "base_boundary_edges": boundary, "base_area_cm2": area,
+                  "evaluated_polygons": 2*active_count+boundary, "evaluated_triangles": triangles,
+                  "volume_cm3": area*thickness,
+                  "bounds_cm": [[min(p[k] for p in corners) for k in range(3)],
+                                [max(p[k] for p in corners) for k in range(3)]]}}
+    _finite_tree(result)
+    return result
+
+
+def _f32(value: float) -> float:
+    try:
+        result = struct.unpack("<f", struct.pack("<f", value))[0]
+    except (OverflowError, struct.error) as exc:
+        raise ValueError("Float32 overflow") from exc
+    if not math.isfinite(result) or (value != 0 and result == 0):
+        raise ValueError("Float32 nonfinite/underflow")
+    return result
+
+
+def _scene_points(plan: dict, factor: float) -> list[list[float]]:
+    points = [[_f32(x*factor) for x in p] for p in plan["grid"]["vertices_cm"]]
+    if len({tuple(p) for p in points}) != len(points):
+        raise ValueError("Float32 geometric distinguishability lost: coincident vertices")
+    epsilon = plan["numeric_epsilon_cm"] * factor
+    for original, p in zip(plan["grid"]["vertices_cm"], points):
+        if any(abs(a*factor-b) > epsilon for a, b in zip(original, p)):
+            raise ValueError("Float32 representation error exceeds declared numeric epsilon")
+        q = [_f32((original[k] + (plan["geometric_normal"][k] * plan["thickness_cm"] if k < 2 else 0))*factor)
+             for k in range(3)]
+        if q == p:
+            raise ValueError("Float32 thickness is geometrically indistinguishable")
+    for cell in plan["grid"]["cells"]:
+        a, b, c, d = [points[i-1] for i in cell["vertex_slots"]]
+        e1, e2 = [b[k]-a[k] for k in range(3)], [d[k]-a[k] for k in range(3)]
+        cross = [e1[1]*e2[2]-e1[2]*e2[1], e1[2]*e2[0]-e1[0]*e2[2], e1[0]*e2[1]-e1[1]*e2[0]]
+        if sum(x*x for x in cross) == 0 or any(not math.isfinite(x) for x in cross):
+            raise ValueError("Float32 cell degeneracy")
+    return points
+
+
+def _ms_string(value: str) -> str:
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def _ms_num(value: float, *, double: bool = False) -> str:
+    text = repr(float(value))
+    if double:
+        if "e" in text:
+            a, b = text.split("e")
+            return a + "d" + b
+        return text + "d0"
+    return text
+
+
+def generate_script(plan: dict, identity: str, namespace: str, expected_units: dict) -> str:
+    """Emit deterministic, session-bounded route-A MAXScript; NEVER execute it.
+
+    identity is the caller's SHA-256 of the canonical locked inputs/contract.
+    The script additionally binds its complete operational plan and unit record.
+    """
+    if not isinstance(plan, dict) or plan.get("schema_version") != PLAN_VERSION:
+        raise ValueError("unsupported operational plan")
+    # Reject tampered operational plans: reconstruct only from the original public
+    # geometry fields, then compare every derived datum, including budgets/caps.
+    try:
+        walls = {"spec": "walls", "status": "locked", "units": {"length": "cm"},
+                 "project": plan["project"], "wall_technique": ROUTE, "reference_face": "inner",
+                 "numeric_epsilon_cm": plan["numeric_epsilon_cm"], "numeric_unit_epsilon": plan["numeric_unit_epsilon"],
+                 "blocks": [{"id": "runtime-block", "z_range_cm": [plan["base_z_cm"], plan["top_z_cm"]]}],
+                 "wall_runs": [{"id": plan["wall_run_id"], "block_id": "runtime-block", "contour_ref": plan["contour_ref"],
+                     **{key: plan[key] for key in ("start_cm", "end_cm", "outward", "base_z_cm", "top_z_cm", "thickness_cm")},
+                     "topology_budget": plan["declared_budgets"]}],
+                 "openings": [{**o, "wall_run_id": plan["wall_run_id"], "kind": "window"} for o in plan["openings"]], "upper_returns": []}
+        dims = {"spec": "dimensions", "status": "locked", "units": {"length": "cm"}, "project": plan["project"],
+                "facades": [{"id": plan["contour_ref"].split(":", 2)[2], "start_corner_cm": plan["start_cm"],
+                             "end_corner_cm": plan["end_cm"], "length_cm": plan["length_cm"]}]}
+        if _canonical(build_plan(walls, dims)) != _canonical(plan):
+            raise ValueError("operational plan derived data mismatch")
+    except (KeyError, IndexError, TypeError) as exc:
+        raise ValueError("malformed operational plan") from exc
+    if not isinstance(identity, str) or not re.fullmatch(r"[0-9a-f]{64}", identity):
+        raise ValueError("identity must be canonical lowercase SHA-256")
+    if not isinstance(namespace, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", namespace):
+        raise ValueError("namespace must be explicit ASCII token, maximum 40 characters")
+    keys = {"system_type", "system_scale", "cm_per_unit", "units_per_cm"}
+    if not isinstance(expected_units, dict) or set(expected_units) != keys:
+        raise ValueError("canonical expected_units four-field object required")
+    system_type = expected_units["system_type"]
+    if not isinstance(system_type, str) or system_type not in SYSTEM_TYPE_FACTORS:
+        raise ValueError("uncertified/noncanonical expected system type")
+    scale = _number(expected_units["system_scale"], "system_scale", positive=True)
+    if _f32(scale) != scale:
+        raise ValueError("expected SystemScale must be exactly representable in Max Float32")
+    c = _number(expected_units["cm_per_unit"], "cm_per_unit", positive=True)
+    f = _number(expected_units["units_per_cm"], "units_per_cm", positive=True)
+    if c != SYSTEM_TYPE_FACTORS[system_type]*scale or f != 1.0/c:
+        raise ValueError("expected units pair/computed factor mismatch")
+    points = _scene_points(plan, f)
+    if (len(points) > 24 or len(plan["grid"]["cells"]) > 15
+            or plan["predictions"]["evaluated_triangles"] > 96 or len(plan["openings"]) > 2):
+        raise ValueError("initial runtime admission is F01-sized only; broader planning caps are not live-calibrated")
+    outer = _f32(plan["thickness_cm"]*f)
+    if abs(outer-plan["thickness_cm"]*f) > plan["numeric_epsilon_cm"]*f:
+        raise ValueError("Float32 Shell amount exceeds numeric epsilon")
+    binding = hashlib.sha256(_canonical({"identity": identity, "namespace": namespace,
+                                          "plan": plan, "expected_units": expected_units}).encode()).hexdigest()
+    registry = "__P3W_" + hashlib.sha256((namespace+":"+identity).encode()).hexdigest()
+    node_name = namespace + "__wall"
+    values = {"IDENTITY": _ms_string(identity), "NAMESPACE": _ms_string(namespace), "BINDING": _ms_string(binding),
+              "REGISTRY": _ms_string(registry), "NODE_NAME": _ms_string(node_name),
+              "TYPE": "#"+system_type, "SCALE": _ms_num(scale, double=True),
+              "K": _ms_num(SYSTEM_TYPE_FACTORS[system_type], double=True),
+              "C": _ms_num(c, double=True), "F": _ms_num(f, double=True),
+              "OUTER": _ms_num(outer), "VERTICES": "#("+",".join("["+",".join(_ms_num(x) for x in p)+"]" for p in points)+")",
+              "CELLS": "#("+",".join("#("+",".join(str(i) for i in cell["vertex_slots"])+")" for cell in plan["grid"]["cells"])+")",
+              "CUTS": "#{"+",".join(str(i+1) for i, cell in enumerate(plan["grid"]["cells"]) if cell["opening_id"] is not None)+"}",
+              "GRID_COUNT": str(plan["predictions"]["grid_polygons"]),
+              "ACTIVE_COUNT": str(plan["predictions"]["base_active_polygons"]),
+              "TRI_COUNT": str(plan["predictions"]["evaluated_triangles"]),
+              "TRI_CAP": str(min(256, plan["declared_budgets"]["max_evaluated_triangles"]))}
+    result = _prefix_runtime_helpers(_RUNTIME)
+    for key, value in values.items():
+        result = result.replace("@@"+key+"@@", value)
+    if "@@" in result:
+        raise ValueError("unexpanded runtime template")
+    return result
+
+
+def generate_arm_script(plan: dict, identity: str, namespace: str, expected_units: dict,
+                        nonce: str) -> str:
+    """Return a main-only one-use arm file; result of fileIn is the exact lease.
+
+    It writes one fresh reserved global, never a scene property or existing global.
+    Main must retain its result independently of the registry, as well as a
+    detached expected nonce/identity/context, and compare them before every wall
+    fileIn and after it, without intervening new/open/load/merge/reset/session
+    operations. A wall's own registry read is NOT an independent witness.
+    This is operational harness support, not an automatic wall-script bootstrap.
+    """
+    source = generate_script(plan, identity, namespace, expected_units)
+    if not isinstance(nonce, str) or not re.fullmatch(r"[A-Za-z0-9_]{16,128}", nonce):
+        raise ValueError("external fresh nonce must be 16..128 ASCII token characters")
+    # Pull literals from the same validated deterministic source, not a second
+    # independently maintained identity calculation.
+    def literal(variable: str) -> str:
+        match = re.search(r"^    local " + variable + r" = (.+)$", source, re.MULTILINE)
+        if not match:
+            raise ValueError("runtime binding unavailable")
+        return match.group(1)
+    return f'''-- MAIN-ONLY explicit one-use arm. No scene mutation; never auto-run on replay.
+    -- Retain this exact struct AND detached expected fields independently of the registry.
+(
+    local registryKey = {literal("registryKey")}
+    local identity = {literal("artifactIdentity")}
+    local binding = {literal("artifactBinding")}
+    local ownerNamespace = {literal("ownerNamespace")}
+    if globalVars.isGlobal registryKey do throw "P3_ARM_REFUSE|reserved global exists; never replace"
+    local actualScale = units.SystemScale as double
+    if units.SystemType != #{expected_units['system_type']} or actualScale != {_ms_num(float(expected_units['system_scale']), double=True)} do throw "P3_ARM_REFUSE|unit pair mismatch"
+    if not (actualScale > 0.0d0 and actualScale < 1.0d300 and actualScale == actualScale) do throw "P3_ARM_REFUSE|invalid unit scale"
+    local c = {_ms_num(SYSTEM_TYPE_FACTORS[expected_units['system_type']], double=True)} * actualScale
+    local f = 1.0d0 / c
+    if c != {_ms_num(float(expected_units['cm_per_unit']), double=True)} or f != {_ms_num(float(expected_units['units_per_cm']), double=True)} do throw "P3_ARM_REFUSE|unit factors mismatch"
+    if objects.count != 0 or selection.count != 0 do throw "P3_ARM_REFUSE|requires explicitly inspected empty scene"
+    if maxFilePath != "" or maxFileName != "" do throw "P3_ARM_REFUSE|saved/loaded scene unsupported"
+    local h = getHandleByAnim rootNode
+    if h == undefined or (getAnimByHandle h) != rootNode do throw "P3_ARM_REFUSE|root reference not comparable"
+    local environment = #(#(rootNode, h, classOf rootNode), (copy maxFilePath), (copy maxFileName), currentTime as integer, #(), subObjectLevel)
+    local P3LocalLease
+    struct P3LocalLease (values = #())
+    local witness = P3LocalLease values:#("p3-session-registry-2", (copy identity), (copy binding), (copy ownerNamespace), "ARMED",
+        (copy {_ms_string(nonce)}), environment, undefined, undefined, getSaveRequired())
+    -- globalVars.set does not declare new names (measured by main).
+    -- registryKey is generated hex/ASCII, never caller-provided executable text.
+    local declaredHere = false
+    try
+    (
+        execute ("global " + (registryKey as string))
+        declaredHere = true
+        globalVars.set registryKey witness
+        if (globalVars.get registryKey) != witness do throw "P3_ARM_INCOMPLETE|exact registry publication unavailable"
+    )
+    catch
+    (
+        local reason = getCurrentException()
+        local cleanupStatus = "UNKNOWN"
+        local cleanupError = ""
+        try
+        (
+            if not (globalVars.isGlobal registryKey) then cleanupStatus = "ABSENT_ON_READBACK"
+            else if declaredHere and (globalVars.get registryKey) == witness then
+            (
+                -- Only our exact just-published struct authorizes removal.
+                cleanupStatus = "REMOVE_IN_PROGRESS"
+                globalVars.remove registryKey
+                if globalVars.isGlobal registryKey then cleanupStatus = "REMOVAL_NOT_VERIFIED"
+                else cleanupStatus = "REMOVED_AND_ABSENT_ON_READBACK"
+            )
+            else cleanupStatus = "RETAINED_UNPROVEN_OR_REPLACED_GLOBAL"
+        )
+        catch
+        (
+            cleanupStatus = "REMOVAL_OR_READBACK_UNKNOWN"
+            cleanupError = getCurrentException() as string
+        )
+        print ("P3_ARM_INCOMPLETE|key=" + (registryKey as string) + "|cleanup=" + cleanupStatus + "|cleanupError=" + cleanupError + "|original=" + (reason as string))
+        throw
+    )
+    print ("P3_ARMED|" + identity)
+    witness
+)
+'''
+
+
+_RUNTIME = r'''-- P3.1 operational artifact; generated predictions are NOT live QA.
+-- Route A: actual returned vertex/face IDs; exact references; ONE Shell.
+-- This file requires fileIn. Helpers are scoped locally; no caller variables.
+(
+    local artifactIdentity = @@IDENTITY@@
+    local ownerNamespace = @@NAMESPACE@@
+    local artifactBinding = @@BINDING@@
+    local registryKey = @@REGISTRY@@ as name
+    local wallName = @@NODE_NAME@@
+    local tagKey = "P3WallOwner"
+    local tagValue = ownerNamespace + ":" + artifactIdentity + ":" + artifactBinding
+    local expectedPoints = @@VERTICES@@
+    local cellSlots = @@CELLS@@
+    local cutSlots = @@CUTS@@
+    local createdRefs = #()
+    local createdHandles = #()
+    local conversionRefs = #()
+    local residual = #()
+    local cleanupOutcomes = #()
+    local observedCensus = #()
+    local censusReport = #()
+    local lease = undefined
+    local registryWitness = undefined
+    local attemptStarted = false
+    local unresolvedEntry = false
+    local constructorStarted = false
+    local conversionStarted = false
+    local snapshotDisposalState = "NO_SNAPSHOT"
+    local snapshotDisposalError = ""
+    -- These arrays are intended to be shared with the lease during BUILDING;
+    -- actual persistence across interrupted calls is not proven. They are
+    -- attempt evidence, never authority to recover by handle or delete.
+    local attemptEvidence = #("p3-attempt-evidence-1", createdRefs, createdHandles,
+        conversionRefs, residual, cleanupOutcomes, observedCensus, "NOT_STARTED")
+    local stage = "entry"
+
+    fn require condition reason = (if not condition do throw ("P3_REFUSE|" + reason))
+    fn unitsGuard =
+    (
+        local actualType = units.SystemType
+        local actualScale = units.SystemScale as double
+        require (actualScale > 0.0d0 and actualScale < 1.0d300 and actualScale == actualScale) "invalid/nonfinite SystemScale"
+        require (actualType == @@TYPE@@) "SystemType mismatch (factor equality is insufficient)"
+        require (actualScale == @@SCALE@@) "SystemScale mismatch"
+        local cmPerUnit = @@K@@ * actualScale
+        local unitsPerCm = 1.0d0 / cmPerUnit
+        require (cmPerUnit > 0.0d0 and cmPerUnit < 1.0d300 and unitsPerCm > 0.0d0 and unitsPerCm < 1.0d300) "invalid computed unit factors"
+        require (cmPerUnit == @@C@@ and unitsPerCm == @@F@@) "computed unit factor mismatch"
+        true
+    )
+    fn same a b =
+    (
+        if classOf a != classOf b then false
+        else if classOf a == Array then
+        (
+            if a.count != b.count then false
+            else (local ok = true; for i = 1 to a.count while ok do ok = same a[i] b[i]; ok)
+        )
+        else a == b
+    )
+    fn exactRef value =
+    (
+        local result = undefined
+        try
+        (
+            local h = getHandleByAnim value
+            require (h != undefined and h > 0) "reference has no operational anim handle"
+            require ((getAnimByHandle h) == value) "reference handle does not round trip"
+            result = #(value, h, classOf value)
+        )
+        catch
+        (
+            print ("UNSUPPORTED_REFERENCE|class=" + ((classOf value) as string) + "|" + (getCurrentException() as string))
+            throw
+        )
+        result
+    )
+    fn freeze value depth:0 dataOnly:false =
+    (
+        require (depth < 16) "property nesting ceiling"
+        local cls = classOf value
+        -- Data values may not use generic undefined/reference/composite cases.
+        if dataOnly do require (cls == Integer or cls == Integer64 or cls == Float or cls == Double) "INCOMPLETE: unsupported/unknown data scalar"
+        case cls of
+        (
+            UndefinedClass: #("undefined")
+            BooleanClass: #("bool", value)
+            Integer: #("integer", value)
+            Integer64: #("integer64", value)
+            Float: (require (value == value and abs value < 1.0e38) "nonfinite Float property"; #("float", value))
+            Double: (require (value == value and abs value < 1.0d300) "nonfinite Double property"; #("double", value))
+            String: #("string", copy value)
+            Name: #("name", value)
+            Point2: #("point2", value.x, value.y)
+            Point3: #("point3", value.x, value.y, value.z)
+            Point4: #("point4", value.x, value.y, value.z, value.w)
+            Color: #("color", value.r, value.g, value.b, value.a)
+            Quat: #("quat", value.x, value.y, value.z, value.w)
+            Matrix3: #("matrix3", freeze value.row1 depth:(depth+1), freeze value.row2 depth:(depth+1), freeze value.row3 depth:(depth+1), freeze value.row4 depth:(depth+1))
+            Time: #("time", value as integer)
+            Interval: #("interval", value.start as integer, value.end as integer)
+            BitArray: #("bits", value.count, value as array)
+            Array: (require (value.count <= 1024) "property array ceiling"; #("array", for v in value collect freeze v depth:(depth+1)))
+            default: #("exact-reference", exactRef value)
+        )
+    )
+    fn properties target =
+    (
+        local names = getPropNames target
+        require (names != undefined and names.count <= 512) "property enumeration unavailable/ceiling"
+        for p in names collect
+        (
+            local entry = undefined
+            try (entry = #(p, freeze (getProperty target p)))
+            catch
+            (
+                print ("UNSUPPORTED_PROPERTY|class=" + ((classOf target) as string) + "|property=" + (p as string) + "|" + (getCurrentException() as string))
+                throw
+            )
+            entry
+        )
+    )
+    fn referenceSet items =
+    (
+        require (items.count <= 128) "dependency reference enumeration ceiling"
+        local frozen = for item in items collect exactRef item
+        -- Preserve ordering as well: changed enumeration conservatively refuses.
+        frozen
+    )
+    fn graphSnapshot seed =
+    (
+        local pending = #(seed)
+        local visited = #()
+        local result = #()
+        local cursor = 1
+        while cursor <= pending.count do
+        (
+            local target = pending[cursor]
+            cursor += 1
+            if target != undefined and (findItem visited target) == 0 do
+            (
+                require (visited.count < 128) "reference graph ceiling/unsupported dependencies"
+                append visited target
+                require (custAttributes.count target == 0) "custom attributes unsupported"
+                local refsCount = refs.getNumRefs target
+                require (refsCount >= 0 and refsCount <= 128) "reference enumeration unavailable/ceiling"
+                local outwardRefs = #()
+                for i = 1 to refsCount do
+                (
+                    local item = refs.getReference target i
+                    append outwardRefs (if item == undefined then #("undefined") else exactRef item)
+                    if item != undefined do append pending item
+                )
+                local keyCount = undefined
+                if (superClassOf target) == controller do
+                (
+                    require ((findItem #(PRS, Position_XYZ, Euler_XYZ, Bezier_Scale, Bezier_Float, Linear_Float, TCB_Float, Bezier_Position, TCB_Position, TCB_Rotation) (classOf target)) > 0) "unknown/wired/scripted controller unsupported"
+                    keyCount = numKeys target
+                    require (keyCount == 0 or keyCount == -1) "keyframed/unsupported controller refused"
+                )
+                append result #(exactRef target, properties target, keyCount, outwardRefs, referenceSet (refs.dependents target))
+            )
+        )
+        result
+    )
+    fn polySnapshot base =
+    (
+        require ((classOf base) == Editable_Poly) "base is not Editable_Poly"
+        local nv = polyop.getNumVerts base
+        local ne = polyop.getNumEdges base
+        local nf = polyop.getNumFaces base
+        -- Data entry iteration also requires trustworthy V/E element counts.
+        require ((classOf nv) == Integer and (classOf ne) == Integer) "INCOMPLETE: unknown V/E element count type"
+        require (nv >= 0 and ne >= 0 and nv <= 64 and ne <= 256 and nf <= 32) "base snapshot operational ceiling"
+        local deadV = polyop.getDeadVerts base
+        local deadE = polyop.getDeadEdges base
+        local deadF = polyop.getDeadFaces base
+        require ((classOf deadV) == BitArray and (classOf deadE) == BitArray) "INCOMPLETE: unknown V/E dead-state type"
+        local vertices = for i = 1 to nv collect
+            (if deadV[i] then #("dead") else #(freeze (polyop.getVert base i), polyop.getVertFlags base i))
+        local edges = for i = 1 to ne collect
+            (if deadE[i] then #("dead") else #(polyop.getEdgeVerts base i, polyop.getEdgeFlags base i))
+        local faces = for i = 1 to nf collect
+            (if deadF[i] then #("dead") else #(polyop.getFaceVerts base i, polyop.getFaceFlags base i,
+                polyop.getFaceMatID base i, polyop.getFaceSmoothGroup base i))
+        local maps = #()
+        local nm = polyop.getNumMaps base
+        require (nm >= 0 and nm <= 100) "map channel ceiling"
+        for channel = -2 to (nm-1) do
+        (
+            local supported = polyop.getMapSupport base channel
+            local entry = #(channel, supported)
+            if supported do
+            (
+                local mv = polyop.getNumMapVerts base channel
+                local mf = polyop.getNumMapFaces base channel
+                require (mv <= 256 and mf <= 32) "map geometry ceiling"
+                append entry (for i = 1 to mv collect freeze (polyop.getMapVert base channel i))
+                append entry (for i = 1 to mf collect (if deadF[i] then #("dead") else polyop.getMapFace base channel i))
+            )
+            append maps entry
+        )
+        -- VData/EData cannot be ignored: crease/weight edits may not change verts.
+        local data = #()
+        local vn = polyop.getNumVDataChannels base
+        local en = polyop.getNumEDataChannels base
+        require ((classOf vn) == Integer and (classOf en) == Integer) "INCOMPLETE: unknown data channel count type"
+        require (vn >= 0 and vn <= 100 and en >= 0 and en <= 10) "INCOMPLETE: invalid data channel count/ceiling"
+        if vn > 0 do for channel = 1 to vn do
+        (
+            local support = polyop.getVDataChannelSupport base channel
+            require ((classOf support) == BooleanClass) "INCOMPLETE: unknown VData channel support"
+            local values = #("unsupported")
+            if support do
+            (
+                values = #()
+                if nv > 0 do values = (for i = 1 to nv collect
+                (
+                    local dead = deadV[i]
+                    require ((classOf dead) == BooleanClass) "INCOMPLETE: unknown VData entry dead-state"
+                    if dead then #("dead") else freeze (polyop.getVDataValue base channel i) dataOnly:true
+                ))
+            )
+            append data #("v", channel, support, values)
+        )
+        if en > 0 do for channel = 1 to en do
+        (
+            local support = polyop.getEDataChannelSupport base channel
+            require ((classOf support) == BooleanClass) "INCOMPLETE: unknown EData channel support"
+            local values = #("unsupported")
+            if support do
+            (
+                values = #()
+                if ne > 0 do values = (for i = 1 to ne collect
+                (
+                    local dead = deadE[i]
+                    require ((classOf dead) == BooleanClass) "INCOMPLETE: unknown EData entry dead-state"
+                    if dead then #("dead") else freeze (polyop.getEDataValue base channel i) dataOnly:true
+                ))
+            )
+            append data #("e", channel, support, values)
+        )
+        #(nv, ne, nf, freeze deadV, freeze deadE, freeze deadF, vertices, edges, faces, maps, data,
+          freeze (polyop.getVertSelection base), freeze (polyop.getEdgeSelection base), freeze (polyop.getFaceSelection base))
+    )
+    fn evaluatedSnapshot node =
+    (
+        local msh = undefined
+        local result = undefined
+        local disposalStarted = false
+        try
+        (
+            snapshotDisposalState = "SNAPSHOT_ACQUISITION_IN_PROGRESS"
+            msh = snapshotAsMesh node
+            require (msh != undefined) "evaluated snapshot unavailable"
+            snapshotDisposalState = "SNAPSHOT_HELD"
+            local nv = getNumVerts msh
+            local nf = getNumFaces msh
+            require (nv <= 128 and nf <= @@TRI_CAP@@) "evaluated mesh budget exceeded"
+            require (nf == @@TRI_COUNT@@) "evaluated triangle prediction mismatch"
+            result = #(nv, nf, for i = 1 to nv collect freeze (getVert msh i),
+              for i = 1 to nv collect freeze (getNormal msh i),
+              for i = 1 to nf collect #(freeze (getFace msh i), getFaceMatID msh i,
+                getFaceSmoothGroup msh i, getEdgeVis msh i 1, getEdgeVis msh i 2, getEdgeVis msh i 3))
+            disposalStarted = true
+            snapshotDisposalState = "DISPOSAL_IN_PROGRESS"
+            delete msh
+            msh = undefined
+            snapshotDisposalState = "DISPOSAL_CALL_RETURNED"
+        )
+        catch
+        (
+            local reason = getCurrentException()
+            if disposalStarted then
+            (
+                -- A throwing delete has unknown outcome; never retry an object
+                -- whose exact disposal may already have happened.
+                snapshotDisposalState = "DISPOSAL_UNKNOWN"
+                snapshotDisposalError = reason as string
+            )
+            else if msh == undefined then
+                snapshotDisposalState = "ACQUISITION_OR_DISPOSAL_UNKNOWN"
+            else
+            (
+                try
+                (
+                    snapshotDisposalState = "DISPOSAL_IN_PROGRESS"
+                    delete msh
+                    msh = undefined
+                    snapshotDisposalState = "DISPOSAL_CALL_RETURNED_AFTER_READ_FAILURE"
+                )
+                catch
+                (
+                    snapshotDisposalState = "DISPOSAL_UNKNOWN"
+                    snapshotDisposalError = getCurrentException() as string
+                )
+            )
+            if snapshotDisposalState != "DISPOSAL_CALL_RETURNED_AFTER_READ_FAILURE" do
+                print ("P3_INCOMPLETE|exact in-memory snapshot disposal failed or unknown|state=" + snapshotDisposalState + "|disposalError=" + snapshotDisposalError)
+            print ("P3_SNAPSHOT_REFUSED|original=" + (reason as string))
+            throw
+        )
+        result
+    )
+    fn nodeSnapshot node =
+    (
+        require (isValidNode node) "invalid exact node reference"
+        require (objects.count == 1) "scene census changed before snapshot"
+        local censusNodes = for other in objects collect other
+        require (censusNodes.count == 1 and censusNodes[1] == node) "exact scene census changed before snapshot"
+        require ((node.parent == undefined or node.parent == rootNode) and node.children.count == 0) "parent/children not standalone"
+        require (node.material == undefined) "material assigned: unsupported replay state"
+        require (node.modifiers.count == 1 and classOf node.modifiers[1] == Shell) "stack mismatch"
+        local shellMod = node.modifiers[1]
+        require ((classOf node.baseObject) == Editable_Poly) "base is not Editable_Poly"
+        require (shellMod.innerAmount == 0.0 and shellMod.outerAmount == @@OUTER@@ and shellMod.segments == 1) "Shell parameter edit"
+        local nodeRef = exactRef node
+        local baseRef = exactRef node.baseObject
+        local shellRef = exactRef shellMod
+        local enabledState = #(shellMod.enabled, shellMod.enabledInViews, shellMod.enabledInRenders)
+        require (enabledState[1] == true and enabledState[2] == true and enabledState[3] == true) "Shell disabled or enable state unsupported"
+        local instanceUsers = for other in objects where other.baseObject == node.baseObject collect other
+        require (instanceUsers.count == 1 and instanceUsers[1] == node) "shared base object dependency/instance"
+        -- This traversal is a rejection check, NOT proof of a complete or safe
+        -- dependency/controller graph. In particular numKeys == -1 is not enough.
+        local graphState = graphSnapshot node
+        local explicitNames = #(#name, #wirecolor, #isHidden, #isFrozen, #renderable, #primaryVisibility,
+            #secondaryVisibility, #castShadows, #receiveShadows, #applyAtmospherics, #renderOccluded,
+            #visibility, #inheritVisibility, #showFrozenInGray, #displayByLayer, #renderByLayer,
+            #motionByLayer, #colorByLayer, #boxmode, #backfacecull, #allEdges, #vertexTicks, #xray,
+            #showTrajectory, #isSelected, #objectOffsetPos, #objectOffsetRot, #objectOffsetScale,
+            #transform, #objectTransform, #parent, #layer, #material)
+        local explicitState = for p in explicitNames collect
+        (
+            require (isProperty node p) ("required node property unavailable: " + (p as string))
+            #(p, freeze (getProperty node p))
+        )
+        local userBuffer = getUserPropBuffer node
+        require ((classOf userBuffer) == String and userBuffer.count <= 4096) "unsupported user property buffer"
+        userBuffer = copy userBuffer
+        local layerState = properties node.layer
+        local baseState = polySnapshot node.baseObject
+        -- STOP: this traversal is incomplete and is NOT an evaluation safety
+        -- gate. Complete Shell/controller/dependency exclusion is uncalibrated.
+        -- Construction must not be run until main resolves and tests that gate.
+        local evaluatedState = evaluatedSnapshot node
+        #(nodeRef, baseRef, shellRef, enabledState[1], enabledState[2], enabledState[3],
+          explicitState, userBuffer, layerState, baseState, evaluatedState, graphState)
+    )
+    fn censusGuard node =
+    (
+        require (objects.count <= 64) "scene census operational ceiling"
+        local nodes = for other in objects collect other
+        require (nodes.count == 1 and nodes[1] == node) "scene census changed; collisions/dependencies are not owned"
+        local nameMatches = 0
+        local tagMatches = 0
+        for other in nodes do
+        (
+            if (toLower other.name) == (toLower wallName) do nameMatches += 1
+            if (getUserProp other tagKey) == tagValue do tagMatches += 1
+        )
+        require (nameMatches == 1 and node.name == wallName and tagMatches == 1) "copied-tag or matching-name collision"
+        require ((getUserProp node tagKey) == tagValue) "ownership tag edit"
+    )
+    fn environmentSnapshot =
+    (
+        #(exactRef rootNode, (copy maxFilePath), (copy maxFileName), currentTime as integer,
+          referenceSet (selection as array), subObjectLevel)
+    )
+
+    try
+    (
+        -- Must precede even replay inspection, registry writes, or constructors.
+        unitsGuard()
+        require (maxFilePath == "" and maxFileName == "") "session-only runtime refuses saved/loaded scene"
+        require (globalVars.isGlobal registryKey) "missing explicit armed session registry; never auto-adopt/re-arm"
+        registryWitness = globalVars.get registryKey
+        require (isProperty registryWitness #values) "registry has no exact structured lease"
+        lease = registryWitness.values
+        require ((classOf lease) == Array and lease.count == 10) "invalid registry; do not overwrite caller global"
+        require (lease[1] == "p3-session-registry-2" and lease[2] == artifactIdentity and lease[3] == artifactBinding and lease[4] == ownerNamespace) "registry identity mismatch"
+        require ((classOf lease[6]) == String and lease[6].count >= 16 and lease[6].count <= 128) "missing bounded external lease witness"
+        require ((classOf lease[10]) == BooleanClass) "invalid arm dirty-state observation"
+        local localNonce = copy lease[6]
+        -- This invocation cannot independently authenticate this self-read; main
+        -- must compare the independently held struct and detached fields.
+        if lease[5] == "BUILDING" or lease[5] == "POISONED" do
+        (
+            stage = "unresolved-prior-attempt"
+            unresolvedEntry = true
+            require false "INCOMPLETE: prior BUILDING/POISONED lease requires independent inspection, never retry"
+        )
+        require (same lease[7] (environmentSnapshot())) "scene witness/selection/time state changed"
+        if lease[5] == "COMMITTED" then
+        (
+            stage = "replay-read-only"
+            -- COMMITTED is construction-only, never proof of replay safety.
+            -- Refuse before inspecting/evaluating any possibly edited stack.
+            require false "INCOMPLETE_REPLAY: witness lifecycle, controller/stack/dependencies and specified-normal/native metadata unverified; no safe NOOP claim"
+        )
+        else
+        (
+            stage = "pre-create"
+            require (lease[5] == "ARMED" and lease[8] == undefined and lease[9] == undefined) "lease spent/building/poisoned; refuse implicit recovery"
+            require (objects.count == 0 and selection.count == 0) "first create requires empty unnamed scene"
+            require (getSaveRequired() == lease[10]) "scene dirty-state changed since arm"
+            local environmentBefore = environmentSnapshot()
+            unitsGuard()
+            require ((globalVars.get registryKey) == registryWitness and registryWitness.values == lease and lease[6] == localNonce and lease[5] == "ARMED") "local lease self-read changed; independent witness still required"
+            require (getSaveRequired() == lease[10]) "scene dirty-state changed immediately before BUILDING"
+            -- Temporary fail-closed gate: remove only after independent safety verification.
+            stage = "precreate-safety-refusal"
+            require false "INCOMPLETE_PRECREATE: independent witness, layer identity, controller/stack/dependencies, cleanup and native metadata safety unproven"
+            attemptStarted = true
+            lease[5] = "BUILDING"
+            -- Interruption between later writes can leave incomplete evidence;
+            -- after any timeout main must inspect, never retry.
+            lease[8] = attemptEvidence
+            attemptEvidence[8] = "CONSTRUCTOR_IN_PROGRESS"
+            constructorStarted = true
+            local node = Editable_Mesh()
+            append createdRefs node
+            attemptEvidence[8] = "CONSTRUCTOR_RETURNED"
+            local initialHandle = getHandleByAnim node
+            append createdHandles initialHandle
+            require (isValidNode node and initialHandle != undefined and initialHandle > 0 and (getAnimByHandle initialHandle) == node) "new exact node unavailable"
+            node.name = wallName
+            stage = "convert"
+            attemptEvidence[8] = "CONVERSION_IN_PROGRESS"
+            conversionStarted = true
+            local converted = convertTo node Editable_Poly
+            -- Retain the returned candidate before validation; it is NOT
+            -- deletion authority if continuity cannot be established.
+            append conversionRefs converted
+            attemptEvidence[8] = "CONVERSION_RETURNED"
+            require (isValidNode node and isValidNode converted and converted == node) "conversion exact reference continuity unavailable"
+            require ((getHandleByAnim converted) == initialHandle and (getAnimByHandle initialHandle) == node and objects.count == 1 and node.name == wallName) "conversion identity not preserved; no lookup by name"
+            node = converted
+            stage = "grid-vertices"
+            local vertexIds = #()
+            for point in expectedPoints do
+            (
+                local id = polyop.createVert node point
+                require ((classOf id) == Integer and id > 0 and id <= polyop.getNumVerts node and (findItem vertexIds id) == 0) "invalid/duplicate returned vertex ID"
+                append vertexIds id
+                require ((polyop.getVert node id) == point) "created vertex readback mismatch"
+            )
+            update node
+            print ("P3_VERTEX_IDS|" + (vertexIds as string))
+            stage = "grid-faces"
+            local faceIds = #()
+            local cutIds = #{}
+            for slot = 1 to cellSlots.count do
+            (
+                local actualLoop = for index in cellSlots[slot] collect vertexIds[index]
+                local id = polyop.createPolygon node actualLoop
+                require ((classOf id) == Integer and id > 0 and id <= polyop.getNumFaces node and (findItem faceIds id) == 0) "invalid/duplicate returned face ID"
+                append faceIds id
+                require (same (polyop.getFaceVerts node id) actualLoop) "created face loop readback mismatch"
+                if cutSlots[slot] do cutIds[id] = true
+            )
+            update node
+            require ((polyop.getNumFaces node) == @@GRID_COUNT@@) "grid count readback mismatch"
+            print ("P3_FACE_IDS|" + (faceIds as string) + "|P3_CUT_IDS|" + (cutIds as string))
+            stage = "opening-delete-once"
+            if cutIds.numberSet > 0 do polyop.deleteFaces node cutIds delIsoVerts:false
+            update node
+            local deadFaces = polyop.getDeadFaces node
+            local activeCount = (polyop.getNumFaces node) - deadFaces.numberSet
+            require (activeCount == @@ACTIVE_COUNT@@) "active base count readback mismatch"
+            print ("P3_BASE_READBACK|active_polygons=" + (activeCount as string))
+            stage = "one-shell"
+            local shellMod = Shell innerAmount:0.0 outerAmount:@@OUTER@@ segments:1
+            addModifier node shellMod
+            update node
+            require (node.modifiers.count == 1 and node.modifiers[1] == shellMod) "actual Shell reference/stack mismatch"
+            setUserProp node tagKey tagValue
+            censusGuard node
+            require (same environmentBefore (environmentSnapshot())) "constructor changed protected environment state"
+            stage = "exact-baseline"
+            local baseline = nodeSnapshot node
+            require (same baseline (nodeSnapshot node)) "baseline unstable/uncomparable"
+            unitsGuard()
+            require ((globalVars.get registryKey) == registryWitness and registryWitness.values == lease and lease[6] == localNonce) "local registry self-read changed; independent witness still required"
+            lease[8] = node
+            lease[9] = baseline
+            lease[10] = getSaveRequired()
+            -- Contract's construction-only marker, NOT accepted replay/QA.
+            lease[5] = "COMMITTED"
+            print ("P3_CREATED_UNVERIFIED|identity=" + artifactIdentity + "|handle=" + ((getHandleByAnim node) as string) + "|baseline=bounded-readback|replay=INCOMPLETE_METADATA")
+        )
+    )
+    catch
+    (
+        local reason = getCurrentException()
+        -- Preserve the original failure even if later diagnostic reads throw.
+        print ("P3_ORIGINAL_FAILURE|stage=" + stage + "|" + (reason as string))
+        local reportErrors = #()
+        local censusKnown = false
+        local censusCount = -1
+        local leaseStatus = if attemptStarted then "UNKNOWN" else "NOT_WRITTEN"
+        -- Inspect the COMPLETE census even if the constructor never returned a
+        -- reference. It is diagnostic only; census never authorizes deletion.
+        try
+        (
+            censusCount = objects.count
+            require (censusCount <= 64) "cleanup census ceiling; exact enumeration unavailable"
+            for observed in objects do append observedCensus observed
+            require (observedCensus.count == censusCount) "cleanup census changed during observation"
+            censusKnown = true
+            for observed in observedCensus do
+            (
+                local observedValid = false
+                local observedHandle = undefined
+                local validStatus = "UNKNOWN"
+                local handleStatus = "UNKNOWN"
+                try (observedValid = isValidNode observed; validStatus = "READ")
+                catch (append reportErrors ("census-validity: " + (getCurrentException() as string)))
+                try (observedHandle = getHandleByAnim observed; handleStatus = "READ")
+                catch (append reportErrors ("census-handle: " + (getCurrentException() as string)))
+                append censusReport #(observedValid, validStatus, observedHandle, handleStatus)
+            )
+        )
+        catch
+        (
+            censusKnown = false
+            append reportErrors ("census: " + (getCurrentException() as string))
+        )
+        -- Never use a handle lookup, name or census as authority to delete.
+        -- Full exclusion of foreign non-node dependencies is not calibrated;
+        -- therefore even a valid exact current-attempt reference is retained.
+        for i = 1 to createdRefs.count do
+        (
+            try
+            (
+                local exactNode = createdRefs[i]
+                local refValid = isValidNode exactNode
+                local savedHandle = if i <= createdHandles.count then createdHandles[i] else undefined
+                local currentHandle = if refValid then getHandleByAnim exactNode else undefined
+                local location = findItem observedCensus exactNode
+                append residual #("RETAINED_OR_INVALID_CREATED_REF", i, refValid, savedHandle, currentHandle, location)
+                append cleanupOutcomes #("RETAINED_NO_CALIBRATED_DEPENDENCY_EXCLUSION", i)
+            )
+            catch
+            (
+                local cleanupError = getCurrentException()
+                append residual #("UNRESOLVED_CREATED_REF", i)
+                append cleanupOutcomes #("CREATED_REF_GUARD_ERROR", i, cleanupError as string)
+            )
+        )
+        for i = 1 to conversionRefs.count do
+        (
+            try
+            (
+                local candidate = conversionRefs[i]
+                local candidateValid = isValidNode candidate
+                local candidateHandle = if candidateValid then getHandleByAnim candidate else undefined
+                local location = findItem observedCensus candidate
+                append residual #("UNPROMOTED_CONVERSION_CANDIDATE", i, candidateValid, candidateHandle, location)
+                append cleanupOutcomes #("CONVERSION_CANDIDATE_RETAINED", i)
+            )
+            catch
+            (
+                local cleanupError = getCurrentException()
+                append residual #("UNRESOLVED_CONVERSION_CANDIDATE", i)
+                append cleanupOutcomes #("CONVERSION_GUARD_ERROR", i, cleanupError as string)
+            )
+        )
+        if constructorStarted and createdRefs.count == 0 do append residual #("CONSTRUCTOR_RETURN_NOT_OBSERVED")
+        if conversionStarted and conversionRefs.count == 0 do append residual #("CONVERSION_RETURN_NOT_OBSERVED")
+        if attemptStarted and (not censusKnown or censusCount != 0) do append residual #("UNKNOWN_OR_NONEMPTY_POST_FAILURE_CENSUS", censusCount)
+        if attemptStarted and not constructorStarted do append residual #("INTERRUPTED_BEFORE_CONSTRUCTOR_OR_LEASE_RECORD")
+        if snapshotDisposalState != "NO_SNAPSHOT" and snapshotDisposalState != "DISPOSAL_CALL_RETURNED" and snapshotDisposalState != "DISPOSAL_CALL_RETURNED_AFTER_READ_FAILURE" do append residual #("SNAPSHOT_DISPOSAL_UNKNOWN", snapshotDisposalState, snapshotDisposalError)
+        if attemptStarted do
+        (
+            try
+            (
+                require (globalVars.isGlobal registryKey and (globalVars.get registryKey) == registryWitness and registryWitness.values == lease) "registry changed; do not overwrite unfamiliar lease"
+                attemptEvidence[8] = "FAILED_INSPECT_ONLY"
+                lease[8] = attemptEvidence
+                lease[9] = residual
+                lease[5] = "POISONED"
+                -- This self-read cannot prove an independently retained witness.
+                leaseStatus = "LOCAL_POISON_WRITES_RETURNED_VERIFY_EXTERNALLY"
+            )
+            catch
+            (
+                leaseStatus = "POISON_OR_PUBLICATION_UNKNOWN"
+                local leaseError = getCurrentException()
+                append reportErrors ("lease: " + (leaseError as string))
+                append residual #("LEASE_UPDATE_UNKNOWN", leaseError as string)
+            )
+        )
+        local status = if attemptStarted or unresolvedEntry or not censusKnown or reportErrors.count > 0 or residual.count > 0 then "P3_INCOMPLETE_RESIDUAL" else if stage == "replay-read-only" then "P3_INCOMPLETE_REPLAY" else if stage == "precreate-safety-refusal" then "P3_INCOMPLETE_PRECREATE" else "P3_REFUSED"
+        print (status + "|stage=" + stage + "|createdRefs=" + (createdRefs.count as string) + "|createdHandles=" + (createdHandles as string) + "|conversionRefs=" + (conversionRefs.count as string) + "|censusKnown=" + (censusKnown as string) + "|censusCount=" + (censusCount as string) + "|census=" + (censusReport as string) + "|cleanup=" + (cleanupOutcomes as string) + "|residual=" + (residual as string) + "|snapshot=" + snapshotDisposalState + "|snapshotError=" + snapshotDisposalError + "|lease=" + leaseStatus + "|reportErrors=" + (reportErrors as string) + "|original=" + (reason as string))
+        throw
+    )
+)
+'''

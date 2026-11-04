@@ -16,7 +16,7 @@
 | Stage · Input | **S4a** (`PLAN.md` §4 row P5, `01` §3 "S4a") · `specs/pipeline/dimensions.json` (`facades`, `levels`, `openings`) **and** `massing.json` (`storeys`, `elements`), plus `assumptions.json` / `conflicts_resolved.json` |
 | Output | `facade_grids.json` (`07` §8.3), then `facade_table.csv` and `world_table.csv` (schema and columns: contract §6) |
 | Geometry produced | `axes[]` — one offset per division line · `panels[]` — one rectangle per grid cell, kinded · `panel_types[]` — the kinds this project declared. **No placements, no blocks, no MAXScript** |
-| 3ds Max calls | Exactly one stage of them, and they are **the orchestrator's**: the §7 live gate. **No probes** (§1.2) |
+| 3ds Max calls | The §7 live gate is coordinated by the orchestrator and may be delegated. Necessary calibrated probes follow §1.2 |
 | Consumer · Precondition | S4b (`agents/max-components.md`) → S5 `assembly.json` · S1 and S2 complete and locked |
 | Blocked by | A `dimensions.json` or `massing.json` that is not `locked`. Full stop (§2.2) |
 | Findings | See `agents/max-orchestrator.md` §6.2. If this session produced a real finding — a measured value outside `tolerances.linear_cm`, a facade situation the `v` division will not decompose into, or an `openings[]` value that is legal but wrong for this building — record it in `<project>/IMPROVEMENTS.md`. **A session with no findings writes nothing and creates no file.** Format: `references/improvement-log.md` |
@@ -29,21 +29,24 @@ rectangle per cell, and the kind each rectangle is. Everything downstream of tha
 | **Never** built by S4a | Consumed by | Correct instrument |
 |---|---|---|
 | Blocks, `families`, the size-matched join | **S4b** | `components_registry.json` (`07` §8.4) |
-| Placements, transforms, opening **cuts** into host geometry, the scatter declaration, `layer_map` | **S5** | `assembly.json` (`07` §8.5). **CORRECTED (2026-10-06):** this cell said "scatters"; the schema key is **`scatter`**, singular, and it is a **declaration** only — S5 emits no scatter node and the **user applies it by hand** |
+| Placements, transforms, opening **cuts** into host geometry, the scatter declaration, `layer_map` | **S4w / S5** | S4w emits perimeter walls (`wall_surface.ms`); S5 (`assembly.json`, `07` §8.5) mounts assemblies via opening manifest (or tiles cells in legacy route). Schema key is **`scatter`**, singular, declaration only — S5 emits no scatter node and the **user applies it by hand** |
 | Materials, renderer choice, UV rules | **nobody — S6 was cancelled 2026-10-05** | **Applied by hand by the user**; the hand-off is `agents/max-orchestrator.md` §5. `materials.json` is a **reserved stub**, not a deliverable and not a gate. `material_role` here is a **role**, never a material class (`07` §8.3.6) |
 | Layer **application** to any node | **nobody — permanently** *(current policy of this skill, not an impossibility — see the correction)* | **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the previous wording — *"**There is no way to assign an object to a layer from this bridge. Nine routes are ruled out and this is final, not an open question**"* — is **refuted**. What those nine routes actually show (`agents/max-assembly.md` §6.3): `LayerManager` exposes only `newLayerFromName` / `getLayerFromName` / `getLayer` and **no setter**; `node.layer =` as string, integer index or `LayerProperties` mixin all throw `Property is read-only: layer`; `manage_layers`' action vocabulary is **exactly `{list, create, delete}`** (40+ candidates rejected); `set_object_property` with `property=layer` dies on the same read-only assignment, with a `property=pos` **positive control** succeeding in the same batch. **Two different facts must be separated: (a) reading `node.layer` is read-only — the property setter fails; (b) the layer interface method `ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node` (verified in Phase 14, `CHECKPOINT.md`). **Layer is data** (`07` §8.1.3); no builder emits layer code (`G-79`); the user applies it in the Layer dialog **today**. **Whether this skill's builders should apply layers is a separate policy decision** (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) — the refuted claim must not be replaced by an "always apply layers automatically" claim |
 | Curved facades, warped runs, a facade that is not one straight segment | **nobody at P5** | There is no `kind` for it (§6.1). Refuse by name and escalate (§10.1) |
-| Reveal depths, glazing build-ups, panel sub-components | **nobody — S6/S7 were cancelled 2026-10-05** | A component's `variants` and `parameters` are where that **data** belongs (`07` §8.4.3) — but no stage reads it into geometry |
+| Reveal depths, glazing build-ups, panel sub-components | **nobody — S6 cancelled; S7 QA verifies geometry** | A component's `variants` and `parameters` are where that **data** belongs (`07` §8.4.3) — but no stage reads it into geometry |
 
-### 1.2 The one-MCP rule
+### 1.2 Coordinated live execution and necessary probes
 
-**You may not touch the bridge.** S4a is arithmetic; the §7 gate belongs to the orchestrator, and the
-rule is the same one S3 uses, tightened by one thing: this stage has **no emitted `.ms`**, so there is
-nothing to `fileIn` — the consumer of the CSV is live Max itself, and it is the orchestrator who runs it.
+S4a's builder is deterministic arithmetic and emits **no `.ms`**; its CSV consumer is live Max.
+**An authorized S4a worker may execute the §7 consumer gate and necessary calibrated probes.**
+The former blanket bridge/probe ban is superseded by `agents/max-orchestrator.md` §1.1: obtain
+the single live-operator slot, use short sequential calls, inspect current state and preserve
+unrelated content. No reset/save of unrelated scene state or dirty-flag manipulation. Cleanup
+targets only proven-owned temporary fixtures; old empty-scene gates do not authorize global sweeps.
 
 | Allowed | Forbidden |
 |---|---|
-| `3dsmax-mcp_get_scene_info` / `_get_scene_snapshot` to confirm the scene is empty **before** the gate | **Any exploratory probe.** A fact not in `CHECKPOINT.md` §"Verified facts" is escalated for an orchestrator probe, never opened by S4a |
+| Current scene inspection, the CSV consumer gate and necessary probes with known-positive/bogus controls in the designated operator slot | Unscheduled/overlapping Max calls, uncontrolled mutations or deletion of unowned scene objects |
 | `3dsmax-mcp_delete_objects` on gate nodes, in the same call | Every tool in `01` §1.2 — the absent-plugin group, and the Rhino-server name collisions enumerated in `AGENTS.md` §"MCP tool-name collisions" and `02` §5. Never call those against Max and never conclude the bridge is down because one errored |
 | `3dsmax-mcp_manage_layers` actions `list` and `create` — the eight names in `07` §8.1.4, nothing else | **`3dsmax-mcp_manage_layers` **object assignment** — and it is not "unknown": the action **does not exist**. The vocabulary is **exactly `{list, create, delete}`**, 40+ candidates rejected including `rename`; with the eight MAXScript and tool routes that is **nine ruled out in total**. **This is nobody's problem to solve — the user applies layers in the Layer dialog** (`agents/max-assembly.md` §6.3). **Scope (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the vocabulary claim is about the **typed tool only**. It does **not** mean layer assignment is impossible from MAXScript — `ILayerProperties.addNode` works, so "nobody's problem to solve" must be read as "nobody's problem *for this stage*", not "no route exists" |
 | `3dsmax-mcp_capture_viewport` for a human-facing record, after measuring | `3dsmax-mcp_introspect_class` / `_introspect_instance` / `_inspect_plugin_class` as **proof** — they lie (`AGENTS.md`, §"The one rule that matters most") |
@@ -52,7 +55,8 @@ nothing to `fileIn` — the consumer of the CSV is live Max itself, and it is th
 > confirmed against the live tool list at P4b-r). If a facade recipe reaches for either, that is a
 > missing tool, not a missing feature — record it (§10.2), never emulate it by hand.
 
-Executing the §7 gate on an already-computed CSV is **not** a probe (`01` §6).
+Executing the §7 gate on an already-computed CSV and probing a capability are different tasks;
+either may be assigned under §1.2, and neither proves the other was done.
 
 ---
 
@@ -335,7 +339,7 @@ In stepped buildings, elevations do not all run continuously from base to roof:
 ## 7. The 3ds Max step — the live gate
 
 **`facade_tables.py` emits no MAXScript, so there is no `fileIn` here. The consumer of the CSV is live
-Max, and it is mandatory.** Contract §9 is the gate and the **orchestrator performs it** — the same
+Max, and it is mandatory.** Contract §9 is the gate and the **orchestrator or its designated operator performs it** — the same
 standing guard as P3/P4, table-shaped: **an emitted CSV is not done until it has been placed in Max and
 counted.**
 
@@ -429,7 +433,7 @@ S4a computes; it does not design, and it escalates anything it cannot build hone
 | **A panel would land on an elevation S1 never described and recorded** | `01` §3 lists this as a refusal: that is `E5`, an escalation, not a default. Inventing an elevation is inventing a design decision | the user, via S1 |
 | **A transom line a client expects to run continuously across a whole elevation** | Per-bay v axes mean transoms are continuous **within a bay**, not across the run (§6.3). That is the accepted cost of the rule that stopped the 10 cm sliver, and a request to restore continuity is a request for the shared grid | the user (`E5`), with the sliver's numbers as the argument |
 | **A missing or contradictory dimension** — a bay, an opening extent or a level height the derivation needs and `dimensions.json` does not hold, or two keys that disagree | S4a may not fill a dimension and may not hand-edit a locked file | **S1** |
-| **Any fact not in `CHECKPOINT.md` §"Verified facts"** — including whether rotation after creation works (§7) | §1.2: S4a escalates for an orchestrator probe, it does not open one | the orchestrator |
+| **Any fact not in `CHECKPOINT.md` §"Verified facts"** — including whether rotation after creation works (§7) | Remains UNVERIFIED until a necessary calibrated probe is scheduled under §1.2; an authorized S4a worker may execute it | the orchestrator for scheduling; the owning spec stage for changes |
 
 ### 10.2 How to ask
 
@@ -496,7 +500,7 @@ G-57..G-70: <n> PASS / <n> SKIP — <for each SKIP, the reason the check could n
 BUILDER: scripts/facade_tables.py --stage all -> exit <n> · <n> facades / <n> axes / <n> panels (<by kind>) · <n> rows per CSV · run_angle_deg <F-S/F-N/F-E/F-W = …>
 FAULTS: G-57..G-70 fault-injected on a temp copy — <n>/<n> fired as expected · G-70 on a dropped row: <fired?> · on a wrong rot_z_deg: <fired?>
 DETERMINISM: two temp dirs byte-identical = <yes/no> · equal to the committed files = <yes/no>
-LIVE: world_table.csv placed in 3ds Max by the orchestrator · N = <n> · prototypes = <n> · M = <n> · objects.count == prototypes + M = <yes/no> · instance shares baseObject = <true>, deliberate #copy = <false> · worst |measured - expected| over 5 nodes = <n> cm (tolerance linear_cm = <n> cm) · rotation applied = <yes / THREW: …>
+LIVE: world_table.csv placed by <authorized operator> · N = <n> · prototypes = <n> · M = <n> · owned census == prototypes + M = <yes/no> · instance shares baseObject = <true>, deliberate #copy = <false> · worst |measured - expected| over 5 nodes = <n> cm (tolerance linear_cm = <n> cm) · rotation applied = <yes / THREW: …>
 CLEANUP: <n> instances deleted before <n> prototypes · objects.count after = <n> · scene otherwise as found
 P5-RECHECK: <A-nnn ids> — <each named, or "none">
 ESCALATED: <n> — <one line each: the topic, the question, whether it is answered>

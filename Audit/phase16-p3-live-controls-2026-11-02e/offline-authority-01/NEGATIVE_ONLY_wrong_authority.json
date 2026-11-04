@@ -1,0 +1,23 @@
+{
+  "base_z_cm": 0.0,
+  "inner_end_cm": [
+    400.0,
+    0.0
+  ],
+  "inner_start_cm": [
+    0.0,
+    0.0
+  ],
+  "outward": [
+    -0.0,
+    1.0
+  ],
+  "project": "phase16-p3-f01",
+  "schema_version": "p3-direction-authority-1",
+  "source_file": "Audit/AGENT_PLAN_poly_surface_shell.md",
+  "source_location": "section G.1 lines 670-673: analytical F01 wall u=0..400 cm, Y=0, Z=0..300, outward (0,-1,0), thickness30; section A.5 lines 172-179 explicitly identifies the preserved inner face on Y=0 and outer growth in -Y. This attests the actual analytical source, not the south compass label or winding.",
+  "source_sha256": "37813bb8f6b8d2e445c69a0424d78997f80a3752303ccffebee802e1d84ee672",
+  "top_z_cm": 300.0,
+  "wall_run_id": "RUN-F01",
+  "walls_sha256": "bbd433c76b83a709845c9a20941414bbadc786dbe6ceac907f9259d9876bfa9f"
+}

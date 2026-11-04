@@ -1,0 +1,48 @@
+{
+  "recording_status": "FAILED",
+  "recorder_exit_code": 1,
+  "acceptance": "NOT_ASSESSED",
+  "complete_phase16_or_p3": false,
+  "expected_suites": 1,
+  "executed_suites": 1,
+  "not_run": [],
+  "failed_suites": [],
+  "source_drift": [
+    "scripts/runtime.py"
+  ],
+  "baseline_problems": [
+    {
+      "path": "scripts/runtime.py",
+      "error": "protected baseline mismatch",
+      "expected_sha256": "f355edc2272062174c2269141b8347e6a4dda17b2625e4031c432258ae0dd89f",
+      "observed": {
+        "state": "FILE",
+        "sha256": "7e030e2d23c5e83ffb8c73d440e409f65857c79a69c1a1de3433b0aaf10999b6",
+        "size": 7
+      }
+    },
+    {
+      "path": "scripts/runtime.py",
+      "error": "protected baseline mismatch",
+      "expected_sha256": "f355edc2272062174c2269141b8347e6a4dda17b2625e4031c432258ae0dd89f",
+      "observed": {
+        "state": "FILE",
+        "sha256": "7e030e2d23c5e83ffb8c73d440e409f65857c79a69c1a1de3433b0aaf10999b6",
+        "size": 7
+      }
+    },
+    {
+      "path": "scripts/runtime.py",
+      "error": "protected baseline mismatch",
+      "expected_sha256": "f355edc2272062174c2269141b8347e6a4dda17b2625e4031c432258ae0dd89f",
+      "observed": {
+        "state": "FILE",
+        "sha256": "7e030e2d23c5e83ffb8c73d440e409f65857c79a69c1a1de3433b0aaf10999b6",
+        "size": 7
+      }
+    }
+  ],
+  "head_before": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "head_at_exit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "note": "Inspect raw logs and all snapshots; zero means recorder health only. Exit snapshot is before process exit, not a lock or crash-durability guarantee."
+}

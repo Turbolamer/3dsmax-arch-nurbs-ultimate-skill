@@ -1,0 +1,12 @@
+{
+  "scope": "Main-only read-only observation after operator selected the option to identify and remove the temporary object manually; subsequent user renewed permission for necessary Max work",
+  "post_operator": {
+    "ok": true,
+    "result": "P3_POST_OPERATOR_READONLY|objects=0|selection=0|path=|file=|units=millimeters|scale=1.0|dirty=true|layers=1|oldKey=false|bogusKey=false|bounded=0|layerBounded=1|layer0=0;backing=48P;getNumNodes=0;nodesOK=true;memberCount=0",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "f1505120d3464274b493b8bdfc4b4f89", "protocol_version": 2, "client_round_trip_ms": 0.859, "fallback_error": null},
+    "elapsed_ms": 0.889
+  },
+  "interpretation": "The user selected the option that they recognized the temporary object and would remove it manually. At this subsequent observation there were zero scene objects/selection and zero reported layer members; the flag was dirty=true, not cleared. The exact intermediate action is not independently observed. The flag is an observation, not proof of a clean history or of any particular operation. Main has not mutated, reset or saved the scene, cleared dirty state, edited a registry, or accessed backups. This does not prove old Main03 witness continuity or allow its rearm/reuse. Each later live operation needs its own fresh, bounded ownership/admission checks."
+}

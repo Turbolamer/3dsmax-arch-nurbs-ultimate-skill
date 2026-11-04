@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_runtime.py",
+    "-v"
+  ],
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "shell": false
+}

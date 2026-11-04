@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "spec": "conflicts_resolved",
+  "project": "phase16-p3-f01",
+  "units": {"length": "cm", "angle": "deg"},
+  "source": {
+    "kind": "user_brief",
+    "reference": "Synthetic authoring brief Audit/phase16-p3-f01-input-2026-11-02e/fixture-brief.md. Precedence definitions copied verbatim from examples/conflicts_resolved.json; no pavilion conflict entries apply. The conflicting task station variant is disclosed in README.md rather than laundered into the actual analytical plan.",
+    "recorded_at": "2026-11-02T00:00:00Z"
+  },
+  "status": "locked",
+  "precedence_rules": {
+    "note": "ADOPTED in references/10-conflict-resolution.md (P2b). Rule ids R1..R6 form a precedence ladder applied in ascending order, first match wins; R7 DEFAULT-FILL is not a conflict rule and is forbidden in rules_invoked by G-14. rules_invoked is listed in ascending ladder order and mirrors rule_names_as_proposed positionally.",
+    "evaluation_order": "strict ladder, lowest id first; the first rule that discriminates between the competing sources wins",
+    "rules": [
+      {"id": "R1", "name": "CODE-SUPREMACY", "statement": "A statutory, regulatory or code requirement outranks every user statement, including an explicit one."},
+      {"id": "R2", "name": "SPECIFICITY", "statement": "Among competing user statements of the same class, the one that is more specific wins: a value tied to a named level, element or condition beats a bare global value."},
+      {"id": "R3", "name": "QUANTITY-OVER-SUMMARY", "statement": "A stated total loses to the stated parts that produce it. Parts are measurements; totals are usually summaries."},
+      {"id": "R4", "name": "BUILDABILITY", "statement": "A value that cannot be built - negative dimension, head above floor-to-floor, negative clearance, element outside its host - loses to any value that can be built."},
+      {"id": "R5", "name": "MODULE-ALIGNMENT", "statement": "A value that preserves the stated dimensional module or grid outranks one that breaks it."},
+      {"id": "R6", "name": "LATER-STATEMENT", "statement": "Same class, same specificity, and no rule above discriminates: the statement appearing later in the source wins."}
+    ],
+    "non_conflict_fallback": {"id": "R7", "name": "DEFAULT-FILL", "statement": "A documented default from references/09-defaults.md may fill a silence but may never decide a conflict. A default that appears in a conflicts entry is a bug."}
+  },
+  "conflicts": []
+}

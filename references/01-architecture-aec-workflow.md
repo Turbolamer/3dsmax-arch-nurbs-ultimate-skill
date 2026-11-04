@@ -1,5 +1,14 @@
 # 01 — Architecture AEC workflow: the stage map, S0 → S5
 
+> **Current live-access policy (2026-11-04):** temporary no-Max/read-only/offline-only stops and
+> the old orchestrator-only probe rule are superseded. Authorized agents may use Max when needed
+> for assigned work; the orchestrator coordinates **one live operator at a time**, short calls and
+> sequential writes. Preserve unrelated scene content; never reset/save it or manipulate dirty
+> state, and clean up only proven-owned temporary fixtures. Fatal stack, `formattedPrint` and
+> synthetic `nurbsID` safeguards remain. See `agents/max-orchestrator.md` §1.1. This policy changes
+> no acceptance gate; a new architecture under test is not thereby built or accepted. Older
+> historical scope/evidence below stays historical; current S7 routing is `agents/max-qa.md`.
+
 > **CORRECTED (2026-10-06):** this map ran to S8. **S6, S7 and S8 were cancelled by explicit user
 > decision on 2026-10-05** — not deferred. The live chain is **S0 → S5**, and S5 hands the model over
 > for **manual** material assignment. See §3 "The cancelled stages" for what was dropped and what
@@ -91,7 +100,7 @@ reads prose, and no stage reads another stage's transcript.** "Reads" below name
 | 12 | `recipes/*.json` | **S3** (P4) | `nurbs.json` | one recipe body each: `params`, `script` | reserved |
 
 Two facts about this table are load-bearing. **Row 4 is the first stage that touches 3ds Max** — rows
-1–3 are deliberately Max-independent (`Audit/CHECKPOINT-archive-2026-10-28.md` §P2), and `07` §12.5 needs a file, a schema
+1–3 are deliberately Max-independent (archival record: CHECKPOINT archive §P2), and `07` §12.5 needs a file, a schema
 table **and** an example before a row flips to `defined`; `examples/massing.json` is P3's outstanding
 deliverable, so row 4 is schema-defined but not yet example-proven. **Row 10 has no upstream sibling:**
 S7 is the only stage that reads *all* of the others, which is why it is the only stage that may assert
@@ -145,7 +154,7 @@ it is the cancellation record for the three stages that used to follow S5.
 | **deliverables** | `dimensions.json`, `conflicts_resolved.json`, `assumptions.json`, `project.json` |
 | **must refuse when** | a file would be locked while an escalation is open (§4); a value on `09`'s do-not-default list would be filled silently; a brief needs a `07` key that does not exist — `07` §12 is the extension path and it is not S1's |
 | **escalate to** | the user, as a question list; `references/10-conflict-resolution.md` §6.1 owns the hard list `E1`–`E9` |
-| **tools** | **none. Zero `3dsmax-mcp_*` calls, including "just checking the bridge"** |
+| **tools** | The spec gate needs no Max. Necessary source-model inspection/calibration may be assigned under `agents/max-orchestrator.md` §1.1; no blind bridge preamble |
 
 ### S2 — massing (`agents/max-massing.md`, P3 — being written in parallel)
 
@@ -156,7 +165,7 @@ it is the cancellation record for the three stages that used to follow S5.
 | **deliverables** | `massing.json` plus `examples/massing.json`; the builder's `massing.ms`. Layer is a **data column**, never builder output |
 | **must refuse when** | an element is not a prism in Z — anything curved belongs to S3; an element's `origin` is not `derived` (`G-36`: S1 already resolved `given`/`assumed`/`conflict`); the builder is asked to assign a layer in MAXScript — six routes were executed and all threw, so this is not a bug to fix |
 | **escalate to** | S1 for a dimension change (never hand-edit a locked file); the user for structural sizing (`E1`) or a plot/footprint question (`E4`) |
-| **tools** | **none in the builder.** The builder is deterministic Python; it *emits* MAXScript. If a fact is missing, S2 escalates for an orchestrator probe rather than opening the bridge |
+| **tools** | **None in the Python builder**, which *emits* MAXScript. An authorized S2 worker may run the live gate and necessary calibrated probes in the designated operator slot (§6) |
 
 ### S3 — NURBS (`agents/max-nurbs.md`, P4 — bugfix, not rewrite)
 
@@ -166,7 +175,7 @@ it is the cancellation record for the three stages that used to follow S5.
 | **gate** | `nurbs.json` locked, `G-31` `origin_inputs` resolve, and every recipe executed live at least once — with its control |
 | **deliverables** | `nurbs.json`, the emitted recipe MAXScript, the NURBS nodes |
 | **must refuse when** | `nurbs-complete-guide.md` / `nurbs-architecture-recipes.md` would be rewritten on suspicion (`PLAN.md` §6.6: unverified is not disproven); a class is called non-constructable without a transcript; a script would run long enough to freeze the UI — one script per call, under ~2 s; test nodes would be left in the scene |
-| **escalate to** | the orchestrator, for every probe (`PLAN.md` §5) |
+| **escalate to** | the orchestrator for live-operator scheduling, not exclusive execution; necessary probes may be delegated (§6) |
 | **tools** | `3dsmax-mcp_execute_maxscript` — **mandatory**, NURBS has no typed path; `3dsmax-mcp_get_scene_snapshot`, `3dsmax-mcp_analyze_node_orientation`, `3dsmax-mcp_capture_viewport` for read-back; `3dsmax-mcp_delete_objects` in the same call as the probe. `3dsmax-mcp_introspect_class` / `_instance` are **hints, never proof**. Never §1.2 |
 
 ### S4a — facade grid (`agents/max-facade.md`, P5)
@@ -178,7 +187,7 @@ it is the cancellation record for the three stages that used to follow S5.
 | **deliverables** | `facade_grids.json`, `facade_table.csv`, `world_table.csv` |
 | **must refuse when** | a facade is closed over a footprint vertex that does not exist; a panel would be placed on an elevation S1 never described and recorded — that is `E5`, an escalation, not a default |
 | **escalate to** | the user for façade composition (`E5`); S1 for a bay or opening change |
-| **tools** | **none.** `facade_tables.py` is deterministic Python |
+| **tools** | **None in `facade_tables.py`**, which is deterministic Python. An authorized worker may run its consumer gate and necessary calibrated probes under §6 |
 
 ### S4b — component registry (`agents/max-components.md`, P5)
 
@@ -189,7 +198,7 @@ it is the cancellation record for the three stages that used to follow S5.
 | **deliverables** | `components_registry.json` — parametric blocks only, no placements |
 | **must refuse when** | a block would name a modifier, a plugin or an MCP tool. **A spec file may not name a class, tool, modifier or plugin** (`07` §12); the block is data, the recipe is not |
 | **escalate to** | S4a for a panel type that has no component; the user if a family is interchangeable when it should be unique |
-| **tools** | **none** |
+| **tools** | None in the registry builder. The shared prototype gate and necessary calibrated probes may be assigned to an authorized worker under §6 |
 
 ### S5 — assembly (`agents/max-assembly.md`, P6)
 
@@ -227,24 +236,25 @@ it is the cancellation record for the three stages that used to follow S5.
 > `3dsmax-mcp_execute_maxscript`. **The Boolean modifier cannot be made to cut anything in this build**
 > (measured 2026-10-05): `Boolean()` throws, `BooleanMod()` carries Voxel Map's paramblock, and the
 > bridge's own `add_modifier` attaches a Boolean **whose operand is never set** — it reports success and
-> the geometry is unchanged. **S5 emits zero modifiers and builds each `facade_wall` out of solid cells**
-> (`wall_cells[]`, `G-81`/`G-82`/`G-83`), so an opening is *absent material* rather than a cut. See
-> `agents/max-assembly.md` §6.2.1.
+> the geometry is unchanged. In the accepted production architecture **`closed_inner_contour_shell_v2`**,
+> continuous perimeter poly walls are generated at stage **S4w** (`references/10-wall-generation-pipeline.md`)
+> with openings excised before applying 1 outward `Shell` modifier, while S5 mounts frames via the opening
+> manifest and deactivates host walls via Mechanism A (`host_node.isHidden = true`). In the preserved legacy route
+> **`legacy_cells_v1`**, S5 emits zero modifiers and builds each `facade_wall` out of solid cells
+> (`wall_cells[]`, `G-81`/`G-82`/`G-83`). See `agents/max-assembly.md` §6.2.1.
 
-### The cancelled stages — S6, S7, S8
+### The cancelled stages — S6 (materials) & S8 (export); S7 QA restored
 
-> **CANCELLED by explicit user decision on 2026-10-05. Not deferred, not pending, not "planned".**
+> **Materials (S6 / P7) and Export (S8 / P9) remain CANCELLED by explicit user decision on 2026-10-05.**
+> **S7 QA verification gate is active and restored** per locked decision `L-QA` (`scripts/qa_check.py`, `qa.json`).
 
-The three stage contracts this section used to carry — full six-row tables naming
-`agents/max-materials.md`, `agents/max-qa.md` and `agents/max-export.md` — were **removed on
-2026-10-06** and replaced by this notice. Those three agent files **do not exist and are not planned**.
-The following were dropped with them, and nothing in the live pipeline may route through any of them:
+The stage contracts for materials and export were removed on 2026-10-06 and replaced by this notice:
 
-| Cancelled | Was | Why it is not coming back | What replaced it |
+| Stage | Was | Status | What replaced it |
 |---|---|---|---|
-| **S6 (P7) · materials + UVs** | `materials.json` locked with a `renderer` field; `assign_material`, `create_material_from_textures`, `palette_laydown`, `set_sub_material` wired per geometry class; UV rules | **The user applies materials by hand.** The deliverable is the model plus a hand-off | **The hand-off.** `agents/max-orchestrator.md` §5 owns it. `material_role` stays a **role**, never a material class (`07` §8.3.6), which is exactly why the stage was droppable |
-| **S7 (P8) · automated QA** | `qa.json` with one row per check (`rule`, `expected`, `measured`, `tolerance`, `pass`), a `verdict` that gated export, the determinism record, captures by viewpoint | No QA loop was ever executed and none is wanted | **Nothing.** Each stage's own live gate (`agents/max-*.md` §7) remains — *that is not QA and is not cancelled* |
-| **S8 (P9) · export** | `export.json`, FBX / OBJ / USD, the delivery MAXScript and its manifest | No export format was ever specified | **Nothing.** The user saves and exports from Max |
+| **S6 (P7) · materials + UVs** | `materials.json` locked with a `renderer` field; `assign_material`, `create_material_from_textures`, `palette_laydown`, `set_sub_material` wired per geometry class; UV rules | **CANCELLED.** The user applies materials by hand. The deliverable is the verified model plus a hand-off | **The hand-off.** `agents/max-orchestrator.md` §5 owns it. `material_role` stays a **role**, never a material class (`07` §8.3.6) |
+| **S7 (P8) · automated QA** | Automated verification gate | **RESTORED & ACTIVE** per `L-QA`. Evaluates coverage, census, analytical oracle form precision, watertightness (`openEdges == 0`), wall host hiding, modifier stack, replay idempotency | `scripts/qa_check.py` + `qa.json` (`agents/max-qa.md`) |
+| **S8 (P9) · export** | `export.json`, FBX / OBJ / USD, the delivery MAXScript and its manifest | **CANCELLED.** No export format was ever specified | **Nothing.** The user saves and exports from Max |
 
 **What did not change.** Two things named in the cancelled contracts are still live, and confusing the
 two is the trap this notice exists to close:
@@ -274,7 +284,7 @@ it found.** Exit non-zero. Nothing else is required of it.
 | Aspect | Rule | Source |
 |---|---|---|
 | Permitted values | `draft` \| `locked` \| `superseded`. `G-4` makes a non-`locked` file an error for any build and a warning for a lint; `validate_specs.py --build` forces it | `07` §3.1, §9.1 |
-| Who may relax it | nobody at build time. `--allow-draft` downgrades the failure to a SKIP and exists for linting, not for shipping | `Audit/CHECKPOINT-archive-2026-10-28.md` §P2 |
+| Who may relax it | nobody at build time. `--allow-draft` downgrades the failure to a SKIP and exists for linting, not for shipping | archival record: CHECKPOINT archive §P2 |
 | What a builder prints | the file path and the status found — `massing.json: status=draft`, never a generic failure | `07` §3.1 |
 
 **Why this one gate is enough.** Everything upstream of it is already decided: `G-9`…`G-15` prove
@@ -313,10 +323,16 @@ in the declaration, not a reason to edit the scene.
 
 ## 6. Context budget — who may touch the live session (`PLAN.md` §5, `AGENTS.md`)
 
+The current policy in `agents/max-orchestrator.md` §1.1 supersedes the former main-only wording
+in `PLAN.md` §5 and historical handoffs; do not rewrite those records as if the old restriction
+never existed.
+
 | Rule | Detail |
 |---|---|
-| Only the orchestrator probes | **Live 3ds Max probes are orchestrator-only.** S0b runs them; the verified result is handed to a stage **as data**, with its known-bogus control. Second-hand probe results get hallucinated — that is exactly how "NURBSSet does not exist" survived long enough to rewrite a plan |
-| Probe vs recipe execution | A **probe** asks "does this work?". Executing an **already-verified recipe** to build geometry is not a probe. S3 and S5 may run verified recipes; neither may run an exploratory probe of its own |
+| One designated live operator | **Authorized agents may operate Max when needed**, including necessary probes. The orchestrator assigns one operator at a time; other agents make no overlapping Max calls. Writes are sequential on Max's single UI thread; offline workers may continue in parallel |
+| Probe vs recipe execution | A **probe** asks "does this work?"; a recipe execution builds specified geometry. Either may be delegated in the operator slot. Keep short bounded calls, known-positive/bogus controls and raw scripts/results; a worker's summary alone proves neither |
+| Preserve the existing scene | Inspect current state and exact fixture ownership before writes. Do not delete/reset/save unrelated content, alter the user's Units Setup or manipulate the dirty flag. Cleanup only proven-owned temporary objects; uncertain identity or timeout means inspect/report, never a broad sweep |
+| Retain measured safeguards | Do not re-run the fatal stack ladder, invoke `formattedPrint`, or fabricate `nurbsID` values. ≤5 modifiers per call and >10-stack approval boundaries remain; permission does not accept unverified architecture |
 | Subagent returns | a short structured summary **plus written artifacts on disk** — never an inline dump. The cap is **12 lines**, as in `agents/max-input.md` §9. Without the cap, delegation relocates the bloat instead of removing it |
 | File ownership, no cross-transcript reads | one file, one owner, exclusive; a worker that finds a defect elsewhere records it in one line and moves on. A subagent never reads another agent's transcript — verified facts arrive as a written brief, re-derived never |
 | Verify the claims | subagent summaries are claims. The P1 batch reported "all 39 nonexistent tools removed"; an independent `grep` found 13 remaining occurrences. Check, do not read the report |
@@ -368,8 +384,9 @@ python scripts/build_spec.py --stage massing --in <specs_dir> --out <out_dir> [-
 
 ## 9. Where 3ds Max actually enters
 
-Everything above this line is a data contract. 3ds Max enters at exactly **two** places: the
-orchestrator's probes, and the builder's emitted MAXScript being run. The rest is arithmetic.
+The Python/spec stages are data contracts. Live Max supplies necessary source inspection,
+calibrated capability probes, emitted-script execution and read-only S7 collection. Each is run
+by the designated authorized operator under §6; the orchestrator retains scheduling and acceptance.
 
 ### 9.1 Verified by live execution (P3, 2026-10-04, with a control in the same batch)
 

@@ -1,0 +1,46 @@
+{
+  "scope": "Main-executed bounded refusal controls, not F01 geometry/replay acceptance",
+  "poisoned_repeat": {
+    "ok": true,
+    "result": "P3_POISONED_REPEAT|threw=true|reason=-- Runtime error: -- Runtime error: P3_REFUSE|lease spent/building/poisoned; refuse implicit recovery|stateBefore=POISONED|stateAfter=POISONED|sameWitness=true|objects=0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "e52a6646bed542828b011ae0721bf397", "protocol_version": 2, "client_round_trip_ms": 12.047, "fallback_error": null},
+    "elapsed_ms": 12.069
+  },
+  "expected_cm1": {
+    "ok": true,
+    "result": "UNIT_CONTROL_TARGET_REFUSAL_UNCHANGED|case=expected_cm1|threw=true|targetReason=true|nodesExact=true|selectionExact=true|contextEqual=true|registryAbsent=true|units=millimeters/1.0|nodes=0|dirty=true|arm=NOT_USED|reason=-- Runtime error: P3_REFUSE|SystemType mismatch (factor equality is insufficient)",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "1b45af8b30c34b7aa4f9edaf22c4950f", "protocol_version": 2, "client_round_trip_ms": 11.296, "fallback_error": null},
+    "elapsed_ms": 11.319
+  },
+  "negative_mutated_type_only_same_factors": {
+    "ok": true,
+    "result": "UNIT_CONTROL_TARGET_REFUSAL_UNCHANGED|case=NEGATIVE_MUTATED_type_only_same_factor|threw=true|targetReason=true|nodesExact=true|selectionExact=true|contextEqual=true|registryAbsent=true|units=millimeters/1.0|nodes=0|dirty=true|arm=NOT_USED|reason=-- Runtime error: P3_REFUSE|SystemType mismatch (factor equality is insufficient)",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "fcb27ae5808044b295a198806104d108", "protocol_version": 2, "client_round_trip_ms": 10.55, "fallback_error": null},
+    "elapsed_ms": 10.572
+  },
+  "negative_mutated_stored_factor": {
+    "ok": true,
+    "result": "UNIT_CONTROL_TARGET_REFUSAL_UNCHANGED|case=NEGATIVE_MUTATED_stored_factor|threw=true|targetReason=true|nodesExact=true|selectionExact=true|contextEqual=true|registryAbsent=true|units=millimeters/1.0|nodes=0|dirty=true|arm=NOT_USED|reason=-- Runtime error: P3_REFUSE|computed unit factor mismatch",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "911e0520d6a4492bb026df2a81940438", "protocol_version": 2, "client_round_trip_ms": 10.514, "fallback_error": null},
+    "elapsed_ms": 10.535
+  },
+  "final_read_only_state": {
+    "ok": true,
+    "result": "P3_FINAL_STATE|objects=0|selection=0|type=millimeters|scale=1.0|path=|file=|saveRequired=true|Main03lease=POISONED",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "03b372916d0d4c5589189c3b84b9348f", "protocol_version": 2, "client_round_trip_ms": 0.35, "fallback_error": null},
+    "elapsed_ms": 0.37
+  },
+  "qualifications": [
+    "Poisoned repeat is a safe refusal, NOT a successful clean 3-run NOOP/replay gate.",
+    "Type-only equal-factor and stored-factor cases are explicitly mutated negative artifacts, NOT authentic positive emitted models or legitimate alternate unit-pair evidence.",
+    "Expected cm/0.1 at current mm/1 could not be generated as an exact admitted Float32 pair; no legitimate equal-factor alternate-pair PASS is claimed.",
+    "No current units were changed; context, census, selection and absent control registries were checked by actual wrappers.",
+    "Main03 POISONED lease intentionally retained for diagnosis; do not auto-rearm or remove it as prefix cleanup.",
+    "Scene is dirty after temporary work, though no objects remain; no reset/save/dirty-flag clearing occurred."
+  ]
+}

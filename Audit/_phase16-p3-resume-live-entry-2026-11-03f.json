@@ -1,0 +1,50 @@
+{
+  "scope": "Main-only fresh read-only entry; distinct from immutable final2 and historical Main03 evidence",
+  "entry": {
+    "ok": true,
+    "result": "P3_RESUME_READONLY|objects=0|selection=0|path=|file=|units=millimeters|scale=1.0|dirty=false|time=0f|Main03KeyPresent=false",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport":"namedpipe","request_id":"92e96c9798fe4bfc88e1f412b2189c31","client_round_trip_ms":5.358},
+    "elapsed_ms": 5.406
+  },
+  "read_only_control_initial_attempt": {
+    "ok": false,
+    "result": null,
+    "error": {"type":"RuntimeError","message":"MAXScript error: MAXScript execution failed (parse error)"},
+    "transport": {"transport":"namedpipe","request_id":"257174312ecc41f08cb68f5b0145b6bc"},
+    "interpretation":"Read-only diagnostic script failed at parse; no success is inferred. Follow-up simpler controls are recorded below."
+  },
+  "key_read_control": {
+    "ok": true,
+    "result": "P3_RESUME_GLOBAL_CONTROL|expectedPresent=false|bogusPresent=false|expectedGetError=-- Runtime error: Specified global variable does not exist: #__P3W_2a27162292203d7e9f982ae655c3a5b20af18a9044b039a105222a09bdf7eff7|pid=9012|objects=0|selection=0|dirty=false",
+    "warnings": [], "error": null,
+    "transport": {"transport":"namedpipe","request_id":"a795bc1e2edc4d4fa805fd1c0d93b0ed"},
+    "elapsed_ms": 2.337
+  },
+  "positive_negative_global_controls": {
+    "ok": true,
+    "result": "P3_RESUME_GLOBAL_POSITIVE|rootNode=true|maxFilePath=true|units=true|P3ERegistryProbe=false|__P3W_2a27162292203d7e9f982ae655c3a5b20af18a9044b039a105222a09bdf7eff7=false|P3_ABSOLUTELY_BOGUS_4B97E9F101=false|rootHandle=39P|layers=1",
+    "warnings": [], "error": null,
+    "transport": {"transport":"namedpipe","request_id":"9ee72beb4e7a4757926b7c7c234c49cf"},
+    "elapsed_ms": 1.242
+  },
+  "process_read": {
+    "ok": true,
+    "result": "P3_RESUME_PROCESS_INSPECTION|pid=9012|startLocal=dotNetObject:System.DateTime|name=3dsmax|maxVersion=#(28000, 68, 0, 28, 3, 2, 30788, 2026, \".3.2 Security Fix\")|defaultLayerName=0|objects=0|selected=0|dirty=false",
+    "warnings": [], "error": null,
+    "transport": {"transport":"namedpipe","request_id":"3a0b3d473f134ba58bdd675541bdfcc2"},
+    "elapsed_ms": 1.514
+  },
+  "bridge_diagnostic": {
+    "ok": true, "pong": true, "connected": true, "server":"3dsmax-mcp-native", "protocolVersion":2,
+    "transport":"namedpipe", "request_id":"2f0f7477fce24e6bbe36c1040f4397bf", "elapsed_ms":0.263
+  },
+  "os_process_readonly": {
+    "command":"Get-CimInstance Win32_Process -Filter Name='3dsmax.exe' | Select-Object ProcessId,CreationDate,ExecutablePath",
+    "result":{"ProcessId":9012,"CreationDate":"2026-11-03T17:27:21.875+00:00","ExecutablePath":"C:\\Program Files\\Autodesk\\3ds Max 2026\\3dsmax.exe"},
+    "observed_host_time":"2026-11-03T20:35:04.2157409+03:00",
+    "qualification":"One matching process returned by the OS at this read. Process start is later than the recorded FINAL2 end, 2026-11-02T21:33:34.806997+00:00; PID is not a scene UUID and cannot alone prove the details of the intervening transition."
+  },
+  "interpretation": "Current bridge points at PID 9012 and an unnamed empty mm/1 scene with dirty=false and no Main03 registry. Positive rootNode/maxFilePath/units and deliberately bogus controls discriminate isGlobal; reading the expected name throws absent. OS creation time is after historical FINAL2; this is a subsequent Max process, not the uninterrupted process holding the historical witness. We did not establish the exact intervening actions. Historical witness continuity cannot be claimed or recovered. No automatic rearm, registry deletion, save, reset, flag change, scene write or backup access occurred. Independent new-lease admission requires separate future inspection and exact new-key protocol; old Main03 must not be reused."
+}

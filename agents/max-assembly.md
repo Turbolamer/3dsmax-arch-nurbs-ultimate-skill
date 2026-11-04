@@ -6,14 +6,9 @@
 > 3ds Max, **counts and measures what came back**, and tears the whole assembly down again. **S5 builds
 > the assembly only, and S5 is the last stage of the pipeline.**
 >
-> **CORRECTED (2026-10-06):** the paragraph this replaces read "Materials and renderer choice are S6
-> (`materials.json`); QA, captures and the scatter determinism proof are S7; export is S8." **S6, S7 and
-> S8 were cancelled by explicit user decision on 2026-10-05** — not deferred. `materials.json`,
-> `qa.json` and `export.json` are **reserved stubs that no stage reads or writes**, and
-> `agents/max-materials.md`, `agents/max-qa.md` and `agents/max-export.md` **do not exist and are not
-> planned**. **Materials are applied by hand by the user**; the deliverable is the model plus the
-> hand-off at `agents/max-orchestrator.md` §5. This row of §1.1 below agrees; it is §1's own purpose
-> paragraph that had drifted, and this notice is the correction.
+> **CORRECTED (2026-11-04):** Materials (S6/P7) and export (S8/P9) remain cancelled by user decision (`materials.json` and `export.json` are reserved stubs). Materials are applied by hand; the deliverable is the model plus the hand-off at `agents/max-orchestrator.md` §5. In contrast, **S7 QA is active and verified** (`specs/pipeline/qa.json`, `scripts/qa_check.py`, `agents/max-qa.md`) as the independent verification gate.
+>
+> **Wall routes (Contract 20):** Under the default production route **`closed_inner_contour_shell_v2`**, perimeter walls are generated at S4w (`wall_surface.ms`) as a continuous `Editable_Poly` ribbon per floor with rough openings excised before applying 1 outward `Shell` modifier (`straightenCorners=true`) and hidden guide `SplineShape` (`_InnerSpline`). S5 `place_components.py` mounts component assemblies into rough openings declared in the opening manifest (`wall_surface.json`), applying **Mechanism A host wall hiding** (`host_node.isHidden = true`) so discrete shells provide geometry without active host collisions, and with **zero modifiers attached to placements (`G-81`)**. In legacy route **`legacy_cells_v1`**, S5 tiles walls into discrete solid cells (`WAL_`). Legacy routes (`legacy_cells_v1`, `poly_surface_shell_v1`) remain supported for backward compatibility (no silent fallback).
 >
 > **S5 inherits four measured P5 findings and three measured P6 findings, and every one of them is a
 > rule in this file, not a preference:** the instance route is `copy` + `baseObject` assignment
@@ -25,9 +20,7 @@
 > below; `ILayerProperties.addNode` works — and **the Boolean modifier
 > cannot cut anything in this build**: `Boolean()` throws, `BooleanMod()` carries Voxel Map's
 > paramblock, and the bridge's own `add_modifier` attaches a Boolean whose operand is never set
-> (`07` §8.5.8.1, measured 2026-10-05). **So this stage emits zero modifiers and builds each
-> `facade_wall` out of solid cells** (`wall_cells[]`), which is also why the stack hazard below has a
-> ceiling of **zero** rather than a number.
+> (`07` §8.5.8.1, measured 2026-10-05). **So placements carry zero modifiers (`G-81`)**, and the stack hazard below has a ceiling of **zero** for placements.
 >
 > **CORRECTED (2026-10-27) — the layer clause of the paragraph above.** "Layer assignment is
 > impossible from this bridge — nine routes ruled out, final, not an open question" is
@@ -54,11 +47,11 @@
 
 | Property | Value |
 |---|---|
-| Stage · Input | **S5** (`PLAN.md` §4 row P6, `01` §3 "S5") · `specs/pipeline/assembly.json` (`placements[]`, `opening_cuts[]`, `wall_cells[]`, `scatter[]`), resolved against `components_registry.json`, `world_table.csv` and `massing.json` (which carries the `facade_wall` hosts the cells tile), plus `assumptions.json` / `conflicts_resolved.json` |
+| Stage · Input | **S5** (`PLAN.md` §4 row P6, `01` §3 "S5") · `specs/pipeline/assembly.json` (`placements[]`, `opening_cuts[]`, `wall_cells[]`, `scatter[]`), resolved against `components_registry.json`, `world_table.csv`, `massing.json` (which carries the `facade_wall` hosts), and `wall_surface.json` (opening manifest in v2), plus `assumptions.json` / `conflicts_resolved.json` |
 | Output | `assembly.json` (`07` §8.5) and the builder's `assembly.ms`, then the nodes that script creates |
-| Geometry produced | One prototype per distinct `component_id` · one **reference instance** per `placements[]` row · one solid `Box` cell per `wall_cells[]` row, which together are the pierced walls. **Zero modifiers. No cutters, no cut passes.** `scatter[]` is **declared, not built** — no `ChaosScatter` node is emitted; the user applies it (§6.6). **No materials, no cameras, no lights, no export** (contract §3.5) |
-| 3ds Max calls | Exactly one stage of them, and they are **the orchestrator's**: the §7 live gate. **No probes** (§1.2) |
-| Consumer · Precondition | **the hand-off** (`agents/max-orchestrator.md` §5) — materials are made by hand · S1, S2, S4a and S4b complete and locked. **S6/S7/S8 were cancelled 2026-10-05** |
+| Geometry produced | Default route `closed_inner_contour_shell_v2`: One prototype per distinct `component_id` · one reference instance per `placements[]` row mounted into rough openings from opening manifest, Mechanism A host hiding (`host_node.isHidden = true`), zero modifiers on placements (`G-81`). Legacy route `legacy_cells_v1`: solid `Box` cells tiling walls (`wall_cells[]`). `scatter[]` is **declared, not built** — no `ChaosScatter` node is emitted; the user applies it (§6.6). **No materials, no cameras, no lights, no export** |
+| 3ds Max calls | The §7 live gate is coordinated by the orchestrator and may be delegated. Necessary calibrated probes follow §1.2 |
+| Consumer · Precondition | Followed by **S7 QA verification gate** (`agents/max-qa.md`) and the **material hand-off** (`agents/max-orchestrator.md` §5). Precondition: S1, S2, S3, S4, and S4w complete and locked |
 | Blocked by | An `assembly.json` that is not `locked`. Full stop (§2.2) |
 | Findings | See `agents/max-orchestrator.md` §6.2. If this session produced a real finding — a measured value outside `tolerances.linear_cm`, a placement or host the tables cannot express, or a registry component that is legal but wrong on this building — record it in `<project>/IMPROVEMENTS.md`. **A session with no findings writes nothing and creates no file.** Format: `references/improvement-log.md` |
 
@@ -70,21 +63,26 @@ S5 owns exactly four tables and the geometry they generate: `placements[]`, `ope
 | **Never** built by S5 | Consumed by | Correct instrument |
 |---|---|---|
 | Materials, Corona / OpenPBR parameters, UV rules | **nobody — S6 was cancelled 2026-10-05** | **Applied by hand by the user.** The hand-off is `agents/max-orchestrator.md` §5. `material_role` in a spec is a **role**, never a material class (`07` §8.3.6) |
-| Cameras, lights, render settings, captures, the determinism *report* | **nobody — S6/S7/S8 were cancelled 2026-10-05** | Materials are made **by hand**; the hand-off is `agents/max-orchestrator.md` §5. Applying and reading back the scatter is the **user's** action, via `snippets/chaos_scatter.ms` |
+| Cameras, lights, render settings, captures, the determinism *report* | **nobody — S6/S8 were cancelled; S7 QA verifies determinism** | Materials are made **by hand**; the hand-off is `agents/max-orchestrator.md` §5. Applying and reading back the scatter is the **user's** action, via `snippets/chaos_scatter.ms` |
 | File export, glTF, FBX, USD | **nobody — S8 was cancelled 2026-10-05** | **Nothing.** The user saves and exports from Max |
 | Curved or NURBS hosts, swept reveals, mitred corners | **nobody at S5** | Only an axis-aligned `facade_wall` prism can be tiled into cells (§6.2). A NURBS host is a **`07` §12 step 1 change**, escalated (§10.1) |
-| Reveal depths, glazing build-ups, sill nosings | **nobody — S6/S7 were cancelled 2026-10-05** | A component's `variants` / `parameters` (`07` §8.4.3) still carry the **data**, but no stage reads them into geometry |
+| Reveal depths, glazing build-ups, sill nosings | **nobody — S6/S8 were cancelled** | A component's `variants` / `parameters` (`07` §8.4.3) still carry the **data**, but no stage reads them into geometry |
 | Layer **application** to any node | **nobody at S5 — policy deferred** | **The blanket "impossible" negative is SUPERSEDED (2026-10-27): `ILayerProperties.addNode` works** (Phase 14, `CHECKPOINT.md`; `Audit/EVIDENCE_2026-10-27.md` §E-7). What survives: reading `node.layer` is **read-only**. **Whether** S5 may apply layers is a separate policy decision, **deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4 — until then layer stays **data** and the stage emits no layer statement (§6.3, `G-79`) |
 | Physics-based particle simulation | **nobody — the plugin is absent** | Chaos Scatter for static distribution; PhysX / Max particles for motion; instance copies for RailClone-style patterning (`references/14-chaos-scatter.md` §4) |
 
-### 1.2 The one-MCP rule
+### 1.2 Coordinated live execution and necessary probes
 
-**You may not touch the bridge.** S5 is arithmetic plus one emitted script; the §7 gate belongs to the
-orchestrator, exactly as in S2 and S4a.
+S5 computes the assembly and emits its script; **an authorized S5 worker may execute the §7
+live gate and necessary calibrated probes.** The former blanket bridge/probe ban is superseded by
+`agents/max-orchestrator.md` §1.1. Obtain the single live-operator slot, use short sequential
+calls, inspect current state and confirm ownership before name-deleting legacy builders. Preserve
+unrelated content: no reset/save of unrelated state or dirty-flag manipulation. Cleanup targets
+only proven-owned temporary fixtures, never a broad scene sweep. This permission does not alter
+the legacy assembly's zero-modifier contract or accept any architecture currently under test.
 
 | Allowed | Forbidden |
 |---|---|
-| `3dsmax-mcp_get_scene_snapshot` / `_get_scene_info` to confirm the scene is empty **before** the gate | **Any exploratory probe.** A fact not in `CHECKPOINT.md` §"Verified facts" is escalated for an orchestrator probe, never opened by S5 |
+| Current scene inspection, the §7 gate and necessary probes with known-positive/bogus controls in the designated operator slot | Unscheduled/overlapping Max calls, uncontrolled mutations or deletion of unowned scene objects |
 | **No modifier at all.** `assembly.ms` must contain zero occurrences of `addModifier` (`G-81`), so the attachable set in §6.4 is a routing fact for other stages, not a permission for this one | On **polygonal geometry** (`Box`), `Extrude`, `Bevel`, `Sweep`, `Lathe`, `Surface`, `CrossSection` **construct** and then **throw** (`mods=0`); `Bevel_Profile` is unusable through every route. **On a shape the same `Extrude` attaches** — `threw=false`, `mods=1`, `capStart=false`, `capEnd=false` (измерено 2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-1), so the verdict is a property of the **host**, not of the modifier (§6.4). **`Boolean` is worse: it attaches and does nothing** (§6.2, AP-22) |
 | `3dsmax-mcp_delete_objects` on gate nodes, in the same call that created them | **The absent-plugin group** — `3dsmax-mcp_scatter_forest_pack`, all 14 `3dsmax-mcp_tyflow_*` tools, `3dsmax-mcp_get_railclone_style_graph` (`PLAN.md` §4, `CHECKPOINT.md`). forestPack, forestLite, tyFlow, railClone and phoenixFD are **not installed** |
 | `3dsmax-mcp_manage_layers` actions `list` and `create` — the eight names in `07` §8.1.4, nothing else | **`3dsmax-mcp_manage_layers` object assignment, and `3dsmax-mcp_set_object_property` with `property=layer`.** Both are the read-only `layer` property. §6.3, `G-79` |
@@ -92,8 +90,8 @@ orchestrator, exactly as in S2 and S4a.
 | `3dsmax-mcp_clone_objects` (`mode: "instance"`) as a second, independent instance measurement | The **Rhino** server names — `get_objects`, `analyze_objects`, `measure_objects`, `boolean_*`, `loft`, `sweep1`, `pipe`, `extrude_curve`, `section_profile`, `capture_viewport`, every `gh_*`. Never call them against Max, and never conclude the bridge is down because one errored |
 | `3dsmax-mcp_get_instances` to corroborate the `baseObject` discriminator | `mcg_*` and `3dsmax-mcp_curve_model` — **they do not exist in this bridge at all.** Record the absence; never emulate Max Creation Graph by hand |
 
-> Executing the §7 gate on an already-emitted `assembly.ms` is **not** a probe (`01` §6). Executing a
-> probe *you wrote to find out whether something works* is a probe, and it is forbidden here.
+> Executing the §7 gate on an already-emitted `assembly.ms` and probing a capability answer
+> different questions. Both may be assigned under §1.2; retain actual evidence for each.
 
 ---
 
@@ -433,7 +431,7 @@ applied by hand, downstream of delivery.
 
 ## 7. The 3ds Max step — the live gate
 
-**The orchestrator performs the gate.** The same standing guard as P3, P4 and P5: **an emitted `.ms` is
+**The orchestrator or its designated live operator performs the gate.** The same standing guard as P3, P4 and P5: **an emitted `.ms` is
 not done until `fileIn` has run it and its output has been measured.** Contract §7 is the authoritative
 gate list; this is its worked shape.
 
@@ -561,7 +559,7 @@ S5 executes; it does not design, and it escalates anything it cannot build hones
 | **`placements.len() > defaults.instance_limit_guard`** (2000) | The guard exists so a corrupt CSV cannot ask Max for a million instances. Exceeding it is an input defect, not a reason to raise the guard | **S1** |
 | **A request to apply layers** | The routes measured in §6.3 failed, but the blanket "it cannot work" negative is **refuted** — `ILayerProperties.addNode` **works** (§E-7, 2026-10-27). Whether S5 may apply layers is a **policy** question, **deferred** to `Audit/AGENT_PLAN_poly_surface_shell.md` §I.4 | the **user** — report the refutation with the measured routes and the §I.4 decision still open; **do not apply layers on your own initiative** |
 | **A missing or contradictory dimension** — a component size, a host profile, an opening extent — or two keys that disagree | S5 may not fill a dimension and may not hand-edit a locked file | **S1 / S4b** |
-| **Any fact not in `CHECKPOINT.md` §"Verified facts"** — including scatter sub-object wiring beyond the parameter map, and per-layer flags | §1.2: S5 escalates for an orchestrator probe, it does not open one | the **orchestrator** |
+| **Any fact not in `CHECKPOINT.md` §"Verified facts"** — including scatter sub-object wiring beyond the parameter map, and per-layer flags | Remains UNVERIFIED until a necessary calibrated probe is scheduled under §1.2; an authorized S5 worker may execute it | the **orchestrator** for scheduling; the owning spec stage for changes |
 
 ### 10.2 How to ask
 
@@ -637,7 +635,7 @@ budget"). **Read `_p6-contract.md` once, `07` §8.5 + §9.9 once, and the four i
 end — never re-read the contract to settle one key name. **Compute, don't transcribe.** The whole stage
 is a join of four tables — 136 placements and **52 wall cells** over 16 openings — so hand-verifying
 **one host's cell-volume identity** and **one placement's predicted bbox** is enough to catch a wrong
-builder. **Never probe** (§1.2). **No bulk dumps in the final message**; never read another agent's
+builder. **Coordinate necessary probes under §1.2.** **No bulk dumps in the final message**; never read another agent's
 transcript.
 
 ---

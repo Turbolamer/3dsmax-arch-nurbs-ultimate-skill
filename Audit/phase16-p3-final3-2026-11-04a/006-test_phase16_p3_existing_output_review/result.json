@@ -1,0 +1,48 @@
+{
+  "test": "Audit/test_phase16_p3_existing_output_review.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_existing_output_review.py",
+    "-v"
+  ],
+  "started_utc": "2026-11-04T08:14:06.317578+00:00",
+  "ended_utc": "2026-11-04T08:14:13.158076+00:00",
+  "seconds": 6.840507,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 3725,
+    "sha256": "02729e6d7e601600f26d457bd6db0ff58572fe67c17830084fb70eb67a21f7da"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 927,
+    "sha256": "3ed2371a76a51ffd9ce88bf6295f5bfe1f728046a08038fbbc181f0022f76b63"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 10,
+        "text": "Ran 7 tests in 6.750s",
+        "count": 7
+      }
+    ],
+    "ok_summaries": [
+      {
+        "stream": "stderr",
+        "line": 12,
+        "text": "OK"
+      }
+    ],
+    "prohibited_or_failed": [],
+    "qualifier_metadata": [],
+    "issues": [],
+    "status": "UNQUALIFIED_OUTPUT_REQUIRES_REVIEW"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

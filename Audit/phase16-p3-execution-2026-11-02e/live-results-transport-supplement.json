@@ -1,0 +1,110 @@
+{
+  "schema_version": "p16-p3-execution-main-transport-supplement-1",
+  "supplements": "live-results.json",
+  "representation": "NORMALIZED_TRANSCRIBED_DATA_NOT_EXACT_RAW_WIRE",
+  "provenance": "Additional main-supplied wire-field values; recorder did not see raw bridge responses and made no live calls.",
+  "main_reported_envelopes": [
+    {
+      "control": "initial_generic_ok",
+      "ok": true,
+      "warnings": [],
+      "error": null,
+      "transport": {
+        "transport": "namedpipe",
+        "requested_transport": "auto",
+        "request_id": "07e0f58df6194acaad3391727f473e5a",
+        "protocol_version": 2,
+        "client_round_trip_ms": 3.822,
+        "fallback_error": null
+      },
+      "elapsed_ms": 3.86
+    },
+    {
+      "control": "lock_string_rerun",
+      "ok": true,
+      "warnings": [],
+      "error": null,
+      "transport": {
+        "transport": "namedpipe",
+        "requested_transport": "auto",
+        "request_id": "f9700810011c4c67968a93674c12d2f1",
+        "protocol_version": 2,
+        "client_round_trip_ms": 2.228,
+        "fallback_error": null
+      },
+      "elapsed_ms": 2.25
+    },
+    {
+      "control": "hash_filein_positive",
+      "ok": true,
+      "warnings": [],
+      "error": null,
+      "transport": {
+        "transport": "namedpipe",
+        "requested_transport": "auto",
+        "request_id": "289cbbe2f8ca461597244f4dd8082ecf",
+        "protocol_version": 2,
+        "client_round_trip_ms": 9.068,
+        "fallback_error": null
+      },
+      "elapsed_ms": 9.095
+    },
+    {
+      "control": "hash_mismatch_caught",
+      "ok": true,
+      "warnings": [],
+      "error": null,
+      "transport": {
+        "transport": "namedpipe",
+        "requested_transport": "auto",
+        "request_id": "9100f884d1a041efa5b59d354e1232b3",
+        "protocol_version": 2,
+        "client_round_trip_ms": 2.312,
+        "fallback_error": null
+      },
+      "elapsed_ms": 2.331
+    }
+  ],
+  "result_text_qualification": "Main clarified the denial text quotes the path. Do not treat normalized denial/result strings in live-results.json as exact raw literals or fabricate quote escaping.",
+  "initial_generic_ok_qualification": "Generic OK is transport success only, not semantic evidence for returned lock flags.",
+  "main_reported_file_effects": "No files touched by probes.",
+  "current_source_hashes_read_by_recorder": {
+    "pair_filein.py": {
+      "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\pair_filein.py",
+      "sha256": "2c6a358ccde8dabf8381494a2cefb9bbad57b00b76bae93fe3806da1337ff271",
+      "bytes": 14840
+    },
+    "control_pair.json": {
+      "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\control_pair.json",
+      "sha256": "6eb0ca08925b20cff94a83f3d2e9b59128ed6f5ad5f43fa71a9f32d40f1d23ed",
+      "bytes": 105
+    },
+    "control_pair.ms": {
+      "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\control_pair.ms",
+      "sha256": "f29bf54f8b10aeb6c274077efa989bc07620e7895639e121d58ef58e9cfd3e6a",
+      "bytes": 4
+    },
+    "control_wrapper.ms": {
+      "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\control_wrapper.ms",
+      "sha256": "ec05d50ca149ac6f49111a78ed1c6bf74066da2653b1425087bf0f77cf9bba7c",
+      "bytes": 4738
+    },
+    "control_malformed_hash_wrapper.ms": {
+      "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\control_malformed_hash_wrapper.ms",
+      "sha256": "3f251b1911e08cbcf71f4be1844d62c909d224ab55923cf3eea4d5059438e7d3",
+      "bytes": 4686
+    },
+    "control_mismatch_hash_wrapper.ms": {
+      "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\control_mismatch_hash_wrapper.ms",
+      "sha256": "09ab72ccff312ccd08cab7d3d8cb9ee9826f6328f86ee2efa7abc2dd843d4e7a",
+      "bytes": 4738
+    },
+    "control_lock_probe_calibrated.ms": {
+      "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-execution-2026-11-02e\\control_lock_probe_calibrated.ms",
+      "sha256": "38bf9d41c8d724c4046d6e385157e2c142edb94466a0864e2c441bdce08d9618",
+      "bytes": 5860
+    }
+  },
+  "hash_qualification": "Current read hashes equal the first transcription; not an independently captured at-execution manifest.",
+  "scope": "Bounded ordinary local-file calibration and hash/fileIn controls only; no arbitrary-race or parent-immutability claim."
+}

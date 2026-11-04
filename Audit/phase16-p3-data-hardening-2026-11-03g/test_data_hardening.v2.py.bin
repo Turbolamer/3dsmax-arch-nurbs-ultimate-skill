@@ -1,0 +1,336 @@
+"""Offline source checks and an independent policy model, NOT a Max interpreter.
+
+The model represents hypothetical API observations; it does not establish that
+any observation is possible or that MAXScript behaves like Python. All emitted
+MAXScript is examined as text only, never parsed or executed in Max.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from hashlib import sha256
+import importlib.util
+import math
+from pathlib import Path
+import re
+import sys
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[2]
+RUNTIME = ROOT / "scripts" / "wall_surface_runtime.py"
+SNAPSHOT = Path(__file__).with_name("wall_surface_runtime.pre-edit.py")
+OLD_SHA = "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf"
+sys.path.insert(0, str(ROOT / "scripts"))
+spec = importlib.util.spec_from_file_location("p3_data_runtime_test", RUNTIME)
+runtime = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(runtime)
+
+
+def sample_emission(module=runtime):
+    """A synthetic planning input, never a produced wall or geometry evidence."""
+    dims = {"spec": "dimensions", "status": "locked", "project": "data_model",
+            "units": {"length": "cm"},
+            "facades": [{"id": "F", "start_corner_cm": [0, 0],
+                         "end_corner_cm": [100, 0], "length_cm": 100}]}
+    walls = {"spec": "walls", "status": "locked", "project": "data_model",
+             "units": {"length": "cm"}, "wall_technique": module.ROUTE,
+             "reference_face": "inner", "numeric_epsilon_cm": 0.001,
+             "numeric_unit_epsilon": 0.000001,
+             "blocks": [{"id": "B", "z_range_cm": [0, 100]}], "upper_returns": [],
+             "wall_runs": [{"id": "W", "block_id": "B", "contour_ref": "dimensions.json:facades:F",
+                            "start_cm": [0, 0], "end_cm": [100, 0], "outward": [0, -1],
+                            "thickness_cm": 10, "base_z_cm": 0, "top_z_cm": 100,
+                            "topology_budget": {"max_grid_polygons": 32,
+                                                "max_base_active_polygons": 32,
+                                                "max_evaluated_triangles": 256}}],
+             "openings": []}
+    units = {"system_type": "millimeters", "system_scale": 1.0,
+             "cm_per_unit": 0.1, "units_per_cm": 10.0}
+    return module.generate_script(module.build_plan(walls, dims), "a" * 64, "data_test", units)
+
+
+def section(source, start, end):
+    if source.count(start) != 1 or source.count(end) != 1:
+        raise AssertionError(f"missing or non-unique boundaries: {start!r}, {end!r}")
+    a = source.index(start)
+    b = source.index(end, a)
+    return source[a:b]
+
+
+def ordered(text, *parts):
+    offset = 0
+    for part in parts:
+        found = text.find(part, offset)
+        if found < 0:
+            raise AssertionError(f"missing or out of order: {part!r}")
+        offset = found + len(part)
+
+
+def assert_source_guards(source):
+    """Fail on missing/reordered narrow guards; intentionally not a parser."""
+    frozen = section(source, "    fn p3FreezeState value depth:0 dataOnly:false =", "    fn p3ReadProperties target =")
+    ordered(frozen, "local cls = classOf value",
+            "if dataOnly do p3RequireState (cls == Integer or cls == Integer64 or cls == Float or cls == Double)",
+            "case cls of")
+    for item in ("Integer: #(\"integer\", value)", "Integer64: #(\"integer64\", value)",
+                 "Float: (p3RequireState (value == value and abs value < 1.0e38)",
+                 "Double: (p3RequireState (value == value and abs value < 1.0d300)"):
+        if item not in frozen:
+            raise AssertionError(f"missing scalar freeze guard: {item}")
+    poly = section(source, "    fn p3PolySnapshot base =", "    fn p3EvaluatedSnapshot node =")
+    ordered(poly, "local nv = polyop.getNumVerts base", "local ne = polyop.getNumEdges base",
+            "p3RequireState ((classOf nv) == Integer and (classOf ne) == Integer)",
+            "p3RequireState (nv >= 0 and ne >= 0 and nv <= 64 and ne <= 256",
+            "local deadV = polyop.getDeadVerts base", "local deadE = polyop.getDeadEdges base",
+            "p3RequireState ((classOf deadV) == BitArray and (classOf deadE) == BitArray)",
+            "local vn = polyop.getNumVDataChannels base", "local en = polyop.getNumEDataChannels base",
+            "p3RequireState ((classOf vn) == Integer and (classOf en) == Integer)",
+            "p3RequireState (vn >= 0 and vn <= 100 and en >= 0 and en <= 10)")
+    vblock = section(poly, "        if vn > 0 do for channel = 1 to vn do", "        if en > 0 do for channel = 1 to en do")
+    eblock = section(poly, "        if en > 0 do for channel = 1 to en do", "        #(nv, ne, nf,")
+    for block, name, count, dead, kind in ((vblock, "V", "nv", "deadV", "v"),
+                                            (eblock, "E", "ne", "deadE", "e")):
+        ordered(block, f"local support = polyop.get{name}DataChannelSupport base channel",
+                "p3RequireState ((classOf support) == BooleanClass)", 'local values = #("unsupported")',
+                "if support do", "values = #()", f"if {count} > 0 do values = (for i = 1 to {count} collect",
+                f"local dead = {dead}[i]", "p3RequireState ((classOf dead) == BooleanClass)",
+                f'if dead then #("dead") else p3FreezeState (polyop.get{name}DataValue base channel i) dataOnly:true',
+                f'append data #("{kind}", channel, support, values)')
+        if block.count(f"polyop.get{name}DataChannelSupport base channel") != 1:
+            raise AssertionError("support getter not uniquely located")
+        if block.count(f"polyop.get{name}DataValue base channel i") != 1:
+            raise AssertionError("value getter not uniquely located")
+
+
+class SourceChecks(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.source = sample_emission()
+
+    def test_saved_snapshot_exact_hash(self):
+        self.assertEqual(sha256(SNAPSHOT.read_bytes()).hexdigest(), OLD_SHA)
+
+    def test_actual_emitter_contains_strict_data_guards(self):
+        assert_source_guards(self.source)
+
+    def test_pre_edit_fails_guard_detector(self):
+        old = SNAPSHOT.read_text(encoding="utf-8")
+        # Old helper map/template are loaded as Python constants, not executed.
+        module_spec = importlib.util.spec_from_file_location("p3_pre_data_runtime", SNAPSHOT)
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        self.assertEqual(sha256(old.encode()).hexdigest(), OLD_SHA)
+        with self.assertRaises(AssertionError):
+            assert_source_guards(module._prefix_runtime_helpers(module._RUNTIME))
+
+    def test_detector_rejects_guard_removal_and_raw_getter(self):
+        edits = [
+            ("(classOf vn) == Integer and (classOf en) == Integer", "true"),
+            ("vn >= 0 and vn <= 100 and en >= 0 and en <= 10", "true"),
+            ("(classOf nv) == Integer and (classOf ne) == Integer", "true"),
+            ("(classOf deadV) == BitArray and (classOf deadE) == BitArray", "true"),
+            ("if vn > 0 do for channel = 1 to vn do", "for channel = 1 to vn do"),
+            ("if en > 0 do for channel = 1 to en do", "for channel = 1 to en do"),
+            ("(classOf support) == BooleanClass", "true"),
+            ("(classOf dead) == BooleanClass", "true"),
+            ("cls == Integer or cls == Integer64 or cls == Float or cls == Double", "true"),
+            ("value == value and abs value < 1.0e38", "true"),
+            ("value == value and abs value < 1.0d300", "true"),
+            ("p3FreezeState (polyop.getVDataValue base channel i) dataOnly:true", "polyop.getVDataValue base channel i"),
+            ("p3FreezeState (polyop.getEDataValue base channel i) dataOnly:true", "polyop.getEDataValue base channel i"),
+        ]
+        for old, new in edits:
+            with self.subTest(edit=old):
+                self.assertIn(old, self.source)
+                with self.assertRaises(AssertionError):
+                    assert_source_guards(self.source.replace(old, new, 1))
+        for name in ("V", "E"):
+            old = f'p3RequireState ((classOf support) == BooleanClass) "INCOMPLETE: unknown {name}Data channel support"'
+            with self.subTest(support_guard=name), self.assertRaises(AssertionError):
+                assert_source_guards(self.source.replace(old, 'p3RequireState true "removed"', 1))
+
+    def test_precreate_replay_and_cleanup_tail_unchanged(self):
+        old_spec = importlib.util.spec_from_file_location("p3_pre_tail", SNAPSHOT)
+        old_module = importlib.util.module_from_spec(old_spec)
+        old_spec.loader.exec_module(old_module)
+        old_template = old_module._RUNTIME
+        new_template = runtime._RUNTIME
+        marker = "    fn evaluatedSnapshot node ="
+        # Compare the untouched template tail, not generated text whose numeric
+        # placeholders are substituted by generate_script.
+        self.assertEqual(old_template[old_template.index(marker):],
+                         new_template[new_template.index(marker):])
+        ordered(self.source, 'stage = "replay-read-only"', 'p3RequireState false "INCOMPLETE_REPLAY:',
+                'stage = "precreate-safety-refusal"', 'p3RequireState false "INCOMPLETE_PRECREATE:',
+                "attemptStarted = true", 'lease[5] = "BUILDING"', "Editable_Mesh()")
+
+
+# The model below deliberately does not import or evaluate MAXScript. Values carry
+# hypothetical Max-class labels so the oracle can distinguish Boolean/Integer,
+# Float/Double, unknown, and invalid payloads without assuming API behavior.
+class Incomplete(Exception):
+    pass
+
+
+@dataclass(frozen=True)
+class Scalar:
+    cls: str
+    value: object
+
+
+def model_scalar(value):
+    if not isinstance(value, Scalar):
+        raise Incomplete("unknown scalar")
+    if value.cls in ("Integer", "Integer64"):
+        if type(value.value) is not int:
+            raise Incomplete("malformed integer")
+        return (value.cls, value.value)
+    if value.cls in ("Float", "Double"):
+        if type(value.value) is not float or not math.isfinite(value.value):
+            raise Incomplete("nonfinite or malformed float")
+        if abs(value.value) >= (1e38 if value.cls == "Float" else 1e300):
+            raise Incomplete("outside conservative bound")
+        return (value.cls, value.value)
+    raise Incomplete("unsupported scalar class")
+
+
+class FakeAPI:
+    def __init__(self, count, support, values):
+        self.count = count
+        self.support = support
+        self.values = values
+        self.support_calls = []
+        self.value_calls = []
+
+    def read_support(self, channel):
+        self.support_calls.append(channel)
+        value = self.support[channel]
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    def read_value(self, channel, index):
+        self.value_calls.append((channel, index))
+        value = self.values[channel, index]
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+
+def model_snapshot(api, element_count, dead, limit, channel_cap=100):
+    """Mock policy, not Max execution. Unknown reads throw instead of comparing."""
+    if isinstance(api.count, Exception):
+        raise Incomplete("count read") from api.count
+    if type(api.count) is not int or not 0 <= api.count <= channel_cap:
+        raise Incomplete("count")
+    if type(element_count) is not int or not 0 <= element_count <= limit:
+        raise Incomplete("element count")
+    if type(dead) is not list or len(dead) != element_count or any(type(x) is not bool for x in dead):
+        raise Incomplete("dead status")
+    result = []
+    for channel in range(1, api.count + 1):
+        try:
+            support = api.read_support(channel)
+            if type(support) is not bool:
+                raise Incomplete("support")
+            values = ("unsupported",)
+            if support:
+                values = []
+                for index in range(1, element_count + 1):
+                    values.append(("dead",) if dead[index - 1] else model_scalar(api.read_value(channel, index)))
+            result.append((channel, support, tuple(values)))
+        except (KeyError, RuntimeError) as exc:
+            raise Incomplete("unreadable") from exc
+    return tuple(result)
+
+
+class ModelChecks(unittest.TestCase):
+    def test_zero_count_no_support_or_values_read(self):
+        api = FakeAPI(0, {}, {})
+        self.assertEqual(model_snapshot(api, 2, [False, False], 64), ())
+        self.assertEqual((api.support_calls, api.value_calls), ([], []))
+
+    def test_count_one_inclusive_and_false_support_skips_values(self):
+        api = FakeAPI(1, {1: False}, {})
+        self.assertEqual(model_snapshot(api, 1, [False], 64), ((1, False, ("unsupported",)),))
+        self.assertEqual((api.support_calls, api.value_calls), ([1], []))
+
+    def test_count_limit_inclusive(self):
+        api = FakeAPI(100, {i: False for i in range(1, 101)}, {})
+        self.assertEqual(len(model_snapshot(api, 0, [], 64)), 100)
+        self.assertEqual(api.support_calls, list(range(1, 101)))
+        api = FakeAPI(10, {i: False for i in range(1, 11)}, {})
+        self.assertEqual(len(model_snapshot(api, 0, [], 256, channel_cap=10)), 10)
+        self.assertEqual(api.support_calls, list(range(1, 11)))
+        too_many = FakeAPI(11, {}, {})
+        with self.assertRaises(Incomplete):
+            model_snapshot(too_many, 0, [], 256, channel_cap=10)
+        self.assertEqual(too_many.support_calls, [])
+
+    def test_invalid_counts_and_types_are_incomplete(self):
+        for count in (None, -1, 101, 1.0, 1.5, True, "1", [], float("nan"), float("inf"), RuntimeError("count read")):
+            with self.subTest(count=count), self.assertRaises(Incomplete):
+                model_snapshot(FakeAPI(count, {}, {}), 0, [], 64)
+        for count in (None, -1, 65, 1.0, True, "1"):
+            with self.subTest(element_count=count), self.assertRaises(Incomplete):
+                model_snapshot(FakeAPI(0, {}, {}), count, [], 64)
+
+    def test_invalid_support_and_read_exception_are_incomplete(self):
+        for support in (None, 0, 1, 0.0, "false", [], float("nan"), RuntimeError("unreadable")):
+            with self.subTest(support=support), self.assertRaises(Incomplete):
+                model_snapshot(FakeAPI(1, {1: support}, {}), 1, [False], 64)
+
+    def test_supported_channel_with_zero_elements_has_no_value_reads(self):
+        api = FakeAPI(1, {1: True}, {})
+        self.assertEqual(model_snapshot(api, 0, [], 64), ((1, True, ()),))
+        self.assertEqual(api.support_calls, [1])
+        self.assertEqual(api.value_calls, [])
+
+    def test_supported_alive_scalars_detached_and_change_detected(self):
+        api = FakeAPI(1, {1: True}, {(1, 1): Scalar("Float", 0.375), (1, 2): Scalar("Integer", -3)})
+        before = model_snapshot(api, 2, [False, False], 64)
+        self.assertEqual(before, ((1, True, (("Float", 0.375), ("Integer", -3))),))
+        api.values[1, 1] = Scalar("Float", 0.625)
+        self.assertNotEqual(before, model_snapshot(api, 2, [False, False], 64))
+        self.assertEqual(before[0][2][0], ("Float", 0.375))
+        self.assertNotEqual(model_scalar(Scalar("Integer", 0)), model_scalar(Scalar("Float", 0.0)))
+        self.assertEqual(model_scalar(Scalar("Integer64", 2**40)), ("Integer64", 2**40))
+        self.assertEqual(model_scalar(Scalar("Double", -0.25)), ("Double", -0.25))
+
+    def test_unknown_or_bad_live_value_never_returns_a_snapshot(self):
+        bad = (None, True, 0.5, [], {}, Scalar("BooleanClass", True), Scalar("Point3", (0, 0, 0)),
+               Scalar("Float", None), Scalar("Integer", True), Scalar("Integer64", 1.0),
+               Scalar("Float", float("nan")), Scalar("Float", float("inf")),
+               Scalar("Float", -float("inf")), Scalar("Double", float("nan")),
+               Scalar("Double", float("inf")), Scalar("Double", -float("inf")),
+               Scalar("Float", 1e39), Scalar("Double", 1e301), RuntimeError("failed read"))
+        for value in bad:
+            with self.subTest(value=value), self.assertRaises(Incomplete):
+                model_snapshot(FakeAPI(1, {1: True}, {(1, 1): value}), 1, [False], 256)
+
+    def test_unknown_dead_flags_are_incomplete_and_dead_entries_not_read(self):
+        for dead in (None, [None], [0], [1], [], [False, False]):
+            with self.subTest(dead=dead), self.assertRaises(Incomplete):
+                model_snapshot(FakeAPI(1, {1: True}, {}), 1, dead, 64)
+        api = FakeAPI(1, {1: True}, {(1, 2): Scalar("Double", 0.25)})
+        self.assertEqual(model_snapshot(api, 2, [True, False], 64), ((1, True, (("dead",), ("Double", 0.25))),))
+        self.assertEqual(api.value_calls, [(1, 2)])
+
+    def test_unreadable_results_are_never_equal(self):
+        def compare(left, right):
+            try:
+                a = model_snapshot(left, 1, [False], 64)
+                b = model_snapshot(right, 1, [False], 64)
+            except Incomplete:
+                return "INCOMPLETE"
+            return "EQUAL" if a == b else "DIFFERENT"
+        api = lambda x: FakeAPI(1, {1: True}, {(1, 1): x})
+        self.assertEqual(compare(api(None), api(None)), "INCOMPLETE")
+        self.assertEqual(compare(api(Scalar("Float", 0.5)), api(Scalar("Float", 0.5))), "EQUAL")
+        self.assertEqual(compare(api(Scalar("Float", 0.5)), api(Scalar("Float", 0.6))), "DIFFERENT")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

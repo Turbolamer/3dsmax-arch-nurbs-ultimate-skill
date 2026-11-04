@@ -1,0 +1,20 @@
+{
+  "scope": "Main-only session entry read-only bounded scene inspection; fresh admission for Phase 16 P3.1 session 2026-11-04",
+  "recorded_at": "2026-11-04T10:56:35+03:00",
+  "wire": {
+    "ok": true,
+    "result": "P3_SESSION_ENTRY_READONLY|objects=0|selection=0|dirty=true|path=|file=|units=millimeters|scale=1.0|oldKeyPresent=false|oldKeyGetVal=UndefinedClass|oldKeyGetErr=-- Runtime error: Specified global variable does not exist: #__P3W_2a27162292203d7e9f982ae655c3a5b20af18a9044b039a105222a09bdf7eff7|positiveRoot=true|positiveUnits=true|bogus=false|layers=1|boundedObjects=0|objNames=|boundedSelection=0|layer0=name=0;current=true;backing=48PP;getNumNodes=0;nodesOK=true;memberCount=0",
+    "warnings": [],
+    "error": null,
+    "transport": {
+      "transport": "namedpipe",
+      "requested_transport": "auto",
+      "request_id": "0da73498ccee44bf991614f599c60211",
+      "protocol_version": 2,
+      "client_round_trip_ms": 0.975,
+      "fallback_error": null
+    },
+    "elapsed_ms": 1.007
+  },
+  "interpretation": "Fresh bounded read-only inspection confirmed 0 scene objects, 0 selected objects, unnamed scene (empty path and filename), units millimeters with scale 1.0, dirty=true (not cleared or modified), exactly 1 layer named '0' with backing handle 48P, getNumNodes=0, nodesOK=true and memberCount=0. The historical Main03 registry key #__P3W_2a27162292203d7e9f982ae655c3a5b20af18a9044b039a105222a09bdf7eff7 is confirmed absent via globalVars.isGlobal=false and runtime error on get, with positive controls for rootNode=true and units=true and negative bogus control=false. Dirty=true is observed and retained; scene was not reset or saved, no objects were mutated or created."
+}

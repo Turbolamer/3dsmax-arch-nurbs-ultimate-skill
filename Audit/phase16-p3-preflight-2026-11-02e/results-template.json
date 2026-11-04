@@ -1,0 +1,12 @@
+{
+  "bridge": null,
+  "max_version": null,
+  "units": null,
+  "nurbset_present": null,
+  "loft_not_creatable": null,
+  "sweep_creatable": null,
+  "sweep_on_shape": null,
+  "quadpatch_creatable": null,
+  "plugins_absent": null,
+  "materials": null
+}

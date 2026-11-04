@@ -1,0 +1,27 @@
+{
+  "main_executed": true,
+  "request_id": "c5e2a0b001fd411f824e827a8cc5d320",
+  "bridge_ok": true,
+  "bridge_error": null,
+  "bridge_warnings": [],
+  "round_trip_ms": 13.363,
+  "elapsed_ms": 13.385,
+  "objects_after": 0,
+  "capture": {
+    "schema_version": "p3-snapshot-calibration-1",
+    "status": "CAPTURED_NOT_ACCEPTED",
+    "index_base": 1,
+    "target_anim_handle": "2137P",
+    "base_anim_handle": "2158P",
+    "base_vertices_local": [[0,0,0],[10,0,0],[10,0,10],[0,0,10]],
+    "base_faces": [[1,2,3,4]],
+    "object_transform": [[-4.3711388286737929e-8,1,0],[-1,-4.3711388286737929e-8,0],[0,0,1],[100,200,300]],
+    "base_vertices_world_once": [[100,200,300],[100,210,300],[100,210,310],[100,200,310]],
+    "snapshot_vertices_world": [[100,200,300],[100,210,300],[100,210,310],[100,200,310]],
+    "snapshot_triangles": [[2,3,4],[4,1,2]],
+    "node_bounds_world": [[100,200,300],[100,210,310]],
+    "scene_count": 1,
+    "elapsed_ms": 4
+  },
+  "interpretation": "Translated+rotated actual quad capture agrees world-once vertices and bbox. Exact reference cleaned. This is calibration, not F01 produced output acceptance."
+}

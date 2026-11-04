@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.1",
+  "spec": "walls",
+  "project": "phase16-p3-f01",
+  "units": {"length": "cm", "angle": "deg"},
+  "source": {
+    "kind": "user_brief",
+    "reference": "Synthetic F01 input authoring brief Audit/phase16-p3-f01-input-2026-11-02e/fixture-brief.md. Actual analytical source Audit/AGENT_PLAN_poly_surface_shell.md section G.1 lines 670-673: inner Y=0, outward (0,-1,0), X/u0..400, Z0..300, thickness30; door50..150 sill0 head210; window230..330 sill90 head210. IDs, route, epsilons and budgets are explicit synthetic operational inputs, not new measurements.",
+    "recorded_at": "2026-11-02T00:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {"linear_cm": 0.5, "area_m2": 0.05, "angle_deg": 0.01},
+  "origin_inputs": ["facades[0]", "levels[0]", "tolerances"],
+  "origins": {
+    "wall_technique": {"origin": "given"},
+    "reference_face": {"origin": "given"},
+    "numeric_epsilon_cm": {"origin": "given"},
+    "numeric_unit_epsilon": {"origin": "given"},
+    "blocks[0]": {"origin": "given"},
+    "wall_runs[0]": {"origin": "given"},
+    "openings[0]": {"origin": "given"},
+    "openings[1]": {"origin": "given"},
+    "upper_returns": {"origin": "given"}
+  },
+  "wall_technique": "poly_surface_shell_v1",
+  "reference_face": "inner",
+  "numeric_epsilon_cm": 0.001,
+  "numeric_unit_epsilon": 0.000001,
+  "blocks": [
+    {"id": "BLK-F01", "z_range_cm": [0.0, 300.0]}
+  ],
+  "wall_runs": [
+    {
+      "id": "RUN-F01",
+      "block_id": "BLK-F01",
+      "contour_ref": "dimensions.json:facades:F-S",
+      "start_cm": [0.0, 0.0],
+      "end_cm": [400.0, 0.0],
+      "outward": [0.0, -1.0],
+      "thickness_cm": 30.0,
+      "base_z_cm": 0.0,
+      "top_z_cm": 300.0,
+      "topology_budget": {
+        "max_grid_polygons": 15,
+        "max_base_active_polygons": 12,
+        "max_evaluated_triangles": 96
+      }
+    }
+  ],
+  "openings": [
+    {"id": "DOOR-F01", "wall_run_id": "RUN-F01", "kind": "door", "u_range_cm": [50.0, 150.0], "sill_cm": 0.0, "head_cm": 210.0},
+    {"id": "WINDOW-F01", "wall_run_id": "RUN-F01", "kind": "window", "u_range_cm": [230.0, 330.0], "sill_cm": 90.0, "head_cm": 210.0}
+  ],
+  "upper_returns": []
+}

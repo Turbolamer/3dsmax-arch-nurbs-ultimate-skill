@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "Audit/test_phase16_p3_publication.py",
+    "-v"
+  ],
+  "exit": 0,
+  "seconds": 0.6809282000176609,
+  "before": {
+    "scripts\\wall_surface_publish.py": "c43a9e8b4816fa50c26d36ee6eca14daeb6509805f250837e3859f5fe7200027",
+    "Audit\\test_phase16_p3_publication.py": "718834b8474156fcb19e023154e0ea769402249811ff4a650b5d306a43241106"
+  },
+  "after": {
+    "scripts\\wall_surface_publish.py": "c43a9e8b4816fa50c26d36ee6eca14daeb6509805f250837e3859f5fe7200027",
+    "Audit\\test_phase16_p3_publication.py": "718834b8474156fcb19e023154e0ea769402249811ff4a650b5d306a43241106"
+  },
+  "stable": true,
+  "acceptance": "NOT_ASSESSED"
+}

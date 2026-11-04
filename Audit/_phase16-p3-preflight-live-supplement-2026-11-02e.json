@@ -1,0 +1,21 @@
+{
+  "session_label": "2026-11-02e (session crossed date boundary to 2026-11-03)",
+  "canonical_applicable_reads": {
+    "ok": true,
+    "result": "P3_APPLICABLE_PREFLIGHT|version=major=2026 full=#(28000, 68, 0, 28, 3, 2, 30788, 2026, \".3.2 Security Fix\")|units=SystemType=millimeters SystemScale=1.0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "1b6b2ac5c1bd47bc94e6578f41cec3f7", "protocol_version": 2, "client_round_trip_ms": 7.107, "fallback_error": null},
+    "elapsed_ms": 7.138
+  },
+  "modified_native_box_roundtrip": {
+    "script": "Audit/phase16-p3-preflight-2026-11-02e/modified/02_native_box_roundtrip.ms",
+    "wire": {
+      "ok": true,
+      "result": "MODIFIED_CALIBRATION|native_box_roundtrip|guard=ok|probeThrew=false|measureOk=true|cleanupThrew=false|ownedAlive=false|censusOk=true|unitsOk=true|fileOk=true|saveBefore=true|saveAfter=true|actualName=P16P3E_UNIT_6d04f9a2|minNative=[950,1900,3000]|maxNative=[1050,2100,3300]|probeError=|cleanupError=",
+      "warnings": [], "error": null,
+      "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "831679ec8a764967932e277a490b645c", "protocol_version": 2, "client_round_trip_ms": 2.4, "fallback_error": null},
+      "elapsed_ms": 2.425
+    }
+  },
+  "interpretation": "Applicable version/native unit checks and independent literal native bbox control executed successfully. Exact temporary Box reference removed, census/units/file preserved. SaveRequired already true after earlier conversion probe; no save/flag clearing. Not a full canonical ten-check preflight nor produced wall acceptance."
+}

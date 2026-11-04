@@ -1,0 +1,9 @@
+{
+  "normal_end": true,
+  "captured_utc": "2026-11-02T21:33:34.806997+00:00",
+  "recording_status": "EXIT_SNAPSHOT_RECORDED_REQUIRES_REVIEW",
+  "source_drift": [],
+  "baseline_problems": [],
+  "acceptance": "NOT_ASSESSED",
+  "note": "Best-effort atexit evidence only; no kill/crash durability guarantee. This later snapshot can invalidate the earlier verdict; inspect both. The Python returncode has already been selected before atexit."
+}

@@ -1,0 +1,17 @@
+{
+  "artifact_run": "Audit/phase16-p3-main-build-2026-11-02e/Main02",
+  "approved_script_sha256": "8ce25e8aa297cf8939fdb790979bd20e8cbd6f2074f6450261a26e9cad247a54",
+  "approved_manifest_sha256": "b22988ac2c48b41525d87b7638b18a87fcd2dd193a7732af691183c4b43c9f04",
+  "pair_and_arm_wrapper_bytes_independently_verified_before_attempt": true,
+  "fresh_snapshot_request": "ed0697804e3a49a2b0071ab095e8dc65",
+  "fresh_snapshot_objects": 0,
+  "wire": {
+    "ok": true,
+    "result": "P3_MAIN02_AUTHENTIC_ATTEMPT|EXCEPTION=-- Compile error: only throws without arguments are permitted in catch expressions \n--  In line:         throw (\"P3_ARM_INCOMPLETE|\" + (reason as string))|objectsAfter=0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "b7b3f2e80a294df389a314c9cc2c1b52", "protocol_version": 2, "client_round_trip_ms": 8.584, "fallback_error": null},
+    "elapsed_ms": 8.609
+  },
+  "verdict": "FAIL_COMPILE_NOT_ACCEPTED",
+  "interpretation": "The actual main-only arm file did not compile: explicit throw argument is prohibited inside catch on this host. Geometry pair was not fileIn-ed. No created scene node, census0. Runtime source owner assigned targeted correction and new output run; immutable Main02 retained. This is not MAXScript API absence, geometry acceptance or safe replay evidence."
+}

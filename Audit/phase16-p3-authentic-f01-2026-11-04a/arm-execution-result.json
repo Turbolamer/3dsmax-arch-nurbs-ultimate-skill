@@ -1,0 +1,18 @@
+{
+  "scope": "Main-only live execution of authentic F01 main_only_arm.ms; publishing session registry lease",
+  "recorded_at": "2026-11-04T11:20:05+03:00",
+  "identity": "67ad0526bf0336c790e359ec4d771867c63e47786ff7c6f0d3c71f2ed7df628f",
+  "namespace": "P3A_F01",
+  "registryKey": "__P3W_9c1a6734f22c576288390eb4e4983f323fa02f87e74f250841599711ce936113",
+  "nonce": "FreshNonce20261104AuthenticF01_a987",
+  "wire": {
+    "ok": true,
+    "result": "P3_ARMED|67ad0526bf0336c790e359ec4d771867c63e47786ff7c6f0d3c71f2ed7df628f|status=ARMED|nonce=FreshNonce20261104AuthenticF01_a987",
+    "transport": {
+      "transport": "namedpipe",
+      "request_id": "93e50aa62fa149a4b3ac2c781c64d373",
+      "client_round_trip_ms": 0.903
+    }
+  },
+  "interpretation": "Registry successfully armed with status ARMED, exact external nonce and environment witness in 3ds Max 2026.3.2."
+}

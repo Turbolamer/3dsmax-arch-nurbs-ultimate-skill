@@ -1,0 +1,18 @@
+{
+  "hashes": {
+    "CHECKPOINT.md": "f1106e3a0ec81380ca468e4694a612c41735bf9488d99a2dc577282976c4423a",
+    "PLAN.md": "952ee01680bc3c04d4bf850b8c5db512bebb5105e4dd8bd48def73124cef2e60",
+    "references/07-spec-grammar.md": "6c38d3363093822c968c59fbccdff47c097eb57a9a8353e3c79a2b5fe9954258",
+    "Audit/_phase16-p3-resume-2026-11-02d.md": "ea993189b50397b393710d43eef5f376265bca6027b6401f6793d4572a790959",
+    "Audit/_phase16-p3-next-session-2026-11-02d-ru.md": "8a548f0675331f852a15140e9c9ce3cab32b1bf2c14a43a9bbed018a97c2be8b",
+    "Audit/_phase16-p3-entry-snapshot-2026-11-02d.json": "80aeca45e791fbcd7b2894b9b899867d2a01539545fc72393b844020581f9807"
+  },
+  "executable_test_fixture_drift": [],
+  "doc_status_publication": [
+    "PLAN.md",
+    "references/07-spec-grammar.md"
+  ],
+  "p2": "ACCEPTED bounded offline",
+  "p3": "NOT IMPLEMENTED; next session",
+  "max_permission": "Latest user explicitly withdrew inherited blanket restriction; work deferred to next session"
+}

@@ -1,0 +1,5800 @@
+{
+  "schema_version": "1.0",
+  "spec": "facade_grids",
+  "project": "pavilion-01",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "dimensions.json and massing.json -- the locked dimensional contract and the locked massing for pavilion-01; every value in this file is computed from them by scripts/facade_tables.py --stage grids, per the numbered procedure in the P5 contract section 4",
+    "recorded_at": "2026-11-04T00:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [
+    "elements",
+    "facades",
+    "facades[0].bay_count",
+    "facades[0].bay_width_cm",
+    "facades[0].direction_deg",
+    "facades[0].end_corner_cm",
+    "facades[0].length_cm",
+    "facades[0].start_corner_cm",
+    "facades[1].bay_count",
+    "facades[1].bay_width_cm",
+    "facades[1].direction_deg",
+    "facades[1].end_corner_cm",
+    "facades[1].length_cm",
+    "facades[1].start_corner_cm",
+    "facades[2].bay_count",
+    "facades[2].bay_width_cm",
+    "facades[2].direction_deg",
+    "facades[2].end_corner_cm",
+    "facades[2].length_cm",
+    "facades[2].start_corner_cm",
+    "facades[3].bay_count",
+    "facades[3].bay_width_cm",
+    "facades[3].direction_deg",
+    "facades[3].end_corner_cm",
+    "facades[3].length_cm",
+    "facades[3].start_corner_cm",
+    "levels",
+    "levels[0].elevation_cm",
+    "levels[0].height_cm",
+    "openings",
+    "openings[0].bay_index",
+    "openings[0].facade",
+    "openings[0].head_cm",
+    "openings[0].id",
+    "openings[0].level_index",
+    "openings[0].position_cm",
+    "openings[0].sill_cm",
+    "openings[0].width_cm",
+    "openings[1].bay_index",
+    "openings[1].facade",
+    "openings[1].head_cm",
+    "openings[1].id",
+    "openings[1].level_index",
+    "openings[1].position_cm",
+    "openings[1].sill_cm",
+    "openings[1].width_cm",
+    "openings[2].bay_index",
+    "openings[2].facade",
+    "openings[2].head_cm",
+    "openings[2].id",
+    "openings[2].level_index",
+    "openings[2].position_cm",
+    "openings[2].sill_cm",
+    "openings[2].width_cm"
+  ],
+  "origins": {
+    "facades[0].direction_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].direction_deg"
+      ]
+    },
+    "facades[0].start_corner_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm"
+      ]
+    },
+    "facades[0].end_corner_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].end_corner_cm"
+      ]
+    },
+    "facades[0].length_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].length_cm"
+      ]
+    },
+    "facades[0].bay_count": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].bay_count"
+      ]
+    },
+    "facades[0].bay_width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].bay_width_cm"
+      ]
+    },
+    "facades[0].bay_offsets_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].bay_width_cm"
+      ]
+    },
+    "facades[0].bay_centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].bay_offsets_cm",
+        "facades[0].bay_width_cm"
+      ]
+    },
+    "facades[0].run_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm"
+      ]
+    },
+    "facades[0].levels[0].elevation_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm"
+      ]
+    },
+    "facades[0].levels[0].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].height_cm"
+      ]
+    },
+    "facades[0].levels[0].u_axis_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[0].offset_cm",
+        "axes[1].offset_cm",
+        "axes[2].offset_cm",
+        "axes[3].offset_cm",
+        "axes[4].offset_cm",
+        "axes[5].offset_cm",
+        "axes[6].offset_cm"
+      ]
+    },
+    "facades[0].levels[0].v_axis_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[7].offset_cm",
+        "axes[8].offset_cm",
+        "axes[9].offset_cm",
+        "axes[10].offset_cm",
+        "axes[11].offset_cm",
+        "axes[12].offset_cm",
+        "axes[13].offset_cm",
+        "axes[7].bay_index",
+        "axes[8].bay_index",
+        "axes[9].bay_index",
+        "axes[10].bay_index",
+        "axes[11].bay_index",
+        "axes[12].bay_index",
+        "axes[13].bay_index"
+      ]
+    },
+    "facades[1].direction_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].direction_deg"
+      ]
+    },
+    "facades[1].start_corner_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm"
+      ]
+    },
+    "facades[1].end_corner_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].end_corner_cm"
+      ]
+    },
+    "facades[1].length_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].length_cm"
+      ]
+    },
+    "facades[1].bay_count": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].bay_count"
+      ]
+    },
+    "facades[1].bay_width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].bay_width_cm"
+      ]
+    },
+    "facades[1].bay_offsets_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].bay_width_cm"
+      ]
+    },
+    "facades[1].bay_centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].bay_offsets_cm",
+        "facades[1].bay_width_cm"
+      ]
+    },
+    "facades[1].run_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm"
+      ]
+    },
+    "facades[1].levels[0].elevation_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm"
+      ]
+    },
+    "facades[1].levels[0].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].height_cm"
+      ]
+    },
+    "facades[1].levels[0].u_axis_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[14].offset_cm",
+        "axes[15].offset_cm",
+        "axes[16].offset_cm"
+      ]
+    },
+    "facades[1].levels[0].v_axis_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[17].offset_cm",
+        "axes[18].offset_cm",
+        "axes[19].offset_cm",
+        "axes[20].offset_cm",
+        "axes[17].bay_index",
+        "axes[18].bay_index",
+        "axes[19].bay_index",
+        "axes[20].bay_index"
+      ]
+    },
+    "facades[2].direction_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].direction_deg"
+      ]
+    },
+    "facades[2].start_corner_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm"
+      ]
+    },
+    "facades[2].end_corner_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].end_corner_cm"
+      ]
+    },
+    "facades[2].length_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].length_cm"
+      ]
+    },
+    "facades[2].bay_count": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].bay_count"
+      ]
+    },
+    "facades[2].bay_width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].bay_width_cm"
+      ]
+    },
+    "facades[2].bay_offsets_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].bay_width_cm"
+      ]
+    },
+    "facades[2].bay_centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].bay_offsets_cm",
+        "facades[2].bay_width_cm"
+      ]
+    },
+    "facades[2].run_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm"
+      ]
+    },
+    "facades[2].levels[0].elevation_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm"
+      ]
+    },
+    "facades[2].levels[0].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].height_cm"
+      ]
+    },
+    "facades[2].levels[0].u_axis_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm",
+        "axes[22].offset_cm",
+        "axes[23].offset_cm",
+        "axes[24].offset_cm"
+      ]
+    },
+    "facades[2].levels[0].v_axis_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[25].offset_cm",
+        "axes[26].offset_cm",
+        "axes[27].offset_cm",
+        "axes[28].offset_cm",
+        "axes[25].bay_index",
+        "axes[26].bay_index",
+        "axes[27].bay_index",
+        "axes[28].bay_index"
+      ]
+    },
+    "facades[3].direction_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].direction_deg"
+      ]
+    },
+    "facades[3].start_corner_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm"
+      ]
+    },
+    "facades[3].end_corner_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].end_corner_cm"
+      ]
+    },
+    "facades[3].length_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].length_cm"
+      ]
+    },
+    "facades[3].bay_count": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].bay_count"
+      ]
+    },
+    "facades[3].bay_width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].bay_width_cm"
+      ]
+    },
+    "facades[3].bay_offsets_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].bay_width_cm"
+      ]
+    },
+    "facades[3].bay_centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].bay_offsets_cm",
+        "facades[3].bay_width_cm"
+      ]
+    },
+    "facades[3].run_angle_deg": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm"
+      ]
+    },
+    "facades[3].levels[0].elevation_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].elevation_cm"
+      ]
+    },
+    "facades[3].levels[0].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels[0].height_cm"
+      ]
+    },
+    "facades[3].levels[0].u_axis_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[29].offset_cm",
+        "axes[30].offset_cm"
+      ]
+    },
+    "facades[3].levels[0].v_axis_ids": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[31].offset_cm",
+        "axes[32].offset_cm",
+        "axes[31].bay_index",
+        "axes[32].bay_index"
+      ]
+    },
+    "axes[0].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[0].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[0].kind"
+      ]
+    },
+    "axes[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[0].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[1].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[1].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].kind"
+      ]
+    },
+    "axes[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].position_cm",
+        "openings[0].width_cm",
+        "openings[1].position_cm",
+        "openings[1].width_cm"
+      ]
+    },
+    "axes[1].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].position_cm",
+        "openings[0].width_cm",
+        "openings[1].position_cm",
+        "openings[1].width_cm"
+      ]
+    },
+    "axes[2].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[2].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].kind"
+      ]
+    },
+    "axes[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].position_cm",
+        "openings[0].width_cm",
+        "openings[1].position_cm",
+        "openings[1].width_cm"
+      ]
+    },
+    "axes[2].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].position_cm",
+        "openings[0].width_cm",
+        "openings[1].position_cm",
+        "openings[1].width_cm"
+      ]
+    },
+    "axes[3].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[3].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].kind"
+      ]
+    },
+    "axes[3].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[3].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[4].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[4].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].kind"
+      ]
+    },
+    "axes[4].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].position_cm",
+        "openings[0].width_cm",
+        "openings[1].position_cm",
+        "openings[1].width_cm"
+      ]
+    },
+    "axes[4].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].position_cm",
+        "openings[0].width_cm",
+        "openings[1].position_cm",
+        "openings[1].width_cm"
+      ]
+    },
+    "axes[5].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[5].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].kind"
+      ]
+    },
+    "axes[5].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].position_cm",
+        "openings[0].width_cm",
+        "openings[1].position_cm",
+        "openings[1].width_cm"
+      ]
+    },
+    "axes[5].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].position_cm",
+        "openings[0].width_cm",
+        "openings[1].position_cm",
+        "openings[1].width_cm"
+      ]
+    },
+    "axes[6].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[6].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[6].kind"
+      ]
+    },
+    "axes[6].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[6].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[7].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[7].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[7].kind"
+      ]
+    },
+    "axes[7].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[7].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[8].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[8].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].kind"
+      ]
+    },
+    "axes[8].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].sill_cm",
+        "openings[0].head_cm"
+      ]
+    },
+    "axes[8].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].sill_cm",
+        "openings[0].head_cm"
+      ]
+    },
+    "axes[9].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[9].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[9].kind"
+      ]
+    },
+    "axes[9].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[9].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[10].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[10].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[10].kind"
+      ]
+    },
+    "axes[10].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[10].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[11].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[11].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].kind"
+      ]
+    },
+    "axes[11].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].sill_cm",
+        "openings[1].head_cm"
+      ]
+    },
+    "axes[11].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].sill_cm",
+        "openings[1].head_cm"
+      ]
+    },
+    "axes[12].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[12].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].kind"
+      ]
+    },
+    "axes[12].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].sill_cm",
+        "openings[1].head_cm"
+      ]
+    },
+    "axes[12].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].sill_cm",
+        "openings[1].head_cm"
+      ]
+    },
+    "axes[13].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[13].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[13].kind"
+      ]
+    },
+    "axes[13].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[13].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[14].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[14].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[14].kind"
+      ]
+    },
+    "axes[14].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[14].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[15].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[15].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[15].kind"
+      ]
+    },
+    "axes[15].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[15].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[16].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[16].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[16].kind"
+      ]
+    },
+    "axes[16].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[16].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[17].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[17].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[17].kind"
+      ]
+    },
+    "axes[17].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[17].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[18].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[18].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[18].kind"
+      ]
+    },
+    "axes[18].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[18].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[19].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[19].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[19].kind"
+      ]
+    },
+    "axes[19].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[19].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[20].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[20].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[20].kind"
+      ]
+    },
+    "axes[20].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[20].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[21].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[21].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].kind"
+      ]
+    },
+    "axes[21].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[21].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[22].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[22].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].kind"
+      ]
+    },
+    "axes[22].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].position_cm",
+        "openings[2].width_cm"
+      ]
+    },
+    "axes[22].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].position_cm",
+        "openings[2].width_cm"
+      ]
+    },
+    "axes[23].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[23].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].kind"
+      ]
+    },
+    "axes[23].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].position_cm",
+        "openings[2].width_cm"
+      ]
+    },
+    "axes[23].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].position_cm",
+        "openings[2].width_cm"
+      ]
+    },
+    "axes[24].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[24].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[24].kind"
+      ]
+    },
+    "axes[24].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[24].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[25].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[25].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[25].kind"
+      ]
+    },
+    "axes[25].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[25].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[26].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[26].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].kind"
+      ]
+    },
+    "axes[26].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].sill_cm",
+        "openings[2].head_cm"
+      ]
+    },
+    "axes[26].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].sill_cm",
+        "openings[2].head_cm"
+      ]
+    },
+    "axes[27].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[27].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].kind"
+      ]
+    },
+    "axes[27].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].sill_cm",
+        "openings[2].head_cm"
+      ]
+    },
+    "axes[27].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].sill_cm",
+        "openings[2].head_cm"
+      ]
+    },
+    "axes[28].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[28].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[28].kind"
+      ]
+    },
+    "axes[28].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[28].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[29].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[29].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[29].kind"
+      ]
+    },
+    "axes[29].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[29].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[30].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[30].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[30].kind"
+      ]
+    },
+    "axes[30].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[30].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[31].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[31].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[31].kind"
+      ]
+    },
+    "axes[31].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[31].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[32].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "axes[32].family": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[32].kind"
+      ]
+    },
+    "axes[32].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "axes[32].offset_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "levels"
+      ]
+    },
+    "panels[0].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[0].offset_cm",
+        "axes[1].offset_cm",
+        "axes[7].offset_cm",
+        "axes[8].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[0].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[0].offset_cm"
+      ]
+    },
+    "panels[0].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm"
+      ]
+    },
+    "panels[0].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[7].offset_cm"
+      ]
+    },
+    "panels[0].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[0].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[0].u_min_cm",
+        "panels[0].u_max_cm"
+      ]
+    },
+    "panels[0].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[0].v_min_cm",
+        "panels[0].v_max_cm"
+      ]
+    },
+    "panels[0].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[0].offset_cm"
+      ]
+    },
+    "panels[0].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm"
+      ]
+    },
+    "panels[0].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[7].offset_cm"
+      ]
+    },
+    "panels[0].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[0].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[0].v_min_cm",
+        "panels[0].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[0].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[0].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[0].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[0].offset_cm",
+        "axes[1].offset_cm",
+        "axes[7].offset_cm",
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[0].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[1].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm",
+        "axes[2].offset_cm",
+        "axes[7].offset_cm",
+        "axes[8].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[1].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm"
+      ]
+    },
+    "panels[1].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm"
+      ]
+    },
+    "panels[1].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[7].offset_cm"
+      ]
+    },
+    "panels[1].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[1].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[1].u_min_cm",
+        "panels[1].u_max_cm"
+      ]
+    },
+    "panels[1].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[1].v_min_cm",
+        "panels[1].v_max_cm"
+      ]
+    },
+    "panels[1].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm"
+      ]
+    },
+    "panels[1].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm"
+      ]
+    },
+    "panels[1].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[7].offset_cm"
+      ]
+    },
+    "panels[1].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[1].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[1].v_min_cm",
+        "panels[1].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[1].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[0].id",
+        "openings[0].facade",
+        "openings[0].level_index",
+        "openings[0].bay_index"
+      ]
+    },
+    "panels[1].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[1].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[1].offset_cm",
+        "axes[2].offset_cm",
+        "axes[7].offset_cm",
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[1].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[2].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm",
+        "axes[3].offset_cm",
+        "axes[7].offset_cm",
+        "axes[8].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[2].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm"
+      ]
+    },
+    "panels[2].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[2].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[7].offset_cm"
+      ]
+    },
+    "panels[2].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[2].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[2].u_min_cm",
+        "panels[2].u_max_cm"
+      ]
+    },
+    "panels[2].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[2].v_min_cm",
+        "panels[2].v_max_cm"
+      ]
+    },
+    "panels[2].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm"
+      ]
+    },
+    "panels[2].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[2].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[7].offset_cm"
+      ]
+    },
+    "panels[2].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[2].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[2].v_min_cm",
+        "panels[2].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[2].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[2].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[2].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[2].offset_cm",
+        "axes[3].offset_cm",
+        "axes[7].offset_cm",
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[2].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[3].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[3].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[0].offset_cm",
+        "axes[1].offset_cm",
+        "axes[8].offset_cm",
+        "axes[9].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[3].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[0].offset_cm"
+      ]
+    },
+    "panels[3].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm"
+      ]
+    },
+    "panels[3].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[3].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[3].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[3].u_min_cm",
+        "panels[3].u_max_cm"
+      ]
+    },
+    "panels[3].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[3].v_min_cm",
+        "panels[3].v_max_cm"
+      ]
+    },
+    "panels[3].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[0].offset_cm"
+      ]
+    },
+    "panels[3].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm"
+      ]
+    },
+    "panels[3].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[3].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[3].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[3].v_min_cm",
+        "panels[3].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[3].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[3].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[3].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[0].offset_cm",
+        "axes[1].offset_cm",
+        "axes[8].offset_cm",
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[3].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[4].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[4].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm",
+        "axes[2].offset_cm",
+        "axes[8].offset_cm",
+        "axes[9].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[4].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm"
+      ]
+    },
+    "panels[4].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm"
+      ]
+    },
+    "panels[4].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[4].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[4].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[4].u_min_cm",
+        "panels[4].u_max_cm"
+      ]
+    },
+    "panels[4].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[4].v_min_cm",
+        "panels[4].v_max_cm"
+      ]
+    },
+    "panels[4].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[1].offset_cm"
+      ]
+    },
+    "panels[4].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm"
+      ]
+    },
+    "panels[4].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[4].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[4].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[4].v_min_cm",
+        "panels[4].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[4].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[4].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[4].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[1].offset_cm",
+        "axes[2].offset_cm",
+        "axes[8].offset_cm",
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[4].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[5].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[5].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm",
+        "axes[3].offset_cm",
+        "axes[8].offset_cm",
+        "axes[9].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[5].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm"
+      ]
+    },
+    "panels[5].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[5].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[5].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[5].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[5].u_min_cm",
+        "panels[5].u_max_cm"
+      ]
+    },
+    "panels[5].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[5].v_min_cm",
+        "panels[5].v_max_cm"
+      ]
+    },
+    "panels[5].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[2].offset_cm"
+      ]
+    },
+    "panels[5].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[5].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[8].offset_cm"
+      ]
+    },
+    "panels[5].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[5].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[5].v_min_cm",
+        "panels[5].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[5].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[5].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[5].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[2].offset_cm",
+        "axes[3].offset_cm",
+        "axes[8].offset_cm",
+        "axes[9].offset_cm"
+      ]
+    },
+    "panels[5].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[6].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[6].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm",
+        "axes[4].offset_cm",
+        "axes[10].offset_cm",
+        "axes[11].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[6].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[6].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[6].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[10].offset_cm"
+      ]
+    },
+    "panels[6].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[6].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[6].u_min_cm",
+        "panels[6].u_max_cm"
+      ]
+    },
+    "panels[6].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[6].v_min_cm",
+        "panels[6].v_max_cm"
+      ]
+    },
+    "panels[6].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[6].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[6].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[10].offset_cm"
+      ]
+    },
+    "panels[6].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[6].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[6].v_min_cm",
+        "panels[6].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[6].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[6].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[6].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[3].offset_cm",
+        "axes[4].offset_cm",
+        "axes[10].offset_cm",
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[6].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[7].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[7].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm",
+        "axes[5].offset_cm",
+        "axes[10].offset_cm",
+        "axes[11].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[7].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[7].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[7].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[10].offset_cm"
+      ]
+    },
+    "panels[7].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[7].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[7].u_min_cm",
+        "panels[7].u_max_cm"
+      ]
+    },
+    "panels[7].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[7].v_min_cm",
+        "panels[7].v_max_cm"
+      ]
+    },
+    "panels[7].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[7].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[7].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[10].offset_cm"
+      ]
+    },
+    "panels[7].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[7].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[7].v_min_cm",
+        "panels[7].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[7].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[7].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[7].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[4].offset_cm",
+        "axes[5].offset_cm",
+        "axes[10].offset_cm",
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[7].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[8].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[8].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm",
+        "axes[6].offset_cm",
+        "axes[10].offset_cm",
+        "axes[11].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[8].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[8].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[6].offset_cm"
+      ]
+    },
+    "panels[8].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[10].offset_cm"
+      ]
+    },
+    "panels[8].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[8].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[8].u_min_cm",
+        "panels[8].u_max_cm"
+      ]
+    },
+    "panels[8].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[8].v_min_cm",
+        "panels[8].v_max_cm"
+      ]
+    },
+    "panels[8].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[8].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[6].offset_cm"
+      ]
+    },
+    "panels[8].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[10].offset_cm"
+      ]
+    },
+    "panels[8].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[8].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[8].v_min_cm",
+        "panels[8].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[8].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[8].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[8].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[5].offset_cm",
+        "axes[6].offset_cm",
+        "axes[10].offset_cm",
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[8].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[9].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[9].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm",
+        "axes[4].offset_cm",
+        "axes[11].offset_cm",
+        "axes[12].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[9].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[9].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[9].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[9].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[9].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[9].u_min_cm",
+        "panels[9].u_max_cm"
+      ]
+    },
+    "panels[9].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[9].v_min_cm",
+        "panels[9].v_max_cm"
+      ]
+    },
+    "panels[9].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[9].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[9].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[9].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[9].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[9].v_min_cm",
+        "panels[9].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[9].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[9].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[9].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[3].offset_cm",
+        "axes[4].offset_cm",
+        "axes[11].offset_cm",
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[9].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[10].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[10].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm",
+        "axes[5].offset_cm",
+        "axes[11].offset_cm",
+        "axes[12].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[10].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[10].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[10].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[10].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[10].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[10].u_min_cm",
+        "panels[10].u_max_cm"
+      ]
+    },
+    "panels[10].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[10].v_min_cm",
+        "panels[10].v_max_cm"
+      ]
+    },
+    "panels[10].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[10].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[10].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[10].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[10].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[10].v_min_cm",
+        "panels[10].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[10].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[1].id",
+        "openings[1].facade",
+        "openings[1].level_index",
+        "openings[1].bay_index"
+      ]
+    },
+    "panels[10].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[10].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[4].offset_cm",
+        "axes[5].offset_cm",
+        "axes[11].offset_cm",
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[10].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[11].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[11].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm",
+        "axes[6].offset_cm",
+        "axes[11].offset_cm",
+        "axes[12].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[11].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[11].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[6].offset_cm"
+      ]
+    },
+    "panels[11].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[11].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[11].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[11].u_min_cm",
+        "panels[11].u_max_cm"
+      ]
+    },
+    "panels[11].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[11].v_min_cm",
+        "panels[11].v_max_cm"
+      ]
+    },
+    "panels[11].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[11].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[6].offset_cm"
+      ]
+    },
+    "panels[11].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[11].offset_cm"
+      ]
+    },
+    "panels[11].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[11].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[11].v_min_cm",
+        "panels[11].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[11].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[11].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[11].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[5].offset_cm",
+        "axes[6].offset_cm",
+        "axes[11].offset_cm",
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[11].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[12].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[12].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm",
+        "axes[4].offset_cm",
+        "axes[12].offset_cm",
+        "axes[13].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[12].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[12].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[12].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[12].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[12].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[12].u_min_cm",
+        "panels[12].u_max_cm"
+      ]
+    },
+    "panels[12].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[12].v_min_cm",
+        "panels[12].v_max_cm"
+      ]
+    },
+    "panels[12].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[3].offset_cm"
+      ]
+    },
+    "panels[12].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[12].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[12].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[12].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[12].v_min_cm",
+        "panels[12].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[12].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[12].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[12].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[3].offset_cm",
+        "axes[4].offset_cm",
+        "axes[12].offset_cm",
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[12].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[13].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[13].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm",
+        "axes[5].offset_cm",
+        "axes[12].offset_cm",
+        "axes[13].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[13].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[13].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[13].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[13].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[13].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[13].u_min_cm",
+        "panels[13].u_max_cm"
+      ]
+    },
+    "panels[13].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[13].v_min_cm",
+        "panels[13].v_max_cm"
+      ]
+    },
+    "panels[13].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[4].offset_cm"
+      ]
+    },
+    "panels[13].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[13].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[13].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[13].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[13].v_min_cm",
+        "panels[13].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[13].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[13].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[13].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[4].offset_cm",
+        "axes[5].offset_cm",
+        "axes[12].offset_cm",
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[13].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[14].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[14].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm",
+        "axes[6].offset_cm",
+        "axes[12].offset_cm",
+        "axes[13].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[14].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[14].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[6].offset_cm"
+      ]
+    },
+    "panels[14].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[14].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[14].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[14].u_min_cm",
+        "panels[14].u_max_cm"
+      ]
+    },
+    "panels[14].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[14].v_min_cm",
+        "panels[14].v_max_cm"
+      ]
+    },
+    "panels[14].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[5].offset_cm"
+      ]
+    },
+    "panels[14].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[6].offset_cm"
+      ]
+    },
+    "panels[14].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[12].offset_cm"
+      ]
+    },
+    "panels[14].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[14].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[14].v_min_cm",
+        "panels[14].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[14].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[14].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[14].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[0].start_corner_cm",
+        "facades[0].end_corner_cm",
+        "facades[0].length_cm",
+        "levels[0].elevation_cm",
+        "axes[5].offset_cm",
+        "axes[6].offset_cm",
+        "axes[12].offset_cm",
+        "axes[13].offset_cm"
+      ]
+    },
+    "panels[14].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[15].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[15].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[14].offset_cm",
+        "axes[15].offset_cm",
+        "axes[17].offset_cm",
+        "axes[18].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[15].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[14].offset_cm"
+      ]
+    },
+    "panels[15].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[15].offset_cm"
+      ]
+    },
+    "panels[15].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[17].offset_cm"
+      ]
+    },
+    "panels[15].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[18].offset_cm"
+      ]
+    },
+    "panels[15].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[15].u_min_cm",
+        "panels[15].u_max_cm"
+      ]
+    },
+    "panels[15].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[15].v_min_cm",
+        "panels[15].v_max_cm"
+      ]
+    },
+    "panels[15].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[14].offset_cm"
+      ]
+    },
+    "panels[15].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[15].offset_cm"
+      ]
+    },
+    "panels[15].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[17].offset_cm"
+      ]
+    },
+    "panels[15].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[18].offset_cm"
+      ]
+    },
+    "panels[15].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[15].v_min_cm",
+        "panels[15].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[15].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[15].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[15].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[0].elevation_cm",
+        "axes[14].offset_cm",
+        "axes[15].offset_cm",
+        "axes[17].offset_cm",
+        "axes[18].offset_cm"
+      ]
+    },
+    "panels[15].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[16].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[16].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[15].offset_cm",
+        "axes[16].offset_cm",
+        "axes[19].offset_cm",
+        "axes[20].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[16].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[15].offset_cm"
+      ]
+    },
+    "panels[16].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[16].offset_cm"
+      ]
+    },
+    "panels[16].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[19].offset_cm"
+      ]
+    },
+    "panels[16].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[20].offset_cm"
+      ]
+    },
+    "panels[16].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[16].u_min_cm",
+        "panels[16].u_max_cm"
+      ]
+    },
+    "panels[16].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[16].v_min_cm",
+        "panels[16].v_max_cm"
+      ]
+    },
+    "panels[16].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[15].offset_cm"
+      ]
+    },
+    "panels[16].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[16].offset_cm"
+      ]
+    },
+    "panels[16].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[19].offset_cm"
+      ]
+    },
+    "panels[16].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[20].offset_cm"
+      ]
+    },
+    "panels[16].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[16].v_min_cm",
+        "panels[16].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[16].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[16].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[16].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[1].start_corner_cm",
+        "facades[1].end_corner_cm",
+        "facades[1].length_cm",
+        "levels[0].elevation_cm",
+        "axes[15].offset_cm",
+        "axes[16].offset_cm",
+        "axes[19].offset_cm",
+        "axes[20].offset_cm"
+      ]
+    },
+    "panels[16].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[17].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[17].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm",
+        "axes[22].offset_cm",
+        "axes[25].offset_cm",
+        "axes[26].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[17].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm"
+      ]
+    },
+    "panels[17].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[17].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[25].offset_cm"
+      ]
+    },
+    "panels[17].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[17].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[17].u_min_cm",
+        "panels[17].u_max_cm"
+      ]
+    },
+    "panels[17].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[17].v_min_cm",
+        "panels[17].v_max_cm"
+      ]
+    },
+    "panels[17].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm"
+      ]
+    },
+    "panels[17].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[17].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[25].offset_cm"
+      ]
+    },
+    "panels[17].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[17].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[17].v_min_cm",
+        "panels[17].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[17].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[17].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[17].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[21].offset_cm",
+        "axes[22].offset_cm",
+        "axes[25].offset_cm",
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[17].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[18].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[18].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm",
+        "axes[23].offset_cm",
+        "axes[25].offset_cm",
+        "axes[26].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[18].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[18].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[18].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[25].offset_cm"
+      ]
+    },
+    "panels[18].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[18].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[18].u_min_cm",
+        "panels[18].u_max_cm"
+      ]
+    },
+    "panels[18].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[18].v_min_cm",
+        "panels[18].v_max_cm"
+      ]
+    },
+    "panels[18].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[18].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[18].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[25].offset_cm"
+      ]
+    },
+    "panels[18].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[18].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[18].v_min_cm",
+        "panels[18].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[18].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[18].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[18].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[22].offset_cm",
+        "axes[23].offset_cm",
+        "axes[25].offset_cm",
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[18].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[19].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[19].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm",
+        "axes[24].offset_cm",
+        "axes[25].offset_cm",
+        "axes[26].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[19].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[19].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[24].offset_cm"
+      ]
+    },
+    "panels[19].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[25].offset_cm"
+      ]
+    },
+    "panels[19].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[19].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[19].u_min_cm",
+        "panels[19].u_max_cm"
+      ]
+    },
+    "panels[19].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[19].v_min_cm",
+        "panels[19].v_max_cm"
+      ]
+    },
+    "panels[19].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[19].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[24].offset_cm"
+      ]
+    },
+    "panels[19].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[25].offset_cm"
+      ]
+    },
+    "panels[19].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[19].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[19].v_min_cm",
+        "panels[19].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[19].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[19].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[19].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[23].offset_cm",
+        "axes[24].offset_cm",
+        "axes[25].offset_cm",
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[19].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[20].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[20].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm",
+        "axes[22].offset_cm",
+        "axes[26].offset_cm",
+        "axes[27].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[20].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm"
+      ]
+    },
+    "panels[20].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[20].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[20].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[20].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[20].u_min_cm",
+        "panels[20].u_max_cm"
+      ]
+    },
+    "panels[20].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[20].v_min_cm",
+        "panels[20].v_max_cm"
+      ]
+    },
+    "panels[20].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm"
+      ]
+    },
+    "panels[20].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[20].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[20].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[20].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[20].v_min_cm",
+        "panels[20].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[20].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[20].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[20].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[21].offset_cm",
+        "axes[22].offset_cm",
+        "axes[26].offset_cm",
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[20].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[21].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[21].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm",
+        "axes[23].offset_cm",
+        "axes[26].offset_cm",
+        "axes[27].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[21].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[21].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[21].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[21].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[21].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[21].u_min_cm",
+        "panels[21].u_max_cm"
+      ]
+    },
+    "panels[21].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[21].v_min_cm",
+        "panels[21].v_max_cm"
+      ]
+    },
+    "panels[21].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[21].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[21].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[21].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[21].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[21].v_min_cm",
+        "panels[21].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[21].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings[2].id",
+        "openings[2].facade",
+        "openings[2].level_index",
+        "openings[2].bay_index"
+      ]
+    },
+    "panels[21].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[21].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[22].offset_cm",
+        "axes[23].offset_cm",
+        "axes[26].offset_cm",
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[21].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[22].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[22].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm",
+        "axes[24].offset_cm",
+        "axes[26].offset_cm",
+        "axes[27].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[22].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[22].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[24].offset_cm"
+      ]
+    },
+    "panels[22].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[22].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[22].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[22].u_min_cm",
+        "panels[22].u_max_cm"
+      ]
+    },
+    "panels[22].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[22].v_min_cm",
+        "panels[22].v_max_cm"
+      ]
+    },
+    "panels[22].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[22].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[24].offset_cm"
+      ]
+    },
+    "panels[22].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[26].offset_cm"
+      ]
+    },
+    "panels[22].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[22].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[22].v_min_cm",
+        "panels[22].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[22].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[22].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[22].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[23].offset_cm",
+        "axes[24].offset_cm",
+        "axes[26].offset_cm",
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[22].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[23].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[23].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm",
+        "axes[22].offset_cm",
+        "axes[27].offset_cm",
+        "axes[28].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[23].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm"
+      ]
+    },
+    "panels[23].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[23].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[23].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[23].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[23].u_min_cm",
+        "panels[23].u_max_cm"
+      ]
+    },
+    "panels[23].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[23].v_min_cm",
+        "panels[23].v_max_cm"
+      ]
+    },
+    "panels[23].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[21].offset_cm"
+      ]
+    },
+    "panels[23].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[23].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[23].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[23].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[23].v_min_cm",
+        "panels[23].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[23].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[23].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[23].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[21].offset_cm",
+        "axes[22].offset_cm",
+        "axes[27].offset_cm",
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[23].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[24].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[24].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm",
+        "axes[23].offset_cm",
+        "axes[27].offset_cm",
+        "axes[28].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[24].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[24].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[24].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[24].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[24].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[24].u_min_cm",
+        "panels[24].u_max_cm"
+      ]
+    },
+    "panels[24].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[24].v_min_cm",
+        "panels[24].v_max_cm"
+      ]
+    },
+    "panels[24].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[22].offset_cm"
+      ]
+    },
+    "panels[24].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[24].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[24].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[24].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[24].v_min_cm",
+        "panels[24].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[24].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[24].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[24].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[22].offset_cm",
+        "axes[23].offset_cm",
+        "axes[27].offset_cm",
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[24].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[25].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[25].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm",
+        "axes[24].offset_cm",
+        "axes[27].offset_cm",
+        "axes[28].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[25].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[25].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[24].offset_cm"
+      ]
+    },
+    "panels[25].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[25].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[25].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[25].u_min_cm",
+        "panels[25].u_max_cm"
+      ]
+    },
+    "panels[25].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[25].v_min_cm",
+        "panels[25].v_max_cm"
+      ]
+    },
+    "panels[25].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[23].offset_cm"
+      ]
+    },
+    "panels[25].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[24].offset_cm"
+      ]
+    },
+    "panels[25].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[27].offset_cm"
+      ]
+    },
+    "panels[25].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[25].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[25].v_min_cm",
+        "panels[25].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[25].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[25].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[25].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[2].start_corner_cm",
+        "facades[2].end_corner_cm",
+        "facades[2].length_cm",
+        "levels[0].elevation_cm",
+        "axes[23].offset_cm",
+        "axes[24].offset_cm",
+        "axes[27].offset_cm",
+        "axes[28].offset_cm"
+      ]
+    },
+    "panels[25].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panels[26].facade": {
+      "origin": "derived",
+      "derives_from": [
+        "facades"
+      ]
+    },
+    "panels[26].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[29].offset_cm",
+        "axes[30].offset_cm",
+        "axes[31].offset_cm",
+        "axes[32].offset_cm",
+        "openings",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[26].u_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[29].offset_cm"
+      ]
+    },
+    "panels[26].u_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[30].offset_cm"
+      ]
+    },
+    "panels[26].v_min_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[31].offset_cm"
+      ]
+    },
+    "panels[26].v_max_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[32].offset_cm"
+      ]
+    },
+    "panels[26].width_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[26].u_min_cm",
+        "panels[26].u_max_cm"
+      ]
+    },
+    "panels[26].height_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[26].v_min_cm",
+        "panels[26].v_max_cm"
+      ]
+    },
+    "panels[26].u_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[29].offset_cm"
+      ]
+    },
+    "panels[26].u_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[30].offset_cm"
+      ]
+    },
+    "panels[26].v_axis_min": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[31].offset_cm"
+      ]
+    },
+    "panels[26].v_axis_max": {
+      "origin": "derived",
+      "derives_from": [
+        "axes[32].offset_cm"
+      ]
+    },
+    "panels[26].full_height": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[26].v_min_cm",
+        "panels[26].v_max_cm",
+        "levels[0].height_cm"
+      ]
+    },
+    "panels[26].opening_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "openings"
+      ]
+    },
+    "panels[26].host_ref": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "panels[26].centre_cm": {
+      "origin": "derived",
+      "derives_from": [
+        "facades[3].start_corner_cm",
+        "facades[3].end_corner_cm",
+        "facades[3].length_cm",
+        "levels[0].elevation_cm",
+        "axes[29].offset_cm",
+        "axes[30].offset_cm",
+        "axes[31].offset_cm",
+        "axes[32].offset_cm"
+      ]
+    },
+    "panels[26].layer": {
+      "origin": "derived",
+      "derives_from": [
+        "spec"
+      ],
+      "note": "the layer vocabulary is fixed by this stage's schema (07 section 8.1.3), so the only in-file anchor is the file's own spec identity"
+    },
+    "panel_types[0].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[1].kind"
+      ]
+    },
+    "panel_types[0].glazed": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[0].kind"
+      ]
+    },
+    "panel_types[0].frame_member": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[0].kind"
+      ]
+    },
+    "panel_types[0].material_role": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[0].kind"
+      ]
+    },
+    "panel_types[0].opening_types": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[1].opening_ref"
+      ]
+    },
+    "panel_types[1].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[7].kind"
+      ]
+    },
+    "panel_types[1].glazed": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[1].kind"
+      ]
+    },
+    "panel_types[1].frame_member": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[1].kind"
+      ]
+    },
+    "panel_types[1].material_role": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[1].kind"
+      ]
+    },
+    "panel_types[1].opening_types": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[7].opening_ref"
+      ]
+    },
+    "panel_types[2].kind": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[0].kind"
+      ]
+    },
+    "panel_types[2].glazed": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[2].kind"
+      ]
+    },
+    "panel_types[2].frame_member": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[2].kind"
+      ]
+    },
+    "panel_types[2].material_role": {
+      "origin": "derived",
+      "derives_from": [
+        "panel_types[2].kind"
+      ]
+    },
+    "panel_types[2].opening_types": {
+      "origin": "derived",
+      "derives_from": [
+        "panels[0].opening_ref"
+      ]
+    }
+  },
+  "facades": [
+    {
+      "id": "F-S",
+      "name": "south",
+      "direction_deg": 180.0,
+      "start_corner_cm": [
+        -30.0,
+        -30.0
+      ],
+      "end_corner_cm": [
+        630.0,
+        -30.0
+      ],
+      "length_cm": 660.0,
+      "bay_count": 2,
+      "bay_width_cm": [
+        300.0,
+        360.0
+      ],
+      "bay_offsets_cm": [
+        0.0,
+        300.0,
+        660.0
+      ],
+      "bay_centre_cm": [
+        150.0,
+        480.0
+      ],
+      "run_angle_deg": 0.0,
+      "levels": [
+        {
+          "level_index": 0,
+          "elevation_cm": 0.0,
+          "height_cm": 330.0,
+          "u_axis_ids": [
+            "AX-001",
+            "AX-002",
+            "AX-003",
+            "AX-004",
+            "AX-005",
+            "AX-006",
+            "AX-007"
+          ],
+          "v_axis_ids": [
+            "AX-008",
+            "AX-009",
+            "AX-010",
+            "AX-011",
+            "AX-012",
+            "AX-013",
+            "AX-014"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F-N",
+      "name": "north",
+      "direction_deg": 0.0,
+      "start_corner_cm": [
+        -30.0,
+        430.0
+      ],
+      "end_corner_cm": [
+        630.0,
+        430.0
+      ],
+      "length_cm": 660.0,
+      "bay_count": 2,
+      "bay_width_cm": [
+        300.0,
+        360.0
+      ],
+      "bay_offsets_cm": [
+        0.0,
+        300.0,
+        660.0
+      ],
+      "bay_centre_cm": [
+        150.0,
+        480.0
+      ],
+      "run_angle_deg": 0.0,
+      "levels": [
+        {
+          "level_index": 0,
+          "elevation_cm": 0.0,
+          "height_cm": 330.0,
+          "u_axis_ids": [
+            "AX-015",
+            "AX-016",
+            "AX-017"
+          ],
+          "v_axis_ids": [
+            "AX-018",
+            "AX-019",
+            "AX-020",
+            "AX-021"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F-E",
+      "name": "east",
+      "direction_deg": 90.0,
+      "start_corner_cm": [
+        630.0,
+        -30.0
+      ],
+      "end_corner_cm": [
+        630.0,
+        430.0
+      ],
+      "length_cm": 460.0,
+      "bay_count": 1,
+      "bay_width_cm": [
+        460.0
+      ],
+      "bay_offsets_cm": [
+        0.0,
+        460.0
+      ],
+      "bay_centre_cm": [
+        230.0
+      ],
+      "run_angle_deg": 90.0,
+      "levels": [
+        {
+          "level_index": 0,
+          "elevation_cm": 0.0,
+          "height_cm": 330.0,
+          "u_axis_ids": [
+            "AX-022",
+            "AX-023",
+            "AX-024",
+            "AX-025"
+          ],
+          "v_axis_ids": [
+            "AX-026",
+            "AX-027",
+            "AX-028",
+            "AX-029"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F-W",
+      "name": "west",
+      "direction_deg": 270.0,
+      "start_corner_cm": [
+        -30.0,
+        -30.0
+      ],
+      "end_corner_cm": [
+        -30.0,
+        430.0
+      ],
+      "length_cm": 460.0,
+      "bay_count": 1,
+      "bay_width_cm": [
+        460.0
+      ],
+      "bay_offsets_cm": [
+        0.0,
+        460.0
+      ],
+      "bay_centre_cm": [
+        230.0
+      ],
+      "run_angle_deg": 90.0,
+      "levels": [
+        {
+          "level_index": 0,
+          "elevation_cm": 0.0,
+          "height_cm": 330.0,
+          "u_axis_ids": [
+            "AX-030",
+            "AX-031"
+          ],
+          "v_axis_ids": [
+            "AX-032",
+            "AX-033"
+          ]
+        }
+      ]
+    }
+  ],
+  "axes": [
+    {
+      "id": "AX-001",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-002",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "opening_edge",
+      "offset_cm": 130.0
+    },
+    {
+      "id": "AX-003",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "opening_edge",
+      "offset_cm": 230.0
+    },
+    {
+      "id": "AX-004",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 300.0
+    },
+    {
+      "id": "AX-005",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "opening_edge",
+      "offset_cm": 350.0
+    },
+    {
+      "id": "AX-006",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "opening_edge",
+      "offset_cm": 530.0
+    },
+    {
+      "id": "AX-007",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 660.0
+    },
+    {
+      "id": "AX-008",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "level_base",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-009",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "opening_edge",
+      "offset_cm": 210.0
+    },
+    {
+      "id": "AX-010",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "level_top",
+      "offset_cm": 330.0
+    },
+    {
+      "id": "AX-011",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 1,
+      "family": "v",
+      "kind": "level_base",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-012",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 1,
+      "family": "v",
+      "kind": "opening_edge",
+      "offset_cm": 90.0
+    },
+    {
+      "id": "AX-013",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 1,
+      "family": "v",
+      "kind": "opening_edge",
+      "offset_cm": 210.0
+    },
+    {
+      "id": "AX-014",
+      "facade": "F-S",
+      "level_index": 0,
+      "bay_index": 1,
+      "family": "v",
+      "kind": "level_top",
+      "offset_cm": 330.0
+    },
+    {
+      "id": "AX-015",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-016",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 300.0
+    },
+    {
+      "id": "AX-017",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 660.0
+    },
+    {
+      "id": "AX-018",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "level_base",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-019",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "level_top",
+      "offset_cm": 330.0
+    },
+    {
+      "id": "AX-020",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": 1,
+      "family": "v",
+      "kind": "level_base",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-021",
+      "facade": "F-N",
+      "level_index": 0,
+      "bay_index": 1,
+      "family": "v",
+      "kind": "level_top",
+      "offset_cm": 330.0
+    },
+    {
+      "id": "AX-022",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-023",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "opening_edge",
+      "offset_cm": 130.0
+    },
+    {
+      "id": "AX-024",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "opening_edge",
+      "offset_cm": 330.0
+    },
+    {
+      "id": "AX-025",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 460.0
+    },
+    {
+      "id": "AX-026",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "level_base",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-027",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "opening_edge",
+      "offset_cm": 110.0
+    },
+    {
+      "id": "AX-028",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "opening_edge",
+      "offset_cm": 240.0
+    },
+    {
+      "id": "AX-029",
+      "facade": "F-E",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "level_top",
+      "offset_cm": 330.0
+    },
+    {
+      "id": "AX-030",
+      "facade": "F-W",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-031",
+      "facade": "F-W",
+      "level_index": 0,
+      "bay_index": null,
+      "family": "u",
+      "kind": "bay",
+      "offset_cm": 460.0
+    },
+    {
+      "id": "AX-032",
+      "facade": "F-W",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "level_base",
+      "offset_cm": 0.0
+    },
+    {
+      "id": "AX-033",
+      "facade": "F-W",
+      "level_index": 0,
+      "bay_index": 0,
+      "family": "v",
+      "kind": "level_top",
+      "offset_cm": 330.0
+    }
+  ],
+  "panels": [
+    {
+      "id": "PNL-001",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 0.0,
+      "u_max_cm": 130.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 210.0,
+      "width_cm": 130.0,
+      "height_cm": 210.0,
+      "u_axis_min": "AX-001",
+      "u_axis_max": "AX-002",
+      "v_axis_min": "AX-008",
+      "v_axis_max": "AX-009",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        35.0,
+        -30.0,
+        105.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-002",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "punched_window",
+      "u_min_cm": 130.0,
+      "u_max_cm": 230.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 210.0,
+      "width_cm": 100.0,
+      "height_cm": 210.0,
+      "u_axis_min": "AX-002",
+      "u_axis_max": "AX-003",
+      "v_axis_min": "AX-008",
+      "v_axis_max": "AX-009",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": "OP-001",
+      "host_ref": null,
+      "centre_cm": [
+        150.0,
+        -30.0,
+        105.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-003",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 230.0,
+      "u_max_cm": 300.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 210.0,
+      "width_cm": 70.0,
+      "height_cm": 210.0,
+      "u_axis_min": "AX-003",
+      "u_axis_max": "AX-004",
+      "v_axis_min": "AX-008",
+      "v_axis_max": "AX-009",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        235.0,
+        -30.0,
+        105.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-004",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 0.0,
+      "u_max_cm": 130.0,
+      "v_min_cm": 210.0,
+      "v_max_cm": 330.0,
+      "width_cm": 130.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-001",
+      "u_axis_max": "AX-002",
+      "v_axis_min": "AX-009",
+      "v_axis_max": "AX-010",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        35.0,
+        -30.0,
+        270.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-005",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 130.0,
+      "u_max_cm": 230.0,
+      "v_min_cm": 210.0,
+      "v_max_cm": 330.0,
+      "width_cm": 100.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-002",
+      "u_axis_max": "AX-003",
+      "v_axis_min": "AX-009",
+      "v_axis_max": "AX-010",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        150.0,
+        -30.0,
+        270.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-006",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 230.0,
+      "u_max_cm": 300.0,
+      "v_min_cm": 210.0,
+      "v_max_cm": 330.0,
+      "width_cm": 70.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-003",
+      "u_axis_max": "AX-004",
+      "v_axis_min": "AX-009",
+      "v_axis_max": "AX-010",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        235.0,
+        -30.0,
+        270.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-007",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 300.0,
+      "u_max_cm": 350.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 90.0,
+      "width_cm": 50.0,
+      "height_cm": 90.0,
+      "u_axis_min": "AX-004",
+      "u_axis_max": "AX-005",
+      "v_axis_min": "AX-011",
+      "v_axis_max": "AX-012",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        295.0,
+        -30.0,
+        45.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-008",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "spandrel",
+      "u_min_cm": 350.0,
+      "u_max_cm": 530.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 90.0,
+      "width_cm": 180.0,
+      "height_cm": 90.0,
+      "u_axis_min": "AX-005",
+      "u_axis_max": "AX-006",
+      "v_axis_min": "AX-011",
+      "v_axis_max": "AX-012",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        410.0,
+        -30.0,
+        45.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-009",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 530.0,
+      "u_max_cm": 660.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 90.0,
+      "width_cm": 130.0,
+      "height_cm": 90.0,
+      "u_axis_min": "AX-006",
+      "u_axis_max": "AX-007",
+      "v_axis_min": "AX-011",
+      "v_axis_max": "AX-012",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        565.0,
+        -30.0,
+        45.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-010",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 300.0,
+      "u_max_cm": 350.0,
+      "v_min_cm": 90.0,
+      "v_max_cm": 210.0,
+      "width_cm": 50.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-004",
+      "u_axis_max": "AX-005",
+      "v_axis_min": "AX-012",
+      "v_axis_max": "AX-013",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        295.0,
+        -30.0,
+        150.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-011",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "punched_window",
+      "u_min_cm": 350.0,
+      "u_max_cm": 530.0,
+      "v_min_cm": 90.0,
+      "v_max_cm": 210.0,
+      "width_cm": 180.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-005",
+      "u_axis_max": "AX-006",
+      "v_axis_min": "AX-012",
+      "v_axis_max": "AX-013",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": "OP-002",
+      "host_ref": null,
+      "centre_cm": [
+        410.0,
+        -30.0,
+        150.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-012",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 530.0,
+      "u_max_cm": 660.0,
+      "v_min_cm": 90.0,
+      "v_max_cm": 210.0,
+      "width_cm": 130.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-006",
+      "u_axis_max": "AX-007",
+      "v_axis_min": "AX-012",
+      "v_axis_max": "AX-013",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        565.0,
+        -30.0,
+        150.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-013",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 300.0,
+      "u_max_cm": 350.0,
+      "v_min_cm": 210.0,
+      "v_max_cm": 330.0,
+      "width_cm": 50.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-004",
+      "u_axis_max": "AX-005",
+      "v_axis_min": "AX-013",
+      "v_axis_max": "AX-014",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        295.0,
+        -30.0,
+        270.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-014",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 350.0,
+      "u_max_cm": 530.0,
+      "v_min_cm": 210.0,
+      "v_max_cm": 330.0,
+      "width_cm": 180.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-005",
+      "u_axis_max": "AX-006",
+      "v_axis_min": "AX-013",
+      "v_axis_max": "AX-014",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        410.0,
+        -30.0,
+        270.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-015",
+      "facade": "F-S",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 530.0,
+      "u_max_cm": 660.0,
+      "v_min_cm": 210.0,
+      "v_max_cm": 330.0,
+      "width_cm": 130.0,
+      "height_cm": 120.0,
+      "u_axis_min": "AX-006",
+      "u_axis_max": "AX-007",
+      "v_axis_min": "AX-013",
+      "v_axis_max": "AX-014",
+      "bay_index": 1,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        565.0,
+        -30.0,
+        270.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-016",
+      "facade": "F-N",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 0.0,
+      "u_max_cm": 300.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 330.0,
+      "width_cm": 300.0,
+      "height_cm": 330.0,
+      "u_axis_min": "AX-015",
+      "u_axis_max": "AX-016",
+      "v_axis_min": "AX-018",
+      "v_axis_max": "AX-019",
+      "bay_index": 0,
+      "full_height": true,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        120.0,
+        430.0,
+        165.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-017",
+      "facade": "F-N",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 300.0,
+      "u_max_cm": 660.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 330.0,
+      "width_cm": 360.0,
+      "height_cm": 330.0,
+      "u_axis_min": "AX-016",
+      "u_axis_max": "AX-017",
+      "v_axis_min": "AX-020",
+      "v_axis_max": "AX-021",
+      "bay_index": 1,
+      "full_height": true,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        450.0,
+        430.0,
+        165.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-018",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 0.0,
+      "u_max_cm": 130.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 110.0,
+      "width_cm": 130.0,
+      "height_cm": 110.0,
+      "u_axis_min": "AX-022",
+      "u_axis_max": "AX-023",
+      "v_axis_min": "AX-026",
+      "v_axis_max": "AX-027",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        35.0,
+        55.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-019",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "spandrel",
+      "u_min_cm": 130.0,
+      "u_max_cm": 330.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 110.0,
+      "width_cm": 200.0,
+      "height_cm": 110.0,
+      "u_axis_min": "AX-023",
+      "u_axis_max": "AX-024",
+      "v_axis_min": "AX-026",
+      "v_axis_max": "AX-027",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        200.0,
+        55.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-020",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 330.0,
+      "u_max_cm": 460.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 110.0,
+      "width_cm": 130.0,
+      "height_cm": 110.0,
+      "u_axis_min": "AX-024",
+      "u_axis_max": "AX-025",
+      "v_axis_min": "AX-026",
+      "v_axis_max": "AX-027",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        365.0,
+        55.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-021",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 0.0,
+      "u_max_cm": 130.0,
+      "v_min_cm": 110.0,
+      "v_max_cm": 240.0,
+      "width_cm": 130.0,
+      "height_cm": 130.0,
+      "u_axis_min": "AX-022",
+      "u_axis_max": "AX-023",
+      "v_axis_min": "AX-027",
+      "v_axis_max": "AX-028",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        35.0,
+        175.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-022",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "punched_window",
+      "u_min_cm": 130.0,
+      "u_max_cm": 330.0,
+      "v_min_cm": 110.0,
+      "v_max_cm": 240.0,
+      "width_cm": 200.0,
+      "height_cm": 130.0,
+      "u_axis_min": "AX-023",
+      "u_axis_max": "AX-024",
+      "v_axis_min": "AX-027",
+      "v_axis_max": "AX-028",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": "OP-003",
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        200.0,
+        175.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-023",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 330.0,
+      "u_max_cm": 460.0,
+      "v_min_cm": 110.0,
+      "v_max_cm": 240.0,
+      "width_cm": 130.0,
+      "height_cm": 130.0,
+      "u_axis_min": "AX-024",
+      "u_axis_max": "AX-025",
+      "v_axis_min": "AX-027",
+      "v_axis_max": "AX-028",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        365.0,
+        175.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-024",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 0.0,
+      "u_max_cm": 130.0,
+      "v_min_cm": 240.0,
+      "v_max_cm": 330.0,
+      "width_cm": 130.0,
+      "height_cm": 90.0,
+      "u_axis_min": "AX-022",
+      "u_axis_max": "AX-023",
+      "v_axis_min": "AX-028",
+      "v_axis_max": "AX-029",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        35.0,
+        285.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-025",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 130.0,
+      "u_max_cm": 330.0,
+      "v_min_cm": 240.0,
+      "v_max_cm": 330.0,
+      "width_cm": 200.0,
+      "height_cm": 90.0,
+      "u_axis_min": "AX-023",
+      "u_axis_max": "AX-024",
+      "v_axis_min": "AX-028",
+      "v_axis_max": "AX-029",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        200.0,
+        285.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-026",
+      "facade": "F-E",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 330.0,
+      "u_max_cm": 460.0,
+      "v_min_cm": 240.0,
+      "v_max_cm": 330.0,
+      "width_cm": 130.0,
+      "height_cm": 90.0,
+      "u_axis_min": "AX-024",
+      "u_axis_max": "AX-025",
+      "v_axis_min": "AX-028",
+      "v_axis_max": "AX-029",
+      "bay_index": 0,
+      "full_height": false,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        630.0,
+        365.0,
+        285.0
+      ],
+      "layer": "05_FACADE"
+    },
+    {
+      "id": "PNL-027",
+      "facade": "F-W",
+      "level_index": 0,
+      "kind": "blank",
+      "u_min_cm": 0.0,
+      "u_max_cm": 460.0,
+      "v_min_cm": 0.0,
+      "v_max_cm": 330.0,
+      "width_cm": 460.0,
+      "height_cm": 330.0,
+      "u_axis_min": "AX-030",
+      "u_axis_max": "AX-031",
+      "v_axis_min": "AX-032",
+      "v_axis_max": "AX-033",
+      "bay_index": 0,
+      "full_height": true,
+      "opening_ref": null,
+      "host_ref": null,
+      "centre_cm": [
+        -30.0,
+        200.0,
+        165.0
+      ],
+      "layer": "05_FACADE"
+    }
+  ],
+  "panel_types": [
+    {
+      "kind": "punched_window",
+      "glazed": true,
+      "frame_member": false,
+      "material_role": "glazing",
+      "opening_types": [
+        "door",
+        "window"
+      ]
+    },
+    {
+      "kind": "spandrel",
+      "glazed": false,
+      "frame_member": false,
+      "material_role": "opaque",
+      "opening_types": []
+    },
+    {
+      "kind": "blank",
+      "glazed": false,
+      "frame_member": false,
+      "material_role": "opaque",
+      "opening_types": []
+    }
+  ]
+}

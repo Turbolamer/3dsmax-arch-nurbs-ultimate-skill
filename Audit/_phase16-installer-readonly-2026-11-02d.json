@@ -1,0 +1,42 @@
+{
+  "installer_sha256": "40de710b9360db1c146feeabb9d8e5bf7f99528ae10577821f22d950014f2805",
+  "shipped_count": 109,
+  "archive_sha256": "dbd0e28003a6f87cafc7215f63fec10df5f576f54b1e66fa131d8b1c9234491a",
+  "targets": {
+    "C:\\Users\\Turbolamer\\.claude\\skills\\3dsmax-arch-nurbs-ultimate": {
+      "is_symlink": false,
+      "is_junction": false,
+      "different": [
+        "CHECKPOINT.md",
+        "PLAN.md",
+        "references/07-spec-grammar.md",
+        "scripts/init_project.py",
+        "scripts/place_components.py",
+        "scripts/validate_specs.py"
+      ],
+      "new": [
+        "scripts/wall_cell_coverage.py",
+        "specs/fixtures/poly-shell-input/walls.json"
+      ],
+      "would_prune": []
+    },
+    "C:\\Users\\Turbolamer\\.agents\\skills\\3dsmax-arch-nurbs-ultimate": {
+      "is_symlink": false,
+      "is_junction": false,
+      "different": [
+        "CHECKPOINT.md",
+        "PLAN.md",
+        "references/07-spec-grammar.md",
+        "scripts/init_project.py",
+        "scripts/place_components.py",
+        "scripts/validate_specs.py"
+      ],
+      "new": [
+        "scripts/wall_cell_coverage.py",
+        "specs/fixtures/poly-shell-input/walls.json"
+      ],
+      "would_prune": []
+    }
+  },
+  "note": "READ ONLY: collect_files and comparison only; no build_archive/install/prune invoked. Recompute before any future operation."
+}

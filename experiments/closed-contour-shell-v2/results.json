@@ -1,0 +1,8 @@
+{
+  "rectangle_blind": "CASE|id=rectangle_blind|baseFaces=4|mods=1|straight=true|normal1=[0,-1,0]|open=0|badValence=0|degenerate=0|volume=1.908d+07|min=[-30,-30,0]|max=[630,430,300]|triangles=32|before=0|after=0",
+  "rectangle_openings": "CASE|id=rectangle_openings|baseFaces=43|mods=1|straight=true|normal1=[0,-1,0]|open=0|badValence=0|degenerate=0|volume=1.7022d+07|min=[-30,-30,0]|max=[630,430,300]|triangles=248|before=0|after=0",
+  "L_openings": "CASE|id=L_openings|baseFaces=36|mods=1|straight=true|normal1=[0,-1,0]|open=0|badValence=0|degenerate=0|volume=1.9782d+07|min=[-30,-30,0]|max=[630,530,300]|triangles=204|before=0|after=0",
+  "U_openings": "CASE|id=U_openings|baseFaces=75|mods=1|straight=true|normal1=[0,-1,0]|open=0|badValence=0|degenerate=0|volume=3.0819d+07|min=[-30,-30,0]|max=[830,630,300]|triangles=400|before=0|after=0",
+  "oblique_openings": "CASE|id=oblique_openings|baseFaces=28|mods=1|straight=true|normal1=[0,-1,0]|open=0|badValence=0|degenerate=0|volume=1.63198d+07|min=[-38.4233,-30,0]|max=[638.423,430,300]|triangles=164|before=0|after=0",
+  "outer_12x8": "CASE|id=outer_12x8|baseFaces=21|mods=1|straight=true|normal1=[0,-1,0]|open=0|badValence=0|degenerate=0|volume=3.357d+07|min=[-3.05176e-06,0,0]|max=[1200,800,300]|triangles=132|before=0|after=0"
+}

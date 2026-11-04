@@ -3,6 +3,41 @@
 Instruction file for agents working in `3dsmax-arch-nurbs-ultimate-skill`.
 Read `CHECKPOINT.md` first — it is the live status board. Then `PLAN.md` for scope.
 
+## Current architecture direction — accepted production default (2026-11-04)
+
+**`closed_inner_contour_shell_v2`** is production-accepted, fully verified (**12/12 live Max PASS**, **106/106 tests PASS**, exact analytical oracle match $17.022\text{ m}^3$ / $17,022,000,000.0\text{ mm}^3$), and is now the **DEFAULT** route for new projects (`init_project.py --route closed_inner_contour_shell_v2`).
+
+The production architecture models prismatic perimeter walls per storey as a single continuous `Editable_Poly` ribbon tracing a closed inner contour (retaining a hidden `SplineShape` reference guide `<prefix>_<storey>_InnerSpline`), with rough openings deleted (`polyop.deleteFaces`), thickened outward by exactly one `Shell` modifier (`outerAmount=wall_thickness`, `straightenCorners=true`, `segments=1`).
+
+The active pipeline stages are:
+- **S1 (massing):** slab, deck, column, parapet massing from `dimensions.json` via `build_spec.py`
+- **S4w (closed shell v2 perimeter walls):** perimeter wall emitter via `build_wall_surface.py` / `build_wall_v2.py`, emitting `wall_surface.json` (opening manifest) and `wall_surface.ms`
+- **S5 (assembly & placement):** component placement by opening manifest via `place_components.py`, applying Mechanism A host wall hiding (`host_node.isHidden = true`) so discrete shells provide geometry without active host collisions, and zero modifiers attached to placements (`G-81`)
+- **S7 (independent QA verification gate):** automated offline/live verification via `qa_check.py` with an independent analytical geometry oracle ($V_{\text{oracle}} = (A_{\text{outer}} - A_{\text{inner}}) \times H - \sum w_i h_i t$), solid watertightness (`openEdges == 0`), seam valence, aperture bounds, stack health, and units guard.
+
+Legacy routes (**`legacy_cells_v1`** — discrete solid wall tiling cells `WAL_` with zero modifiers; and **`poly_surface_shell_v1`**) are explicitly supported for backward compatibility; there is no silent fallback between routes.
+
+## Current live-Max authorization — supersedes temporary stops (2026-11-04)
+
+The user has rescinded the temporary no-Max/read-only/offline-only restrictions imposed while
+they were busy. **Authorized agents, including delegated stage workers, may use live 3ds Max
+when needed for the assigned task.** The former main-only/orchestrator-only probe rule is
+superseded; the orchestrator coordinates access rather than reserving all execution to itself.
+This applies to active routing even where older `PLAN.md`, checkpoint entries or handoffs retain
+the earlier wording. Keep those historical instructions and evidence as history, not current bans.
+
+**One live operator at a time**, designated by the orchestrator: no overlapping Max calls from
+other agents, and all writes are sequential on Max's single UI thread. Obtain the operator slot
+before any live call; release it with raw results and a scene-state/owned-residue report. Use short
+calls (one script, normally under ~2 s), calibrated controls and explicit fixture ownership.
+Inspect current scene state first; do not delete, reset, save over or otherwise alter unrelated
+scene content, and **never manipulate the dirty/save-required flag**. Cleanup must target only
+proven-owned temporary objects; uncertainty means inspect/report, not broad sweeps or retries.
+Older empty-scene/zero-count cleanup recipes apply only to an admitted disposable fixture scene.
+The fatal stack ladder, `formattedPrint`, synthetic `nurbsID` and other measured safeguards remain
+in force. Details and scheduling: `agents/max-orchestrator.md` §1.1. Live permission changes no
+acceptance gate: a new architecture under test is not thereby built or accepted.
+
 ## What this repo is
 
 A skill pack (markdown + MAXScript snippets + Python helpers) that teaches an agent to drive
@@ -16,12 +51,13 @@ python scripts/env_preflight.py                      # emit MAXScript probes, al
 python scripts/env_preflight.py --results r.json     # score captured results; exit 1 on any FAIL
 python scripts/env_preflight.py --json               # machine-readable report
 python scripts/install_skill.py                     # build .skill + install to ~/.claude, ~/.agents
-python scripts/init_project.py --project X --dir D  # scaffold: 11 spec files under D/X/specs/pipeline + project.json
+python scripts/init_project.py --project X --dir D [--route closed_inner_contour_shell_v2|legacy_cells_v1|poly_surface_shell_v1]  # scaffold: specs/pipeline + project.json (default route: closed_inner_contour_shell_v2)
 python scripts/validate_specs.py --dir examples     # lint every spec against G-1..G-90
-python scripts/build_spec.py --stage massing --in examples --out examples   # emits massing.json + massing.ms
-python scripts/build_nurbs.py --in examples --out examples                   # emits nurbs.ms
-python scripts/facade_tables.py --in examples --out examples                # emits both P5 JSONs + both CSVs
-python scripts/place_components.py --in <p> --out <p>                       # S5, LAST geometry builder — placement + wall tiling + scatter declaration
+python scripts/build_spec.py --stage massing --in examples --out examples   # S2: emits massing.json + massing.ms
+python scripts/build_nurbs.py --in examples --out examples                   # S3: emits nurbs.ms
+python scripts/facade_tables.py --in examples --out examples                # S4a/S4b: emits both P5 JSONs + both CSVs
+python scripts/build_wall_surface.py --in <p> --out <p> ...                  # S4w: perimeter wall emitter (or scripts/build_wall_v2.py for v2 closed shell)
+python scripts/place_components.py --in <p> --out <p>                       # S5, LAST geometry builder — placement by manifest + Mechanism A host hiding + scatter declaration
 python scripts/curve_gen.py                         # analytical curve generator library (import-only module)
 python scripts/expand_curves.py --project-dir <p> --in <in.json> --out <out.json>  # expand draft curves, recompute, verify <= 0.001 cm
 python scripts/scene_units.py                       # scene units translation & scale factor utilities (import library)
@@ -32,11 +68,7 @@ python -m py_compile scripts/*.py                   # syntax compile check acros
 
 `build_spec.py` accepts `--stage massing` only and exits non-zero for anything else.
 
-**`place_components.py` is the project's last geometry builder (S5)**, not a planned one. It reads **four**
-inputs and refuses with *"`dimensions.json` is missing … a builder never invents an input"* if given less:
-`assembly.json`, `components_registry.json`, `world_table.csv` and either `dimensions.json` or `massing.json`.
-It emits `assembly.json` + `assembly.ms` and is **zero-modifier** by design (`G-81`), implementing Mechanism A
-host wall hiding (`host_node.isHidden = true`) so discrete cells provide geometry without active host collisions.
+**`place_components.py` is the project's last geometry builder (S5)**, not a planned one. It reads input specifications (`assembly.json`, `components_registry.json`, `world_table.csv`, `dimensions.json` / `massing.json`, and `wall_surface.json` in v2). It emits `assembly.json` + `assembly.ms` and is **zero-modifier** by design (`G-81`). Under default route **`closed_inner_contour_shell_v2`**, it mounts component assemblies into rough openings declared in the S4w opening manifest and applies **Mechanism A host wall hiding** (`host_node.isHidden = true`), eliminating host wall collisions across rough openings. In legacy route **`legacy_cells_v1`**, it tiles walls into discrete solid cells (`WAL_`).
 
 **Not written and not planned — do not reference these as if they run:** `capture_views.py`,
 `export_max.py`, `lint_script.py`, `check_skill_md.py`, `materials.json`, `export.json`. P7 (materials + UVs)
@@ -296,10 +328,10 @@ Delegate to a `general` subagent by default:
 - reading and summarising more than ~2 files at once
 - bulk `grep`/scan sweeps, and verifying a claim across many files
 
-Keep in the main thread, deliberately:
+Keep with the orchestrator, deliberately:
 
 - planning, gate decisions, anything needing the user
-- **live Max probes** (see below)
+- live-operator scheduling (execution may be delegated; see the authorization above)
 - final verification before declaring a stage done
 
 Rules that make delegation actually save context:
@@ -309,7 +341,8 @@ Rules that make delegation actually save context:
    (e.g. "under 12 lines: what changed, what you verified, what you could not do").
 2. **Give each subagent explicit file ownership** and state "modify nothing else". Overlapping
    ownership causes conflicting rewrites of the same file.
-3. **Run independent subagents in parallel, in one message.** Disjoint files → no coordination cost.
+3. **Run independent offline subagents in parallel, in one message.** Disjoint files avoid edit
+   conflicts; live Max work still requires the single operator slot, never parallel calls.
 4. **Pass verified facts down as data.** Put them in a shared evidence brief file the subagent reads,
    rather than re-explaining them per prompt. Do not make subagents re-derive what you already
    executed — that wastes their budget and invites a second, hallucinated version of the facts.
@@ -318,12 +351,13 @@ Rules that make delegation actually save context:
    occurrences, which turned out to be legitimate warnings — but that was only established by
    checking, not by reading the report.
 
-**Live Max probes stay in the main thread, deliberately.** This conflicts with "delegate
-everything", and the conflict is real: Max is single-threaded, hangs on long scripts, and
-second-hand probe results get hallucinated (this exact failure produced the false "NURBSSet does
-not exist" conclusion in the incident log). So: orchestrator probes, then hands the *result* to
-subagents as data. Keep probe scripts short, batch unrelated checks into a single call, and clean up
-scene objects in the same call rather than re-reading state later.
+**Live Max probes may be delegated to an authorized operator.** The orchestrator assigns one
+operator at a time and does not call Max concurrently with that delegate. Max's single-threaded
+execution and long-script hangs still require short, sequential calls. Second-hand summaries
+remain claims (the false "NURBSSet does not exist" incident is why): retain raw scripts/results,
+controls, measurements and exact-owned cleanup outcomes as written evidence, then independently
+verify before a gate decision. Prefer same-call cleanup for small temporary probes where safe;
+never infer cleanup after a timeout or delete unrelated scene objects.
 
 ## Repo conventions
 

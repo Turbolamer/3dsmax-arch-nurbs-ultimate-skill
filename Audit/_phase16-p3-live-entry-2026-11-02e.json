@@ -1,0 +1,20 @@
+{
+  "status": "READ_ONLY_ENTRY_EXECUTED",
+  "snapshot": {
+    "ok": true,
+    "result": {"classCounts": {}, "frozenCount": 0, "hiddenCount": 0, "layers": [], "materials": {}, "modifiers": {}, "objectCount": 0, "rootCount": 0, "roots": []},
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "98db4ff79f204d80af16fd8968003c9e", "protocol_version": 2, "client_round_trip_ms": 0.148, "fallback_error": null},
+    "elapsed_ms": 0.266
+  },
+  "state": {
+    "ok": true,
+    "result": "P3_ENTRY|objects=0|selection=0|type=millimeters|scale=1.0|path=|file=|saveRequired=false",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "4c9782c2c6dd4677bed892e612736f26", "protocol_version": 2, "client_round_trip_ms": 0.371, "fallback_error": null},
+    "elapsed_ms": 0.394
+  },
+  "interpretation": "Empty unnamed scene, no save required, millimeters scale 1.0 at entry only. No mutation, save, reset or backup access. Re-read critical guards before subsequent writes."
+}

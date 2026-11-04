@@ -1,0 +1,45 @@
+{
+  "test": "Audit/control_suite.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-005\\empty\\Audit\\control_suite.py",
+    "-v"
+  ],
+  "started_utc": "2026-11-03T17:43:51.143267+00:00",
+  "ended_utc": "2026-11-03T17:43:51.221229+00:00",
+  "seconds": 0.077971,
+  "returncode": 5,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 113,
+    "sha256": "b0281afc5a8f851fedc2bba09c88d720f4dcc47a2a487e40928c779cb967ff8c"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 3,
+        "text": "Ran 0 tests in 0.000s",
+        "count": 0
+      }
+    ],
+    "ok_summaries": [],
+    "prohibited_or_failed": [],
+    "qualifier_metadata": [],
+    "issues": [
+      "expected exactly one positive unittest Ran count >= 1",
+      "expected exactly one unittest OK summary"
+    ],
+    "status": "REFUSED"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

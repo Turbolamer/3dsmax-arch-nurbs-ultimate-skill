@@ -1,0 +1,133 @@
+test_actual_barrier_mutation_cannot_be_masked_by_diagnostic (__main__.ActualRuntimeTests.test_actual_barrier_mutation_cannot_be_masked_by_diagnostic) ... FAIL
+test_existing_unsupported_state_guards_and_targeted_mutation (__main__.ActualRuntimeTests.test_existing_unsupported_state_guards_and_targeted_mutation) ... ok
+test_incomplete_replay_remains_unconditionally_blocked (__main__.ActualRuntimeTests.test_incomplete_replay_remains_unconditionally_blocked) ... FAIL
+test_layer_backing_and_gi_are_each_enumerated (__main__.ActualRuntimeTests.test_layer_backing_and_gi_are_each_enumerated) ... 
+  test_layer_backing_and_gi_are_each_enumerated (__main__.ActualRuntimeTests.test_layer_backing_and_gi_are_each_enumerated) (target='backing_enumerated') ... FAIL
+  test_layer_backing_and_gi_are_each_enumerated (__main__.ActualRuntimeTests.test_layer_backing_and_gi_are_each_enumerated) (target='gi_enumerated') ... FAIL
+test_layer_backing_identity_uses_exact_roundtrip_not_only_name (__main__.ActualRuntimeTests.test_layer_backing_identity_uses_exact_roundtrip_not_only_name) ... FAIL
+test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) ... 
+  test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='backing_guarded') ... FAIL
+  test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='gi_guarded') ... FAIL
+  test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='backing_nonmissing') ... FAIL
+  test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='gi_nonmissing') ... FAIL
+test_replay_branch_contains_no_direct_write_or_mesh_evaluation (__main__.ActualRuntimeTests.test_replay_branch_contains_no_direct_write_or_mesh_evaluation) ... FAIL
+test_barrier_detector_ignores_comments_and_outside_branch (__main__.DetectorControls.test_barrier_detector_ignores_comments_and_outside_branch) ... ok
+test_barrier_detector_rejects_absent_decoy_or_conditional_barriers (__main__.DetectorControls.test_barrier_detector_rejects_absent_decoy_or_conditional_barriers) ... ok
+test_direct_replay_mutation_detector_has_negative_controls (__main__.DetectorControls.test_direct_replay_mutation_detector_has_negative_controls) ... ok
+test_layer_detector_clean_lexical_control (__main__.DetectorControls.test_layer_detector_clean_lexical_control) ... ok
+test_name_lookup_and_swallowed_enumeration_errors_flagged (__main__.DetectorControls.test_name_lookup_and_swallowed_enumeration_errors_flagged) ... ok
+test_separate_backing_gi_and_identity_mutations_are_detected (__main__.DetectorControls.test_separate_backing_gi_and_identity_mutations_are_detected) ... ok
+test_string_comment_and_unreachable_decoys_do_not_repair_missing_reader (__main__.DetectorControls.test_string_comment_and_unreachable_decoys_do_not_repair_missing_reader) ... ok
+
+======================================================================
+FAIL: test_actual_barrier_mutation_cannot_be_masked_by_diagnostic (__main__.ActualRuntimeTests.test_actual_barrier_mutation_cannot_be_masked_by_diagnostic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 597, in test_actual_barrier_mutation_cannot_be_masked_by_diagnostic
+    self.assertEqual(len(matches), 1, "barrier shape changed: review mutation and live proof state")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : barrier shape changed: review mutation and live proof state
+
+======================================================================
+FAIL: test_incomplete_replay_remains_unconditionally_blocked (__main__.ActualRuntimeTests.test_incomplete_replay_remains_unconditionally_blocked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 564, in test_incomplete_replay_remains_unconditionally_blocked
+    self.assertTrue(replay_barrier(self.source), "no direct INCOMPLETE_REPLAY barrier found")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : no direct INCOMPLETE_REPLAY barrier found
+
+======================================================================
+FAIL: test_layer_backing_and_gi_are_each_enumerated (__main__.ActualRuntimeTests.test_layer_backing_and_gi_are_each_enumerated) (target='backing_enumerated')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 533, in test_layer_backing_and_gi_are_each_enumerated
+    self.assertTrue(self.layer[key],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        f"{key}: no recognized reachable enumeration in actual emitted source; "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "either missing or structural idiom needs review (not live proof)")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : backing_enumerated: no recognized reachable enumeration in actual emitted source; either missing or structural idiom needs review (not live proof)
+
+======================================================================
+FAIL: test_layer_backing_and_gi_are_each_enumerated (__main__.ActualRuntimeTests.test_layer_backing_and_gi_are_each_enumerated) (target='gi_enumerated')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 533, in test_layer_backing_and_gi_are_each_enumerated
+    self.assertTrue(self.layer[key],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        f"{key}: no recognized reachable enumeration in actual emitted source; "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "either missing or structural idiom needs review (not live proof)")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : gi_enumerated: no recognized reachable enumeration in actual emitted source; either missing or structural idiom needs review (not live proof)
+
+======================================================================
+FAIL: test_layer_backing_identity_uses_exact_roundtrip_not_only_name (__main__.ActualRuntimeTests.test_layer_backing_identity_uses_exact_roundtrip_not_only_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 546, in test_layer_backing_identity_uses_exact_roundtrip_not_only_name
+    self.assertTrue(self.layer["backing_identity"],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "no recognized backing-reference handle round-trip on node snapshot path")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : no recognized backing-reference handle round-trip on node snapshot path
+
+======================================================================
+FAIL: test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='backing_guarded')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 560, in test_layer_enumeration_refuses_unreadable_or_unbounded_values
+    self.assertTrue(self.layer[key],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        f"{key}: target does not reach recognized bounded/error-propagating reader")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : backing_guarded: target does not reach recognized bounded/error-propagating reader
+
+======================================================================
+FAIL: test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='gi_guarded')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 560, in test_layer_enumeration_refuses_unreadable_or_unbounded_values
+    self.assertTrue(self.layer[key],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        f"{key}: target does not reach recognized bounded/error-propagating reader")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : gi_guarded: target does not reach recognized bounded/error-propagating reader
+
+======================================================================
+FAIL: test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='backing_nonmissing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 560, in test_layer_enumeration_refuses_unreadable_or_unbounded_values
+    self.assertTrue(self.layer[key],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        f"{key}: target does not reach recognized bounded/error-propagating reader")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : backing_nonmissing: target does not reach recognized bounded/error-propagating reader
+
+======================================================================
+FAIL: test_layer_enumeration_refuses_unreadable_or_unbounded_values (__main__.ActualRuntimeTests.test_layer_enumeration_refuses_unreadable_or_unbounded_values) (target='gi_nonmissing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 560, in test_layer_enumeration_refuses_unreadable_or_unbounded_values
+    self.assertTrue(self.layer[key],
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        f"{key}: target does not reach recognized bounded/error-propagating reader")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : gi_nonmissing: target does not reach recognized bounded/error-propagating reader
+
+======================================================================
+FAIL: test_replay_branch_contains_no_direct_write_or_mesh_evaluation (__main__.ActualRuntimeTests.test_replay_branch_contains_no_direct_write_or_mesh_evaluation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Rhino\3dsmax-arch-nurbs-ultimate-skill\Audit\phase16-p3-replay-tests-2026-11-03f\test_replay_safety.py", line 605, in test_replay_branch_contains_no_direct_write_or_mesh_evaluation
+    self.assertIsNotNone(match)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+AssertionError: unexpectedly None
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.096s
+
+FAILED (failures=10)

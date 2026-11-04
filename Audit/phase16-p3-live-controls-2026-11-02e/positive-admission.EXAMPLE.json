@@ -1,0 +1,18 @@
+{
+  "schema_version": "p3-main-positive-admission-1",
+  "script_sha256": "NOT_ADMITTED_fill_exact_original_emitted_script_sha256",
+  "manifest_sha256": "NOT_ADMITTED_fill_exact_original_emitted_manifest_sha256",
+  "created": false,
+  "independent_geometry_accepted": false,
+  "same_synthetic_node_owned_by_main": false,
+  "no_live_interleaving": false,
+  "replay_results": [],
+  "evidence_paths": [],
+  "node_handle": 0,
+  "actual_units": {
+    "system_type": "millimeters",
+    "system_scale": 1.0,
+    "cm_per_unit": 0.1,
+    "units_per_cm": 10.0
+  }
+}

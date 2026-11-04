@@ -1,0 +1,66 @@
+{
+  "test": "Audit/test_phase16_p3_runtime.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_runtime.py",
+    "-v"
+  ],
+  "started_utc": "2026-11-04T08:18:10.434829+00:00",
+  "ended_utc": "2026-11-04T08:18:10.580498+00:00",
+  "seconds": 0.14568,
+  "returncode": 1,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 90333,
+    "sha256": "60bed4ab77778c9137ba8dcadec6e8c189926bae433dcd24f8552b8b047ade40"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 72,
+        "text": "Ran 42 tests in 0.055s",
+        "count": 42
+      }
+    ],
+    "ok_summaries": [],
+    "prohibited_or_failed": [
+      {
+        "stream": "stderr",
+        "line": 45,
+        "text": "FAIL: test_all_emitted_helpers_are_p3_prefixed (__main__.SourceTests.test_all_emitted_helpers_are_p3_prefixed)"
+      },
+      {
+        "stream": "stderr",
+        "line": 54,
+        "text": "FAIL: test_cleanup_exact_current_attempt_refs_only (__main__.SourceTests.test_cleanup_exact_current_attempt_refs_only)"
+      },
+      {
+        "stream": "stderr",
+        "line": 63,
+        "text": "FAIL: test_unproven_metadata_never_yields_noop_pass (__main__.SourceTests.test_unproven_metadata_never_yields_noop_pass)"
+      },
+      {
+        "stream": "stderr",
+        "line": 74,
+        "text": "FAILED (failures=3)"
+      }
+    ],
+    "qualifier_metadata": [],
+    "issues": [
+      "expected exactly one unittest OK summary",
+      "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+    ],
+    "status": "REFUSED"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

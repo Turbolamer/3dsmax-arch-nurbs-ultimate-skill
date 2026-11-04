@@ -1,0 +1,37 @@
+{
+  "scope": "Main-only verified bounded layer reader with authenticated rootScene and Layer_Manager witnesses; 33 interface / 34 backing / 18 nested GI properties; dependency closure and detached mutation controls",
+  "recorded_at": "2026-11-03T23:01:14+03:00",
+  "script": "Audit/phase16-p3-main-probes-2026-11-03h/layer-reader-verified.ms",
+  "script_sha256": "e51669c2aac257391ee6222d98e8e49325bb5663617f4f4ab6e05428d75b7ec7",
+  "wire": {
+    "ok": true,
+    "result": "P3_VERIFIED_BOUNDED_LAYER_READER|witnessesAuthenticated=true|rootNodeH=39P|rootSceneH=36P|lmTargetH=46P|backingH=48P|depClosureOK=true|ifaceCount=33|ifaceRepeatable=true|backingCount=34|backingRepeatable=true|giCount=18|giRepeatable=true|detachedGIMutationDetected=true|detachedDegradeMutationDetected=true|wrongBackingRefused=true|bogusPropRefused=true|undefinedScalarRefused=true|outcome=BOUNDED_LAYER_READER_PASS_INCOMPLETE_REPLAY|postContextUnchanged=true|dirtyAfter=true",
+    "warnings": [],
+    "error": null,
+    "transport": {
+      "transport": "namedpipe",
+      "requested_transport": "auto",
+      "request_id": "592b48ac00894ac29f85edd5ead40a2e",
+      "protocol_version": 2,
+      "client_round_trip_ms": 5.232,
+      "fallback_error": null
+    },
+    "elapsed_ms": 5.253
+  },
+  "verified_checks": {
+    "witnesses": "rootNode (39P), rootScene (36P), Layer_Manager RefTarget from refs.getReference rootScene 11 (46P), layer 0 backing RefTarget from refs.getReference lmTarget 1 (48P)",
+    "dependency_closure": "backing has 0 outgoing refs, exactly 2 incoming dependents (rootScene and lmTarget), 0 foreign dependents",
+    "interface_profile": "33 properties, repeatable detached read",
+    "backing_profile": "34 properties including degrade, repeatable detached read",
+    "nested_gi_profile": "18 properties, repeatable detached read",
+    "negative_controls": [
+      "detached GI mutation detected via deep array inequality",
+      "detached degrade mutation detected via deep array inequality",
+      "wrong backing witness refused by exact reference check",
+      "bogus property rejected by profile verification",
+      "undefined scalar rejected by detachScalar"
+    ],
+    "postcheck": "0 objects, 0 selection, unnamed scene, mm/1.0, dirty=true, 1 layer, layer 0 empty, backing handle unchanged 48P"
+  },
+  "interpretation": "The layer reader candidate has now been verified live on 3ds Max 2026.3.2 using the authenticated independent root of trust: rootScene global -> refs.getReference rootScene 11 for Layer_Manager RefTarget -> refs.getReference lmTarget 1 for default layer backing. Exact dependency closure of the empty default layer was confirmed with 0 foreign dependents. All 33/34/18 properties were detached and compared with repeat equality and mutation sensitivity. This establishes the bounded layer reader gate while retaining INCOMPLETE_REPLAY."
+}

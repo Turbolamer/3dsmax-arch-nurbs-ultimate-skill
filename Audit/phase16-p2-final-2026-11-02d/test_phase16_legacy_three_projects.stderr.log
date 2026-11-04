@@ -1,0 +1,102 @@
+source hashes: place_components.py=4f9735ffbf9d59f6, validate_specs.py=616050417380f587, scene_units.py=b31e703f8364d08d, curve_gen.py=4e304cfe558988b9, wall_cell_coverage.py=d8d1e930808465f3
+test_each_emitter_matches_pre_p2_baseline (__main__.ThreeLegacyProjects.test_each_emitter_matches_pre_p2_baseline) ... ok
+test_each_project_lint_strict_build_and_emitter (__main__.ThreeLegacyProjects.test_each_project_lint_strict_build_and_emitter) ... examples ('lint',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 31, 'PASS': 140}
+  SKIP G-95 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-98 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-99 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-100 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-93 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-94 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-97 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-16 assembly.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-79 assembly.json: not evaluable at lint time. G-79 is a property of the emitted assembly.ms, and a static JSON file cannot observe a scrip
+  SKIP G-80 assembly.json: not evaluable at lint time. G-80 is a census of the emitted assembly.ms -- placed instances, prototypes and committed cu
+  SKIP G-81 assembly.json: not evaluable at lint time. G-81 constrains the modifier stack of the emitted assembly.ms, and a static JSON file cannot
+  SKIP G-16 assumptions.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-69 components_registry.json: every one of the 29 component(s) declares an empty variants array, so nothing about a variant can be checked; the genera
+  SKIP G-16 conflicts_resolved.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-21 dimensions.json::core.footprint_cm: no sibling *_ccw flag exists for this ring in 07 section 5.7, so the declared winding cannot be confirmed; ring is CCW
+  SKIP G-91 dimensions.json: No stepped floor_plates[].footprint_cm or facades[].spans_level_indices declared
+  SKIP G-70 facade_grids.json: not evaluable at lint time. G-70 is a census of facade_table.csv and world_table.csv, and a static JSON file cannot obse
+  SKIP G-16 massing.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-16 nurbs.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-54 nurbs.json: not evaluable at lint time. G-54 counts the NURBSSurface sub-objects of the committed node, and a commit happens only in
+  SKIP G-84 nurbs.json: no section declares generator; compatibility skip (generator optional)
+  SKIP G-85 nurbs.json: no section declares generator; compatibility skip (generator optional)
+  SKIP G-86 dimensions.json: schema_version 1.0; form_references/precision_targets not present
+  SKIP G-87 (qa): qa.json is absent; QA configuration has not been scaffolded or run
+  SKIP G-88 (qa): qa.json is absent; QA configuration has not been scaffolded or run
+  SKIP G-89 (qa): qa.json is absent; QA configuration has not been scaffolded or run
+  SKIP G-90 (qa): qa.json is absent; QA configuration has not been scaffolded or run
+  SKIP G-1 walls.json: absent; historical no-selector legacy project
+  SKIP G-1 materials.json: absent; 07 section 4 marks it reserved (owner P7), so no builder reads it yet
+  SKIP G-1 qa.json: absent; earlier stage / legacy project before S7/P8 QA gate (07 S-4)
+  SKIP G-1 export.json: absent; 07 section 4 marks it reserved (owner P9), so no builder reads it yet
+examples ('--warnings-as-errors',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 31, 'PASS': 140}
+examples ('--build',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 31, 'PASS': 140}
+stepped-tower ('lint',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 30, 'PASS': 147}
+  SKIP G-95 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-98 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-99 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-100 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-93 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-94 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-97 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-16 assembly.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-79 assembly.json: not evaluable at lint time. G-79 is a property of the emitted assembly.ms, and a static JSON file cannot observe a scrip
+  SKIP G-80 assembly.json: not evaluable at lint time. G-80 is a census of the emitted assembly.ms -- placed instances, prototypes and committed cu
+  SKIP G-81 assembly.json: not evaluable at lint time. G-81 constrains the modifier stack of the emitted assembly.ms, and a static JSON file cannot
+  SKIP G-16 assumptions.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-69 components_registry.json: every one of the 11 component(s) declares an empty variants array, so nothing about a variant can be checked; the genera
+  SKIP G-16 conflicts_resolved.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-21 dimensions.json::core.footprint_cm: no sibling *_ccw flag exists for this ring in 07 section 5.7, so the declared winding cannot be confirmed; ring is CCW
+  SKIP G-70 facade_grids.json: not evaluable at lint time. G-70 is a census of facade_table.csv and world_table.csv, and a static JSON file cannot obse
+  SKIP G-16 massing.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-16 nurbs.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-54 nurbs.json: not evaluable at lint time. G-54 counts the NURBSSurface sub-objects of the committed node, and a commit happens only in
+  SKIP G-84 nurbs.json: no section declares generator; compatibility skip (generator optional)
+  SKIP G-85 nurbs.json: no section declares generator; compatibility skip (generator optional)
+  SKIP G-86 dimensions.json: schema_version 1.1 without analytical form targets; form_references not present
+  SKIP G-87 (qa): qa.json is absent; QA configuration has not been scaffolded or run
+  SKIP G-88 (qa): qa.json is absent; QA configuration has not been scaffolded or run
+  SKIP G-89 (qa): qa.json is absent; QA configuration has not been scaffolded or run
+  SKIP G-90 (qa): qa.json is absent; QA configuration has not been scaffolded or run
+  SKIP G-1 walls.json: absent; historical no-selector legacy project
+  SKIP G-1 materials.json: absent; 07 section 4 marks it reserved (owner P7), so no builder reads it yet
+  SKIP G-1 qa.json: absent; earlier stage / legacy project before S7/P8 QA gate (07 S-4)
+  SKIP G-1 export.json: absent; 07 section 4 marks it reserved (owner P9), so no builder reads it yet
+stepped-tower ('--warnings-as-errors',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 30, 'PASS': 147}
+stepped-tower ('--build',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 30, 'PASS': 147}
+form-precision ('lint',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 24, 'PASS': 155}
+  SKIP G-95 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-98 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-99 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-100 wall pipeline: JSON lint cannot verify emitted script, manifest or live Max; output/runtime gate pending
+  SKIP G-93 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-94 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-97 walls.json: wall document is absent or unreadable; no declaration to inspect
+  SKIP G-16 assembly.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-79 assembly.json: not evaluable at lint time. G-79 is a property of the emitted assembly.ms, and a static JSON file cannot observe a scrip
+  SKIP G-80 assembly.json: not evaluable at lint time. G-80 is a census of the emitted assembly.ms -- placed instances, prototypes and committed cu
+  SKIP G-81 assembly.json: not evaluable at lint time. G-81 constrains the modifier stack of the emitted assembly.ms, and a static JSON file cannot
+  SKIP G-16 assumptions.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-69 components_registry.json: every one of the 29 component(s) declares an empty variants array, so nothing about a variant can be checked; the genera
+  SKIP G-16 conflicts_resolved.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-21 dimensions.json::core.footprint_cm: no sibling *_ccw flag exists for this ring in 07 section 5.7, so the declared winding cannot be confirmed; ring is CCW
+  SKIP G-91 dimensions.json: No stepped floor_plates[].footprint_cm or facades[].spans_level_indices declared
+  SKIP G-70 facade_grids.json: not evaluable at lint time. G-70 is a census of facade_table.csv and world_table.csv, and a static JSON file cannot obse
+  SKIP G-16 massing.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-16 nurbs.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-54 nurbs.json: not evaluable at lint time. G-54 counts the NURBSSurface sub-objects of the committed node, and a commit happens only in
+  SKIP G-16 qa.json: 07 declares no numeric range for this file; a key with no declared range is unbounded
+  SKIP G-1 walls.json: absent; historical no-selector legacy project
+  SKIP G-1 materials.json: absent; 07 section 4 marks it reserved (owner P7), so no builder reads it yet
+  SKIP G-1 export.json: absent; 07 section 4 marks it reserved (owner P9), so no builder reads it yet
+form-precision ('--warnings-as-errors',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 24, 'PASS': 155}
+form-precision ('--build',) summary={'FAIL': 0, 'WARN': 0, 'SKIP': 24, 'PASS': 155}
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 23.453s
+
+OK

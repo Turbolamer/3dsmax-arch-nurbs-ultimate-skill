@@ -1,0 +1,77 @@
+{
+  "test": "Audit/control_suite.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-005\\xfail\\Audit\\control_suite.py",
+    "-v"
+  ],
+  "started_utc": "2026-11-03T17:43:50.630557+00:00",
+  "ended_utc": "2026-11-03T17:43:50.713657+00:00",
+  "seconds": 0.083111,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 191,
+    "sha256": "72806cf0d3d6f07f08f40c8db35ce20c12d784317e066687a698ddbc93e5da11"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "Ran 1 test in 0.000s",
+        "count": 1
+      }
+    ],
+    "ok_summaries": [
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "OK (expected failures=1)"
+      }
+    ],
+    "prohibited_or_failed": [
+      {
+        "stream": "stderr",
+        "line": 1,
+        "text": "test_control (__main__.Control.test_control) ... expected failure"
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "OK (expected failures=1)",
+        "kind": "expected failures",
+        "count": 1
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "OK (expected failures=1)",
+        "reason": "unrecognized unittest OK qualifier"
+      }
+    ],
+    "qualifier_metadata": [
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "OK (expected failures=1)",
+        "kind": "expected failures",
+        "count": 1
+      }
+    ],
+    "issues": [
+      "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+    ],
+    "status": "REFUSED"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

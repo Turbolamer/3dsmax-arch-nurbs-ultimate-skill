@@ -1,0 +1,19 @@
+{
+  "scope": "Post-final2 live evidence; not included retroactively in immutable final2 hash manifest",
+  "layer_probe": {
+    "ok": true,
+    "result": "P3_LAYER_PROBE|failed=false|cleanup=true|objects=0|rows=55|evidence=Audit/phase16-p3-state-probes-2026-11-02e/layer-comparison-evidence.txt",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "ef137e31a3aa4f5283f0d01cca72a9d5", "protocol_version": 2, "client_round_trip_ms": 5.732, "fallback_error": null},
+    "elapsed_ms": 5.766
+  },
+  "layer_interpretation": "Main read full 57-line evidence: default-layer self/repeat/default equality true and supported scalar typed snapshots stable. Positive name and bogus-property miss discriminate; anim-handle/ref-count throw and dependents undefined. Does not establish unique identity across distinct layers, native state completeness or edit safety. No layer creation/move/changes; exact temporary node cleaned.",
+  "final_snapshot": {
+    "ok": true,
+    "result": {"classCounts": {}, "frozenCount": 0, "hiddenCount": 0, "layers": [], "materials": {}, "modifiers": {}, "objectCount": 0, "rootCount": 0, "roots": []},
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "37816063b6bb47579c1699f6beb25f69", "protocol_version": 2, "client_round_trip_ms": 0.114, "fallback_error": null},
+    "elapsed_ms": 0.202
+  },
+  "state_qualification": "No objects remain. Main03 exact POISONED lease retained, unnamed mm/1 scene saveRequired=true from temporary edits; no save/reset/flag clearing/backup access. Fresh read-only state required next continuation."
+}

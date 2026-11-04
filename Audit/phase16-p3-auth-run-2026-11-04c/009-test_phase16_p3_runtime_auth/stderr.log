@@ -1,0 +1,21 @@
+test_01_all_16_emitted_helpers_are_p3_prefixed (test_wall_surface_auth_runtime.WallSurfaceAuthRuntimeTests.test_01_all_16_emitted_helpers_are_p3_prefixed)
+Verifies exactly 16 helpers, all prefixed with p3. ... ok
+test_02_trimesh_rnormals_and_smoothgroup_snapshot_with_delete (test_wall_surface_auth_runtime.WallSurfaceAuthRuntimeTests.test_02_trimesh_rnormals_and_smoothgroup_snapshot_with_delete)
+Verifies Object Space TriMesh normals extraction with guaranteed delete. ... ok
+test_03_subanim_recursive_audit (test_wall_surface_auth_runtime.WallSurfaceAuthRuntimeTests.test_03_subanim_recursive_audit)
+Verifies recursive controller audit: numKeys, wire ban, forbidden classes. ... ok
+test_04_layer_admission_guard_root_of_trust_and_closure (test_wall_surface_auth_runtime.WallSurfaceAuthRuntimeTests.test_04_layer_admission_guard_root_of_trust_and_closure)
+Verifies rootScene anchor and layer dependency graph closure. ... ok
+test_05_replay_verified_noop_branch (test_wall_surface_auth_runtime.WallSurfaceAuthRuntimeTests.test_05_replay_verified_noop_branch)
+Verifies COMMITTED branch executes VERIFIED_NOOP without mutation. ... ok
+test_06_poisoned_lease_retention_on_arm_catch (test_wall_surface_auth_runtime.WallSurfaceAuthRuntimeTests.test_06_poisoned_lease_retention_on_arm_catch)
+Verifies arm failure retains registry key as POISONED for forensics. ... ok
+test_07_normal_modifiers_prohibited_and_strictly_shell (test_wall_surface_auth_runtime.WallSurfaceAuthRuntimeTests.test_07_normal_modifiers_prohibited_and_strictly_shell)
+Verifies stack permits strictly 1 Shell modifier and bans normal modifiers. ... ok
+test_08_exact_current_attempt_cleanup_without_handle_delete (test_wall_surface_auth_runtime.WallSurfaceAuthRuntimeTests.test_08_exact_current_attempt_cleanup_without_handle_delete)
+Verifies cleanup loop uses exact created node refs and reports retained evidence. ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.021s
+
+OK

@@ -2,7 +2,7 @@
 
 > **Purpose:** S7 is the quality assurance and analytical verification stage (historical P8 gate).
 > It reads the locked pipeline specifications, generates deterministic read-only batch inspection scripts,
-> collects ground-truth scene measurements from live 3ds Max via the orchestrator, and performs offline
+> collects ground-truth scene measurements from live 3ds Max via the designated operator, and performs offline
 > numerical and topological verification against declared tolerances.
 >
 > **Core Invariant:** **S7 is strictly READ-ONLY.**
@@ -17,11 +17,11 @@
 
 | Property | Value |
 |---|---|
-| Stage · Input | **S7** (QA & form verification) · Pipeline specs (`dimensions.json`, `massing.json`, `nurbs.json`, `facade_grids.json`, `components_registry.json`, `assembly.json`, `world_table.csv`, `qa.json`) + evidence-bound `calibration-cert.json` |
-| Execution mode | Decoupled 3-phase loop: **Offline emit** → **Read-only collect** (orchestrator) → **Offline assess** |
+| Stage · Input | **S7** (QA & form verification) · Pipeline specs (`dimensions.json`, `massing.json`, `nurbs.json`, `facade_grids.json`, `components_registry.json`, `walls.json`, `assembly.json`, `world_table.csv`, `qa.json`) + evidence-bound `calibration-cert.json` |
+| Execution mode | Decoupled 3-phase loop: **Offline emit** → **Read-only collect** (orchestrator or authorized delegate) → **Offline assess** |
 | Max mutations | **Zero.** Strictly read-only queries (`getNodeByName`, `classOf`, `evalPos`, `node.pos`, `node.rotation`, `node.modifiers.count`, etc.). No geometry creation, deletion, or modifier additions |
 | Spec mutations | **Zero.** Upstream specs and `qa.json` remain bit-identical. No relaxing tolerances, no deleting targets |
-| Orchestrator call | Sequential execution of emitted batch scripts (`batch_001.ms`...) via `3dsmax-mcp_execute_maxscript`. Exact raw string results captured into `results.json` |
+| Live operator call | Sequential execution of emitted batch scripts (`batch_001.ms`...) via `3dsmax-mcp_execute_maxscript`, coordinated under `agents/max-orchestrator.md` §1.1. Exact raw string results captured into `results.json` |
 | Precondition | S1 through S5 complete and locked (`07` §9 invariants `G-1`…`G-90` PASS; scene nodes fully constructed in 3ds Max) |
 | Output artifacts | `qa-request.json`, `qa-run-context.json`, batch scripts (`batch_*.ms`), `results.json`, and final `qa-results.json` |
 | Pass criterion | `qa-results.json` overall verdict `PASS` (exit code 0); every mandatory check complete and passing within certified bounds |
@@ -40,7 +40,7 @@ that numerical evaluation runs in certified Python arithmetic rather than Max's 
                    │
                    ▼  emits qa-request.json + batch_001.ms ... batch_NNN.ms
        [Step 2: Read-Only Collect]
-       Orchestrator runs batch_*.ms sequentially via 3dsmax-mcp_execute_maxscript
+       Designated operator runs batch_*.ms sequentially via 3dsmax-mcp_execute_maxscript
                    │
                    ▼  saves raw strings into results.json
        [Step 3: Offline Assess]
@@ -74,16 +74,20 @@ python scripts/qa_check.py \
   - `batch_001.ms`, `batch_002.ms`, ...: Bounded MAXScript inspection scripts (≤ `max_rows_per_batch` queries per script).
 - **Exit code:** `0` = Ready for collect; `1` = Not ready / validation failure; `2` = Usage error.
 
-### Step 2: Read-only collect (Orchestrator)
+### Step 2: Read-only collect (designated live operator)
 
-The orchestrator executes the generated batch scripts sequentially against the live 3ds Max instance.
-Subagents do not call Max directly.
+The orchestrator or its authorized delegate executes the generated batch scripts sequentially
+against the live 3ds Max instance. The former main-only/subagent ban is superseded by
+`agents/max-orchestrator.md` §1.1: **one live operator at a time**, short calls, no overlapping
+Max calls from other agents. This changes who may collect, **not S7's read-only contract**.
+Necessary mutating calibration is separate work with an owned fixture, never hidden inside QA
+collection. Preserve unrelated scene content; never reset/save it or manipulate the dirty flag.
 
 - **Transport:** Sequential calls to `3dsmax-mcp_execute_maxscript`.
 - **Thread constraint:** Max executes scripts on its main UI thread. Long queries freeze Max. Each batch is
   budgeted strictly under `max_batch_seconds` (≤ 2.0 s).
 - **Output format:** Batches return structured JSON or delimited wire rows prefixed by `QA_ROW:`.
-- **Storage:** The orchestrator writes all raw string outputs directly into `<results.json>` mapping batch index
+- **Storage:** The designated operator writes all raw string outputs directly into `<results.json>` mapping batch index
   or query ID to the unparsed response string. No string manipulation or formatting is performed during collection.
 
 ### Step 3: Offline assess
@@ -122,7 +126,7 @@ Every check declared in `qa.json:check_plan` belongs to one of eight closed chec
 | `QA-V1-CENSUS` | `massing_element` | Massing node verification. Validates existence, node names, object class (`Box`, `Dummy`), and layer assignment for all massing elements and group pivots. |
 | `QA-V1-NURBS-CENSUS` | `nurbs_surface` | NURBS structure verification. Inspects `NURBSSet` / `NURBSNode` objects, validating sub-object counts, committed surface classes (`NURBSPointSurface`, `NURBSCVSurface`, etc.), and derivative meshes/splines. |
 | `QA-V1-PLACEMENT` | `placement` | Assembly component verification. Reads placed panel instances, checking world position `(x, y, z)`, Z-axis orientation quaternion, prototype sharing (`baseObject == prototype.baseObject`), and correspondence to `world_table.csv`. |
-| `QA-V1-WALLS` | `wall_host` / `wall_cell` | Tiled wall openings verification. Validates bounding box dimensions and coordinates of opening cells (`WAL_`), verifying that host volume minus opening cell volume satisfies the zero-modifier volume conservation identity (`G-82`). |
+| `QA-V1-WALLS` | `wall_host` / `wall_cell` / `wall_surface` | Perimeter wall and opening verification. For default route `closed_inner_contour_shell_v2`, evaluates solid watertightness (`openEdges == 0`), analytical volume oracle match ($V_{\text{oracle}} = (A_{\text{outer}} - A_{\text{inner}}) \times H - \sum w_i h_i t$), stack count == 1 (`Shell`), 0 duplicate vertices, seam valence == 2, aperture bounds, and Mechanism A host hiding (`host_node.isHidden = true`). For legacy `legacy_cells_v1`, validates bounding box dimensions and coordinates of opening cells (`WAL_`), verifying that host volume minus opening cell volume satisfies the zero-modifier volume conservation identity (`G-82`). |
 | `QA-V1-FORM` | `nurbs_surface` | Analytical surface precision. Samples a `(grid_u × grid_v)` lattice on the committed design surface via `evalPos`, comparing actual points against analytical reference geometry (`form_references[]` in `dimensions.json`). Checks surface deviation, longitudinal extent, and barrel landmarks. |
 | `QA-V1-STACK` | `project` / `node` | Modifier stack health. Confirms that all nodes maintain clean stacks (0 modifiers for zero-modifier pipeline elements like `assembly.ms`), stack depth is ≤ 5, and no unattachable/crashing modifiers (`Extrude`, `Bevel`) are present. |
 | `QA-V1-REPLAY` | `project` | Deterministic replay. Re-executes targeted queries across successive calls to prove measurement stability, idempotency, and absence of floating-point or state drift. |
@@ -156,11 +160,13 @@ Certified numerical bounds enforcing `separate_bounds_v1`:
 - `unit_factor_relative`: Relative scaling tolerance across unit conversions (standard: `1e-06`).
 - `volume_roundoff_cm3`: Roundoff tolerance for aggregate volume integrals (standard: `0.01 cm³`).
 
-### 4.4 Volume conservation policy (`tolerances.volume`)
+### 4.4 Volume conservation and analytical oracle policy (`tolerances.volume`)
 
-- `policy`: `box_endpoint_propagation_v1`.
+- `policy`: `analytical_oracle_v2` (default) or `box_endpoint_propagation_v1` (legacy).
 - `endpoint_tolerance_ref`: References `tolerances.linear_cm`.
-- Asserts that solid host volume equals the sum of cell partition volumes without requiring destructive CSG Booleans.
+- For `closed_inner_contour_shell_v2`: evaluates signed tetrahedral solid volume against the independent analytical oracle:
+  $$V_{\text{oracle}} = (A_{\text{outer}} - A_{\text{inner}}) \times H - \sum_{i} (w_i \times h_i \times t)$$
+- For legacy routes: asserts that solid host volume equals the sum of cell partition volumes without requiring destructive CSG Booleans.
 
 ---
 
@@ -174,7 +180,7 @@ every execution run:
 | `max_rows_per_batch` | `25` | Caps queries per `.ms` script so execution finishes in ~30 ms, well below the 2 s hang threshold. |
 | `max_targets` | `50` | Prevents runaway query expansion across massive scenes. |
 | `max_samples` | `200` | Limits total surface lattice evaluations (`grid_u × grid_v`) per surface target. |
-| `max_calls` | `50` | Maximum number of batch calls the orchestrator may execute in a single QA run. |
+| `max_calls` | `50` | Maximum number of batch calls the designated operator may execute in a single QA run. |
 | `max_batch_seconds` | `2.0 s` | Max thread timeout ceiling; batches taking longer indicate scene lockup. |
 | `max_total_seconds` | `60.0 s` | Total wall-clock time limit for the entire collection pass. |
 | `max_solver_iterations` | `100` | Iteration ceiling for offline nonlinear point-to-surface projection solvers. |

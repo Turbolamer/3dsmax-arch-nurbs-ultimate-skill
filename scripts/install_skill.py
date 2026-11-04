@@ -33,15 +33,17 @@ PACKAGE_DIRS: tuple[tuple[str, frozenset[str] | None], ...] = (
 SKIP_DIR_NAMES = frozenset(
     {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".git", ".tmp", "tmp", "temp", "backups"}
 )
-SKIP_SUFFIXES = frozenset({".pyc", ".pyo", ".skill"})
+SKIP_SUFFIXES = frozenset({".pyc", ".pyo", ".skill", ".tmp", ".bak", ".swp", ".orig"})
 SKIP_NAME_MARKERS = ("test_", "_test.", "selftest", "self_test", "scratch", "backup")
 
 
 def _is_packaged(path: Path, suffixes: frozenset[str] | None) -> bool:
+    if path.name.startswith("."):
+        return False
     parts = path.relative_to(SKILL_ROOT).parts
     if any(part in SKIP_DIR_NAMES for part in parts[:-1]):
         return False
-    if path.suffix.lower() in SKIP_SUFFIXES:
+    if path.suffix.lower() in SKIP_SUFFIXES or any(path.name.endswith(ext) for ext in (".tmp", "~")):
         return False
     name = path.name.lower()
     if any(marker in name for marker in SKIP_NAME_MARKERS):
@@ -134,9 +136,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build & install 3dsmax-arch-nurbs-ultimate skill")
     parser.add_argument(
         "--target",
-        choices=["archive", "global", "all"],
+        choices=["archive", "global", "all", "isolated"],
         default="all",
-        help="Where to install: 'archive' (.skill only), 'global' (~/.claude & ~/.agents), or 'all'",
+        help="Where to install: 'archive' (.skill only), 'global' (~/.claude & ~/.agents), 'all', or 'isolated'",
+    )
+    parser.add_argument(
+        "--dest",
+        type=Path,
+        default=None,
+        help="Optional isolated target directory to install into (used with --target isolated or standalone)",
     )
     parser.add_argument(
         "--mcp-repo",
@@ -149,11 +157,38 @@ def main() -> None:
     files = collect_files()
     build_archive(files)
 
-    if args.target in ("global", "all"):
-        for base in (Path.home() / ".claude" / "skills", Path.home() / ".agents" / "skills"):
-            # These directories are owned exclusively by this skill, so pruning is safe:
-            # anything collect_files() no longer ships (e.g. files moved to Audit/) is removed.
-            install_to_dir(base / SKILL_NAME, files, prune=True)
+    if args.dest is not None or args.target == "isolated":
+        if args.dest is None:
+            parser.error("--dest is required when --target isolated is specified")
+        install_to_dir(args.dest.resolve(), files, prune=True)
+
+    if args.target in ("global", "all") and args.dest is None:
+        target_bases = [
+            Path.home() / ".claude" / "skills",
+            Path.home() / ".agents" / "skills",
+            Path.home() / ".config" / "opencode" / "skills",
+            Path.home() / ".opencode" / "skills",
+            Path.home() / ".gemini" / "antigravity-cli" / "skills",
+            Path.home() / ".gemini" / "config" / "skills",
+            Path.home() / ".gemini" / "skills",
+            Path.home() / ".gemini" / "antigravity" / "skills",
+        ]
+        installed_canonical: set[Path] = set()
+        for base in target_bases:
+            parent = base.parent
+            if parent.exists() or base.exists() or base in (
+                Path.home() / ".claude" / "skills",
+                Path.home() / ".agents" / "skills",
+                Path.home() / ".config" / "opencode" / "skills",
+            ):
+                dest = base / SKILL_NAME
+                canonical = dest.resolve()
+                if canonical in installed_canonical:
+                    continue
+                installed_canonical.add(canonical)
+                # These directories are owned exclusively by this skill, so pruning is safe:
+                # anything collect_files() no longer ships (e.g. files moved to Audit/) is removed.
+                install_to_dir(dest, files, prune=True)
 
     if args.mcp_repo is not None:
         merge_into_mcp_repo(args.mcp_repo.resolve(), files)

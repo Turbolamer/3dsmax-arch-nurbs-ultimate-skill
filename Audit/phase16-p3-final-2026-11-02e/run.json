@@ -1,0 +1,105 @@
+{
+  "schema_version": "phase16-p3-test-recorder-1",
+  "started_utc": "2026-11-02T21:25:23.088817+00:00",
+  "root": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "out": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-final-2026-11-02e",
+  "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:\\Python314\\python.exe",
+  "requested_out": "Audit\\phase16-p3-final-2026-11-02e",
+  "unique_out_enabled": true,
+  "hash_only_tool_trees": [
+    "Audit/phase16-p3-preflight-2026-11-02e",
+    "Audit/phase16-p3-measurement-2026-11-02e",
+    "Audit/phase16-p3-execution-2026-11-02e",
+    "Audit/phase16-p3-live-controls-2026-11-02e",
+    "Audit/phase16-p3-runtime-probes-2026-11-02e",
+    "Audit/phase16-p3-state-probes-2026-11-02e",
+    "Audit/phase16-p3-main-build-2026-11-02e"
+  ],
+  "additional_hash_only_artifact_dirs": [],
+  "main_reported_prior_test_counts_not_current_evidence": {
+    "test_phase16_p3_publication.py": 39,
+    "test_phase16_p3_inputs.py": 31,
+    "test_phase16_p3_runtime.py": 40,
+    "test_phase16_p3_builder.py": 34,
+    "test_phase16_p3_oracle.py": 65,
+    "test_phase16_p3_independent.py": null
+  },
+  "recorder_command": [
+    "C:\\Python314\\python.exe",
+    "Audit/run_phase16_p3_settled.py",
+    "--out",
+    "Audit/phase16-p3-final-2026-11-02e",
+    "--unique-out"
+  ],
+  "suite_timeout_seconds": 1800.0,
+  "discovery": "Direct regular Audit/test_phase16_p3*.py files, exact filename sort; no imports",
+  "planned_commands": [
+    [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_builder.py",
+      "-v"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_existing_output_review.py"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_independent.py",
+      "-v"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_inputs.py",
+      "-v"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_oracle.py",
+      "-v"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_publication.py",
+      "-v"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_runtime.py",
+      "-v"
+    ]
+  ],
+  "child_environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONIOENCODING": "utf-8",
+    "TEMP": "C:\\Users\\Turbolamer\\AppData\\Local\\Temp\\opencode",
+    "TMP": "C:\\Users\\Turbolamer\\AppData\\Local\\Temp\\opencode",
+    "TMPDIR": "C:\\Users\\Turbolamer\\AppData\\Local\\Temp\\opencode"
+  },
+  "python_optimization_removed": true,
+  "legacy_fixture_count": 49,
+  "protected_p2_source_sha256": {
+    "scripts/init_project.py": "42401725a42271b1c45dbeabed22bb76b73587e7b85e9fe970801b606092eb88",
+    "scripts/place_components.py": "4f9735ffbf9d59f6e858bed5d6390342db8230b50a036e462d894c00d07b91ac",
+    "scripts/validate_specs.py": "616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f",
+    "scripts/wall_cell_coverage.py": "d8d1e930808465f3340e2ed2e4cc04e45b46d033cc14ebc57ecb66a61b6ece4e"
+  },
+  "preserved_package_sha256": "dbd0e28003a6f87cafc7215f63fec10df5f576f54b1e66fa131d8b1c9234491a",
+  "hash_scope": "All scripts/*.py; all Audit/test_phase16*.py (P2 helpers hash-only); Audit/phase16_p3*.py; this recorder; F01 input tree/authority/source candidates; all examples/specs/fixtures bytes including accepted 49; all root *.skill; explicit contracts/source evidence and P2/preservation manifests; P3 tool trees/fixtures, main-build tree including any frozen generated pair, explicit --artifact-dir trees and direct _phase16-p3-* evidence; Git HEAD.",
+  "acceptance": "NOT_ASSESSED",
+  "complete_phase16_or_p3": false,
+  "limitations": [
+    "Tests are trusted, not sandboxed; they may use owned temporary directories.",
+    "Hash snapshots cannot exclude change-and-revert or arbitrary races.",
+    "Missing filename checklist entries remain NOT_AVAILABLE, not SKIP/PASS.",
+    "No test filename, zero exit, mock or synthetic capture proves live geometry."
+  ]
+}

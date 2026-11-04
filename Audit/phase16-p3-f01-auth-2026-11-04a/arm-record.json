@@ -1,0 +1,10 @@
+{
+  "status": "MAIN_AUTHENTIC_ARM_PREPARED",
+  "identity": "5805cec304792f3f9f457e553cf82d2fcffc9bf07d876e804144e5cf4449c320",
+  "namespace": "P3_F01_AUTH",
+  "nonce": "FreshNonce20261104AuthenticF01_b123",
+  "manifest_sha256": "9d71c2ad50bd47785f536c6c6f9699ac2c5ae702c58ac6b2bf24bf5dc89e896e",
+  "script_sha256": "96ad4af204cd832197d90bf988fc7ff021560f16cc9e67f3d10d3892f8324d5e",
+  "arm_sha256": "f2303c07dd056f13964a119c1e1d26ce5658652d780ca28876f506b66879ae58",
+  "held_wrapper_sha256": "d770af1d6cf557f855fa280c8ba9b44afd4207db4e5b75bd4106c8b7162ebc25"
+}

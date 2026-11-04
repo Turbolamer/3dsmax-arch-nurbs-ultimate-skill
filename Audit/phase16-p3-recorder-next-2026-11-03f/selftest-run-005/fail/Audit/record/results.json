@@ -1,0 +1,105 @@
+[
+  {
+    "test": "Audit/control_suite.py",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-005\\fail\\Audit\\control_suite.py",
+      "-v"
+    ],
+    "started_utc": "2026-11-03T17:43:50.102967+00:00",
+    "ended_utc": "2026-11-03T17:43:50.189566+00:00",
+    "seconds": 0.086608,
+    "returncode": 1,
+    "execution_error": null,
+    "stdout": {
+      "path": "stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "stderr.log",
+      "bytes": 661,
+      "sha256": "5669e411cd7dd03dd2bc2cdd676086a413f810b302e63d4dfd0a95fa460fa262"
+    },
+    "observations": {
+      "ran": [
+        {
+          "stream": "stderr",
+          "line": 13,
+          "text": "Ran 1 test in 0.000s",
+          "count": 1
+        }
+      ],
+      "ok_summaries": [],
+      "prohibited_or_failed": [
+        {
+          "stream": "stderr",
+          "line": 4,
+          "text": "FAIL: test_control (__main__.Control.test_control)"
+        },
+        {
+          "stream": "stderr",
+          "line": 15,
+          "text": "FAILED (failures=1)"
+        }
+      ],
+      "qualifier_metadata": [],
+      "issues": [
+        "expected exactly one unittest OK summary",
+        "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+      ],
+      "status": "REFUSED"
+    },
+    "acceptance": "NOT_ASSESSED",
+    "source_drift": [],
+    "baseline_problems": []
+  },
+  {
+    "test": "Audit/following_suite.py",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-recorder-next-2026-11-03f\\selftest-run-005\\fail\\Audit\\following_suite.py"
+    ],
+    "started_utc": "2026-11-03T17:43:50.209484+00:00",
+    "ended_utc": "2026-11-03T17:43:50.287387+00:00",
+    "seconds": 0.077913,
+    "returncode": 0,
+    "execution_error": null,
+    "stdout": {
+      "path": "stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "stderr.log",
+      "bytes": 103,
+      "sha256": "1a52ff93b2b7c8bc576900f70c9062f5baedb573cf55507ec33070c999cd9b12"
+    },
+    "observations": {
+      "ran": [
+        {
+          "stream": "stderr",
+          "line": 3,
+          "text": "Ran 1 test in 0.000s",
+          "count": 1
+        }
+      ],
+      "ok_summaries": [
+        {
+          "stream": "stderr",
+          "line": 5,
+          "text": "OK"
+        }
+      ],
+      "prohibited_or_failed": [],
+      "qualifier_metadata": [],
+      "issues": [],
+      "status": "UNQUALIFIED_OUTPUT_REQUIRES_REVIEW"
+    },
+    "acceptance": "NOT_ASSESSED",
+    "source_drift": [],
+    "baseline_problems": []
+  }
+]

@@ -1,0 +1,146 @@
+{
+  "verdict": "PASS",
+  "protocol_version": "form_qa_wire_v1",
+  "project": "pavilion-01",
+  "run_id": "live-run-001",
+  "request_hash": "3abf496c29e1cf0a0391f5763387021c4cd0d6140ae8b633754cf539c59bdcec",
+  "summary": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "incomplete": 0
+  },
+  "checks": {
+    "CHK_APERTURE_01": {
+      "id": "CHK_APERTURE_01",
+      "kind": "QA-V1-APERTURE",
+      "target_id": "PLC_001",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_APERTURE_02": {
+      "id": "CHK_APERTURE_02",
+      "kind": "QA-V1-APERTURE",
+      "target_id": "PLC_002",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_APERTURE_03": {
+      "id": "CHK_APERTURE_03",
+      "kind": "QA-V1-APERTURE",
+      "target_id": "PLC_003",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_CENSUS_EL1": {
+      "id": "CHK_CENSUS_EL1",
+      "kind": "QA-V1-CENSUS",
+      "target_id": "EL_001",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_CENSUS_EL2": {
+      "id": "CHK_CENSUS_EL2",
+      "kind": "QA-V1-CENSUS",
+      "target_id": "EL_002",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_COVERAGE": {
+      "id": "CHK_COVERAGE",
+      "kind": "QA-V1-COVERAGE",
+      "target_id": "TGT_PROJECT",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_PLACEMENT_01": {
+      "id": "CHK_PLACEMENT_01",
+      "kind": "QA-V1-PLACEMENT",
+      "target_id": "PLC_001",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_PLACEMENT_02": {
+      "id": "CHK_PLACEMENT_02",
+      "kind": "QA-V1-PLACEMENT",
+      "target_id": "PLC_002",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_PLACEMENT_03": {
+      "id": "CHK_PLACEMENT_03",
+      "kind": "QA-V1-PLACEMENT",
+      "target_id": "PLC_003",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_SOLID": {
+      "id": "CHK_SOLID",
+      "kind": "QA-V1-SOLID",
+      "target_id": "WS_storey_1",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {
+        "evaluated_volume": 17022000000.0,
+        "signed_volume": 17022000000.0,
+        "open_edges": 0,
+        "oracle_volume_scene": 17022000000.0,
+        "volume_deviation": 0.0
+      },
+      "errors": []
+    },
+    "CHK_SURFACE": {
+      "id": "CHK_SURFACE",
+      "kind": "QA-V1-SURFACE",
+      "target_id": "WS_storey_1",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    },
+    "CHK_TOPOLOGY": {
+      "id": "CHK_TOPOLOGY",
+      "kind": "QA-V1-TOPOLOGY",
+      "target_id": "WS_storey_1",
+      "status": "PASS",
+      "n_expected": 1,
+      "n_observed": 1,
+      "metrics": {},
+      "errors": []
+    }
+  },
+  "limits_evaluated": {
+    "max_targets_ok": true,
+    "max_samples_ok": true,
+    "drift_detected": true
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schema": "phase16-p3-next-frozen-recorder-1",
+  "started_utc": "2026-11-04T09:32:47.768244+00:00",
+  "argv": [
+    "C:\\Python314\\python.exe",
+    "Audit/phase16-p3-recorder-next-2026-11-03f/recorder.py",
+    "--out",
+    "Audit/phase16-p3-auth-run-2026-11-04d"
+  ],
+  "root": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "out": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-auth-run-2026-11-04d",
+  "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "timeout_seconds_per_suite": 1800.0,
+  "additional_explicit_inputs": [],
+  "additional_explicit_suites": [],
+  "suite_plan": [
+    "Audit/phase16-p3-measurement-next-2026-11-03/test_diagnostics.py",
+    "Audit/test_phase16_p3_builder.py",
+    "Audit/test_phase16_p3_existing_output_review.py",
+    "Audit/test_phase16_p3_fixtures_f02_f08.py",
+    "Audit/test_phase16_p3_independent.py",
+    "Audit/test_phase16_p3_inputs.py",
+    "Audit/test_phase16_p3_oracle.py",
+    "Audit/test_phase16_p3_publication.py",
+    "Audit/test_phase16_p3_qa_wall_profile.py",
+    "Audit/test_phase16_p3_runtime.py",
+    "Audit/test_phase16_p3_runtime_auth.py"
+  ],
+  "required_final2_test_count_floors": {
+    "test_phase16_p3_builder.py": 34,
+    "test_phase16_p3_existing_output_review.py": 7,
+    "test_phase16_p3_independent.py": 22,
+    "test_phase16_p3_inputs.py": 38,
+    "test_phase16_p3_oracle.py": 65,
+    "test_phase16_p3_publication.py": 42,
+    "test_phase16_p3_runtime.py": 42
+  },
+  "legacy_fixture_count": 49,
+  "accepted_p2_sources": {
+    "scripts/init_project.py": "42401725a42271b1c45dbeabed22bb76b73587e7b85e9fe970801b606092eb88",
+    "scripts/place_components.py": "4f9735ffbf9d59f6e858bed5d6390342db8230b50a036e462d894c00d07b91ac",
+    "scripts/validate_specs.py": "616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f",
+    "scripts/wall_cell_coverage.py": "d8d1e930808465f3340e2ed2e4cc04e45b46d033cc14ebc57ecb66a61b6ece4e"
+  },
+  "prior_main03_sha256": {
+    "Audit/phase16-p3-main-build-2026-11-02e/Main03/published/wall_surface.json": "59aa9741db9a40a8c593623e898fa956a4d061781bc695d30b5306b0b3e6565b",
+    "Audit/phase16-p3-main-build-2026-11-02e/Main03/published/wall_surface.ms": "91274ffbb1cb9491c6b5fd511ceb238346f45434e56c2d6b467753a7cbdaaf28",
+    "Audit/phase16-p3-main-build-2026-11-02e/Main03/main_only_arm.ms": "825707e3bec8ec3efa48b971a442bd2941379ea5b1121c1871572182aabb6a61",
+    "Audit/phase16-p3-main-build-2026-11-02e/Main03/held_pair_filein.ms": "c09d122744cb2475fd8c5679e7797026b9a5e905a44e6e3a8fafddc23324597c"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "complete_phase16_or_p3": false,
+  "limitations": [
+    "Tests are trusted executable programs, not sandboxed.",
+    "Snapshots cannot detect change/revert or arbitrary concurrent races.",
+    "Supply every new non-discovered test and runtime policy/probe source explicitly.",
+    "Output is not a live Max, F01, replay or stage-acceptance assessment."
+  ]
+}

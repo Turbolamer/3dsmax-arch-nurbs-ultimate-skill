@@ -1,0 +1,79 @@
+--- wall_surface_runtime.pre-edit.py
++++ wall_surface_runtime.post-edit.py
+@@ -555,10 +555,12 @@
+         )
+         result
+     )
+-    fn freeze value depth:0 =
++    fn freeze value depth:0 dataOnly:false =
+     (
+         require (depth < 16) "property nesting ceiling"
+         local cls = classOf value
++        -- Data values may not use generic undefined/reference/composite cases.
++        if dataOnly do require (cls == Integer or cls == Integer64 or cls == Float or cls == Double) "INCOMPLETE: unsupported/unknown data scalar"
+         case cls of
+         (
+             UndefinedClass: #("undefined")
+@@ -647,10 +649,13 @@
+         local nv = polyop.getNumVerts base
+         local ne = polyop.getNumEdges base
+         local nf = polyop.getNumFaces base
+-        require (nv <= 64 and ne <= 256 and nf <= 32) "base snapshot operational ceiling"
++        -- Data entry iteration also requires trustworthy V/E element counts.
++        require ((classOf nv) == Integer and (classOf ne) == Integer) "INCOMPLETE: unknown V/E element count type"
++        require (nv >= 0 and ne >= 0 and nv <= 64 and ne <= 256 and nf <= 32) "base snapshot operational ceiling"
+         local deadV = polyop.getDeadVerts base
+         local deadE = polyop.getDeadEdges base
+         local deadF = polyop.getDeadFaces base
++        require ((classOf deadV) == BitArray and (classOf deadE) == BitArray) "INCOMPLETE: unknown V/E dead-state type"
+         local vertices = for i = 1 to nv collect
+             (if deadV[i] then #("dead") else #(freeze (polyop.getVert base i), polyop.getVertFlags base i))
+         local edges = for i = 1 to ne collect
+@@ -679,16 +684,41 @@
+         local data = #()
+         local vn = polyop.getNumVDataChannels base
+         local en = polyop.getNumEDataChannels base
+-        require (vn >= 0 and vn <= 100 and en >= 0 and en <= 100) "data channel ceiling"
+-        for channel = 1 to vn do
++        require ((classOf vn) == Integer and (classOf en) == Integer) "INCOMPLETE: unknown data channel count type"
++        require (vn >= 0 and vn <= 100 and en >= 0 and en <= 100) "INCOMPLETE: invalid data channel count/ceiling"
++        if vn > 0 do for channel = 1 to vn do
+         (
+             local support = polyop.getVDataChannelSupport base channel
+-            append data #("v", channel, support, if support then (for i = 1 to nv collect (if deadV[i] then undefined else polyop.getVDataValue base channel i)) else undefined)
+-        )
+-        for channel = 1 to en do
++            require ((classOf support) == BooleanClass) "INCOMPLETE: unknown VData channel support"
++            local values = #("unsupported")
++            if support do
++            (
++                values = #()
++                if nv > 0 do values = (for i = 1 to nv collect
++                (
++                    local dead = deadV[i]
++                    require ((classOf dead) == BooleanClass) "INCOMPLETE: unknown VData entry dead-state"
++                    if dead then #("dead") else freeze (polyop.getVDataValue base channel i) dataOnly:true
++                ))
++            )
++            append data #("v", channel, support, values)
++        )
++        if en > 0 do for channel = 1 to en do
+         (
+             local support = polyop.getEDataChannelSupport base channel
+-            append data #("e", channel, support, if support then (for i = 1 to ne collect (if deadE[i] then undefined else polyop.getEDataValue base channel i)) else undefined)
++            require ((classOf support) == BooleanClass) "INCOMPLETE: unknown EData channel support"
++            local values = #("unsupported")
++            if support do
++            (
++                values = #()
++                if ne > 0 do values = (for i = 1 to ne collect
++                (
++                    local dead = deadE[i]
++                    require ((classOf dead) == BooleanClass) "INCOMPLETE: unknown EData entry dead-state"
++                    if dead then #("dead") else freeze (polyop.getEDataValue base channel i) dataOnly:true
++                ))
++            )
++            append data #("e", channel, support, values)
+         )
+         #(nv, ne, nf, freeze deadV, freeze deadE, freeze deadF, vertices, edges, faces, maps, data,
+           freeze (polyop.getVertSelection base), freeze (polyop.getEdgeSelection base), freeze (polyop.getFaceSelection base))

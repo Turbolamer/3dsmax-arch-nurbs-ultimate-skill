@@ -1,0 +1,45 @@
+{
+  "scope": "offline Python/source checks; no Max or MAXScript execution",
+  "finished_utc": "2026-11-03T17:57:40.979147+00:00",
+  "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-hardening-independent-2026-11-03f\\d9-fixture",
+  "before": {
+    "scripts/wall_surface_runtime.py": "d9f470754639a78b3fe5478fde91e5c513d7834c9ba8ffecbcff990225b9b08a",
+    "scripts/scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "36885bad3d566065c8471a4cf8c7dcc6c452de9676e58c03e6cb4f776b83b327",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-edit.py.bin": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15"
+  },
+  "after": {
+    "scripts/wall_surface_runtime.py": "d9f470754639a78b3fe5478fde91e5c513d7834c9ba8ffecbcff990225b9b08a",
+    "scripts/scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "36885bad3d566065c8471a4cf8c7dcc6c452de9676e58c03e6cb4f776b83b327",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-edit.py.bin": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15"
+  },
+  "inputs_stable": true,
+  "results": [
+    {
+      "suite": "Audit/test_phase16_p3_runtime.py",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-hardening-independent-2026-11-03f\\d9-fixture\\Audit\\test_phase16_p3_runtime.py"
+      ],
+      "exit_code": 1,
+      "stdout": "d9-runtime.stdout.log",
+      "stderr": "d9-runtime.stderr.log"
+    },
+    {
+      "suite": "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-hardening-independent-2026-11-03f\\d9-fixture\\Audit\\phase16-p3-runtime-hardening-2026-11-03f\\test_protection.py"
+      ],
+      "exit_code": 0,
+      "stdout": "d9-protection.stdout.log",
+      "stderr": "d9-protection.stderr.log"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": "p3-measurement-final-source-freeze-1",
+  "capture_verdict": "PARSED_HASH_AND_COUNTS_VERIFIED_BOUNDED_CALIBRATION",
+  "main_capture": {
+    "path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\_phase16-p3-measurement-smoke-capture-2026-11-02e.json",
+    "sha256_before": "81b69fc1de39a9fcd410b9158cac6d317030d2f2bcd10bde4cd32afdf12c364a",
+    "sha256_after": "81b69fc1de39a9fcd410b9158cac6d317030d2f2bcd10bde4cd32afdf12c364a",
+    "bytes": 3516,
+    "actual": {
+      "base_active_counts": [
+        4,
+        4,
+        1
+      ],
+      "evaluated_vertices": 8,
+      "evaluated_triangles": 12,
+      "scene_count": 1,
+      "issues": []
+    }
+  },
+  "finalized_owned_source_sha256": {
+    "measure.ms": "eee6d56ecb0d7c270494d55ba90f51ccb1032eb261defb7a2bf11baa8772d8f9",
+    "calibrate_snapshot.ms": "814ea958cdc1fe91832e3332601adeade29f883a473dfc230a6ee9a8a1d41dac",
+    "calibrate_writer.ms": "19ac6c76adc28a7663561c9d391db0a42876ba145ce2d3c88b8adf715e8b05cc",
+    "adapter.py": "11a94bd701359eb998bf962e05d730231ffbff95d0a73563f998b80e00270c5a",
+    "calibration.py": "209e54b58972427daf0560687d23220dab8703e3abbdef5a34a2e43ec9d7a138",
+    "test_offline.py": "0a2e804680f7316a32710c85f51ddc3b2b0af34d902e6a67485e5936a3d31277",
+    "verify_actual_calibration.py": "0044e888641776f2b082c3da69e07d0ae4aff3591b9a79d84f8ddd3d617b4aa7",
+    "verify_smoke_and_freeze.py": "bdd7e4adb31f520c9ef86fa6873f2fe6fff1b443ee7e0143d333eee1b8ce9f17",
+    "README.md": "c6789c631abe450587659b94b06fdb3b5e59b057e6a6b719db48e0e91aeeec62"
+  },
+  "current_envelope_runtime_status": "UNVERIFIED_AFTER_INTEGER64_SUFFIX_CORRECTION",
+  "qualification": "Main's old compact envelope was invalid JSON (3516L). Existing actual full capture is valid JSON and unchanged. Not F01/geometry/replay/scene cleanup acceptance; cleanup is main-reported. No live calls by this verifier."
+}

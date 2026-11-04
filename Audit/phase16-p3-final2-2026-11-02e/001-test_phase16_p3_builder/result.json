@@ -1,0 +1,225 @@
+{
+  "test": "Audit/test_phase16_p3_builder.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_builder.py",
+    "-v"
+  ],
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "started_utc": "2026-11-02T21:29:19.606683+00:00",
+  "ended_utc": "2026-11-02T21:29:22.263748+00:00",
+  "seconds": 2.657048,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 4889,
+    "sha256": "b3077a153977213e3c9217cc8006cff5a73690d201541821b2ec0ea4f57c3edf"
+  },
+  "source_drift": [],
+  "baseline_problems": [],
+  "observations": {
+    "summary_lines": [
+      {
+        "stream": "stderr",
+        "line": 37,
+        "text": "Ran 34 tests in 1.734s"
+      },
+      {
+        "stream": "stderr",
+        "line": 39,
+        "text": "OK"
+      }
+    ],
+    "qualifier_lines": [],
+    "test_lines": [
+      {
+        "stream": "stderr",
+        "line": 1,
+        "text": "test_actual_runtime_artifact_integration_pure_not_full_fixture (__main__.ArtifactTests.test_actual_runtime_artifact_integration_pure_not_full_fixture) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 2,
+        "text": "test_authentic_f01_snapshot_emit_publish_deterministic_new_dirs_only (__main__.ArtifactTests.test_authentic_f01_snapshot_emit_publish_deterministic_new_dirs_only) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 3,
+        "text": "test_coordinator_fake_seams_validate_drift_then_publish_order (__main__.ArtifactTests.test_coordinator_fake_seams_validate_drift_then_publish_order) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "test_deterministic_manifest_script_hash_identity_not_circular (__main__.ArtifactTests.test_deterministic_manifest_script_hash_identity_not_circular) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 5,
+        "text": "test_existing_output_refused_before_any_dependency_load (__main__.ArtifactTests.test_existing_output_refused_before_any_dependency_load) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "test_generator_contract_hash_drift_discriminated_on_temp_source (__main__.ArtifactTests.test_generator_contract_hash_drift_discriminated_on_temp_source) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 7,
+        "text": "test_geometric_normal_is_not_skew_declared_vector (__main__.ArtifactTests.test_geometric_normal_is_not_skew_declared_vector) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 8,
+        "text": "test_identity_changes_for_each_configuration_and_source_hash (__main__.ArtifactTests.test_identity_changes_for_each_configuration_and_source_hash) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 9,
+        "text": "test_incomplete_metadata_nonfinite_prediction_and_script_without_identity_refuse (__main__.ArtifactTests.test_incomplete_metadata_nonfinite_prediction_and_script_without_identity_refuse) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 10,
+        "text": "test_late_source_drift_and_adapter_false_refuse_before_publication (__main__.ArtifactTests.test_late_source_drift_and_adapter_false_refuse_before_publication) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 11,
+        "text": "test_pair_two_mib_limit_stricter_than_publication_helper (__main__.ArtifactTests.test_pair_two_mib_limit_stricter_than_publication_helper) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 12,
+        "text": "test_ambiguous_strings_and_noncanonical_hashes (__main__.AuthorityTests.test_ambiguous_strings_and_noncanonical_hashes) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 13,
+        "text": "test_bad_root_and_schema_refused (__main__.AuthorityTests.test_bad_root_and_schema_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 14,
+        "text": "test_each_missing_key_and_unknown_key_refused (__main__.AuthorityTests.test_each_missing_key_and_unknown_key_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 15,
+        "text": "test_each_source_wall_value_compared_independently (__main__.AuthorityTests.test_each_source_wall_value_compared_independently) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 16,
+        "text": "test_exact_pair_shapes (__main__.AuthorityTests.test_exact_pair_shapes) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 17,
+        "text": "test_finite_numeric_closed_record (__main__.AuthorityTests.test_finite_numeric_closed_record) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 18,
+        "text": "test_missing_source_and_source_traversal_refused (__main__.AuthorityTests.test_missing_source_and_source_traversal_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 19,
+        "text": "test_nonunique_run_and_inverted_z_refused (__main__.AuthorityTests.test_nonunique_run_and_inverted_z_refused) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 20,
+        "text": "test_positive_closed_record_and_exact_scalar_values (__main__.AuthorityTests.test_positive_closed_record_and_exact_scalar_values) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 21,
+        "text": "test_relative_source_uses_only_process_cwd_no_authority_directory_fallback (__main__.AuthorityTests.test_relative_source_uses_only_process_cwd_no_authority_directory_fallback) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 22,
+        "text": "test_source_hash_is_exact_raw_bytes_not_json_or_text_reencoding (__main__.AuthorityTests.test_source_hash_is_exact_raw_bytes_not_json_or_text_reencoding) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 23,
+        "text": "test_source_text_is_never_executed (__main__.AuthorityTests.test_source_text_is_never_executed) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 24,
+        "text": "test_strict_authority_parser_numeric_and_duplicate_controls (__main__.AuthorityTests.test_strict_authority_parser_numeric_and_duplicate_controls) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 25,
+        "text": "test_ambiguous_path_spellings_refuse (__main__.BoundaryTests.test_ambiguous_path_spellings_refuse) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 26,
+        "text": "test_input_path_preflight_refuses_reparse_before_snapshot (__main__.BoundaryTests.test_input_path_preflight_refuses_reparse_before_snapshot) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 27,
+        "text": "test_namespace_strict_ascii (__main__.BoundaryTests.test_namespace_strict_ascii) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 28,
+        "text": "test_observed_hash_drift_refuses_without_writing (__main__.BoundaryTests.test_observed_hash_drift_refuses_without_writing) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 29,
+        "text": "test_output_exists_and_all_input_overlap_directions_refuse (__main__.BoundaryTests.test_output_exists_and_all_input_overlap_directions_refuse) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 30,
+        "text": "test_reparse_control_discriminates_regular_ancestor (__main__.BoundaryTests.test_reparse_control_discriminates_regular_ancestor) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 31,
+        "text": "test_snapshot_binds_exact_raw_bytes_and_parsed_document (__main__.BoundaryTests.test_snapshot_binds_exact_raw_bytes_and_parsed_document) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 32,
+        "text": "test_symlink_ancestor_and_hardlink_source_refuse_where_available (__main__.BoundaryTests.test_symlink_ancestor_and_hardlink_source_refuse_where_available) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 33,
+        "text": "test_units_exact_type_scale_and_equal_factor_pairs (__main__.BoundaryTests.test_units_exact_type_scale_and_equal_factor_pairs) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 34,
+        "text": "test_unknown_flags_abbreviations_duplicate_flags_no_force_or_draft (__main__.BoundaryTests.test_unknown_flags_abbreviations_duplicate_flags_no_force_or_draft) ... ok"
+      }
+    ],
+    "observed_counts_not_totals": [
+      {
+        "stream": "stderr",
+        "line": 37,
+        "kind": "unittest_ran",
+        "value": 34
+      }
+    ],
+    "interpretation": "Literal observations only; no assertion/coverage/acceptance inference."
+  },
+  "disposition": "EXECUTED_REQUIRES_REVIEW",
+  "acceptance": "NOT_ASSESSED"
+}

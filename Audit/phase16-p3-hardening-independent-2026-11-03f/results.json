@@ -1,0 +1,52 @@
+{
+  "scope": "Offline Python/source checks only; no Max or MAXScript execution",
+  "started_utc": "2026-11-03T17:53:53.929893+00:00",
+  "finished_utc": "2026-11-03T17:53:54.198993+00:00",
+  "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "before": {
+    "scripts/wall_surface_runtime.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+    "scripts/scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "36885bad3d566065c8471a4cf8c7dcc6c452de9676e58c03e6cb4f776b83b327",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-edit.py.bin": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/REPORT.md": "6128f772502c74c6d178e2c2439bae7240ed6ec246d74db18cfb7324f00c4df5",
+    "Audit/phase16-p3-runtime-review-2026-11-03/review.md": "88baf03fd899d006b14652b9dfcdeb2481c470270448e1d91c9f0bbdcc600272",
+    "Audit/_phase16-p3-contract-2026-11-02e.md": "4e53b474fc65db7ce1fc2fc78bc3e5358b59e85690d66bb600475474d878bf0f"
+  },
+  "after": {
+    "scripts/wall_surface_runtime.py": "3a7a38dbd1ac3554fdeb63e6ae11acf0818ec1bd90afa71bb81e74f968973acf",
+    "scripts/scene_units.py": "b31e703f8364d08da78a3b3be8e0e4cfd315915d8748ee0698ef1f5d1443ceb2",
+    "Audit/test_phase16_p3_runtime.py": "242bb0c4403068246c9e223f769ebed822dbea3931d0dce6052bfc63aee96c38",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py": "36885bad3d566065c8471a4cf8c7dcc6c452de9676e58c03e6cb4f776b83b327",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/wall_surface_runtime.pre-edit.py.bin": "bd582b4590265e8c7850114f2ba57434835baf467dd77884ab66da231660ce15",
+    "Audit/phase16-p3-runtime-hardening-2026-11-03f/REPORT.md": "6128f772502c74c6d178e2c2439bae7240ed6ec246d74db18cfb7324f00c4df5",
+    "Audit/phase16-p3-runtime-review-2026-11-03/review.md": "88baf03fd899d006b14652b9dfcdeb2481c470270448e1d91c9f0bbdcc600272",
+    "Audit/_phase16-p3-contract-2026-11-02e.md": "4e53b474fc65db7ce1fc2fc78bc3e5358b59e85690d66bb600475474d878bf0f"
+  },
+  "inputs_stable": true,
+  "results": [
+    {
+      "suite": "Audit/test_phase16_p3_runtime.py",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_runtime.py"
+      ],
+      "exit_code": 1,
+      "stdout": "runtime.stdout.log",
+      "stderr": "runtime.stderr.log"
+    },
+    {
+      "suite": "Audit/phase16-p3-runtime-hardening-2026-11-03f/test_protection.py",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-runtime-hardening-2026-11-03f\\test_protection.py"
+      ],
+      "exit_code": 1,
+      "stdout": "protection.stdout.log",
+      "stderr": "protection.stderr.log"
+    }
+  ]
+}

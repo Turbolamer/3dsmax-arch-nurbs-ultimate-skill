@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "spec": "nurbs",
+  "project": "pavilion-01",
+  "units": {
+    "length": "cm",
+    "angle": "deg"
+  },
+  "source": {
+    "kind": "derived",
+    "reference": "massing.json -- the locked massing for pavilion-01, plus dimensions.json; every value in this file is computed from them against references/07-spec-grammar.md section 8.2",
+    "recorded_at": "2026-10-04T14:00:00Z"
+  },
+  "status": "locked",
+  "tolerances": {
+    "linear_cm": 0.5,
+    "area_m2": 0.05,
+    "angle_deg": 0.01
+  },
+  "origin_inputs": [
+    "elements"
+  ],
+  "origins": {
+    "sections": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "surfaces": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    },
+    "derivatives": {
+      "origin": "derived",
+      "derives_from": [
+        "elements"
+      ]
+    }
+  },
+  "sections": [],
+  "surfaces": [],
+  "derivatives": []
+}

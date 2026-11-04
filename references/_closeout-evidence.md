@@ -1,5 +1,11 @@
 # Close-out evidence brief — 2026-10-06
 
+> **Historical-session notice (2026-11-04):** the no-MCP/no-reprobe instructions below describe
+> the session that produced this evidence brief. They are not an active blanket ban on necessary
+> live work: current authorization and one-operator coordination are in
+> `agents/max-orchestrator.md` §1.1. Reuse the measured facts rather than re-derive them without
+> need; add new evidence separately, never rewrite this transcript to claim it tested new behavior.
+
 **Read this before editing anything. Do not re-derive these facts and do not re-probe anything.**
 Every row here was measured against live 3ds Max 2026.3.2, or is a direct reading of a checked-in
 file. The transcripts are in `CHECKPOINT.md` §"Verified facts" and

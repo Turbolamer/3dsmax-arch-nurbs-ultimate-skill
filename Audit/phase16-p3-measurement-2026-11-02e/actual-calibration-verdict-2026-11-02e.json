@@ -1,0 +1,69 @@
+{
+  "schema_version": "p3-actual-calibration-verdict-1",
+  "status": "PASS_BOUNDED_CALIBRATION",
+  "source_path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\_phase16-p3-measurement-calibration-2026-11-02e.json",
+  "source_sha256_before": "08bbbecabb573948d98a285b4b19a237a9dbd1480e182947253e43340c7af4ca",
+  "source_sha256_after": "08bbbecabb573948d98a285b4b19a237a9dbd1480e182947253e43340c7af4ca",
+  "assessment_source_sha256": "209e54b58972427daf0560687d23220dab8703e3abbdef5a34a2e43ec9d7a138",
+  "epsilon_scene_units": 0.0001,
+  "actual_capture_assessment": {
+    "status": "PASS",
+    "checks": {
+      "NONIDENTITY_DISCRIMINATES_DOUBLE_TRANSFORM": true,
+      "BASE_LOCAL_TIMES_MATRIX_ONCE": true,
+      "SNAPSHOT_ALREADY_WORLD": true,
+      "SNAPSHOT_NOT_DOUBLE_TRANSFORMED": true,
+      "NODE_WORLD_BBOX": true
+    },
+    "translation_exercised": true,
+    "rotation_exercised": true,
+    "scope": "supplied calibration observations, not live authenticity"
+  },
+  "deliberate_double_transform_negative": {
+    "status": "FAIL",
+    "checks": {
+      "NONIDENTITY_DISCRIMINATES_DOUBLE_TRANSFORM": true,
+      "BASE_LOCAL_TIMES_MATRIX_ONCE": true,
+      "SNAPSHOT_ALREADY_WORLD": false,
+      "SNAPSHOT_NOT_DOUBLE_TRANSFORMED": false,
+      "NODE_WORLD_BBOX": true
+    },
+    "translation_exercised": true,
+    "rotation_exercised": true,
+    "scope": "supplied calibration observations, not live authenticity"
+  },
+  "negative_mutation": "actual snapshot_vertices_world multiplied by actual object_transform a second time; all other actual fields retained",
+  "negative_snapshot_vertices_world": [
+    [
+      -100.00000437113883,
+      299.99999125772234,
+      600
+    ],
+    [
+      -110.00000437113883,
+      299.99999082060845,
+      600
+    ],
+    [
+      -110.00000437113883,
+      299.99999082060845,
+      610
+    ],
+    [
+      -100.00000437113883,
+      299.99999125772234,
+      610
+    ]
+  ],
+  "main_recorded_bridge": {
+    "main_executed": true,
+    "request_id": "c5e2a0b001fd411f824e827a8cc5d320",
+    "bridge_ok": true,
+    "bridge_error": null,
+    "bridge_warnings": [],
+    "round_trip_ms": 13.363,
+    "elapsed_ms": 13.385,
+    "objects_after": 0
+  },
+  "scope": "Independent offline assessment of main's retained actual translated+rotated one-quad capture. Negative is a deliberate data mutation, not a second live test. No F01/other API/geometry acceptance implied."
+}

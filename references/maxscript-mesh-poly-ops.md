@@ -423,8 +423,8 @@ if hitResult != undefined do sphere pos:hitResult.pos radius:0.5
 
 ## Traps (measured 2026-10-27)
 
-Every row below was measured in 3ds Max **2026.3.2** on **2026-10-27**; the source is
-`Audit/EVIDENCE_2026-10-27.md` §E-6. They are not covered by the sections above — read the
+Every row below was measured in 3ds Max **2026.3.2** on **2026-10-27** (historical
+measurement §E-6). They are not covered by the sections above — read the
 table before writing a mesh/poly script.
 
 | Trap | What to do | Why |

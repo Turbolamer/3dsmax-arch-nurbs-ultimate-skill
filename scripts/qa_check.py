@@ -28,6 +28,12 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+try:
+    from scripts import scene_units, wall_contour_v2
+except ImportError:
+    import scene_units
+    import wall_contour_v2
+
 # --------------------------------------------------------------------------- #
 # Constants & Vocabularies
 # --------------------------------------------------------------------------- #
@@ -86,6 +92,9 @@ QA_TARGET_KINDS: frozenset[str] = frozenset({
     "placement",
     "wall_host",
     "wall_cell",
+    "wall_surface",
+    "wall_run",
+    "wall_opening",
 })
 
 QA_CHECK_KINDS: frozenset[str] = frozenset({
@@ -97,14 +106,28 @@ QA_CHECK_KINDS: frozenset[str] = frozenset({
     "QA-V1-FORM",
     "QA-V1-STACK",
     "QA-V1-REPLAY",
+    "QA-V1-DIRECTION",
+    "QA-V1-SOLID",
+    "QA-V1-TOPOLOGY",
+    "QA-V1-SURFACE",
+    "QA-V1-APERTURE",
+    "QA-V1-ENCLOSURE",
 })
 
 QA_TOLERANCE_REFS: frozenset[str] = frozenset({
     "exact",
     "placement_v1",
     "wall_box_v1",
+    "wall_poly_v1",
     "form_v1",
     "replay_v1",
+    "surface_v1",
+    "aperture_v1",
+    "solid_v1",
+    "enclosure_v1",
+    "topology_v1",
+    "wall_shell_v2",
+    "closed_shell_v2",
 })
 
 QA_OPERATIONAL_LIMIT_KEYS: tuple[str, ...] = (
@@ -258,8 +281,8 @@ def validate_qa_spec(doc: dict[str, Any], location: str = "qa.json") -> list[str
         errors.append(f"G-87 ({location}): prohibited field {v_field!r} at {v_path}")
 
     profile = doc.get("profile")
-    if profile not in ("form_precision_v1", "legacy_structure_v1"):
-        errors.append(f"G-87 ({location}): profile {profile!r} must be 'form_precision_v1' or 'legacy_structure_v1'")
+    if profile not in ("form_precision_v1", "legacy_structure_v1", "wall_surface_v1", "wall_poly_shell_v1", "poly_surface_shell_v1", "closed_inner_contour_shell_v2"):
+        errors.append(f"G-87 ({location}): profile {profile!r} must be 'form_precision_v1', 'legacy_structure_v1', 'wall_surface_v1', 'poly_surface_shell_v1', or 'closed_inner_contour_shell_v2'")
 
     # G-88: Coverage joins
     scope = doc.get("scope")
@@ -612,6 +635,129 @@ def compute_form_deviations(points: Sequence[Sequence[float]], ref_spec: dict[st
     }
 
 
+def compute_closed_contour_analytical_volume(
+    walls_doc: dict[str, Any],
+    wall_surface_doc: Optional[dict[str, Any]] = None,
+    assumptions_doc: Optional[dict[str, Any]] = None,
+    storey_id: Optional[str] = None,
+) -> float:
+    """Independent analytical volume oracle for closed_inner_contour_shell_v2.
+
+    Computes:
+        V = (A_outer - A_inner) * H - sum(w_i * h_i * t)
+    in canonical cm^3.
+    """
+    storeys = walls_doc.get("storeys", [])
+    if not storeys and wall_surface_doc:
+        if "analytical_volume_cm3" in wall_surface_doc:
+            return float(wall_surface_doc["analytical_volume_cm3"])
+        storeys = wall_surface_doc.get("storeys", [])
+
+    total_volume_cm3 = 0.0
+
+    # Index openings from wall_surface_doc if available
+    ws_openings_by_storey: dict[str, list[dict[str, Any]]] = {}
+    if wall_surface_doc:
+        for op in wall_surface_doc.get("openings", []):
+            sid = op.get("storey_id", "storey_1")
+            ws_openings_by_storey.setdefault(sid, []).append(op)
+
+    for s_idx, st in enumerate(storeys):
+        st_id = str(st.get("id", f"storey_{s_idx + 1}"))
+        if storey_id is not None and st_id != storey_id:
+            continue
+
+        base_z = float(st.get("base_z_cm", 0.0))
+        top_z = float(st.get("top_z_cm", 0.0))
+        h = top_z - base_z
+        if h <= 0.0:
+            continue
+
+        # Thickness
+        t = st.get("wall_thickness_cm") or walls_doc.get("wall_thickness_cm")
+        if t is None and assumptions_doc and isinstance(assumptions_doc.get("assumptions"), list):
+            for asm in assumptions_doc["assumptions"]:
+                if isinstance(asm, dict) and asm.get("field_path") in (
+                    f"storeys[{s_idx}].wall_thickness_cm",
+                    f"{st_id}.wall_thickness_cm",
+                    "wall_thickness_cm",
+                ):
+                    t = asm.get("value")
+                    break
+        if t is None:
+            t = 30.0
+        t = float(t)
+
+        # Inner contour vertices
+        verts = st.get("vertices_cm")
+        if not verts and wall_surface_doc and "inner_points" in wall_surface_doc:
+            verts = wall_surface_doc["inner_points"]
+        if not verts:
+            continue
+
+        inner_pts = [(float(p[0]), float(p[1])) for p in verts]
+        if len(inner_pts) < 3:
+            continue
+
+        # Outer contour
+        outer_pts = None
+        if wall_surface_doc and "outer_points" in wall_surface_doc:
+            outer_pts = [(float(p[0]), float(p[1])) for p in wall_surface_doc["outer_points"]]
+        if not outer_pts:
+            try:
+                norm = wall_contour_v2.normalize_contour_ccw(inner_pts)
+                res = wall_contour_v2.safe_contour_offset(norm.vertices, t, reference_face="inner")
+                outer_pts = res.outer_vertices
+            except Exception:
+                pass
+
+        def shoelace_area(pts: Sequence[tuple[float, float]]) -> float:
+            n = len(pts)
+            if n < 3:
+                return 0.0
+            a = 0.0
+            for i in range(n):
+                j = (i + 1) % n
+                a += pts[i][0] * pts[j][1] - pts[j][0] * pts[i][1]
+            return abs(a) / 2.0
+
+        a_inner = shoelace_area(inner_pts)
+        if outer_pts:
+            a_outer = shoelace_area(outer_pts)
+        else:
+            perim = sum(
+                math.hypot(inner_pts[(i + 1) % len(inner_pts)][0] - inner_pts[i][0],
+                           inner_pts[(i + 1) % len(inner_pts)][1] - inner_pts[i][1])
+                for i in range(len(inner_pts))
+            )
+            a_outer = a_inner + perim * t
+
+        solid_vol = (a_outer - a_inner) * h
+
+        # Openings deduction
+        openings_deduction = 0.0
+        st_openings = ws_openings_by_storey.get(st_id) or st.get("openings", [])
+        for op in st_openings:
+            rough = op.get("rough_opening", {})
+            if rough and "width_cm" in rough and "height_cm" in rough:
+                w_op = float(rough["width_cm"])
+                h_op = float(rough["height_cm"])
+                t_op = float(rough.get("depth_cm", t))
+            else:
+                s_rng = op.get("s_range_cm", [0.0, 0.0])
+                w_op = float(s_rng[1]) - float(s_rng[0])
+                sill = float(op.get("sill_cm", 0.0))
+                head = float(op.get("head_cm", h))
+                h_op = head - sill
+                t_op = t
+            openings_deduction += w_op * h_op * t_op
+
+        storey_vol = max(0.0, solid_vol - openings_deduction)
+        total_volume_cm3 += storey_vol
+
+    return total_volume_cm3
+
+
 # --------------------------------------------------------------------------- #
 # Emit Mode (10.3)
 # --------------------------------------------------------------------------- #
@@ -938,7 +1084,7 @@ def run_emit_mode(in_path: Path, run_dir: Path, run_id: str, cert_path: Optional
         # Generate batch_XXX.ms
         ms_lines: list[str] = [
             f"-- Batch {b_id} for QA run {run_id}",
-            "(",
+            "global __qa_last_batch_result = (",
             '    local __qa_out = stringStream ""',
             f'    format "START_BATCH batch_id=%\\n" "{b_id}" to:__qa_out',
             '    local sysType = (units.SystemType as string)',
@@ -1014,9 +1160,116 @@ def run_emit_mode(in_path: Path, run_dir: Path, run_id: str, cert_path: Optional
                     '        local bMax = nd.max',
                     '        local modCount = nd.modifiers.count',
                     '        local isHidden = (nd.isHidden as string)',
-                    f'        format "ROW observation_id=% check_id=% target_id=% sample_id=% status=OK exists=true isHidden=% pos=[%,%,%] min=[%,%,%] max=[%,%,%] modCount=%\\n" \\',
+                    '        local baseCls = if isProperty nd #baseObject and nd.baseObject != undefined then (classOf nd.baseObject as string) else (classOf nd as string)',
+                    '        local mod1Cls = if modCount > 0 then (classOf nd.modifiers[1] as string) else "none"',
+                    '        local innerAmt = 0.0d0; local outerAmt = 0.0d0; local segs = 0',
+                    '        local straightenCorners = false',
+                    '        if modCount > 0 and (classOf nd.modifiers[1]) == Shell do (',
+                    '            local sm = nd.modifiers[1]',
+                    '            try ( innerAmt = sm.innerAmount as double ) catch ()',
+                    '            try ( outerAmt = sm.outerAmount as double ) catch ()',
+                    '            try ( segs = sm.segments as integer ) catch ()',
+                    '            try ( straightenCorners = sm.straightenCorners as booleanClass ) catch ()',
+                    '        )',
+                    '        local guideNd = getNodeByName (nd.name + "_InnerSpline")',
+                    '        local guideKnots = #()',
+                    '        if guideNd != undefined and (classOf guideNd) == SplineShape do (',
+                    '            local nK = numKnots guideNd 1',
+                    '            guideKnots = for k = 1 to nK collect (getKnotPoint guideNd 1 k)',
+                    '        )',
+                    '        local maxYDev = 0.0d0',
+                    '        local nVerts = 0; local nEdges = 0; local dupVerts = 0; local seamValenceErr = 0; local tJunctions = 0',
+                    '        try (',
+                    '            if (classOf nd.baseObject) == Editable_Poly do (',
+                    '                nVerts = polyop.getNumVerts nd.baseObject',
+                    '                nEdges = polyop.getNumEdges nd.baseObject',
+                    '                for vi = 1 to nVerts do (',
+                    '                    local vp = polyop.getVert nd.baseObject vi',
+                    '                    local dev = 0.0d0',
+                    '                    if guideKnots.count > 0 then (',
+                    '                        local minD = 1e9',
+                    '                        local p2d = [vp.x, vp.y, 0]',
+                    '                        for kp in guideKnots do (',
+                    '                            local d = distance p2d [kp.x, kp.y, 0]',
+                    '                            if d < minD do minD = d',
+                    '                        )',
+                    '                        dev = minD',
+                    '                    ) else (',
+                    '                        dev = abs (vp.y as double)',
+                    '                    )',
+                    '                    if dev > maxYDev do maxYDev = dev',
+                    '                )',
+                    '                if nVerts <= 1000 do (',
+                    '                    for vi = 1 to (nVerts - 1) do (',
+                    '                        local pvi = polyop.getVert nd.baseObject vi',
+                    '                        for vj = (vi + 1) to nVerts do (',
+                    '                            local pvj = polyop.getVert nd.baseObject vj',
+                    '                            if (distance pvi pvj) < 0.001 do dupVerts += 1',
+                    '                        )',
+                    '                    )',
+                    '                )',
+                    '                for ei = 1 to nEdges do (',
+                    '                    local ev = polyop.getEdgeVerts nd.baseObject ei',
+                    '                    local p1 = polyop.getVert nd.baseObject ev[1]',
+                    '                    local p2 = polyop.getVert nd.baseObject ev[2]',
+                    '                    local ef = polyop.getEdgeFaces nd.baseObject ei',
+                    '                    if ef.count > 2 do tJunctions += 1',
+                    '                    if (abs (p1.x - p2.x) < 0.01) and (abs (p1.y - p2.y) < 0.01) and (abs (p1.z - p2.z) > 0.01) do (',
+                    '                        local isSeam = true',
+                    '                        if guideKnots.count >= 3 do (',
+                    '                            isSeam = false',
+                    '                            for ki = 1 to guideKnots.count do (',
+                    '                                local kp = guideKnots[ki]',
+                    '                                if (distance [p1.x, p1.y, 0] [kp.x, kp.y, 0]) < 0.01 do (',
+                    '                                    local prevK = if ki == 1 then guideKnots[guideKnots.count] else guideKnots[ki-1]',
+                    '                                    local nextK = if ki == guideKnots.count then guideKnots[1] else guideKnots[ki+1]',
+                    '                                    local vPrev = normalize ([kp.x - prevK.x, kp.y - prevK.y, 0])',
+                    '                                    local vNext = normalize ([nextK.x - kp.x, nextK.y - kp.y, 0])',
+                    '                                    if (abs (dot vPrev vNext)) < 0.999 do isSeam = true',
+                    '                                )',
+                    '                            )',
+                    '                        )',
+                    '                        if isSeam do (',
+                    '                            if ef.count != 2 do seamValenceErr += 1',
+                    '                        )',
+                    '                    )',
+                    '                )',
+                    '            )',
+                    '        ) catch ()',
+                    '        local evalVol = 0.0d0',
+                    '        local openEdges = 0',
+                    '        local tmpMesh = undefined',
+                    '        try (',
+                    '            in coordsys world (tmpMesh = snapshotAsMesh nd)',
+                    '            if tmpMesh != undefined do (',
+                    '                local nf = tmpMesh.numFaces',
+                    '                if nf > 0 do (',
+                    '                    local v1 = getVert tmpMesh 1',
+                    '                    for f = 1 to nf do (',
+                    '                        local f3 = getFace tmpMesh f',
+                    '                        local a = getVert tmpMesh (f3.x as integer)',
+                    '                        local b_v = getVert tmpMesh (f3.y as integer)',
+                    '                        local c = getVert tmpMesh (f3.z as integer)',
+                    '                        local ax = (a.x as double) - (v1.x as double)',
+                    '                        local ay = (a.y as double) - (v1.y as double)',
+                    '                        local az = (a.z as double) - (v1.z as double)',
+                    '                        local bx = (b_v.x as double) - (v1.x as double)',
+                    '                        local b_y = (b_v.y as double) - (v1.y as double)',
+                    '                        local bz = (b_v.z as double) - (v1.z as double)',
+                    '                        local cx = (c.x as double) - (v1.x as double)',
+                    '                        local cy = (c.y as double) - (v1.y as double)',
+                    '                        local cz = (c.z as double) - (v1.z as double)',
+                    '                        evalVol += (ax * (b_y * cz - bz * cy) + ay * (bz * cx - bx * cz) + az * (bx * cy - b_y * cx)) / 6.0',
+                    '                    )',
+                    '                    try ( openEdges = (meshop.getOpenEdges tmpMesh).numberSet ) catch ()',
+                    '                )',
+                    '                delete tmpMesh; tmpMesh = undefined',
+                    '            )',
+                    '        ) catch ( if tmpMesh != undefined do try ( delete tmpMesh ) catch () )',
+                    f'        format "ROW observation_id=% check_id=% target_id=% sample_id=% status=OK exists=true isHidden=% pos=[%,%,%] min=[%,%,%] max=[%,%,%] modCount=% baseCls=% mod1Cls=% innerAmt=% outerAmt=% segs=% straightenCorners=% nVerts=% nEdges=% dupVerts=% seamValenceErr=% tJunctions=% openEdges=% maxYDev=% vol=% signedVol=%\\n" \\',
                     f'            "{o_id}" "{c_id}" "{t_id}" "{s_id}" isHidden (p.x as string) (p.y as string) (p.z as string) \\',
-                    '            (bMin.x as string) (bMin.y as string) (bMin.z as string) (bMax.x as string) (bMax.y as string) (bMax.z as string) (modCount as string) to:__qa_out',
+                    '            (bMin.x as string) (bMin.y as string) (bMin.z as string) (bMax.x as string) (bMax.y as string) (bMax.z as string) \\',
+                    '            (modCount as string) baseCls mod1Cls (innerAmt as string) (outerAmt as string) (segs as string) (straightenCorners as string) (nVerts as string) (nEdges as string) (dupVerts as string) (seamValenceErr as string) (tJunctions as string) (openEdges as string) (maxYDev as string) ((abs evalVol) as string) (evalVol as string) to:__qa_out',
                     '    ) else (',
                     f'        format "ROW observation_id=% check_id=% target_id=% sample_id=% status=NOT_FOUND exists=false\\n" \\',
                     f'            "{o_id}" "{c_id}" "{t_id}" "{s_id}" to:__qa_out',
@@ -1125,7 +1378,8 @@ def parse_point_string(s: str) -> list[float]:
         raise WireParseError(f"Point must have exactly 3 coordinates: {s}")
     coords: list[float] = []
     for p in parts:
-        val = float(p)
+        p_clean = p.replace("d", "e").replace("D", "e")
+        val = float(p_clean)
         if not math.isfinite(val):
             raise WireParseError(f"Nonfinite coordinate in point: {p}")
         coords.append(val)
@@ -1232,12 +1486,21 @@ def _parse_wire_row_line(line: str) -> dict[str, Any]:
     for p in parts[1:]:
         if "=" in p:
             k, v = p.split("=", 1)
-            if k in ("exists", "isHidden"):
+            if k in ("exists", "isHidden", "straightenCorners", "host_visible", "hostVisible"):
                 rec[k] = (v.lower() == "true")
-            elif k in ("modCount",):
-                rec[k] = int(v)
+            elif k in ("modCount", "segs", "nVerts", "nEdges", "dupVerts", "seamValenceErr", "tJunctions", "openEdges"):
+                try:
+                    rec[k] = int(v)
+                except ValueError:
+                    rec[k] = v
             elif k in ("pos", "min", "max", "pt"):
                 rec[k] = parse_point_string(v)
+            elif k in ("innerAmt", "outerAmt", "maxYDev", "vol", "signedVol"):
+                try:
+                    v_clean = v.replace("d", "e").replace("D", "e")
+                    rec[k] = float(v_clean)
+                except ValueError:
+                    rec[k] = v
             else:
                 rec[k] = v
     return rec
@@ -1257,8 +1520,41 @@ def run_assess_mode(in_path: Path, request_path: Path, results_path: Path, out_d
         return 1
 
     specs_dir, project_root = find_pipeline_dir(in_path)
-    dim_file = resolve_file("specs/pipeline/dimensions.json", specs_dir, project_root)
-    dim_doc = json.loads(dim_file.read_text(encoding="utf-8"))
+    dim_doc: dict[str, Any] = {}
+    try:
+        dim_file = resolve_file("specs/pipeline/dimensions.json", specs_dir, project_root)
+        dim_doc = json.loads(dim_file.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+
+    walls_doc: dict[str, Any] = {}
+    try:
+        w_file = resolve_file("walls.json", specs_dir, project_root)
+        walls_doc = json.loads(w_file.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+
+    wall_surface_doc: dict[str, Any] = {}
+    try:
+        ws_file = resolve_file("wall_surface.json", specs_dir, project_root)
+        wall_surface_doc = json.loads(ws_file.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+
+    assembly_doc: dict[str, Any] = {}
+    try:
+        as_file = resolve_file("assembly.json", specs_dir, project_root)
+        assembly_doc = json.loads(as_file.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    assembly_placements = assembly_doc.get("placements", [])
+
+    assumptions_doc: dict[str, Any] = {}
+    try:
+        asm_file = resolve_file("assumptions.json", specs_dir, project_root)
+        assumptions_doc = json.loads(asm_file.read_text(encoding="utf-8"))
+    except Exception:
+        pass
 
     req_doc = json.loads(request_path.read_text(encoding="utf-8"))
     project = req_doc.get("project", "")
@@ -1283,10 +1579,55 @@ def run_assess_mode(in_path: Path, request_path: Path, results_path: Path, out_d
     # Retrieve tolerances
     qa_file = specs_dir / "qa.json"
     qa_doc = json.loads(qa_file.read_text(encoding="utf-8"))
+    profile = req_doc.get("profile") or qa_doc.get("profile", "")
     tolerances = qa_doc.get("tolerances", {})
     linear_tol = float(tolerances.get("linear_cm", 0.5))
     form_tol_dict = tolerances.get("form", {})
     surface_dev_tol = float(form_tol_dict.get("surface_deviation_cm", 0.5))
+
+    # Unit scaling
+    sys_type = "Centimeters"
+    sys_scale = 1.0
+    for g in guard_audit.get("guards", []):
+        line = g.get("guard_line", "")
+        m_st = re.search(r"units\.SystemType=([A-Za-z0-9_-]+)", line)
+        m_sc = re.search(r"units\.SystemScale=([0-9.]+)", line)
+        if m_st:
+            sys_type = m_st.group(1)
+        if m_sc:
+            try:
+                sys_scale = float(m_sc.group(1))
+            except ValueError:
+                pass
+    if not guard_audit.get("guards"):
+        qa_units = qa_doc.get("units") or walls_doc.get("units")
+        if qa_units:
+            sys_type = qa_units
+
+    try:
+        c_unit, f_unit = scene_units.unit_factor(sys_type, sys_scale)
+    except Exception:
+        c_unit, f_unit = 1.0, 1.0
+
+    f_vol = f_unit ** 3
+    c_vol = c_unit ** 3
+
+    # Analytical Oracle volume
+    oracle_vol_cm3 = 0.0
+    if profile in ("closed_inner_contour_shell_v2", "wall_surface_v1", "wall_poly_shell_v1", "poly_surface_shell_v1"):
+        oracle_vol_cm3 = compute_closed_contour_analytical_volume(
+            walls_doc=walls_doc,
+            wall_surface_doc=wall_surface_doc,
+            assumptions_doc=assumptions_doc,
+        )
+
+    num_tol = tolerances.get("numerical", {})
+    vol_roundoff = num_tol.get("volume_roundoff_cm3")
+    if vol_roundoff is not None and isinstance(vol_roundoff, (int, float)) and vol_roundoff > 0:
+        vol_tol_cm3 = max(float(vol_roundoff), 0.005 * oracle_vol_cm3)
+    else:
+        vol_tol_cm3 = max(100.0, 0.005 * oracle_vol_cm3)
+    vol_tol_scene = vol_tol_cm3 * f_vol
 
     # Form references index
     form_refs = {r["id"]: r for r in dim_doc.get("form_references", [])}
@@ -1307,11 +1648,14 @@ def run_assess_mode(in_path: Path, request_path: Path, results_path: Path, out_d
 
     # Check plan from qa.json or request
     check_plan_map = {c["id"]: c for c in qa_doc.get("check_plan", [])}
+    targets_map = {t["id"]: t for t in qa_doc.get("scope", {}).get("targets", []) if isinstance(t, dict)}
 
     for c_id in expected_check_ids:
         c_plan = check_plan_map.get(c_id, {})
         c_kind = c_plan.get("kind", "")
         t_ref = c_plan.get("target_ref", "")
+        target_def = targets_map.get(t_ref, {})
+        t_kind = target_def.get("kind", "")
         check_obs = obs_by_check.get(c_id, [])
 
         eval_res: dict[str, Any] = {
@@ -1372,7 +1716,38 @@ def run_assess_mode(in_path: Path, request_path: Path, results_path: Path, out_d
                 if not rec.get("exists", False):
                     eval_res["status"] = "FAIL"
                     eval_res["errors"].append(f"Placement node {t_ref} absent")
-                else:
+                    continue
+
+                mod_count = int(rec.get("modCount", 0))
+                if mod_count != 0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Placement node {t_ref} has {mod_count} modifiers; expected 0 (G-81 zero-modifier rule)")
+
+                if rec.get("isHidden", False):
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Placement node {t_ref} is hidden; expected visible (isHidden=false)")
+
+                if assembly_placements:
+                    p_info = None
+                    node_name = rec.get("node_name") or (target_def.get("node_names", [""])[0] if target_def.get("node_names") else t_ref)
+                    for plc in assembly_placements:
+                        if plc.get("node_name") == node_name or plc.get("id") == t_ref or plc.get("opening_id") == t_ref:
+                            p_info = plc
+                            break
+                    if p_info:
+                        expected_pos = p_info.get("position_cm")
+                        if expected_pos and "pos" in rec:
+                            exp_pos_scene = [float(expected_pos[0]) * f_unit, float(expected_pos[1]) * f_unit, float(expected_pos[2]) * f_unit]
+                            meas_pos = rec["pos"]
+                            dev_pos = math.sqrt(sum((meas_pos[i] - exp_pos_scene[i]) ** 2 for i in range(3)))
+                            if dev_pos > (linear_tol * f_unit):
+                                eval_res["status"] = "FAIL"
+                                eval_res["errors"].append(
+                                    f"Placement {t_ref} position deviation {dev_pos:.2f} exceeds linear tolerance {linear_tol * f_unit:.2f}"
+                                )
+
+                if eval_res["status"] != "FAIL":
+                    eval_res["status"] = "PASS"
                     observed_targets_set.add(t_ref)
 
         elif c_kind == "QA-V1-WALLS":
@@ -1387,6 +1762,39 @@ def run_assess_mode(in_path: Path, request_path: Path, results_path: Path, out_d
                 if not rec.get("exists", False):
                     eval_res["status"] = "FAIL"
                     eval_res["errors"].append(f"Wall node {t_ref} absent")
+                elif t_kind == "wall_surface":
+                    if profile == "closed_inner_contour_shell_v2":
+                        inner_amt = float(rec.get("innerAmt", 0.0))
+                        outer_amt = float(rec.get("outerAmt", 0.0))
+                        if inner_amt != 0.0 or outer_amt <= 0.0:
+                            eval_res["status"] = "FAIL"
+                            eval_res["errors"].append(f"Wall node {t_ref} shell direction must be outward: innerAmount={inner_amt}, outerAmount={outer_amt}")
+                    else:
+                        max_y_dev = float(rec.get("maxYDev", 0.0))
+                        if max_y_dev > 0.05:
+                            eval_res["status"] = "FAIL"
+                            eval_res["errors"].append(f"Wall node {t_ref} inner face deviation {max_y_dev} exceeds tolerance (must lie on Y=0)")
+                        b_min = rec.get("min", [0, 0, 0])
+                        b_max = rec.get("max", [0, 0, 0])
+                        if b_max[1] > 0.05 or b_min[1] >= 0.0:
+                            eval_res["status"] = "FAIL"
+                            eval_res["errors"].append(f"Wall node {t_ref} normal direction not outward -Y (min_y={b_min[1]}, max_y={b_max[1]})")
+
+                    vol = float(rec.get("vol", 0.0))
+                    eval_res["metrics"]["evaluated_volume"] = vol
+                    if vol <= 0.0:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Wall node {t_ref} evaluated volume is non-positive: {vol}")
+
+                    # Watertightness: open edges must be 0
+                    open_edges = int(rec.get("openEdges", 0))
+                    if open_edges != 0:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(
+                            f"Wall node {t_ref} mesh is not watertight: open edges count is {open_edges}; expected strictly 0"
+                        )
+
+                    observed_targets_set.add(t_ref)
                 elif not rec.get("isHidden", False):
                     eval_res["status"] = "FAIL"
                     eval_res["errors"].append(f"Wall node {t_ref} is not hidden (active host collision with openings)")
@@ -1403,10 +1811,268 @@ def run_assess_mode(in_path: Path, request_path: Path, results_path: Path, out_d
                     continue
                 eval_res["n_observed"] += 1
                 mod_count = rec.get("modCount", 0)
-                if mod_count != 0:
+                if t_kind == "wall_surface":
+                    if mod_count != 1:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Target {t_ref} has {mod_count} modifiers; expected strictly 1 (Shell)")
+                    elif rec.get("mod1Cls") != "Shell":
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Target {t_ref} modifier is {rec.get('mod1Cls')}; expected Shell")
+                    elif rec.get("baseCls") != "Editable_Poly":
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Target {t_ref} base is {rec.get('baseCls')}; expected Editable_Poly")
+                    elif float(rec.get("innerAmt", 0.0)) != 0.0:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Target {t_ref} Shell innerAmount is {rec.get('innerAmt')}; expected 0.0")
+                    elif profile == "closed_inner_contour_shell_v2" and not rec.get("straightenCorners", True):
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Target {t_ref} Shell straightenCorners is false; expected true")
+                    elif profile == "closed_inner_contour_shell_v2" and int(rec.get("segs", 1)) != 1:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Target {t_ref} Shell segments is {rec.get('segs')}; expected 1")
+                    else:
+                        observed_targets_set.add(t_ref)
+                elif mod_count != 0:
                     eval_res["status"] = "FAIL"
                     eval_res["errors"].append(f"Target {t_ref} has {mod_count} modifiers; expected 0 (zero-modifier rule)")
                 else:
+                    observed_targets_set.add(t_ref)
+
+        elif c_kind == "QA-V1-DIRECTION":
+            for obs in check_obs:
+                o_id = obs["id"]
+                rec = records_by_obs.get(o_id)
+                if not rec:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Missing observation {o_id}")
+                    continue
+                eval_res["n_observed"] += 1
+                if not rec.get("exists", False):
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} absent")
+                    continue
+
+                if profile == "closed_inner_contour_shell_v2":
+                    inner_amt = float(rec.get("innerAmt", 0.0))
+                    outer_amt = float(rec.get("outerAmt", 0.0))
+                    if inner_amt != 0.0 or outer_amt <= 0.0:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(
+                            f"Target {t_ref} outward direction violated: innerAmount={inner_amt} (expected 0.0), outerAmount={outer_amt} (expected > 0.0)"
+                        )
+                else:
+                    max_y_dev = float(rec.get("maxYDev", 0.0))
+                    if max_y_dev > 0.05:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Target {t_ref} inner face deviation {max_y_dev} exceeds tolerance (must lie on Y=0)")
+                    b_min = rec.get("min", [0, 0, 0])
+                    b_max = rec.get("max", [0, 0, 0])
+                    if b_max[1] > 0.05 or b_min[1] >= 0.0:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(f"Target {t_ref} normal direction not outward -Y (min_y={b_min[1]}, max_y={b_max[1]})")
+
+                if eval_res["status"] != "FAIL":
+                    eval_res["status"] = "PASS"
+                    observed_targets_set.add(t_ref)
+
+        elif c_kind == "QA-V1-SOLID":
+            for obs in check_obs:
+                o_id = obs["id"]
+                rec = records_by_obs.get(o_id)
+                if not rec:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Missing observation {o_id}")
+                    continue
+                eval_res["n_observed"] += 1
+                if not rec.get("exists", False):
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} absent")
+                    continue
+
+                vol = abs(float(rec.get("vol", 0.0)))
+                signed_vol = float(rec.get("signedVol", vol))
+                open_edges = int(rec.get("openEdges", 0))
+
+                eval_res["metrics"]["evaluated_volume"] = vol
+                eval_res["metrics"]["signed_volume"] = signed_vol
+                eval_res["metrics"]["open_edges"] = open_edges
+
+                if vol <= 0.0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} evaluated volume is non-positive: {vol}")
+                elif signed_vol <= 0.0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} signed volume is non-positive: {signed_vol}")
+
+                # Watertightness gate: open edges must be strictly 0
+                if open_edges != 0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(
+                        f"Target {t_ref} mesh is not watertight: open edges count is {open_edges}; expected strictly 0"
+                    )
+
+                # Analytical Oracle volume comparison if oracle is available
+                if oracle_vol_cm3 > 0.0:
+                    vol_oracle_scene = oracle_vol_cm3 * f_vol
+                    vol_dev = abs(vol - vol_oracle_scene)
+                    eval_res["metrics"]["oracle_volume_scene"] = vol_oracle_scene
+                    eval_res["metrics"]["volume_deviation"] = vol_dev
+                    if vol_dev > vol_tol_scene:
+                        eval_res["status"] = "FAIL"
+                        eval_res["errors"].append(
+                            f"Target {t_ref} evaluated volume {vol:.2f} deviates from analytical oracle {vol_oracle_scene:.2f} by {vol_dev:.2f} (tolerance {vol_tol_scene:.2f})"
+                        )
+
+                if eval_res["status"] != "FAIL":
+                    eval_res["status"] = "PASS"
+                    observed_targets_set.add(t_ref)
+
+        elif c_kind == "QA-V1-TOPOLOGY":
+            for obs in check_obs:
+                o_id = obs["id"]
+                rec = records_by_obs.get(o_id)
+                if not rec:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Missing observation {o_id}")
+                    continue
+                eval_res["n_observed"] += 1
+                if not rec.get("exists", False):
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} absent")
+                    continue
+
+                mod_count = rec.get("modCount", 0)
+                if mod_count != 1 or rec.get("mod1Cls") != "Shell":
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} has invalid modifier stack: modCount={mod_count}, mod1={rec.get('mod1Cls')}; expected strictly 1 Shell")
+                if rec.get("baseCls") != "Editable_Poly":
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} base class {rec.get('baseCls')} is not Editable_Poly")
+
+                vol = abs(float(rec.get("vol", 0.0)))
+                signed_vol = float(rec.get("signedVol", vol))
+                if vol <= 0.0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} evaluated volume is non-positive: {vol}")
+                elif signed_vol <= 0.0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} signed volume is non-positive: {signed_vol}")
+
+                # Watertightness: open edges must be strictly 0
+                open_edges = int(rec.get("openEdges", 0))
+                if open_edges != 0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(
+                        f"Target {t_ref} mesh is not watertight: open edges count is {open_edges}; expected strictly 0"
+                    )
+
+                # Corner vertex sharing: no duplicate vertices in base poly
+                dup_verts = int(rec.get("dupVerts", 0))
+                if dup_verts != 0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(
+                        f"Target {t_ref} has {dup_verts} duplicate vertices in base poly (corner vertex sharing violation)"
+                    )
+
+                # Vertical corner seam valence: valence=2 on vertical corner seams
+                seam_err = int(rec.get("seamValenceErr", 0))
+                if seam_err != 0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(
+                        f"Target {t_ref} has {seam_err} vertical corner seam edges with valence != 2"
+                    )
+
+                # Non-manifold / T-junction edges
+                t_junc = int(rec.get("tJunctions", 0))
+                if t_junc != 0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(
+                        f"Target {t_ref} has {t_junc} T-junction edges in base poly"
+                    )
+
+                if eval_res["status"] != "FAIL":
+                    eval_res["status"] = "PASS"
+                    observed_targets_set.add(t_ref)
+
+        elif c_kind in ("QA-V1-SURFACE", "QA-V1-ENCLOSURE"):
+            for obs in check_obs:
+                o_id = obs["id"]
+                rec = records_by_obs.get(o_id)
+                if not rec:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Missing observation {o_id}")
+                    continue
+                eval_res["n_observed"] += 1
+                if not rec.get("exists", False):
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} absent")
+                    continue
+                max_y_dev = float(rec.get("maxYDev", 0.0))
+                if max_y_dev > 0.05:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} inner face deviation {max_y_dev} exceeds tolerance")
+                vol = abs(float(rec.get("vol", 0.0)))
+                signed_vol = float(rec.get("signedVol", vol))
+                if vol <= 0.0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} evaluated volume is non-positive: {vol}")
+                elif signed_vol <= 0.0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} signed volume is non-positive: {signed_vol}")
+                if eval_res["status"] != "FAIL":
+                    eval_res["status"] = "PASS"
+                    observed_targets_set.add(t_ref)
+
+        elif c_kind == "QA-V1-APERTURE":
+            for obs in check_obs:
+                o_id = obs["id"]
+                rec = records_by_obs.get(o_id)
+                if not rec:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Missing observation {o_id}")
+                    continue
+                eval_res["n_observed"] += 1
+                if not rec.get("exists", False):
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Target {t_ref} absent")
+                    continue
+
+                mod_count = int(rec.get("modCount", 0))
+                if mod_count != 0:
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(f"Aperture target {t_ref} has {mod_count} modifiers; expected 0 (G-81)")
+
+                if rec.get("host_visible", False) or rec.get("hostVisible", False):
+                    eval_res["status"] = "FAIL"
+                    eval_res["errors"].append(
+                        f"Host facade wall is visible for aperture target {t_ref} (Mechanism A breach / opening occlusion)"
+                    )
+
+                if assembly_placements:
+                    p_info = None
+                    node_name = rec.get("node_name") or (target_def.get("node_names", [""])[0] if target_def.get("node_names") else t_ref)
+                    for plc in assembly_placements:
+                        if plc.get("node_name") == node_name or plc.get("id") == t_ref or plc.get("opening_id") == t_ref:
+                            p_info = plc
+                            break
+                    if p_info:
+                        rough = p_info.get("rough_opening", {})
+                        mount = p_info.get("mounting_parameters", {})
+                        size_cm = p_info.get("size_cm", [])
+                        if rough and mount and len(size_cm) == 3:
+                            cl_sides = float(mount.get("clearance_sides_cm", 1.0))
+                            cl_top = float(mount.get("clearance_top_cm", 1.0))
+                            cl_bot = float(mount.get("clearance_bottom_cm", 0.0 if p_info.get("kind") == "door" else 1.0))
+                            exp_w = float(rough.get("width_cm", size_cm[0])) - 2.0 * cl_sides
+                            exp_h = float(rough.get("height_cm", size_cm[2])) - cl_top - cl_bot
+                            if abs(float(size_cm[0]) - exp_w) > linear_tol or abs(float(size_cm[2]) - exp_h) > linear_tol:
+                                eval_res["status"] = "FAIL"
+                                eval_res["errors"].append(
+                                    f"Aperture target {t_ref} clearances do not match rough opening: expected size [{exp_w:.2f}, {exp_h:.2f}], got [{size_cm[0]}, {size_cm[2]}]"
+                                )
+
+                if eval_res["status"] != "FAIL":
+                    eval_res["status"] = "PASS"
                     observed_targets_set.add(t_ref)
 
         elif c_kind == "QA-V1-REPLAY":

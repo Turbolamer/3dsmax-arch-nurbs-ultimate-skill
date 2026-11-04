@@ -1,5 +1,13 @@
 # P6 contract — `assembly.json`, the `facade_wall` extension, `place_components.py`
 
+> **Operational update (2026-11-04):** the former agents-must-not-touch-Max restriction is
+> superseded by `agents/max-orchestrator.md` §1.1. An authorized delegate may run necessary
+> probes and the live gate in the single designated operator slot, using short sequential calls.
+> Preserve unrelated content and dirty state; cleanup only proven-owned temporary fixtures.
+> Historical example counts/recipes below describe disposable fixtures, not permission to clear
+> a user scene. Fatal stack, `formattedPrint` and synthetic `nurbsID` safeguards remain; current
+> procedural corrections live in `agents/max-assembly.md`, and no new architecture is accepted here.
+
 **This file is the authority for stage P6.** It exists because four files must not drift:
 `references/07-spec-grammar.md` (§8.1 amendment, §8.5, §9.6 amendment, §9.9),
 `scripts/validate_specs.py` (`G-38` amendment, `G-71`…`G-81`), `scripts/build_spec.py`,
@@ -319,7 +327,7 @@ python scripts/place_components.py --in <dir> --out <dir> [--stage assembly] [--
 
 ---
 
-## 7. The live gate — the orchestrator performs it, agents must not touch the bridge
+## 7. The live gate — orchestrator or authorized designated operator
 
 The guard, restated: *an emitted `.ms` is not done until `fileIn` has run it and its output has been
 measured against the spec's intent.* It has fired for MAXScript (P3, P4), for a table (P5) and is

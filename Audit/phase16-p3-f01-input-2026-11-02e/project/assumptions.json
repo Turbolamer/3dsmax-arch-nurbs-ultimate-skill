@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "spec": "assumptions",
+  "project": "phase16-p3-f01",
+  "units": {"length": "cm", "angle": "deg"},
+  "source": {
+    "kind": "assumed",
+    "reference": "Synthetic support assumption in Audit/phase16-p3-f01-input-2026-11-02e/fixture-brief.md; adapted from examples/assumptions.json A-001, not an attestation of F01 physical outward direction.",
+    "recorded_at": "2026-11-02T00:00:00Z"
+  },
+  "status": "locked",
+  "assumptions": [
+    {
+      "id": "A-001",
+      "field_path": "site.plot_rotation_deg",
+      "value": 0.0,
+      "reason": "The analytical wall plan specifies XZ geometry but no true-north/site bearing. Retain the real seed zero plot rotation for synthetic schema-support context only; it does not establish the wall physical outside, which is explicitly given in the analytical plan.",
+      "confidence": "medium",
+      "invalidated_by": "An authoritative site bearing for this synthetic support context; this assumption must never override analytical inner Y=0 and outward -Y.",
+      "recheck_stage": "P3",
+      "downstream_stages": ["P3"]
+    }
+  ],
+  "cross_references": {
+    "note": "No conflict-sourced dimensions: every synthetic support input and documented dependency is explicit in fixture-brief.md. The task-versus-plan station discrepancy is recorded in README.md; no historical pavilion conflict is copied as a fact of this new fixture.",
+    "conflict_sourced_paths": []
+  }
+}

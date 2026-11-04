@@ -1,0 +1,26 @@
+{
+  "status": "MAIN_REVIEWED_SYNTHETIC_SOURCE_AUTHORITY_NOT_RUNTIME",
+  "authority_path": "Audit\\phase16-p3-f01-input-2026-11-02e\\direction-authority.json",
+  "authority_sha256": "af3686f8105896cddadcee2ad659badab4e250377ca86853dc9a665bb0a201cb",
+  "source_path": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\AGENT_PLAN_poly_surface_shell.md",
+  "source_sha256": "37813bb8f6b8d2e445c69a0424d78997f80a3752303ccffebee802e1d84ee672",
+  "walls_sha256": "bbd433c76b83a709845c9a20941414bbadc786dbe6ceac907f9259d9876bfa9f",
+  "actual_source_quotes": {
+    "G.1": [
+      "### G.1 Численный эталон F01 (единственная полностью измеренная фикстура)",
+      "",
+      "Стена в сантиметрах: `u = 0…400`, `Y = 0`, `Z = 0…300`, наружу `(0,−1,0)`, толщина **30**.",
+      "Дверь: `u = 50…150`, `Z = 0…210`. Окно: `u = 230…330`, `Z = 90…210`.",
+      "",
+      "Станции: `u = [0, 50, 150, 230, 330, 400]`, `Z = [0, 90, 210, 300]`.",
+      ""
+    ],
+    "inner_face": [
+      "| Внутренняя грань | `min=[0,0,0]`, `max=[4000, 0.0001, 3000]` — **сохранена на Y=0** |",
+      "| Наружная оболочка | `min=[0,-300,0]`, `max=[4000,0,3000]` — наружу = по нормали `[0,-1,0]` |",
+      "| Вершины | **48** (измерено) = 24 граничных вершины × 2 (внутренний + наружный контуры) |"
+    ]
+  },
+  "main_source_decision": "Actual analytical F01 plan G.1 supplies Y=0, outward(0,-1,0), length400 height300 thickness30, door50..150/0..210 and window230..330/90..210. Earlier section explicitly identifies inner face Y=0. Accepted as physical authority for synthetic F01 only; no semantic authority for arbitrary project, no runtime proof.",
+  "declaration_agrees": true
+}

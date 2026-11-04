@@ -1,0 +1,49 @@
+{
+  "scope": "Main-only calibration of specified normals extraction via in-memory TriMesh and Autodesk.Max.GlobalInterface; verified live in 3ds Max 2026.3.2",
+  "recorded_at": "2026-11-04T10:50:59+03:00",
+  "probes": {
+    "api_availability": {
+      "ok": true,
+      "result": "P3_NORMALS_HINT_PROBE|dotNetGlobalInterface=true|meshopGetFaceRNormals=true|weightedNormalsClass=true|editNormals=true|normalmodifier=true|smooth=true|vertexWeld=true",
+      "transport": {
+        "transport": "namedpipe",
+        "request_id": "bf43b011eef34e17b9c0580e1ea477de",
+        "client_round_trip_ms": 0.955
+      }
+    },
+    "trimesh_from_editable_poly": {
+      "ok": true,
+      "result": "P3_TRIMESH_READ_PROBE|triMeshRetrieved=true|triMeshClass=TriMesh|numFaces=0|numVerts=0|rNormals=UndefinedClass|rnErr=|cleaned=true",
+      "transport": {
+        "transport": "namedpipe",
+        "request_id": "fe35bad421c74a29b082ed2821b93ff8",
+        "client_round_trip_ms": 3.414
+      }
+    },
+    "trimesh_quad_rnormals": {
+      "ok": true,
+      "result": "P3_TRIMESH_QUAD_NORMALS_PROBE|numFaces=2|numVerts=4|rn1Class=Array|rn1_1=[0,-1,0]|rn1_2=[0,-1,0]|rn1_3=[0,-1,0]|sg1=0|sg2=0|cleaned=true",
+      "transport": {
+        "transport": "namedpipe",
+        "request_id": "b559d7f4580341d69912ec4d4de8a203",
+        "client_round_trip_ms": 2.871
+      }
+    },
+    "trimesh_shelled_rnormals": {
+      "ok": true,
+      "result": "P3_TRIMESH_SHELL_PROBE|baseFaces=2|evalFaces=12|rnBase1=[0,-1,0]|rnEval1=[0,-1,0]|cleaned=true",
+      "transport": {
+        "transport": "namedpipe",
+        "request_id": "34e1bd857b4349af9adde0076fe528f1",
+        "client_round_trip_ms": 10.164
+      }
+    }
+  },
+  "verified_facts": {
+    "trimesh_access": "node.baseObject.mesh returns an in-memory TriMesh for the Editable_Poly baseObject without UI or modPanel; node.mesh returns the evaluated TriMesh in Object Space.",
+    "meshop_rnormals": "meshop.getFaceRNormals <trimesh> f returns an array of 3 Point3 normal vectors per face, capturing both smoothing groups and specified normals.",
+    "memory_cleanup": "delete baseTri and delete evalTri properly release the temporary TriMesh objects from memory.",
+    "dotnet_globalinterface": "dotNetClass 'Autodesk.Max.GlobalInterface' and its .Instance are live and accessible in 3ds Max 2026.3.2."
+  },
+  "interpretation": "The user-supplied hint is fully confirmed by live execution. The C++ SDK MNNormalSpec table in Editable_Poly is automatically converted to MeshNormalSpec when accessing .mesh in MAXScript, and meshop.getFaceRNormals reads all per-corner normals in Object Space without UI interaction. This unlocks Gate 1 (specified normals base metadata)."
+}

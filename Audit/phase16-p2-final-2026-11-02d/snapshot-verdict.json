@@ -1,0 +1,10 @@
+{
+  "timestamp_utc": "2026-11-02T20:07:54.859466+00:00",
+  "source_drift": [],
+  "nonzero": [],
+  "git_head_changed": false,
+  "expected_scripts": 20,
+  "executed_scripts": 20,
+  "acceptance": "NOT_ASSESSED",
+  "note": "SKIP/xfail and passing fault observations require manual disposition; endpoint hashes cannot exclude change-and-revert; no live or produced poly evidence"
+}

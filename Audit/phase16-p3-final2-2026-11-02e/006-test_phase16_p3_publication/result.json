@@ -1,0 +1,265 @@
+{
+  "test": "Audit/test_phase16_p3_publication.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_publication.py",
+    "-v"
+  ],
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "started_utc": "2026-11-02T21:33:33.282474+00:00",
+  "ended_utc": "2026-11-02T21:33:33.808392+00:00",
+  "seconds": 0.525904,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 6599,
+    "sha256": "cc3e957d53ec65013f532320924f5c25205ef679b1b60963ec4bff97d35eb700"
+  },
+  "source_drift": [],
+  "baseline_problems": [],
+  "observations": {
+    "summary_lines": [
+      {
+        "stream": "stderr",
+        "line": 47,
+        "text": "Ran 42 tests in 0.387s"
+      },
+      {
+        "stream": "stderr",
+        "line": 49,
+        "text": "OK"
+      }
+    ],
+    "qualifier_lines": [],
+    "test_lines": [
+      {
+        "stream": "stderr",
+        "line": 1,
+        "text": "test_non_windows_fails_before_filesystem_access (__main__.PlatformRefusal.test_non_windows_fails_before_filesystem_access) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 3,
+        "text": "test_alias_path_components_and_traversal_refuse (__main__.PublicationWindows.test_alias_path_components_and_traversal_refuse) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "test_cleanup_rmdir_failure_explicit_diagnostic_retains_empty_stage (__main__.PublicationWindows.test_cleanup_rmdir_failure_explicit_diagnostic_retains_empty_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 5,
+        "text": "test_cleanup_unlink_failure_explicit_diagnostic_retains_evidence (__main__.PublicationWindows.test_cleanup_unlink_failure_explicit_diagnostic_retains_evidence) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "test_closed_names_exact_bytes_and_size_bound (__main__.PublicationWindows.test_closed_names_exact_bytes_and_size_bound) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 7,
+        "text": "test_combined_pair_exact_two_mib_publishes (__main__.PublicationWindows.test_combined_pair_exact_two_mib_publishes) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 8,
+        "text": "test_combined_pair_independent_regression_two_individually_under_limit_refuses (__main__.PublicationWindows.test_combined_pair_independent_regression_two_individually_under_limit_refuses) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 9,
+        "text": "test_combined_pair_two_mib_plus_one_refuses_before_path_or_stage (__main__.PublicationWindows.test_combined_pair_two_mib_plus_one_refuses_before_path_or_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 10,
+        "text": "test_commit_is_not_followed_by_readback_or_cleanup (__main__.PublicationWindows.test_commit_is_not_followed_by_readback_or_cleanup) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 11,
+        "text": "test_deterministic_bytes_separate_new_outputs_input_dict_unchanged (__main__.PublicationWindows.test_deterministic_bytes_separate_new_outputs_input_dict_unchanged) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 12,
+        "text": "test_exact_pair_hashes_and_no_extra_files (__main__.PublicationWindows.test_exact_pair_hashes_and_no_extra_files) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 13,
+        "text": "test_exclusive_create_collision_preserves_unowned_stage_file (__main__.PublicationWindows.test_exclusive_create_collision_preserves_unowned_stage_file) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 14,
+        "text": "test_existing_empty_directory_refuses (__main__.PublicationWindows.test_existing_empty_directory_refuses) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 15,
+        "text": "test_existing_file_refuses_bytes_unchanged (__main__.PublicationWindows.test_existing_file_refuses_bytes_unchanged) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 16,
+        "text": "test_existing_junction_refuses_without_target_mutation (__main__.PublicationWindows.test_existing_junction_refuses_without_target_mutation) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 17,
+        "text": "test_existing_symlink_and_broken_symlink_refuse (__main__.PublicationWindows.test_existing_symlink_and_broken_symlink_refuse) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 18,
+        "text": "test_file_identity_substitution_after_readback_refuses_publication (__main__.PublicationWindows.test_file_identity_substitution_after_readback_refuses_publication) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 19,
+        "text": "test_file_identity_substitution_preserved_on_cleanup (__main__.PublicationWindows.test_file_identity_substitution_preserved_on_cleanup) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 20,
+        "text": "test_fsync_both_files_errors_clean_owned_stage (__main__.PublicationWindows.test_fsync_both_files_errors_clean_owned_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 21,
+        "text": "test_junction_ancestor_refuses_before_stage (__main__.PublicationWindows.test_junction_ancestor_refuses_before_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 22,
+        "text": "test_missing_parent_is_not_created (__main__.PublicationWindows.test_missing_parent_is_not_created) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 23,
+        "text": "test_pair_open_errors_clean_owned_stage (__main__.PublicationWindows.test_pair_open_errors_clean_owned_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 24,
+        "text": "test_pair_read_and_hash_errors_clean_owned_stage (__main__.PublicationWindows.test_pair_read_and_hash_errors_clean_owned_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 25,
+        "text": "test_pair_write_partial_zero_and_flush_errors_clean_owned_stage (__main__.PublicationWindows.test_pair_write_partial_zero_and_flush_errors_clean_owned_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 26,
+        "text": "test_parent_identity_substitution_before_publish_preserves_stage_evidence (__main__.PublicationWindows.test_parent_identity_substitution_before_publish_preserves_stage_evidence) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 27,
+        "text": "test_parent_identity_substitution_before_stage_refuses_without_writing (__main__.PublicationWindows.test_parent_identity_substitution_before_stage_refuses_without_writing) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 28,
+        "text": "test_parent_replaced_with_junction_before_publish_preserves_victim (__main__.PublicationWindows.test_parent_replaced_with_junction_before_publish_preserves_victim) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 29,
+        "text": "test_real_windows_rename_late_file_and_empty_directory_collisions (__main__.PublicationWindows.test_real_windows_rename_late_file_and_empty_directory_collisions) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 30,
+        "text": "test_real_windows_rename_late_junction_collision (__main__.PublicationWindows.test_real_windows_rename_late_junction_collision) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 31,
+        "text": "test_real_windows_rename_late_symlink_collision (__main__.PublicationWindows.test_real_windows_rename_late_symlink_collision) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 32,
+        "text": "test_rename_error_cleans_pair_and_no_published_output (__main__.PublicationWindows.test_rename_error_cleans_pair_and_no_published_output) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 33,
+        "text": "test_replay_identical_directory_always_refuses_preserving_identity_bytes (__main__.PublicationWindows.test_replay_identical_directory_always_refuses_preserving_identity_bytes) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 34,
+        "text": "test_short_writes_are_completed_for_both_files (__main__.PublicationWindows.test_short_writes_are_completed_for_both_files) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 35,
+        "text": "test_size_bound_is_inclusive_before_any_stage (__main__.PublicationWindows.test_size_bound_is_inclusive_before_any_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 36,
+        "text": "test_stage_create_failure_preserves_sentinel (__main__.PublicationWindows.test_stage_create_failure_preserves_sentinel) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 37,
+        "text": "test_stage_is_a_new_sibling_on_parent_volume_before_commit (__main__.PublicationWindows.test_stage_is_a_new_sibling_on_parent_volume_before_commit) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 38,
+        "text": "test_stage_substitution_before_publish_does_not_delete_replacement (__main__.PublicationWindows.test_stage_substitution_before_publish_does_not_delete_replacement) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 39,
+        "text": "test_staged_hardlink_refuses_and_cleanup_does_not_delete_evidence (__main__.PublicationWindows.test_staged_hardlink_refuses_and_cleanup_does_not_delete_evidence) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 40,
+        "text": "test_symlink_ancestor_refuses_before_stage (__main__.PublicationWindows.test_symlink_ancestor_refuses_before_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 41,
+        "text": "test_truncated_readback_refuses_and_cleans_owned_stage (__main__.PublicationWindows.test_truncated_readback_refuses_and_cleans_owned_stage) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 42,
+        "text": "test_unexpected_stage_entry_preserved_no_recursive_cleanup (__main__.PublicationWindows.test_unexpected_stage_entry_preserved_no_recursive_cleanup) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 43,
+        "text": "test_zero_length_is_valid_bytes_not_geometry_acceptance (__main__.PublicationWindows.test_zero_length_is_valid_bytes_not_geometry_acceptance) ... ok"
+      }
+    ],
+    "observed_counts_not_totals": [
+      {
+        "stream": "stderr",
+        "line": 47,
+        "kind": "unittest_ran",
+        "value": 42
+      }
+    ],
+    "interpretation": "Literal observations only; no assertion/coverage/acceptance inference."
+  },
+  "disposition": "EXECUTED_REQUIRES_REVIEW",
+  "acceptance": "NOT_ASSESSED"
+}

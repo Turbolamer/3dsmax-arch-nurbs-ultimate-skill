@@ -19,7 +19,7 @@
 | Stage · Input | **S2** — the second build stage (`PLAN.md` §4 row P3) · `specs/pipeline/dimensions.json`, plus `assumptions.json` and `conflicts_resolved.json` |
 | Output | `massing.json` (`07` §8.1) and the builder's `massing.ms`, then the nodes that script creates |
 | Geometry produced | Site pad · plinth · one slab per storey · one column per grid intersection per storey · core walls per spanned storey · roof deck · parapet · one `Dummy` per group |
-| 3ds Max calls | Exactly one: run the emitted script, read back, clean up (§7). **No probes** (§1.2) |
+| 3ds Max calls | Run the emitted script, read back and perform exact-owned cleanup (§7). Necessary calibrated probes may be assigned under §1.2 |
 | Consumer · Precondition | S3 (`agents/max-nurbs.md`), and through it S4a/S4b → S5, which is **the last stage** · S1 complete and locked (`01` §4) |
 | Blocked by | A `draft` `dimensions.json`. Full stop (§2.2) |
 | Findings | See `agents/max-orchestrator.md` §6.2. If this session produced a real finding — a measured bbox outside `tolerances.linear_cm`, a building element no `kind` expresses, or a `dimensions.json` value that is legal but wrong for this building — record it in `<project>/IMPROVEMENTS.md`. **A session with no findings writes nothing and creates no file.** Format: `references/improvement-log.md` |
@@ -37,26 +37,31 @@ and lift shafts are **not** massing elements at S2.
 | **Never** built by S2 | Consumed by | Correct instrument |
 |---|---|---|
 | Facade panels, glazing, mullions, spandrels, reveals, doors | **S4a / S5** | `facade_grids.json`, `components_registry.json`, `assembly.json` |
-| Openings cut into slabs or walls | **S5** | `assembly.json`'s `wall_cells[]`. S2 does **not** boolean the openings out of a slab — a slab is a slab. **CORRECTED (2026-10-06):** this cell used to name `assembly.json.cuts`, which is not the key. The Boolean modifier cannot be made to cut anything in this build, so S5 tiles each `facade_wall` into **solid cells** instead (`agents/max-assembly.md` §6.2.1) |
+| Openings cut into slabs or walls | **S4w / S5** | In default route `closed_inner_contour_shell_v2`, S4w (`wall_surface.ms`) excises openings from the continuous perimeter surface and S5 mounts assemblies via manifest with Mechanism A host wall hiding (`host_node.isHidden = true`). In legacy route `legacy_cells_v1`, S5 tiles walls into solid cells (`WAL_`). S2 does **not** boolean openings out of a slab — a slab is a slab. |
 | Materials, renderer choice, UVs | **nobody — S6 was cancelled 2026-10-05** | **Applied by hand by the user**; the hand-off is `agents/max-orchestrator.md` §5. `materials.json` is a **reserved stub**, not a deliverable and not a gate |
 | NURBS surfaces, lofts, sweeps, blends, curved roofs, stairs, ramps, lifts | **S3** | `nurbs.json`, `recipes/*.json` |
 | Beams, bracing, trusses, foundations | **S3/S5, after an engineer** | No `kind` produces them at S2 (`11` O-4) |
 | Layer **application** to objects | **nobody — permanently** *(current policy, not an impossibility — see the correction)* | Layer is **data** (`07` §8.1.3) and cannot be applied from this bridge by **any** of the **nine** ruled-out routes. **The user applies it in the Layer dialog**; `agents/max-assembly.md` §6.3 owns the wording. **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** the nine rejected routes remain rejected, exactly as measured — but **"permanently" is refuted**. Those nine are the **property-setter** routes and the typed tool's action vocabulary; a different route exists and works: **`ILayerProperties.addNode`** (`(LayerManager.getLayerFromName name).addNode node`, verified in Phase 14, `CHECKPOINT.md`). Read-only `node.layer` and a working layer-interface method are two different facts. **Whether this skill's builders should apply layers is a separate policy decision** (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) — it is not settled by this correction |
-| Scatter, planting, cameras, lights, export | **S5 for the scatter declaration; nobody for the rest** | **CORRECTED (2026-10-06):** this cell used to read `assembly.json.scatters`, `qa.json.captures`, `export.json`. **`scatters` is the wrong key** — the schema key is **`scatter`**, singular, and it is a **declaration** the user applies by hand. `qa.json` and `export.json` belong to the **cancelled** S7/S8 and are reserved stubs only |
+| Scatter, planting, cameras, lights, export | **S5 for scatter declaration; S7 QA verifies; nobody for export** | Schema key is **`scatter`**, singular, declaration only — S5 emits no scatter node and the **user applies it by hand**. S7 QA is active via `qa_check.py`. Export (S8) remains cancelled (`export.json` reserved stub). |
 
-### 1.2 The one-MCP rule
+### 1.2 Coordinated live execution and necessary probes
 
-**You may execute the emitted `massing.ms` and read state back. You may not probe.**
+**An authorized S2 worker may execute `massing.ms`, measure it and run necessary calibrated
+probes.** The former blanket probe ban is superseded by `agents/max-orchestrator.md` §1.1:
+obtain its single live-operator slot, use short sequential calls and preserve unrelated scene
+content. Do not reset/save unrelated state or manipulate the dirty flag. Inspect ownership before
+`fileIn`: legacy deletion-by-name is allowed only for proven-owned/disposable fixtures.
 
 | Allowed | Forbidden |
 |---|---|
-| `3dsmax-mcp_execute_maxscript` running `massing.ms`, or a short read-back of `node.min` / `node.max` / `node.width` | Any exploratory probe of your own — a class-existence question, a trial-and-error call |
+| `3dsmax-mcp_execute_maxscript` running `massing.ms`, short read-backs, and necessary probes with known-positive/bogus controls in the assigned operator slot | Uncoordinated live calls, uncontrolled trial-and-error mutations, or cleanup of unowned scene objects |
 | `3dsmax-mcp_get_scene_info` to confirm the scene holds nothing else | Every tool in `01` §1.2 — the forestPack / `tyflow_*` / RailClone group, and the Rhino-server names (`get_objects`, `analyze_objects`, `measure_objects`, `boolean_*`, `loft`, `sweep1`, `pipe`, every `gh_*`) |
 | `3dsmax-mcp_delete_objects` on what you created | **`geometry_qa`, `contact_check`, `scene_qa` do not exist.** A check naming one is a defect |
 | `3dsmax-mcp_manage_layers` actions `list` and `create` — the eight names in `07` §8.1.4, nothing else | **`3dsmax-mcp_manage_layers` **object assignment** — the action name is not "unknown", it **does not exist**: the vocabulary is **exactly `{list, create, delete}`**, 40+ candidates rejected, and eight further routes are ruled out (**nine total**). **The user applies layers in the Layer dialog** (`agents/max-assembly.md` §6.3). **Scope (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** this is a claim about the **typed tool's action vocabulary only** — it does **not** mean layer assignment is impossible from MAXScript, because `ILayerProperties.addNode` works |
 
-Executing an already-verified emitted script is **not** a probe (`01` §6). A fact not in
-`CHECKPOINT.md` §"Verified facts" is escalated for an orchestrator probe — never opened by S2.
+A recipe execution and a capability probe answer different questions; both may be assigned under
+§1.2. A fact absent from `CHECKPOINT.md` §"Verified facts" stays UNVERIFIED until calibrated live
+evidence exists. Coordinate the probe with the orchestrator rather than inventing the result.
 
 ---
 
@@ -226,7 +231,7 @@ the audit trail `G-36` protects — an element whose geometry no longer matches 
 
 ## 7. The 3ds Max step
 
-Only these facts are verified. Everything else is UNVERIFIED and needs an orchestrator probe.
+Only these facts are verified. Everything else is UNVERIFIED and needs a coordinated calibrated probe.
 
 | Fact | Status | Consequence |
 |---|---|---|
@@ -236,7 +241,7 @@ Only these facts are verified. Everything else is UNVERIFIED and needs an orches
 | Grouping uses `Dummy` + `node.parent = dummy`. `Dummy boxSize:` needs a **`point3`** — a float throws. `getChildren` **does not exist**; use the `dummy.children` property | ✅ verified 2026-10-04 | `parent_pivot_cm` is the dummy's pivot: the group's bbox centre in XY and its **minimum** Z, tol 0.5 (`11` D3) |
 | **An object's layer cannot be assigned from MAXScript at all.** Six routes executed, all throw `Property is read-only: layer`. Layer *creation* and *reading* do work | ✅ verified 2026-10-04, six transcripts — **SUPERSEDED (2026-10-27, `Audit/EVIDENCE_2026-10-27.md` §E-7):** "at all" is **refuted**. The six **property-setter** routes still fail as measured, but the layer interface method **`ILayerProperties.addNode` works** — `(LayerManager.getLayerFromName name).addNode node` assigns the node (verified in Phase 14, `CHECKPOINT.md`). Read-only `node.layer` ≠ no scripted assignment | **Layer stays data.** Nodes created at S2 sit wherever Max puts new geometry and that is expected — **not a defect, never "fixed" in the emitted script**. The builder emits no layer code by **policy** (`G-79`); the policy itself is settled separately (`Audit/AGENT_PLAN_poly_surface_shell.md` §I.4) |
 
-**UNVERIFIED — do not build on these without an orchestrator probe:** rotating a node after creation;
+**UNVERIFIED — do not build on these without a coordinated calibrated probe:** rotating a node after creation;
 any layer-assignment route outside the six rejected (**CORRECTED 2026-10-27,
 `Audit/EVIDENCE_2026-10-27.md` §E-7:** one such route is now verified — `ILayerProperties.addNode`);
 per-layer colour or render flags (`11` O-7);
@@ -317,7 +322,7 @@ Any of these is escalated, always — using `10`'s ladder `E1`…`E9` and `01` �
 | **A non-rectangular, rotated, or non-prismatic-in-Z footprint** (§6.3) | The builder refuses it by name; approximating it with a rectangle is a wrong model that validates, and `G-29` assumes prismatic | the user, via S1 |
 | **An industrial clear height above the `G-16` cap of 600 cm** | `levels[].height_cm` is capped 250…600 by `G-16`, so the storey is not expressible. `Audit/CHECKPOINT-archive-2026-10-28.md` §P2 records this as a **KNOWN LIMITATION**: widen `07`'s range with the change recorded — **never narrow the range to fit, never fake the height** | **S1** — S2 never edits `07` |
 | **Structural sizing** — column section, slab thickness beyond the documented defaults, core wall thickness, load paths, foundations | `09` §5 items 1–2: a licensed engineer's scope. A `low`-confidence proxy from S1 may be built; a better guess may not | the user (`E1`) |
-| **A P3-flagged `A-nnn` that would change the geometry**, or **any fact not in `CHECKPOINT.md` §"Verified facts"** | You are the recheck stage (§4 step 2). §1.2: S2 escalates for an orchestrator probe, it does not open one | the user, naming the `A-nnn`; the orchestrator |
+| **A P3-flagged `A-nnn` that would change the geometry**, or **any fact not in `CHECKPOINT.md` §"Verified facts"** | You are the recheck stage (§4 step 2). Design changes still need their owner/user; necessary capability probes may be assigned to S2 under §1.2 | the user, naming the `A-nnn`; the orchestrator for live scheduling |
 
 ### 10.2 How to ask, and the draft path
 
@@ -357,8 +362,9 @@ non-existent or unsatisfiable without a transcript showing the attempt and the e
 You are a worker with a small budget; the main thread is the scarce resource (`AGENTS.md`
 §"Context budget", `01` §6). **Read `07` §8.1 and §9.6 once** and **`dimensions.json` once**, end to end
 — never re-read 948 lines of grammar to settle one Z rule. **Compute, don't transcribe.** **One bridge
-call per batch**: read-backs in one `execute_maxscript`, cleanup with the creating call. **Never
-probe.** **No bulk dumps in the final message**; never read another agent's transcript.
+call per bounded batch**: short read-backs, exact-owned temporary cleanup preferably in the
+creating call. **Coordinate necessary probes under §1.2.** **No bulk dumps in the final message**;
+never read another agent's transcript.
 
 ---
 

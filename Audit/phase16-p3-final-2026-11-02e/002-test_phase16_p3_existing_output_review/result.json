@@ -1,0 +1,94 @@
+{
+  "test": "Audit/test_phase16_p3_existing_output_review.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\test_phase16_p3_existing_output_review.py"
+  ],
+  "cwd": "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill",
+  "started_utc": "2026-11-02T21:25:26.264260+00:00",
+  "ended_utc": "2026-11-02T21:25:33.260543+00:00",
+  "seconds": 6.996267,
+  "returncode": 0,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 3725,
+    "sha256": "a658829a233a767e18626c259f96c5118573a46d74f829f1c709a0fc41f22989"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 927,
+    "sha256": "db41a27f273083d507688ee880f379f0bccd49a3bc61c89c37d19de6f3ed3253"
+  },
+  "source_drift": [],
+  "baseline_problems": [],
+  "observations": {
+    "summary_lines": [
+      {
+        "stream": "stdout",
+        "line": 2,
+        "text": "EXISTING_OUTPUT_REVIEW_DRIFT []"
+      },
+      {
+        "stream": "stderr",
+        "line": 10,
+        "text": "Ran 7 tests in 6.901s"
+      },
+      {
+        "stream": "stderr",
+        "line": 12,
+        "text": "OK"
+      }
+    ],
+    "qualifier_lines": [],
+    "test_lines": [
+      {
+        "stream": "stderr",
+        "line": 1,
+        "text": "test_clean_positive_actual_cli_each_boundary_and_late_hook (__main__.ExistingOutputReview.test_clean_positive_actual_cli_each_boundary_and_late_hook) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 2,
+        "text": "test_initial_contradictory_pair (__main__.ExistingOutputReview.test_initial_contradictory_pair) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 3,
+        "text": "test_initial_json_alone (__main__.ExistingOutputReview.test_initial_json_alone) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 4,
+        "text": "test_initial_ms_alone (__main__.ExistingOutputReview.test_initial_ms_alone) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 5,
+        "text": "test_late_contradictory_pair_after_real_generation (__main__.ExistingOutputReview.test_late_contradictory_pair_after_real_generation) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 6,
+        "text": "test_late_json_alone_after_real_generation (__main__.ExistingOutputReview.test_late_json_alone_after_real_generation) ... ok"
+      },
+      {
+        "stream": "stderr",
+        "line": 7,
+        "text": "test_late_ms_alone_after_real_generation (__main__.ExistingOutputReview.test_late_ms_alone_after_real_generation) ... ok"
+      }
+    ],
+    "observed_counts_not_totals": [
+      {
+        "stream": "stderr",
+        "line": 10,
+        "kind": "unittest_ran",
+        "value": 7
+      }
+    ],
+    "interpretation": "Literal observations only; no assertion/coverage/acceptance inference."
+  },
+  "disposition": "EXECUTED_REQUIRES_REVIEW",
+  "acceptance": "NOT_ASSESSED"
+}

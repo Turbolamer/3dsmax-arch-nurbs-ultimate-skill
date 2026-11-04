@@ -1,0 +1,55 @@
+{
+  "test": "Audit/phase16-p3-data-hardening-2026-11-03g/test_data_hardening.py",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\Rhino\\3dsmax-arch-nurbs-ultimate-skill\\Audit\\phase16-p3-data-hardening-2026-11-03g\\test_data_hardening.py"
+  ],
+  "started_utc": "2026-11-04T08:14:02.287157+00:00",
+  "ended_utc": "2026-11-04T08:14:02.391661+00:00",
+  "seconds": 0.104514,
+  "returncode": 1,
+  "execution_error": null,
+  "stdout": {
+    "path": "stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "stderr.log",
+    "bytes": 3036,
+    "sha256": "36eb082d874fc0f4be80c44b1c33f09d2c0002049caeea6f70c66b03be01ccc2"
+  },
+  "observations": {
+    "ran": [
+      {
+        "stream": "stderr",
+        "line": 30,
+        "text": "Ran 15 tests in 0.017s",
+        "count": 15
+      }
+    ],
+    "ok_summaries": [],
+    "prohibited_or_failed": [
+      {
+        "stream": "stderr",
+        "line": 18,
+        "text": "FAIL: test_precreate_replay_and_cleanup_tail_unchanged (__main__.SourceChecks.test_precreate_replay_and_cleanup_tail_unchanged)"
+      },
+      {
+        "stream": "stderr",
+        "line": 32,
+        "text": "FAILED (failures=1)"
+      }
+    ],
+    "qualifier_metadata": [],
+    "issues": [
+      "expected exactly one unittest OK summary",
+      "skip/xfail/unexpected-success/failure or ambiguous outcome observed"
+    ],
+    "status": "REFUSED"
+  },
+  "acceptance": "NOT_ASSESSED",
+  "source_drift": [],
+  "baseline_problems": []
+}

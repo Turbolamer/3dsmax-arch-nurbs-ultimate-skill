@@ -1,0 +1,120 @@
+"""Explicitly invoked offline review checks; not a MAXScript interpreter.
+
+The .disabled extension prevents automatic test discovery.  Observational tests
+that show the model's limits are not protective passes for the Max runtime.
+"""
+
+from dataclasses import replace
+import importlib.util
+from pathlib import Path
+import re
+import sys
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[2]
+CANDIDATE = ROOT / "Audit" / "phase16-p3-lease-next-2026-11-03f"
+spec = importlib.util.spec_from_file_location(
+    "independent_review_witness_model", CANDIDATE / "test_witness_model.py"
+)
+model = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = model
+spec.loader.exec_module(model)
+
+
+class ModelBoundaries(unittest.TestCase):
+    def test_positive_and_registry_replacement_control(self):
+        f = model.new_fixture()
+        self.assertEqual(model.call_guarded(f), "UNVERIFIED_NEEDS_INDEPENDENT_POST_INSPECTION")
+        old = f.sentinel
+        f.registry.wall = model.Lease(list(f.original_values))
+        self.assertEqual(model.call_guarded(f), "INCOMPLETE_BEFORE_DELEGATE")
+        self.assertEqual(f.sentinel, old)
+
+    def test_same_anchor_object_with_retargeted_witness_field_is_not_a_root(self):
+        f = model.new_fixture()
+        anchor = f.original_anchor
+        replacement_witness = replace(f.original_witness)
+        anchor.witness = replacement_witness
+        f.registry.witness = replacement_witness
+        self.assertIs(f.registry.anchor, anchor)
+        self.assertIsNot(f.registry.witness, f.original_witness)
+        self.assertEqual(model.call_guarded(f), "UNVERIFIED_NEEDS_INDEPENDENT_POST_INSPECTION")
+
+    def test_same_two_holder_objects_with_retargeted_fields_are_not_a_root(self):
+        f = model.new_fixture()
+        new_values = list(f.original_values)
+        replacement_lease = model.Lease(new_values)
+        f.original_witness.lease = replacement_lease
+        f.original_anchor.lease = replacement_lease
+        f.original_witness.values = new_values
+        f.original_anchor.values = new_values
+        f.registry.wall = replacement_lease
+        self.assertIs(f.registry.witness, f.original_witness)
+        self.assertIs(f.registry.anchor, f.original_anchor)
+        self.assertIsNot(f.registry.wall, f.original)
+        self.assertEqual(model.call_guarded(f), "UNVERIFIED_NEEDS_INDEPENDENT_POST_INSPECTION")
+
+    def test_timeout_no_retry_depends_on_external_orchestration(self):
+        f = model.new_fixture()
+
+        def simulated_timeout(_):
+            raise TimeoutError("modeled only; not a Max/transport timeout")
+
+        self.assertEqual(model.call_guarded(f, delegate=simulated_timeout), "INCOMPLETE_AFTER_DELEGATE")
+        self.assertEqual(model.call_guarded(f), "UNVERIFIED_NEEDS_INDEPENDENT_POST_INSPECTION")
+        self.assertEqual(f.sentinel, 2)
+
+    def test_model_does_not_check_approved_absolute_post_dirty(self):
+        f = model.new_fixture()
+
+        def create_with_wrong_dirty(x):
+            x.original_values[4] = "PROVISIONAL_REVIEWED"
+            x.original_values[7] = object()
+            x.original_values[9] = True
+            x.scene.dirty = True
+            x.scene.object_count = 1
+
+        self.assertFalse(f.expected.dirty)
+        self.assertEqual(model.call_guarded(f, delegate=create_with_wrong_dirty, creation=True),
+                         "UNVERIFIED_NEEDS_INDEPENDENT_POST_INSPECTION")
+        source = (CANDIDATE / "03-held-guarded-call.ms").read_text(encoding="utf-8")
+        self.assertIn("(getSaveRequired()) != expectedPostDirty or vals[10] != expectedPostDirty", source)
+
+    def test_model_does_not_check_post_environment_contents(self):
+        f = model.new_fixture()
+        self.assertEqual(model.call_guarded(f, delegate=lambda x: x.original_values[6].__setitem__(1, "changed")),
+                         "UNVERIFIED_NEEDS_INDEPENDENT_POST_INSPECTION")
+        source = (CANDIDATE / "03-held-guarded-call.ms").read_text(encoding="utf-8")
+        self.assertIn('env[2] != ""', source[source.index("if delegated do"):])
+
+
+class SourceBoundaries(unittest.TestCase):
+    def test_current_generated_arm_still_has_exception_removal_branch(self):
+        source = (ROOT / "scripts" / "wall_surface_runtime.py").read_text(encoding="utf-8")
+        arm = source[source.index("def generate_arm_script("):source.index("_RUNTIME =")]
+        self.assertIn("catch\n    (", arm)
+        self.assertIn("globalVars.remove registryKey", arm)
+        self.assertIn("if globalVars.isGlobal registryKey then cleanupStatus", arm)
+
+    def test_candidate_requires_external_historical_key_inequality_check(self):
+        source = (CANDIDATE / "02-arm-witness.ms").read_text(encoding="utf-8")
+        old = "__P3W_2a27162292203d7e9f982ae655c3a5b20af18a9044b039a105222a09bdf7eff7"
+        self.assertIn("globalVars.isGlobal #" + old, source)
+        self.assertNotRegex(source, r"registryKey\s*(?:==|!=)\s*#?" + old)
+        self.assertNotRegex(source, r"#?" + old + r"\s*(?:==|!=)\s*registryKey")
+
+    def test_precreate_and_replay_refusals_and_candidate_exclusions(self):
+        runtime = (ROOT / "scripts" / "wall_surface_runtime.py").read_text(encoding="utf-8")
+        entry = runtime[runtime.index('require (globalVars.isGlobal registryKey)'):]
+        self.assertLess(entry.index('require false "INCOMPLETE_PRECREATE:'), entry.index('lease[5] = "BUILDING"'))
+        self.assertLess(entry.index('require false "INCOMPLETE_REPLAY:'), entry.index('stage = "pre-create"'))
+        guard = (CANDIDATE / "03-held-guarded-call.ms").read_text(encoding="utf-8")
+        for state in ("ARMED", "BUILDING", "COMMITTED", "POISONED"):
+            self.assertIn('expectedProvisionalState == "' + state + '"', guard)
+        for file in ("02-arm-witness.ms", "03-held-guarded-call.ms", "04-outer-dispatch.ms"):
+            self.assertIn('throw "P16_TEMPLATE_DISABLED', (CANDIDATE / file).read_text(encoding="utf-8"))
+
+
+if __name__ == "__main__":
+    unittest.main()

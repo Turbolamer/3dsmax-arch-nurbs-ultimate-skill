@@ -1,0 +1,26 @@
+{
+  "entry": {
+    "tool": "3dsmax-mcp_execute_maxscript",
+    "wire": "ENTRY|nodes=0|selection=0|units=millimeters|scale=1.0|dirty=true|path=",
+    "request_id": "df57ec3f64604857bbf744e9b030c823"
+  },
+  "shell_property_control": {
+    "tool": "3dsmax-mcp_execute_maxscript",
+    "code": "(local sh=Shell(); local out=\"SHELL\"; for p in #(#innerAmount,#outerAmount,#straightenCorners,#overrideMatID,#matID,#overrideInnerMatID,#matInnerID,#overrideOuterMatID,#matOuterID,#overrideEdgeMatID,#matEdgeID,#autoSmooth,#BogusPropertyV2) do (out += \"|\"+(p as string)+\"=\"+((isProperty sh p) as string)); out)",
+    "wire": "SHELL|innerAmount=true|outerAmount=true|straightenCorners=true|overrideMatID=true|matID=true|overrideInnerMatID=true|matInnerID=true|overrideOuterMatID=true|matOuterID=true|overrideEdgeMatID=false|matEdgeID=false|autosmooth=true|BogusPropertyV2=false",
+    "request_id": "25f6992d39cb44dbb240ddb55f0f0aef"
+  },
+  "retained_demo_build": {
+    "tool": "3dsmax-mcp_execute_maxscript",
+    "file": "display_rectangle_openings.ms",
+    "wire": "CASE|id=rectangle_openings|baseFaces=43|mods=1|straight=true|normal1=[0,-1,0]|open=0|badValence=0|degenerate=0|volume=1.7022d+07|min=[-30,-30,0]|max=[630,430,300]|triangles=248|before=0|after=2",
+    "request_id": "16636c3985a443149bbef8a9e865be41"
+  },
+  "retained_demo_framing": {
+    "tool": "3dsmax-mcp_execute_maxscript",
+    "code": "(local n=getNodeByName \"CCSV2_DEMO_rectangle_openings\"; select n; max zoomext sel; redrawViews(); \"DISPLAY|name=\"+n.name+\"|nodes=\"+(objects.count as string)+\"|units=\"+(units.SystemType as string)+\"|Shell_outer=\"+(n.modifiers[1].outerAmount as string))",
+    "wire": "DISPLAY|name=CCSV2_DEMO_rectangle_openings|nodes=2|units=millimeters|Shell_outer=300.0",
+    "request_id": "b398bcd69a9748218c7cbf517799b612"
+  },
+  "note": "Captured strings are copied from actual tool responses. No subsequent scene inspection is asserted; user may edit the retained specimen. capture_viewport succeeded afterward but its image alone is not visual acceptance."
+}

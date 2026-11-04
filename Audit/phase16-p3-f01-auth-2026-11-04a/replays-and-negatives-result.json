@@ -1,0 +1,58 @@
+{
+  "scope": "Execution of 3 clean NOOP replays and targeted negative controls for authentic F01 in 3ds Max 2026.3.2",
+  "recorded_at": "2026-11-04T11:26:12+03:00",
+  "node_name": "P3_F01_AUTH__wall",
+  "identity": "5805cec304792f3f9f457e553cf82d2fcffc9bf07d876e804144e5cf4449c320",
+  "replays": [
+    {
+      "attempt": 1,
+      "result": "P3_REPLAY_NOOP|identity=5805cec304792f3f9f457e553cf82d2fcffc9bf07d876e804144e5cf4449c320|handle=3044P|status=VERIFIED_NOOP",
+      "status": "PASS"
+    },
+    {
+      "attempt": 2,
+      "result": "P3_REPLAY_NOOP|identity=5805cec304792f3f9f457e553cf82d2fcffc9bf07d876e804144e5cf4449c320|handle=3044P|status=VERIFIED_NOOP",
+      "status": "PASS"
+    },
+    {
+      "attempt": 3,
+      "result": "P3_REPLAY_NOOP|identity=5805cec304792f3f9f457e553cf82d2fcffc9bf07d876e804144e5cf4449c320|handle=3044P|status=VERIFIED_NOOP",
+      "status": "PASS"
+    }
+  ],
+  "negative_controls": [
+    {
+      "name": "stack_tampering",
+      "mutation": "Modified Shell outerAmount from 300.0 to 350.0",
+      "outcome": "REFUSED with P3_REFUSE|Shell parameter edit; restored successfully with VERIFIED_NOOP"
+    },
+    {
+      "name": "geometry_tampering",
+      "mutation": "Moved vertex 1 on baseObject by [10, 0, 0]",
+      "outcome": "REFUSED with P3_REFUSE|replay baseline mismatch: node or stack was modified; detected internal vertex dirty bitmask change"
+    },
+    {
+      "name": "census_collision",
+      "mutation": "Created foreign Box in scene",
+      "outcome": "REFUSED with P3_REFUSE|scene census changed; collisions/dependencies are not owned; foreign node cleaned up"
+    },
+    {
+      "name": "forbidden_normal_modifier",
+      "mutation": "Added Edit_Normals modifier to wall stack",
+      "outcome": "REFUSED with P3_REFUSE|stack mismatch; modifier removed"
+    }
+  ],
+  "final_postcheck": {
+    "wall_deleted": true,
+    "objects_count": 0,
+    "selection_count": 0,
+    "dirty": true,
+    "path": "",
+    "file": "",
+    "units": "millimeters",
+    "scale": 1.0,
+    "layers_count": 1,
+    "layer_0_nodes": 0,
+    "main03_key_present": false
+  }
+}

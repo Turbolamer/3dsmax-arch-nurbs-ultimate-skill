@@ -1,0 +1,23 @@
+{
+  "scope": "Main-only partial read-only examination of the current empty default layer; not full graph classification, candidate execution, baseline, replay or acceptance",
+  "script": "Audit/phase16-p3-main-probes-2026-11-03g/layer-zero-readonly.ms",
+  "script_sha256_before_and_after_fileIn": "2a729d49cad0534fa76bb49b399c970ca1d92226a63eb727d9282ec95f1922eb",
+  "script_bytes": 4827,
+  "wire": {
+    "ok": true,
+    "result": "P3G_LAYER_ZERO_READONLY|backingClass=Base_LayerBase_Layer|backingHandle=48P|sameBacking=true|interfaceCount=33|backingCount=34|giCount=18|degradeBackingOnly=true|backingOutgoingCount=0|dependentCount=2|dep1=Layer_Manager;isRoot=false;handle=46P;roundtrip=true;error=|dep2=Scene;isRoot=false;handle=36P;roundtrip=true;error=|outcome=PARTIAL_OBSERVATION_INCOMPLETE|postContextAndExactBackingUnchanged=true|objectsAfter=0|selectionAfter=0|dirtyAfter=true",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "fdfe84618a01434b8135de69ebaf6309", "protocol_version": 2, "client_round_trip_ms": 1.671, "fallback_error": null},
+    "elapsed_ms": 1.695
+  },
+  "separate_postcheck": {
+    "ok": true,
+    "result": "P3G_AFTER_LAYER_READONLY|objects=0|selection=0|path=|file=|units=millimeters|scale=1.0|dirty=true|layers=1|layer=0;backing=48P;membersOK=true;members=0;numNodes=0|oldKey=false",
+    "warnings": [],
+    "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "650fc817c7404dfd9c0902cc5bfbc746", "protocol_version": 2, "client_round_trip_ms": 0.599, "fallback_error": null},
+    "elapsed_ms": 0.618
+  },
+  "interpretation": "For the existing empty default layer, local exact backing/handle roundtrip and counts 33/34/18 including backing-only degrade were reobserved, with complete empty node/selection and member counts. Two backing dependents were observed: class Layer_Manager handle 46P and class Scene handle 36P; neither compared equal to the saved rootNode in this call and each reported a handle roundtrip. The endpoint census, exact default backing, unit/dirty and other selected context reads matched before/after; the separate read-only postcheck also reported zero objects, zero selected and zero default-layer members. This does not prove complete layer state, all dependencies, unchanged history, a manager-to-LayerManager identity relationship, or behavior with a member node. The old read-only evidence printed $<rootScene> for a dependent but did not check its exact equality with rootNode. The offline reader candidates demand the exact supplied rootNode as one backing dependent; if the populated-layer dependent set retains this empty-layer shape, they will conservatively refuse. That conditional consequence has not been verified by running either candidate. Never replace the check with a class/name/handle-only whitelist. Hashes were compared outside Max before/after but no immutable file lock was held."
+}

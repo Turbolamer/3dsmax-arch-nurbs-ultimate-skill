@@ -1,0 +1,13 @@
+{
+  "kind": "MODIFIED_CALIBRATION_NOT_CANONICAL_FULL_PREFLIGHT",
+  "script": "Audit/phase16-p3-preflight-2026-11-02e/modified/01_native_units_readonly.ms",
+  "call": "fileIn D:/Rhino/3dsmax-arch-nurbs-ultimate-skill/Audit/phase16-p3-preflight-2026-11-02e/modified/01_native_units_readonly.ms",
+  "wire": {
+    "ok": true,
+    "result": "MODIFIED_CALIBRATION|native_units_readonly|guard=ok|unitOk=true|unchanged=true|SystemType=millimeters SystemScale=1.0|c_cm_per_scene=0.1|f_scene_per_cm=10.0|decode_1cm=10.0|decode_10mm=10.0|decode_1mm=1.0",
+    "warnings": [], "error": null,
+    "transport": {"transport": "namedpipe", "requested_transport": "auto", "request_id": "588d5377d6bc43f48741aae45b293922", "protocol_version": 2, "client_round_trip_ms": 7.659, "fallback_error": null},
+    "elapsed_ms": 7.687
+  },
+  "verdict": "Tested native-mm/1 conversion agrees with independently parsed 1cm/10mm/1mm; observed state unchanged. Does not claim full env_preflight 10/10, unsupported unit scenes, produced poly QA or runtime unit mismatch guards."
+}

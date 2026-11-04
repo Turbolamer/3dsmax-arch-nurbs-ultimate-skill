@@ -1,0 +1,20 @@
+
+Frozen source SHA-256: init_project.py=42401725a42271b1c45dbeabed22bb76b73587e7b85e9fe970801b606092eb88, validate_specs.py=616050417380f587fb210e30761df6e025bb5433a2210576018953e67dd9716f, curve_gen.py=4e304cfe558988b9a4d285df57ea34668ec9352f68bb18a83bab10a63208b55c, wall_cell_coverage.py=d8d1e930808465f3340e2ed2e4cc04e45b46d033cc14ebc57ecb66a61b6ece4e
+test_each_source_identity_mismatch_refused_without_any_output (__main__.ScaffoldSafety.test_each_source_identity_mismatch_refused_without_any_output) ... ok
+test_existing_output_blocks_same_route_or_orphan_scaffold (__main__.ScaffoldSafety.test_existing_output_blocks_same_route_or_orphan_scaffold) ... ok
+test_explicit_seed_numeric_policy_and_documented_validator_difference (__main__.ScaffoldSafety.test_explicit_seed_numeric_policy_and_documented_validator_difference) ... ok
+test_explicit_seed_same_project_preserves_every_source_object (__main__.ScaffoldSafety.test_explicit_seed_same_project_preserves_every_source_object) ... ok
+test_force_never_switches_routes_or_removes_stale_artifacts (__main__.ScaffoldSafety.test_force_never_switches_routes_or_removes_stale_artifacts) ... ok
+test_force_refuses_changed_or_unverifiable_walls (__main__.ScaffoldSafety.test_force_refuses_changed_or_unverifiable_walls) ... ok
+test_force_refuses_seeded_wall_even_if_its_manifest_lists_it (__main__.ScaffoldSafety.test_force_refuses_seeded_wall_even_if_its_manifest_lists_it) ... ok
+test_legacy_no_selector_seed_unchanged (__main__.ScaffoldSafety.test_legacy_no_selector_seed_unchanged) ... ok
+test_lossy_numeric_token_in_each_seed_is_refused_before_write (__main__.ScaffoldSafety.test_lossy_numeric_token_in_each_seed_is_refused_before_write) ... ok
+test_mismatch_with_force_preserves_existing_project_and_sentinels (__main__.ScaffoldSafety.test_mismatch_with_force_preserves_existing_project_and_sentinels) ... ok
+test_missing_invalid_or_duplicate_project_refused (__main__.ScaffoldSafety.test_missing_invalid_or_duplicate_project_refused) ... ok
+test_partial_io_failure_reports_preserved_files_not_false_force_recovery (__main__.ScaffoldSafety.test_partial_io_failure_reports_preserved_files_not_false_force_recovery) ... ok
+test_unchanged_wall_scaffold_force_is_allowed_but_no_force_is_refused (__main__.ScaffoldSafety.test_unchanged_wall_scaffold_force_is_allowed_but_no_force_is_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 32.270s
+
+OK
